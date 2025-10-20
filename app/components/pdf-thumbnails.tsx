@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { usePDFStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import type * as PDFJS from "pdfjs-dist";
 
-let pdfjsLib: any = null;
+let pdfjsLib: typeof PDFJS | null = null;
 
 async function initPdfJs() {
   if (pdfjsLib) return pdfjsLib;
@@ -17,8 +18,8 @@ async function initPdfJs() {
 
 export function PDFThumbnails() {
   const { currentPage, setCurrentPage, pdfFile, totalPages } = usePDFStore();
+  const [, setIsLoading] = useState(false);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!pdfFile || totalPages === 0) return;
@@ -67,7 +68,13 @@ export function PDFThumbnails() {
             currentPage === index ? "border-blue-600 shadow-md" : "border-gray-200"
           )}
         >
-          <Image src={thumb || "/placeholder.svg"} alt={`Page ${index + 1}`} className="w-full" width={120} height={160} />
+          <Image
+            src={thumb || "/placeholder.svg"}
+            alt={`Page ${index + 1}`}
+            className="w-full"
+            width={120}
+            height={160}
+          />
           <span className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
             {index + 1}
           </span>

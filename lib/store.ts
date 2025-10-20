@@ -59,5 +59,16 @@ export const usePDFStore = create<PDFEditorStore>((set, get) => ({
       totalPages: 0,
       annotations: [],
       selectedAnnotation: null,
+      addAnnotation: (annotation: TextAnnotation) => set((state) => ({
+        annotations: [...state.annotations, annotation]
+      })),
+      updateAnnotation: (id: string, patch: Partial<TextAnnotation>) => set((state) => ({
+        annotations: state.annotations.map(ann => 
+          ann.id === id ? { ...ann, ...patch } : ann
+        )
+      })),
+      deleteAnnotation: (id: string) => set((state) => ({
+        annotations: state.annotations.filter(ann => ann.id !== id)
+      })),
     }),
 }));

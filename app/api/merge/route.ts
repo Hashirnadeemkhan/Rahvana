@@ -48,7 +48,9 @@ export async function POST(req: Request) {
     }
 
     const mergedPdfBytes = await mergedPdf.save();
-    return new NextResponse(mergedPdfBytes, {
+    // Use the Uint8Array (or a Node Buffer) directly to avoid ArrayBuffer | SharedArrayBuffer typing issues
+    const fileBuffer = Buffer.from(mergedPdfBytes);
+    return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": 'attachment; filename="merged.pdf"',

@@ -7,7 +7,7 @@ import { loadPDF } from "@/lib/pdf-utils"
 import { Button } from "@/components/ui/button"
 import { Upload } from "lucide-react"
 
-let pdfjsLib: any = null
+let pdfjsLib: typeof import("pdfjs-dist") | null = null
 
 async function initPdfJs() {
   if (pdfjsLib) return pdfjsLib

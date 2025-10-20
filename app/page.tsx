@@ -1,5 +1,4 @@
 
-import { IRCategorySection } from "./components/ir/ir-item-row"
 
 
 
@@ -29,10 +28,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* IR Category Section */}
-        <section className="mt-10">
-          <IRCategorySection />
-        </section>
+      
 
         {/* Additional Info Section (Optional - adds visual balance) */}
         <section className="container mx-auto px-6 py-16 md:py-24">

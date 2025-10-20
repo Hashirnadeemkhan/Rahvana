@@ -1,56 +1,50 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { NextRequest, NextResponse } from 'next/server';
+import { PDFDocument } from 'pdf-lib';
 
-const execPromise = promisify(exec);
-
-export const runtime = "nodejs";
-
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
+    console.log('🚀 ULTRA SIMPLE COMPRESSION!');
 
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    const formData = await request.formData();
+    const file = formData.get('pdf') as File | null;
+
+    if (!file || file.type !== 'application/pdf' || file.size > 50 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Invalid PDF!' }, { status: 400 });
     }
 
-    // Create temporary paths
-    const uploadsDir = path.join(process.cwd(), "uploads");
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+    const originalSize = file.size;
+    console.log(`📄 Original: ${(originalSize / 1024 / 1024).toFixed(2)} MB`);
 
-    const inputPath = path.join(uploadsDir, file.name);
-    const outputPath = path.join(uploadsDir, "compressed_" + file.name);
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
 
-    // Save uploaded PDF
-    const buffer = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(inputPath, buffer);
+    // ✅ pdf-lib supported options only
+    const pdfBytes = await pdfDoc.save({
+      useObjectStreams: false,  // slight optimization
+      addDefaultPage: false,
+    });
 
-    // Run qpdf for compression (lossless)
-    const command = `qpdf --linearize "${inputPath}" "${outputPath}"`;
-    await execPromise(command);
+    const compressedSize = pdfBytes.length;
+    const reduction = ((1 - compressedSize / originalSize) * 100).toFixed(1);
 
-    // Read compressed file
-    const compressedBuffer = fs.readFileSync(outputPath);
+    console.log(`✅ COMPRESSED: ${(compressedSize / 1024 / 1024).toFixed(2)} MB`);
+    console.log(`🎯 REDUCTION: ${reduction}%`);
 
-    // Clean up
-    fs.unlinkSync(inputPath);
-    fs.unlinkSync(outputPath);
+    // ✅ Convert to Buffer for NextResponse
+    const buffer = Buffer.from(pdfBytes);
 
-    // Send compressed file to user
-    return new NextResponse(compressedBuffer, {
+    return new NextResponse(buffer, {
+      status: 200,
       headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="compressed.pdf"',
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="compressed-${reduction}%-${file.name}"`,
+        'Content-Length': compressedSize.toString(),
       },
     });
-  } catch (error: any) {
-    console.error("Compression failed:", error);
-    return NextResponse.json(
-      { error: "Failed to compress PDF" },
-      { status: 500 }
-    );
+
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ ERROR:', errMsg);
+    return NextResponse.json({ error: 'Compression failed!' }, { status: 500 });
   }
 }
