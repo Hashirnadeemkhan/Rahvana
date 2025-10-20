@@ -108,7 +108,7 @@ export function SiteHeader() {
                     onClick={(e) => e.preventDefault()}
                     className="flex items-center gap-1.5 font-medium bg-transparent text-gray-700 hover:text-primary hover:bg-primary/10 border-gray-300 data-[state=open]:bg-primary data-[state=open]:text-white transition-all group"
                   >
-                    SERVICE
+                    SERVICES
                     <ChevronDown className="h-3 w-3 group-data-[state=open]:rotate-180 transition-transform duration-200" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -211,7 +211,7 @@ export function SiteHeader() {
               size="sm"
               className="flex items-center gap-1.5 font-medium bg-transparent text-gray-700 border rounded-md px-3 py-2"
             >
-              SERVICE
+              SERVICES
               <ChevronDown className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>

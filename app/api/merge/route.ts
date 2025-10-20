@@ -1,22 +1,10 @@
 import { NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
-import { exec } from "child_process";
 import fs from "fs/promises";
 import path from "path";
 import os from "os";
 
 export const runtime = "nodejs";
-
-// Helper to unlock PDFs via qpdf before merging
-async function unlockPdf(filePath: string): Promise<string> {
-  const tempOut = path.join(os.tmpdir(), `unlocked-${Date.now()}.pdf`);
-  return new Promise((resolve, reject) => {
-    exec(`qpdf --decrypt "${filePath}" "${tempOut}"`, (err) => {
-      if (err) reject(err);
-      else resolve(tempOut);
-    });
-  });
-}
 
 export async function POST(req: Request) {
   try {
@@ -35,11 +23,10 @@ export async function POST(req: Request) {
       await fs.writeFile(tempInput, Buffer.from(arrayBuffer));
 
       try {
-        // Try unlocking first (handles encrypted PDFs)
-        const unlockedPath = await unlockPdf(tempInput);
-        const unlockedBuffer = await fs.readFile(unlockedPath);
-        const pdf = await PDFDocument.load(unlockedBuffer, { ignoreEncryption: true });
-
+        // Load and merge normal (non-encrypted) PDFs
+        const pdf = await PDFDocument.load(await fs.readFile(tempInput), {
+          ignoreEncryption: true,
+        });
         const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
         pages.forEach((p) => mergedPdf.addPage(p));
       } catch (err) {
@@ -48,8 +35,8 @@ export async function POST(req: Request) {
     }
 
     const mergedPdfBytes = await mergedPdf.save();
-    // Use the Uint8Array (or a Node Buffer) directly to avoid ArrayBuffer | SharedArrayBuffer typing issues
     const fileBuffer = Buffer.from(mergedPdfBytes);
+
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": "application/pdf",
