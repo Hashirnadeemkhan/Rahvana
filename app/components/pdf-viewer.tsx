@@ -5,13 +5,12 @@ import { usePDFStore } from "@/lib/store";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DraggableText from "./DraggableText";
+import DraggableSignature from "./signature-tool/DraggableSignature";
 
-// ✅ Import pdf.js types directly
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
 
 let pdfjsLib: typeof import("pdfjs-dist") | null = null;
 
-// 🧠 Initialize pdf.js (only once)
 async function initPdfJs() {
   if (pdfjsLib) return pdfjsLib;
   const pdfjs = await import("pdfjs-dist");
@@ -21,24 +20,35 @@ async function initPdfJs() {
 }
 
 type Annotation = {
-  id: string
-  pageIndex: number
-  text: string
-  x: number
-  y: number
-  fontSize: number
-  color: string
-}
+  id: string;
+  pageIndex: number;
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  color: string;
+};
 
+type SignatureAnnotation = {
+  id: string;
+  pageIndex: number;
+  image: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export function PDFViewer({
   activeTool,
   inputText,
   setInputText,
+  signature,
 }: {
-  activeTool: "text" | null;
+  activeTool: "text" | "signature" | null;
   inputText: string;
   setInputText: (text: string) => void;
+  signature: string | null;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
@@ -55,9 +65,13 @@ export function PDFViewer({
     addAnnotation,
     updateAnnotation,
     deleteAnnotation,
+    signatureAnnotations,
+    addSignatureAnnotation,
+    updateSignatureAnnotation,
+    deleteSignatureAnnotation,
   } = usePDFStore();
 
-  // 📦 Load the PDF only once when file changes
+  // Load the PDF
   useEffect(() => {
     if (!pdfFile) return;
 
@@ -70,7 +84,7 @@ export function PDFViewer({
     loadPdf();
   }, [pdfFile]);
 
-  // 🖼️ Render a specific page when page/scale changes
+  // Render a specific page
   useEffect(() => {
     if (!pdfDoc || !canvasRef.current) return;
 
@@ -94,7 +108,6 @@ export function PDFViewer({
         canvas.style.width = `${viewport.width}px`;
         canvas.style.height = `${viewport.height}px`;
 
-        // Cancel any previous render before starting a new one
         if (renderTask) renderTask.cancel();
 
         renderTask = page.render({ canvasContext: context, viewport });
@@ -118,10 +131,8 @@ export function PDFViewer({
     };
   }, [pdfDoc, currentPage, scale]);
 
-  // 🆕 Handle Text Placement on Click
+  // Handle click to place text or signature
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (activeTool !== "text" || !inputText.trim()) return;
-
     e.preventDefault();
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect || !canvasRef.current) return;
@@ -129,17 +140,28 @@ export function PDFViewer({
     const x = (e.clientX - rect.left) / scale;
     const y = (e.clientY - rect.top) / scale;
 
-    addAnnotation({
-      id: Date.now().toString(),
-      text: inputText,
-      x,
-      y,
-      fontSize: 12,
-      pageIndex: currentPage,
-      color: "#000000",
-    });
-
-    setInputText("");
+    if (activeTool === "text" && inputText.trim()) {
+      addAnnotation({
+        id: Date.now().toString(),
+        text: inputText,
+        x,
+        y,
+        fontSize: 12,
+        pageIndex: currentPage,
+        color: "#000000",
+      });
+      setInputText("");
+    } else if (activeTool === "signature" && signature) {
+      addSignatureAnnotation({
+        id: Date.now().toString(),
+        image: signature,
+        x,
+        y,
+        width: 80,
+        height: 40,
+        pageIndex: currentPage,
+      });
+    }
   };
 
   return (
@@ -188,7 +210,7 @@ export function PDFViewer({
         </div>
       </div>
 
-      {/* 🆕 Fixed PDF + Overlay Container */}
+      {/* PDF + Overlay Container */}
       <div className="flex-1 flex justify-center items-start overflow-auto bg-gray-100 p-4">
         {isLoading && <div className="text-gray-500">Loading page...</div>}
 
@@ -201,21 +223,31 @@ export function PDFViewer({
 
           <div
             className="absolute inset-0 z-10"
-            style={{ pointerEvents: activeTool === "text" ? "auto" : "none" }}
+            style={{ pointerEvents: activeTool === "text" || activeTool === "signature" ? "auto" : "none" }}
             onClick={handleOverlayClick}
           >
-           {annotations
-  .filter((ann: Annotation) => ann.pageIndex === currentPage)
-  .map((annotation: Annotation) => (
-    <DraggableText
-      key={annotation.id}
-      data={annotation}
-      onUpdate={updateAnnotation}
-      onDelete={deleteAnnotation}
-      scale={scale}
-    />
-  ))}
-
+            {annotations
+              .filter((ann: Annotation) => ann.pageIndex === currentPage)
+              .map((annotation: Annotation) => (
+                <DraggableText
+                  key={annotation.id}
+                  data={annotation}
+                  onUpdate={updateAnnotation}
+                  onDelete={deleteAnnotation}
+                  scale={scale}
+                />
+              ))}
+            {signatureAnnotations
+              .filter((sig: SignatureAnnotation) => sig.pageIndex === currentPage)
+              .map((signature: SignatureAnnotation) => (
+                <DraggableSignature
+                  key={signature.id}
+                  data={signature}
+                  onUpdate={updateSignatureAnnotation}
+                  onDelete={deleteSignatureAnnotation}
+                  scale={scale}
+                />
+              ))}
           </div>
         </div>
       </div>

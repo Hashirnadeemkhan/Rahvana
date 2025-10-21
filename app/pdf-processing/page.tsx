@@ -79,7 +79,7 @@ export default function PDFProcessingPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-      {/* ===== FULL SCREEN PDF EDITOR ===== */}
+      {/* Full Screen PDF Editor */}
       {pdfDoc && (
         <div className="fixed inset-0 z-50 bg-white">
           <div className="flex justify-between items-center p-4 border-b border-gray-200">
@@ -96,7 +96,7 @@ export default function PDFProcessingPage() {
         </div>
       )}
 
-      {/* ===== NORMAL UI ===== */}
+      {/* Normal UI */}
       {!pdfDoc && (
         <>
           {/* Tabs */}
