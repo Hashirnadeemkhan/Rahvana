@@ -11,10 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Search, ChevronDown, FileText } from "lucide-react"
+import { Search, ChevronDown, FileText, Briefcase, Zap, ArrowRight } from "lucide-react"
 
 export function SiteHeader() {
-  // Hover delay fix — common for both menus
+  // Hover delay fix — reusable hook for dropdowns
   const useHoverDropdown = () => {
     const [isOpen, setIsOpen] = useState(false)
     const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -35,6 +35,7 @@ export function SiteHeader() {
 
   const visaMenu = useHoverDropdown()
   const serviceMenu = useHoverDropdown()
+  const toolsMenu = useHoverDropdown() // NEW for TOOLS dropdown
 
   return (
     <header className="sticky top-0 z-50 border-b border-primary/20 bg-gradient-to-r from-primary/10 via-white to-primary/10 backdrop-blur-lg shadow-md">
@@ -72,22 +73,28 @@ export function SiteHeader() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="start"
-                  className=" shadow-xl border border-gray-200 w-56 mt-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="rounded-lg shadow-lg border border-gray-200 w-64 mt-2 animate-in fade-in slide-in-from-top-2 duration-200 bg-white p-2"
                   sideOffset={8}
                   onMouseEnter={visaMenu.handleMouseEnter}
                   onMouseLeave={visaMenu.handleMouseLeave}
                 >
-                  <DropdownMenuLabel className="font-semibold text-primary">Explore Visas</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
+                    Explore Visas
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="my-1" />
                   <DropdownMenuItem asChild>
                     <Link
                       href="/visa-category/ir-category"
-                      className="flex items-center justify-between w-full text-gray-600 hover:text-primary p-2 rounded transition-all hover:bg-primary/10"
+                      className="flex items-center justify-between gap-3 w-full text-gray-700 hover:text-primary p-3 rounded-md transition-all hover:bg-primary/8 cursor-pointer group"
                     >
-                      IR Category
+                      <div className="flex items-center gap-3">
+                        <Briefcase className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-medium">IR Category</span>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed">
+                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
                     More coming soon...
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -114,23 +121,81 @@ export function SiteHeader() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="start"
-                  className="rounded-xl shadow-xl border border-gray-200 w-56 mt-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="rounded-lg shadow-lg border border-gray-200 w-64 mt-2 animate-in fade-in slide-in-from-top-2 duration-200 bg-white p-2"
                   sideOffset={8}
                   onMouseEnter={serviceMenu.handleMouseEnter}
                   onMouseLeave={serviceMenu.handleMouseLeave}
                 >
-                  <DropdownMenuLabel className="font-semibold text-primary">Our Services</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
+                    Our Services
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="my-1" />
                   <DropdownMenuItem asChild>
                     <Link
                       href="/services"
-                      className="flex items-center justify-between w-full text-gray-600 hover:text-primary p-2 rounded transition-all hover:bg-primary/10"
+                      className="flex items-center justify-between gap-3 w-full text-gray-700 hover:text-primary p-3 rounded-md transition-all hover:bg-primary/8 cursor-pointer group"
                     >
-                      Consultancy
+                      <div className="flex items-center gap-3">
+                        <Zap className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-medium">Consultancy</span>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed">
+                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
                     More coming soon...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* ===== TOOLS (Hover Dropdown) ===== */}
+            <div
+              className="relative"
+              onMouseEnter={toolsMenu.handleMouseEnter}
+              onMouseLeave={toolsMenu.handleMouseLeave}
+            >
+              <DropdownMenu open={toolsMenu.isOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => e.preventDefault()}
+                    className="flex items-center gap-1.5 font-medium bg-transparent text-gray-700 hover:text-primary hover:bg-primary/10 border-gray-300 data-[state=open]:bg-primary data-[state=open]:text-white transition-all group"
+                  >
+                    TOOLS
+                    <ChevronDown className="h-3 w-3 group-data-[state=open]:rotate-180 transition-transform duration-200" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="start"
+                  className="rounded-lg shadow-lg border border-gray-200 w-64 mt-2 animate-in fade-in slide-in-from-top-2 duration-200 bg-white p-2"
+                  sideOffset={8}
+                  onMouseEnter={toolsMenu.handleMouseEnter}
+                  onMouseLeave={toolsMenu.handleMouseLeave}
+                >
+                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
+                    Available Tools
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="my-1" />
+
+                  {/* PDF Processing Link */}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/pdf-processing"
+                      className="flex items-center justify-between gap-3 w-full text-gray-700 hover:text-primary p-3 rounded-md transition-all hover:bg-primary/8 cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-medium">PDF Processing</span>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
+                    More tools coming soon...
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -145,7 +210,7 @@ export function SiteHeader() {
           </nav>
         </div>
 
-        {/* Right: Search + PDF Processing + Login */}
+        {/* Right: Search + Login */}
         <div className="flex items-center gap-3">
           {/* Search Button */}
           <Button
@@ -157,18 +222,8 @@ export function SiteHeader() {
             <Search className="h-5 w-5 text-gray-600" aria-hidden="true" />
           </Button>
 
-          {/* PDF Processing Button */}
-          <Link href="/pdf-processing">
-            <Button className="flex items-center gap-2 font-semibold bg-primary text-white shadow-md hover:bg-primary/90 transition-all">
-              <FileText className="h-4 w-4" />
-              PDF Processing
-            </Button>
-          </Link>
-
           {/* Login Button */}
-          <Button className="font-semibold text-white shadow-md hover:bg-primary/90 transition-all">
-            LOGIN
-          </Button>
+          <Button className="font-semibold text-white shadow-md hover:bg-primary/90 transition-all">LOGIN</Button>
         </div>
       </div>
 
@@ -181,7 +236,7 @@ export function SiteHeader() {
           HOME
         </Link>
 
-        {/* Mobile Visa Dropdown - click based */}
+        {/* Mobile Visa Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -193,13 +248,23 @@ export function SiteHeader() {
               <ChevronDown className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuContent align="start" className="rounded-lg shadow-lg border border-gray-200 w-56 bg-white p-2">
+            <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
+              Explore Visas
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem asChild>
-              <Link href="/visa-category/ir-category" className="text-gray-600 hover:text-primary">
-                IR Category
+              <Link
+                href="/visa-category/ir-category"
+                className="flex items-center gap-3 text-gray-700 hover:text-primary p-3 rounded-md hover:bg-primary/8 transition-all group"
+              >
+                <Briefcase className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                <span className="text-sm font-medium">IR Category</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled>More coming soon</DropdownMenuItem>
+            <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
+              More coming soon
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -215,13 +280,53 @@ export function SiteHeader() {
               <ChevronDown className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuContent align="start" className="rounded-lg shadow-lg border border-gray-200 w-56 bg-white p-2">
+            <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">Our Services</DropdownMenuLabel>
+            <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem asChild>
-              <Link href="/services" className="text-gray-600 hover:text-primary">
-                Consultancy
+              <Link
+                href="/services"
+                className="flex items-center gap-3 text-gray-700 hover:text-primary p-3 rounded-md hover:bg-primary/8 transition-all group"
+              >
+                <Zap className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                <span className="text-sm font-medium">Consultancy</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled>More coming soon</DropdownMenuItem>
+            <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
+              More coming soon
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Mobile Tools Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1.5 font-medium bg-transparent text-gray-700 border rounded-md px-3 py-2"
+            >
+              TOOLS
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="rounded-lg shadow-lg border border-gray-200 w-56 bg-white p-2">
+            <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
+              Available Tools
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="my-1" />
+            <DropdownMenuItem asChild>
+              <Link
+                href="/pdf-processing"
+                className="flex items-center gap-3 text-gray-700 hover:text-primary p-3 rounded-md hover:bg-primary/8 transition-all group"
+              >
+                <FileText className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                <span className="text-sm font-medium">PDF Processing</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
+              More tools coming soon
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
