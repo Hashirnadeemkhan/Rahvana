@@ -14,6 +14,7 @@ let pdfjsLib: typeof import("pdfjs-dist") | null = null;
 async function initPdfJs() {
   if (pdfjsLib) return pdfjsLib;
   const pdfjs = await import("pdfjs-dist");
+  // Using cdn worker path - ensure internet available or provide local worker
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
   pdfjsLib = pdfjs;
   return pdfjs;
@@ -70,6 +71,9 @@ export function PDFViewer({
     updateSignatureAnnotation,
     deleteSignatureAnnotation,
   } = usePDFStore();
+
+  // Keep track of last auto-inserted signature dataURL to avoid duplicates
+  const lastAutoSigRef = useRef<string | null>(null);
 
   // Load the PDF
   useEffect(() => {
@@ -131,7 +135,43 @@ export function PDFViewer({
     };
   }, [pdfDoc, currentPage, scale]);
 
-  // Handle click to place text or signature
+  // Auto-insert signature when `signature` changes (and activeTool is signature)
+  useEffect(() => {
+    if (!signature || activeTool !== "signature" || !canvasRef.current) return;
+
+    // Avoid re-adding the same data URL multiple times
+    if (lastAutoSigRef.current === signature) return;
+
+    const canvas = canvasRef.current;
+    const pagePixelWidth = canvas.width;
+    const pagePixelHeight = canvas.height;
+
+    // Convert pixel dims to PDF coordinate space by dividing by current scale
+    const pageWidth = pagePixelWidth / scale;
+    const pageHeight = pagePixelHeight / scale;
+
+    // Default signature size in PDF units
+    const sigWidth = Math.min(200, pageWidth * 0.4); // at most 40% of page width or 200 PDF units
+    const sigHeight = sigWidth * 0.4;
+
+    // Place centered near bottom
+    const x = (pageWidth - sigWidth) / 2;
+    const y = pageHeight - sigHeight - 40;
+
+    addSignatureAnnotation({
+      id: Date.now().toString(),
+      image: signature,
+      x,
+      y,
+      width: sigWidth,
+      height: sigHeight,
+      pageIndex: currentPage,
+    });
+
+    lastAutoSigRef.current = signature;
+  }, [signature, activeTool, currentPage, scale, addSignatureAnnotation]);
+
+  // Handle click to place text or signature (manual placement)
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -152,6 +192,7 @@ export function PDFViewer({
       });
       setInputText("");
     } else if (activeTool === "signature" && signature) {
+      // Manual placement also supported
       addSignatureAnnotation({
         id: Date.now().toString(),
         image: signature,
@@ -237,13 +278,14 @@ export function PDFViewer({
                   scale={scale}
                 />
               ))}
+
             {signatureAnnotations
               .filter((sig: SignatureAnnotation) => sig.pageIndex === currentPage)
               .map((signature: SignatureAnnotation) => (
                 <DraggableSignature
                   key={signature.id}
                   data={signature}
-                  onUpdate={updateSignatureAnnotation}
+                  onUpdate={(id, patch) => updateSignatureAnnotation(id, patch)}
                   onDelete={deleteSignatureAnnotation}
                   scale={scale}
                 />

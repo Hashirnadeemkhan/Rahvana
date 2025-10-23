@@ -1,8 +1,7 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Draggable from "react-draggable";
 import Image from "next/image";
-
 type SignatureAnnotation = {
   id: string;
   pageIndex: number;
@@ -27,6 +26,52 @@ export default function DraggableSignature({
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const [showControls, setShowControls] = useState(false);
 
+  // Local resize state
+  const resizingRef = useRef(false);
+  const startRef = useRef<{ mouseX: number; mouseY: number; startW: number; startH: number } | null>(null);
+
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      if (!resizingRef.current || !startRef.current) return;
+      const dx = e.clientX - startRef.current.mouseX;
+      const dy = e.clientY - startRef.current.mouseY;
+
+      // Convert pixel delta to PDF units using scale
+      const newWidth = Math.max(20, startRef.current.startW + dx / scale);
+      const newHeight = Math.max(10, startRef.current.startH + dy / scale);
+
+      onUpdate(data.id, { width: newWidth, height: newHeight });
+    };
+
+    const handleUp = () => {
+      resizingRef.current = false;
+      startRef.current = null;
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+    };
+
+    if (resizingRef.current) {
+      window.addEventListener("mousemove", handleMove);
+      window.addEventListener("mouseup", handleUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+    };
+  }, [scale, data.id, onUpdate]);
+
+  const onResizeMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    resizingRef.current = true;
+    startRef.current = {
+      mouseX: e.clientX,
+      mouseY: e.clientY,
+      startW: data.width,
+      startH: data.height,
+    };
+  };
+
   return (
     <Draggable
       nodeRef={nodeRef}
@@ -50,8 +95,9 @@ export default function DraggableSignature({
           cursor: "move",
           pointerEvents: "auto",
           userSelect: "none",
-          background: "rgba(255,255,255,0.8)",
+          background: "transparent",
           borderRadius: "2px",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
         }}
         onMouseEnter={() => setShowControls(true)}
         onMouseLeave={() => setShowControls(false)}
@@ -59,30 +105,62 @@ export default function DraggableSignature({
           e.stopPropagation();
           setShowControls(true);
         }}
+        aria-label="Signature annotation"
       >
+        {/* Use <img /> to preserve PNG transparency; set pointerEvents none so drag is handled by wrapper */}
         <Image
-          src={data.image}
-          alt="Signature"
-          height={10}
-          width={10}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-          }}
-        />
+  src={data.image}
+  alt="Signature"
+  width={data.width * scale}
+  height={data.height * scale}
+  style={{
+    objectFit: "contain",
+    pointerEvents: "none",
+  }}
+/>
+
+        {/* Delete Button */}
         {showControls && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete(data.id);
             }}
-            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 z-30"
+            className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-700 z-30"
             style={{ pointerEvents: "auto" }}
             aria-label="Delete signature"
+            title="Delete signature"
           >
             ×
           </button>
+        )}
+
+        {/* Resize handle (bottom-right) */}
+        {showControls && (
+          <div
+            onMouseDown={onResizeMouseDown}
+            title="Resize"
+            style={{
+              position: "absolute",
+              right: -6,
+              bottom: -6,
+              width: 12,
+              height: 12,
+              cursor: "nwse-resize",
+              background: "#fff",
+              border: "1px solid rgba(0,0,0,0.2)",
+              borderRadius: 2,
+              zIndex: 40,
+              pointerEvents: "auto",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 9,
+              color: "#333",
+            }}
+          >
+            ↘
+          </div>
         )}
       </div>
     </Draggable>

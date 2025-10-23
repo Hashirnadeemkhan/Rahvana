@@ -8,11 +8,16 @@ type Props = {
 };
 
 export default function SignaturePad({ onSave, closeModal }: Props) {
-  const sigRef = useRef<SignatureCanvas>(null);
+  const sigRef = useRef<SignatureCanvas | null>(null);
 
   const handleSave = () => {
     if (sigRef.current && !sigRef.current.isEmpty()) {
+      // Ensure we get a transparent PNG by using canvas.toDataURL and not forcing a white bg.
       const canvas = sigRef.current.getCanvas();
+
+      // If the signature library produced a trimmed canvas and you want padding,
+      // you can create an offscreen canvas and draw the signature onto it with transparent bg.
+      // For now, just use existing canvas (transparent background preserved).
       const dataURL = canvas.toDataURL("image/png");
       onSave(dataURL);
       closeModal();
@@ -29,7 +34,8 @@ export default function SignaturePad({ onSave, closeModal }: Props) {
         ref={sigRef}
         penColor="black"
         canvasProps={{
-          className: "border rounded-md w-full h-40 bg-white",
+          className: "border rounded-md w-full h-40",
+          style: { background: "transparent", touchAction: "none" },
         }}
       />
       <div className="flex gap-2 mt-2">

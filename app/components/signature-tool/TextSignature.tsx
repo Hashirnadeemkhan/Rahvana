@@ -1,13 +1,10 @@
 "use client";
 import React, { useState } from "react";
+import ImageFilterEditor from "./ImageFilterEditor";
 
-type Props = {
-  onGenerate: (dataURL: string) => void;
-  closeModal: () => void;
-};
-
-export default function TextSignature({ onGenerate, closeModal }: Props) {
+export default function TextSignature({ onGenerate, closeModal }: { onGenerate: (dataURL: string) => void; closeModal: () => void }) {
   const [name, setName] = useState("");
+  const [image, setImage] = useState<string | null>(null);
 
   const handleGenerate = () => {
     if (!name.trim()) {
@@ -21,25 +18,37 @@ export default function TextSignature({ onGenerate, closeModal }: Props) {
     ctx.font = "40px cursive";
     ctx.fillStyle = "black";
     ctx.fillText(name, 20, 60);
-    onGenerate(canvas.toDataURL("image/png"));
-    closeModal();
+    setImage(canvas.toDataURL("image/png")); // open filter editor
   };
 
   return (
     <div className="p-4">
-      <input
-        type="text"
-        placeholder="Enter your name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="border rounded px-3 py-2 w-full"
-      />
-      <button
-        onClick={handleGenerate}
-        className="ml-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
-      >
-        Generate
-      </button>
+      {!image ? (
+        <>
+          <input
+            type="text"
+            placeholder="Enter your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border rounded px-3 py-2 w-full"
+          />
+          <button
+            onClick={handleGenerate}
+            className="ml-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
+          >
+            Generate
+          </button>
+        </>
+      ) : (
+        <ImageFilterEditor
+          imageSrc={image}
+          onDone={(final) => {
+            onGenerate(final);
+            closeModal();
+          }}
+          onCancel={() => setImage(null)}
+        />
+      )}
     </div>
   );
 }

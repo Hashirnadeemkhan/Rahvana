@@ -1,3 +1,8 @@
+/**
+ * POST /api/merge
+ * Merges multiple uploaded PDF files into a single PDF.
+ */
+
 import { NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
 import fs from "fs/promises";
@@ -6,6 +11,11 @@ import os from "os";
 
 export const runtime = "nodejs";
 
+/**
+ * Handles PDF merge requests.
+ * @param req - Incoming HTTP Request (multipart/form-data)
+ * @returns - Merged PDF file as response
+ */
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
@@ -23,14 +33,14 @@ export async function POST(req: Request) {
       await fs.writeFile(tempInput, Buffer.from(arrayBuffer));
 
       try {
-        // Load and merge normal (non-encrypted) PDFs
         const pdf = await PDFDocument.load(await fs.readFile(tempInput), {
           ignoreEncryption: true,
         });
+
         const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
         pages.forEach((p) => mergedPdf.addPage(p));
       } catch (err) {
-        console.error(`⚠️ Could not process file: ${file.name}`, err);
+        console.error(`Failed to process: ${file.name}`, err);
       }
     }
 
@@ -44,7 +54,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("❌ Merge failed:", error);
+    console.error("Merge failed:", error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

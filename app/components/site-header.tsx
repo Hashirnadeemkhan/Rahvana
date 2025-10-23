@@ -193,6 +193,18 @@ export function SiteHeader() {
                       <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/signature-image-processing"
+                      className="flex items-center justify-between gap-3 w-full text-gray-700 hover:text-primary p-3 rounded-md transition-all hover:bg-primary/8 cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-medium">Signature Image Processing</span>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
+                    </Link>
+                  </DropdownMenuItem>
 
                   <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
                     More tools coming soon...
@@ -223,7 +235,7 @@ export function SiteHeader() {
           </Button>
 
           {/* Login Button */}
-          <Button className="font-semibold text-white shadow-md hover:bg-primary/90 transition-all">LOGIN</Button>
+         <Link href="/signup"><Button className="font-semibold text-white shadow-md hover:bg-primary/90 transition-all">LOGIN</Button></Link>
         </div>
       </div>
 
