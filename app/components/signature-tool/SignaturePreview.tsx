@@ -43,8 +43,13 @@ export default function SignaturePreview({
   // Crop state
   const [cropBox, setCropBox] = useState<CropBox>({ x: 0, y: 0, width: 100, height: 100 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragType, setDragType] = useState<'move' | 'nw' | 'ne' | 'sw' | 'se' | null>(null);
+  const [dragType, setDragType] = useState<'move' | 'nw' | 'ne' | 'sw' | 'se' | 'rotate' | null>(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  
+  // ✅ ROTATION STATE - YE NAI ADD HUA HA
+  const [rotation, setRotation] = useState(0);
+  const [isRotating, setIsRotating] = useState(false);
+  
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
 
   const previewRef = useRef<HTMLDivElement>(null);
@@ -244,7 +249,7 @@ export default function SignaturePreview({
     };
   };
 
-  // Perspective corner dragging
+  // ✅ PERSPECTIVE CORNER DRAGGING
   const handlePerspectiveMouseDown = (index: number, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -286,18 +291,40 @@ export default function SignaturePreview({
     }
   }, [draggingCorner, imageDimensions]);
 
-  // Crop box dragging
-  const handleMouseDown = (e: React.MouseEvent, type: 'move' | 'nw' | 'ne' | 'sw' | 'se') => {
+  // ✅ CROP BOX + ROTATION DRAGGING - YE UPDATED HA
+  const handleMouseDown = (e: React.MouseEvent, type: 'move' | 'nw' | 'ne' | 'sw' | 'se' | 'rotate') => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(true);
-    setDragType(type);
+    
+    if (type === 'rotate') {
+      setIsRotating(true);
+      setDragType('rotate');
+    } else {
+      setIsDragging(true);
+      setDragType(type);
+    }
+    
     setDragStart({ x: e.clientX, y: e.clientY });
   };
 
+  // ✅ MOUSE MOVE - ROTATION KA LOGIC ADD HUA HA
   const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging || !dragType || !previewRef.current) return;
+    if ((!isDragging && !isRotating) || !dragType || !previewRef.current) return;
 
+    // ✅ ROTATION LOGIC
+    if (dragType === 'rotate') {
+      const rect = previewRef.current.getBoundingClientRect();
+      const centerX = rect.left + cropBox.x + cropBox.width / 2;
+      const centerY = rect.top + cropBox.y + cropBox.height / 2;
+      
+      const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+      const degrees = (angle * 180) / Math.PI;
+      
+      setRotation(Math.round(degrees));
+      return;
+    }
+
+    // ✅ CROP BOX LOGIC (SAME AS BEFORE)
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
     const containerRect = previewRef.current.getBoundingClientRect();
@@ -346,13 +373,16 @@ export default function SignaturePreview({
     setDragStart({ x: e.clientX, y: e.clientY });
   };
 
+  // ✅ MOUSE UP - UPDATED
   const handleMouseUp = () => {
     setIsDragging(false);
+    setIsRotating(false);
     setDragType(null);
   };
 
+  // ✅ EVENT LISTENERS - UPDATED
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging || isRotating) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -360,8 +390,9 @@ export default function SignaturePreview({
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragType, dragStart]);
+  }, [isDragging, isRotating, dragType, dragStart, cropBox]);
 
+  // ✅ APPLY CROP WITH ROTATION - YE PURA FUNCTION UPDATED HA
   const applyCrop = async () => {
     if (!currentImage || !imageRef.current) return;
 
@@ -379,22 +410,74 @@ export default function SignaturePreview({
       const scaleX = img.width / displayRect.width;
       const scaleY = img.height / displayRect.height;
 
-      const cropX = cropBox.x * scaleX;
-      const cropY = cropBox.y * scaleY;
-      const cropWidth = cropBox.width * scaleX;
-      const cropHeight = cropBox.height * scaleY;
+      // ✅ ROTATION APPLY KARNA HA
+      if (rotation !== 0) {
+        // Create canvas for rotation
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        if (!tempCtx) return;
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+        // Calculate rotated dimensions
+        const radians = (rotation * Math.PI) / 180;
+        const cos = Math.abs(Math.cos(radians));
+        const sin = Math.abs(Math.sin(radians));
+        const newWidth = img.width * cos + img.height * sin;
+        const newHeight = img.width * sin + img.height * cos;
 
-      if (!ctx) return;
+        tempCanvas.width = newWidth;
+        tempCanvas.height = newHeight;
 
-      canvas.width = cropWidth;
-      canvas.height = cropHeight;
+        // Draw rotated image
+        tempCtx.save();
+        tempCtx.translate(newWidth / 2, newHeight / 2);
+        tempCtx.rotate(radians);
+        tempCtx.drawImage(img, -img.width / 2, -img.height / 2);
+        tempCtx.restore();
 
-      ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+        // Now crop from the rotated canvas
+        const cropX = (cropBox.x * scaleX) + (newWidth - img.width) / 2;
+        const cropY = (cropBox.y * scaleY) + (newHeight - img.height) / 2;
+        const cropWidth = cropBox.width * scaleX;
+        const cropHeight = cropBox.height * scaleY;
 
-      setCroppedImage(canvas.toDataURL('image/png'));
+        const finalCanvas = document.createElement('canvas');
+        const finalCtx = finalCanvas.getContext('2d');
+        if (!finalCtx) return;
+
+        finalCanvas.width = cropWidth;
+        finalCanvas.height = cropHeight;
+
+        finalCtx.drawImage(
+          tempCanvas,
+          cropX,
+          cropY,
+          cropWidth,
+          cropHeight,
+          0,
+          0,
+          cropWidth,
+          cropHeight
+        );
+
+        setCroppedImage(finalCanvas.toDataURL('image/png'));
+      } else {
+        // ✅ NO ROTATION - SIMPLE CROP
+        const cropX = cropBox.x * scaleX;
+        const cropY = cropBox.y * scaleY;
+        const cropWidth = cropBox.width * scaleX;
+        const cropHeight = cropBox.height * scaleY;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = cropWidth;
+        canvas.height = cropHeight;
+
+        ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+        setCroppedImage(canvas.toDataURL('image/png'));
+      }
     } catch (error) {
       console.error('Crop error:', error);
       alert('Failed to crop image. Please try again.');
@@ -406,7 +489,8 @@ export default function SignaturePreview({
     if (canvas) {
       setPerspectiveCorrectedImage(canvas.toDataURL('image/png'));
       setShowPerspective(false);
-      setCroppedImage(null); // Reset crop to allow re-cropping
+      setCroppedImage(null);
+      setRotation(0); // Reset rotation
     }
   };
 
@@ -549,52 +633,6 @@ export default function SignaturePreview({
           </div>
         </div>
 
-        {/* Instructions */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6">
-          <h3 className="font-bold text-blue-900 mb-4 text-lg flex items-center gap-2">
-            <Move className="w-6 h-6" />
-            How to Use:
-          </h3>
-          <div className="grid sm:grid-cols-2 gap-4 text-blue-800">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                1
-              </div>
-              <div>
-                <p className="font-semibold">Drag Corner Handles</p>
-                <p className="text-sm text-blue-700">Move blue circles to match signature edges</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                2
-              </div>
-              <div>
-                <p className="font-semibold">Fix Top Corners</p>
-                <p className="text-sm text-blue-700">Align upper tilt and slant</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                3
-              </div>
-              <div>
-                <p className="font-semibold">Adjust Bottom Corners</p>
-                <p className="text-sm text-blue-700">Correct lower perspective distortion</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                4
-              </div>
-              <div>
-                <p className="font-semibold">Preview & Apply</p>
-                <p className="text-sm text-blue-700">See live results on the right</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Action Buttons */}
         <div className="flex flex-wrap justify-center gap-4">
           <button
@@ -616,7 +654,7 @@ export default function SignaturePreview({
     );
   }
 
-  // Main preview UI
+  // ✅ MAIN PREVIEW UI - YE ROTATION HANDLE KE SATH HA
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in max-w-7xl mx-auto">
       {/* Header Card */}
@@ -657,7 +695,7 @@ export default function SignaturePreview({
           </div>
         </div>
 
-        {/* Processed Image with Crop Box */}
+        {/* ✅ PROCESSED IMAGE WITH ROTATION HANDLE */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-transform hover:scale-[1.02]">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 font-semibold flex items-center justify-between text-sm sm:text-base">
             <span>✨ Enhanced Signature</span>
@@ -678,71 +716,123 @@ export default function SignaturePreview({
             }}
           >
             <div className="relative">
+              {/* ✅ IMAGE WITH ROTATION */}
               <img
                 ref={imageRef}
                 src={croppedImage || currentImage}
                 alt="Processed signature with transparent background"
                 className="w-full h-auto rounded-lg select-none max-h-[350px] object-contain"
                 draggable={false}
+                style={{
+                  transform: croppedImage ? 'none' : `rotate(${rotation}deg)`,
+                  transition: isRotating ? 'none' : 'transform 0.1s ease-out',
+                }}
               />
 
-              {/* Crop Box Overlay */}
+              {/* ✅ CROP BOX OVERLAY WITH ROTATION HANDLE */}
               {!croppedImage && (
-                <div
-                  className="absolute border-2 border-blue-500 bg-blue-500/10 cursor-move"
-                  style={{
-                    left: `${cropBox.x}px`,
-                    top: `${cropBox.y}px`,
-                    width: `${cropBox.width}px`,
-                    height: `${cropBox.height}px`,
-                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
-                  }}
-                  onMouseDown={(e) => handleMouseDown(e, 'move')}
-                >
-                  {/* Corner Handles */}
+                <>
                   <div
-                    className="absolute -left-2 -top-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform"
-                    onMouseDown={(e) => handleMouseDown(e, 'nw')}
-                  />
-                  <div
-                    className="absolute -right-2 -top-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform"
-                    onMouseDown={(e) => handleMouseDown(e, 'ne')}
-                  />
-                  <div
-                    className="absolute -left-2 -bottom-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform"
-                    onMouseDown={(e) => handleMouseDown(e, 'sw')}
-                  />
-                  <div
-                    className="absolute -right-2 -bottom-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform"
-                    onMouseDown={(e) => handleMouseDown(e, 'se')}
-                  />
+                    className="absolute border-2 border-blue-500 bg-blue-500/10 cursor-move"
+                    style={{
+                      left: `${cropBox.x}px`,
+                      top: `${cropBox.y}px`,
+                      width: `${cropBox.width}px`,
+                      height: `${cropBox.height}px`,
+                      boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, 'move')}
+                  >
+                    {/* ✅ CORNER HANDLES */}
+                    <div
+                      className="absolute -left-2 -top-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform z-10"
+                      onMouseDown={(e) => handleMouseDown(e, 'nw')}
+                    />
+                    <div
+                      className="absolute -right-2 -top-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform z-10"
+                      onMouseDown={(e) => handleMouseDown(e, 'ne')}
+                    />
+                    <div
+                      className="absolute -left-2 -bottom-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform z-10"
+                      onMouseDown={(e) => handleMouseDown(e, 'sw')}
+                    />
+                    <div
+                      className="absolute -right-2 -bottom-2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform z-10"
+                      onMouseDown={(e) => handleMouseDown(e, 'se')}
+                    />
 
-                  {/* Grid Lines */}
-                  <div className="absolute top-1/3 left-0 right-0 h-px bg-white/50" />
-                  <div className="absolute top-2/3 left-0 right-0 h-px bg-white/50" />
-                  <div className="absolute left-1/3 top-0 bottom-0 w-px bg-white/50" />
-                  <div className="absolute left-2/3 top-0 bottom-0 w-px bg-white/50" />
-                </div>
+                    {/* ✅ ✅ ✅ ROTATION HANDLE - YE NAI ADD HUA HA ✅ ✅ ✅ */}
+                    <div
+                      className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center cursor-grab active:cursor-grabbing z-20"
+                      style={{ 
+                        top: '-50px',
+                      }}
+                      onMouseDown={(e) => handleMouseDown(e, 'rotate')}
+                    >
+                      {/* Connection Line */}
+                      <div className="w-0.5 h-8 bg-blue-500"></div>
+                      
+                      {/* Rotation Circle */}
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 border-3 border-white rounded-full hover:scale-125 transition-transform shadow-xl flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </div>
+                      
+                      {/* ✅ DEGREE DISPLAY WHILE ROTATING */}
+                      {isRotating && (
+                        <div className="absolute -bottom-10 bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap animate-pulse">
+                          {rotation}°
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ✅ GRID LINES */}
+                    <div className="absolute top-1/3 left-0 right-0 h-px bg-white/50" />
+                    <div className="absolute top-2/3 left-0 right-0 h-px bg-white/50" />
+                    <div className="absolute left-1/3 top-0 bottom-0 w-px bg-white/50" />
+                    <div className="absolute left-2/3 top-0 bottom-0 w-px bg-white/50" />
+                  </div>
+
+                  {/* ✅ ROTATION INDICATOR (SHOWS WHEN NOT ROTATING) */}
+                  {rotation !== 0 && !isRotating && (
+                    <div className="absolute top-4 left-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg font-bold flex items-center gap-2 animate-fade-in">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      {rotation}°
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRotation(0);
+                        }}
+                        className="ml-2 text-xs bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
-            {/* Apply Crop Button */}
+            {/* ✅ APPLY CROP BUTTON */}
             {!croppedImage && (
               <button
                 onClick={applyCrop}
-                className="mt-4 w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition flex items-center justify-center gap-2"
+                className="mt-4 w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition flex items-center justify-center gap-2 shadow-lg"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Apply Crop
+                Apply Crop {rotation !== 0 && `& Rotation (${rotation}°)`}
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* ✅ ACTION BUTTONS */}
       <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
         <button
           onClick={handleDownloadCropped}
@@ -760,7 +850,7 @@ export default function SignaturePreview({
         </button>
       </div>
 
-      {/* Success Message */}
+      {/* ✅ SUCCESS MESSAGE */}
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4 sm:p-6 text-center">
         <div className="flex items-center justify-center mb-2">
           <Check className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
@@ -775,10 +865,13 @@ export default function SignaturePreview({
           <span className="bg-white px-3 py-1 rounded-full">✓ PNG Format</span>
           <span className="bg-white px-3 py-1 rounded-full">✓ High Resolution</span>
           <span className="bg-white px-3 py-1 rounded-full">✓ No Background</span>
+          {rotation !== 0 && !croppedImage && (
+            <span className="bg-white px-3 py-1 rounded-full">✓ Rotated {rotation}°</span>
+          )}
         </div>
       </div>
 
-      {/* Usage Tips */}
+      {/* ✅ USAGE TIPS */}
       <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 sm:p-6">
         <h3 className="font-semibold text-blue-900 mb-3 text-sm sm:text-base">
           💡 How to Use Your Signature:

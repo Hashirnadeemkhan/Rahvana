@@ -116,7 +116,7 @@ export default function PDFProcessingPage() {
               }`}
             >
               Merge PDFs
-            </button>
+            </button>-
           </div>
 
           {/* Upload Section */}
