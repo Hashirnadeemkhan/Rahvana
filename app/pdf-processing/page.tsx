@@ -9,7 +9,7 @@ const PDFUpload = dynamic(() => import("../components/pdf-upload").then(mod => m
 const PDFEditor = dynamic(() => import("../components/pdf-editor").then(mod => mod.PDFEditor), { ssr: false });
 
 export default function PDFProcessingPage() {
-  const { pdfDoc, setPdfDoc } = usePDFStore();
+  const { pdfFile, reset } = usePDFStore();
   const [activeTab, setActiveTab] = useState<"upload" | "merge">("upload");
   const [files, setFiles] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(false);
@@ -74,20 +74,20 @@ export default function PDFProcessingPage() {
 
   // Close Editor
   const handleCloseEditor = () => {
-    setPdfDoc(null);
+    reset();
   };
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
       {/* Full Screen PDF Editor */}
-      {pdfDoc && (
+      {pdfFile && (
         <div className="fixed inset-0 z-50 bg-white">
           <div className="flex justify-between items-center p-4 border-b border-gray-200">
             <button
               onClick={handleCloseEditor}
               className="bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition"
             >
-              Back
+              ← Back
             </button>
           </div>
           <div className="h-[calc(100vh-64px)] w-full">
@@ -97,7 +97,7 @@ export default function PDFProcessingPage() {
       )}
 
       {/* Normal UI */}
-      {!pdfDoc && (
+      {!pdfFile && (
         <>
           {/* Tabs */}
           <div className="flex gap-4 mb-6 bg-white shadow-md rounded-full p-2">
@@ -107,7 +107,7 @@ export default function PDFProcessingPage() {
                 activeTab === "upload" ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-100"
               }`}
             >
-              Upload / Edit PDF
+              Edit PDF
             </button>
             <button
               onClick={() => setActiveTab("merge")}

@@ -9,12 +9,14 @@ import { Card } from "@/components/ui/card"
 
 interface FormData {
   email: string
+  password: string
 }
 
 export default function SignupForm() {
   const router = useRouter()
   const [formData, setFormData] = useState<FormData>({
     email: "",
+    password: "",
   })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -38,11 +40,17 @@ export default function SignupForm() {
       return
     }
 
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long")
+      setLoading(false)
+      return
+    }
+
     const userData = {
       id: Date.now().toString(),
       email: formData.email,
+      password: formData.password,
       createdAt: new Date().toISOString(),
-      passwordSet: false,
     }
 
     localStorage.setItem("user", JSON.stringify(userData))
@@ -52,49 +60,18 @@ export default function SignupForm() {
   }
 
   const handleGoogleSignup = () => {
-    // In production, this would redirect to Google OAuth
-    // For now, showing a placeholder
     alert("Google Sign-up integration would be configured here")
   }
 
   return (
-    <Card className="p-8 bg-white shadow-lg border-0">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
-          <Input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="you@example.com"
-            className="w-full"
-          />
-        </div>
-
-        {error && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>}
-
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2 rounded-lg transition"
-        >
-          {loading ? "Creating Account..." : "Get Started"}
-        </Button>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-slate-600">or</span>
-          </div>
-        </div>
-
+    <div className=" flex items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-md space-y-6">
+    
+        {/* Google Signup */}
         <Button
           type="button"
           onClick={handleGoogleSignup}
-          className="w-full bg-white hover:bg-slate-50 text-slate-900 font-semibold py-2 rounded-lg transition border border-slate-300 flex items-center justify-center gap-2"
+          className="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-2 rounded-lg transition border border-slate-300 flex items-center justify-center gap-2 shadow-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -114,20 +91,74 @@ export default function SignupForm() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Sign up with Google
+          Continue with Google
         </Button>
 
-        <p className="text-center text-sm text-slate-600 mt-4">
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-slate-50 text-slate-600">or sign up with email</span>
+          </div>
+        </div>
+
+        {/* Email + Password Form */}
+        <Card className="p-6 bg-white shadow-md border border-slate-200">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <Input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                className="w-full"
+              />
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-2 rounded-lg transition"
+            >
+              {loading ? "Creating Account..." : "Sign up"}
+            </Button>
+          </form>
+        </Card>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-slate-600">
           Already have an account?{" "}
           <button
             type="button"
             onClick={() => router.push("/login")}
-            className="text-slate-900 font-semibold hover:underline"
+            className="text-primary font-semibold hover:underline"
           >
             Sign in
           </button>
         </p>
-      </form>
-    </Card>
+      </div>
+    </div>
   )
 }

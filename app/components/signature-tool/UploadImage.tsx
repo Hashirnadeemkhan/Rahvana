@@ -1,7 +1,6 @@
 "use client";
-
-import React, { useState, useCallback } from "react";
-import Cropper from "react-easy-crop";
+import React, { useState } from "react";
+import ImageFilterEditor from "./ImageFilterEditor";
 
 type Props = {
   onUpload: (dataURL: string) => void;
@@ -9,155 +8,100 @@ type Props = {
 };
 
 export default function UploadImage({ onUpload, closeModal }: Props) {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [filters, setFilters] = useState({
-    brightness: 100,
-    contrast: 100,
-    saturation: 100,
-    sepia: 0,
-    grayscale: 0,
-  });
-  const [showEditor, setShowEditor] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
 
-  const onCropComplete = useCallback(() => {}, []);
-
-  // Upload handler
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload a valid image file (PNG, JPG, HEIC)');
+      return;
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = () => {
-      setImageSrc(reader.result as string);
-      setShowEditor(true);
+    reader.onload = (event) => {
+      const img = event.target?.result as string;
+      setImage(img);
+    };
+    reader.onerror = () => {
+      alert('Failed to read file. Please try again.');
     };
     reader.readAsDataURL(file);
   };
 
-  // Apply filters on canvas & save
-  const handleSave = async () => {
-    const img = new Image();
-    img.src = imageSrc!;
-    await img.decode();
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d")!;
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    // Apply filters
-    ctx.filter = `
-      brightness(${filters.brightness}%)
-      contrast(${filters.contrast}%)
-      saturate(${filters.saturation}%)
-      sepia(${filters.sepia}%)
-      grayscale(${filters.grayscale}%)
-    `;
-
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const final = canvas.toDataURL("image/png");
-    onUpload(final);
-    setShowEditor(false);
-    closeModal();
-  };
-
-  const handleFilterChange = (name: string, value: number) => {
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
   return (
     <div className="p-4">
-      {/* Upload input */}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFile}
-        className="border rounded px-3 py-2 w-full"
-      />
-
-      {/* Modal Editor */}
-      {showEditor && imageSrc && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl w-[95%] sm:w-[700px] h-[90%] p-4 shadow-2xl flex flex-col">
-            <h2 className="text-lg font-semibold text-center mb-3">Edit Image</h2>
-
-            {/* Crop Area */}
-            <div className="relative flex-1 bg-gray-100 rounded overflow-hidden">
-              <Cropper
-                image={imageSrc}
-                crop={crop}
-                zoom={zoom}
-                aspect={4 / 3}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-                style={{
-                  containerStyle: {
-                    filter: `
-                      brightness(${filters.brightness}%)
-                      contrast(${filters.contrast}%)
-                      saturate(${filters.saturation}%)
-                      sepia(${filters.sepia}%)
-                      grayscale(${filters.grayscale}%)
-                    `,
-                  },
-                }}
-              />
-            </div>
-
-            {/* Controls */}
-            <div className="space-y-3 mt-4">
-              <div>
-                <label>Zoom: </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="3"
-                  step="0.1"
-                  value={zoom}
-                  onChange={(e) => setZoom(parseFloat(e.target.value))}
-                  className="w-full"
-                />
+      {!image ? (
+        <div className="space-y-4">
+          {/* Upload Zone */}
+          <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-400 hover:bg-blue-50/50 transition">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="signature-upload"
+            />
+            <label
+              htmlFor="signature-upload"
+              className="cursor-pointer flex flex-col items-center gap-4"
+            >
+              <div className="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-full">
+                <svg className="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
               </div>
+              <div>
+                <span className="text-lg text-gray-700 font-semibold block">Click to upload signature image</span>
+                <span className="text-sm text-gray-500 mt-1 block">PNG, JPG, HEIC supported (max 10MB)</span>
+              </div>
+            </label>
+          </div>
 
-              {/* Filters */}
-              {Object.entries(filters).map(([name, value]) => (
-                <div key={name}>
-                  <label className="capitalize">
-                    {name}: {value}%
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="200"
-                    value={value}
-                    onChange={(e) =>
-                      handleFilterChange(name, parseFloat(e.target.value))
-                    }
-                    className="w-full"
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-center gap-4 mt-5">
-              <button
-                onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setShowEditor(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-black px-5 py-2 rounded-lg"
-              >
-                Cancel
-              </button>
-            </div>
+          {/* Tips Section */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+            <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Tips for Best Results
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span><strong>White paper:</strong> Use clean white or light-colored paper</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span><strong>Good lighting:</strong> Bright, even lighting without shadows</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span><strong>Dark ink:</strong> Use blue or black pen for clear contrast</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span><strong>Clear photo:</strong> Take a straight, focused photo</span>
+              </li>
+            </ul>
           </div>
         </div>
+      ) : (
+        <ImageFilterEditor
+          imageSrc={image}
+          onDone={(final) => {
+            onUpload(final);
+            closeModal();
+          }}
+          onCancel={() => setImage(null)}
+        />
       )}
     </div>
   );

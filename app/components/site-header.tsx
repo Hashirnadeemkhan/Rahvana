@@ -200,7 +200,7 @@ export function SiteHeader() {
                     >
                       <div className="flex items-center gap-3">
                         <FileText className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
-                        <span className="text-sm font-medium">Signature Image Processing</span>
+                        <span className="text-sm font-medium">Create Signature</span>
                       </div>
                       <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
                     </Link>

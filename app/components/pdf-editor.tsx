@@ -1,14 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePDFStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Download, X, Type } from "lucide-react";
 import Image from "next/image";
-import { addTextToPDF, addImageToPDF, savePDF } from "@/lib/pdf-utils";
+import { loadPDF, addTextToPDF, addImageToPDF, downloadPDF } from "@/lib/pdf-utils";
 import SignatureTool from "./signature-tool/SignatureTool";
-
 
 const PDFViewer = dynamic(() => import("./pdf-viewer").then(m => m.PDFViewer), { ssr: false });
 const PDFThumbnails = dynamic(() => import("./pdf-thumbnails").then(m => m.PDFThumbnails), { ssr: false });
@@ -17,114 +16,167 @@ export function PDFEditor() {
   const [activeTool, setActiveTool] = useState<"text" | "signature" | null>(null);
   const [inputText, setInputText] = useState("");
   const [signature, setSignature] = useState<string | null>(null);
-  const { pdfDoc, annotations, signatureAnnotations, reset } = usePDFStore();
+  const [isDownloading, setIsDownloading] = useState(false);
+  
+  const { 
+    pdfFile,
+    annotations, 
+    signatureAnnotations, 
+    reset, 
+    addSignatureAnnotation, 
+    currentPage
+  } = usePDFStore();
+
+  // Auto-insert signature when it's created
+  useEffect(() => {
+    if (signature && pdfFile) {
+      const canvas = document.querySelector('canvas');
+      if (!canvas) return;
+
+      const pagePixelWidth = canvas.width;
+      const pagePixelHeight = canvas.height;
+      const scale = 1.5;
+
+      const pageWidth = pagePixelWidth / scale;
+      const pageHeight = pagePixelHeight / scale;
+
+      const sigWidth = Math.min(200, pageWidth * 0.4);
+      const sigHeight = sigWidth * 0.4;
+
+      const x = (pageWidth - sigWidth) / 2;
+      const y = pageHeight - sigHeight - 60;
+
+      addSignatureAnnotation({
+        id: Date.now().toString(),
+        image: signature,
+        x,
+        y,
+        width: sigWidth,
+        height: sigHeight,
+        pageIndex: currentPage,
+        rotation: 0,
+      });
+
+      setActiveTool(null);
+    }
+  }, [signature, pdfFile, currentPage, addSignatureAnnotation]);
 
   const handleDownload = async () => {
-    if (!pdfDoc) return;
-
-    let modifiedPdf = pdfDoc;
-    for (const annotation of annotations) {
-      modifiedPdf = await addTextToPDF(
-        modifiedPdf,
-        annotation.pageIndex,
-        annotation.text,
-        annotation.x,
-        annotation.y,
-        12,
-        "#000000"
-      );
-    }
-    for (const signature of signatureAnnotations) {
-      modifiedPdf = await addImageToPDF(
-        modifiedPdf,
-        signature.pageIndex,
-        signature.image,
-        signature.x,
-        signature.y,
-        signature.width,
-        signature.height
-      );
+    if (!pdfFile) {
+      alert("No PDF file loaded");
+      return;
     }
 
-    const pdfBytes = await savePDF(modifiedPdf);
-    const safeBuffer = new Uint8Array(pdfBytes).buffer;
+    if (signatureAnnotations.length === 0 && annotations.length === 0) {
+      alert("Please add at least one signature or text annotation");
+      return;
+    }
 
-    const blob = new Blob([safeBuffer], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
+    setIsDownloading(true);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "edited.pdf";
-    link.click();
+    try {
+      const pdfDoc = await loadPDF(pdfFile);
+      
+      if (!pdfDoc || !pdfDoc.getPages) {
+        throw new Error("Failed to load PDF document properly");
+      }
 
-    URL.revokeObjectURL(url);
+      // Add text annotations
+      for (const annotation of annotations) {
+        await addTextToPDF(
+          pdfDoc,
+          annotation.pageIndex,
+          annotation.text,
+          annotation.x,
+          annotation.y,
+          annotation.fontSize,
+          annotation.color
+        );
+      }
+
+      // Add signature annotations
+      for (const sig of signatureAnnotations) {
+        await addImageToPDF(
+          pdfDoc,
+          sig.pageIndex,
+          sig.image,
+          sig.x,
+          sig.y,
+          sig.width,
+          sig.height,
+          sig.rotation || 0
+        );
+      }
+      
+      await downloadPDF(pdfDoc, "signed-document.pdf");
+      alert("✅ PDF downloaded successfully!");
+
+    } catch (error) {
+      console.error("Download error:", error);
+      alert(`❌ Failed to download PDF: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <div className="flex items-center justify-between bg-white border-b px-6 py-4">
-        <h1 className="text-xl font-bold text-gray-900">PDF Editor</h1>
+      {/* Header */}
+      <div className="flex items-center justify-between bg-white border-b px-6 py-4 shadow-sm">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          📄 PDF Editor Pro
+        </h1>
         <div className="flex items-center gap-3">
-          {/* Text Tool */}
-          <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg">
-            <Button
-              onClick={() => setActiveTool(activeTool === "text" ? null : "text")}
-              variant={activeTool === "text" ? "default" : "outline"}
-              size="sm"
-              className="gap-2 h-8"
-            >
-              <Type className="h-4 w-4" />
-              {activeTool === "text" ? "Cancel" : "Text"}
-            </Button>
-            {activeTool === "text" && (
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Type text..."
-                className="border border-gray-300 rounded px-3 py-1 w-32 text-sm"
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && inputText.trim()) {
-                    setActiveTool(null);
-                  }
-                }}
-              />
-            )}
-          </div>
-          {/* Signature Tool */}
-          <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg">
-            <Button
-              onClick={() => setActiveTool(activeTool === "signature" ? null : "signature")}
-              variant={activeTool === "signature" ? "default" : "outline"}
-              size="sm"
-              className="gap-2 h-8"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                />
+          {/* Text Tool - SmallPDF Style */}
+          <Button
+            onClick={() => setActiveTool(activeTool === "text" ? null : "text")}
+            variant={activeTool === "text" ? "default" : "outline"}
+            size="sm"
+            className={`gap-2 h-9 transition-all ${
+              activeTool === "text" 
+                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg" 
+                : "hover:bg-blue-50 hover:border-blue-300"
+            }`}
+          >
+            <Type className="h-4 w-4" />
+            {activeTool === "text" ? "✓ Text Mode Active" : "Add Text"}
+          </Button>
+
+          {/* Active Text Mode Indicator */}
+          {activeTool === "text" && (
+            <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              {activeTool === "signature" ? "Cancel" : "Sign"}
-            </Button>
+              <span className="text-xs text-blue-700 font-medium">Click anywhere to add text</span>
+            </div>
+          )}
+
+          {/* Signature Tool */}
+          <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200">
             {signature && (
-              <div className="flex items-center gap-2">
-                <Image height={10} width={10} src={signature} alt="Signature" className="h-8 w-auto border rounded" />
+              <div className="flex items-center gap-2 bg-white rounded-lg p-1.5 border border-gray-200">
+                <Image 
+                  height={32} 
+                  width={60} 
+                  src={signature} 
+                  alt="Current signature" 
+                  className="h-8 w-auto object-contain" 
+                />
+                <span className="text-xs text-green-600 font-semibold">✓ Active</span>
                 <Button
                   onClick={() => setSignature(null)}
                   variant="ghost"
                   size="sm"
-                  className="p-1"
-                  aria-label="Delete signature"
+                  className="p-1 h-6 w-6 hover:bg-red-50"
+                  aria-label="Remove signature"
                 >
-                  <svg className="h-4 w-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-3 w-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
                 </Button>
@@ -132,21 +184,45 @@ export function PDFEditor() {
             )}
             <SignatureTool onSignature={setSignature} />
           </div>
-          <Button onClick={handleDownload} className="bg-blue-600 hover:bg-blue-700">
-            <Download className="h-4 w-4 mr-2" />
-            Download
+
+          {/* Download Button */}
+          <Button 
+            onClick={handleDownload}
+            disabled={isDownloading || (signatureAnnotations.length === 0 && annotations.length === 0)}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isDownloading ? (
+              <>
+                <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Downloading...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </>
+            )}
           </Button>
-          <Button onClick={reset} variant="outline">
+
+          {/* Close Button */}
+          <Button onClick={reset} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
             <X className="h-4 w-4 mr-2" />
-            Finish
+            Close
           </Button>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-32 border-r bg-white overflow-hidden">
+        {/* Thumbnails Sidebar */}
+        <div className="w-32 border-r bg-white overflow-hidden shadow-sm">
           <PDFThumbnails />
         </div>
+
+        {/* PDF Viewer */}
         <div className="flex-1 overflow-hidden relative">
           <PDFViewer
             activeTool={activeTool}

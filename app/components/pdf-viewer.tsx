@@ -14,7 +14,6 @@ let pdfjsLib: typeof import("pdfjs-dist") | null = null;
 async function initPdfJs() {
   if (pdfjsLib) return pdfjsLib;
   const pdfjs = await import("pdfjs-dist");
-  // Using cdn worker path - ensure internet available or provide local worker
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
   pdfjsLib = pdfjs;
   return pdfjs;
@@ -72,7 +71,6 @@ export function PDFViewer({
     deleteSignatureAnnotation,
   } = usePDFStore();
 
-  // Keep track of last auto-inserted signature dataURL to avoid duplicates
   const lastAutoSigRef = useRef<string | null>(null);
 
   // Load the PDF
@@ -118,7 +116,6 @@ export function PDFViewer({
         await renderTask.promise;
       } catch (error) {
         if ((error as Error).name === "RenderingCancelledException") {
-          console.warn("Render canceled (harmless).");
           return;
         }
         console.error("Error rendering PDF page:", error);
@@ -135,43 +132,7 @@ export function PDFViewer({
     };
   }, [pdfDoc, currentPage, scale]);
 
-  // Auto-insert signature when `signature` changes (and activeTool is signature)
-  useEffect(() => {
-    if (!signature || activeTool !== "signature" || !canvasRef.current) return;
-
-    // Avoid re-adding the same data URL multiple times
-    if (lastAutoSigRef.current === signature) return;
-
-    const canvas = canvasRef.current;
-    const pagePixelWidth = canvas.width;
-    const pagePixelHeight = canvas.height;
-
-    // Convert pixel dims to PDF coordinate space by dividing by current scale
-    const pageWidth = pagePixelWidth / scale;
-    const pageHeight = pagePixelHeight / scale;
-
-    // Default signature size in PDF units
-    const sigWidth = Math.min(200, pageWidth * 0.4); // at most 40% of page width or 200 PDF units
-    const sigHeight = sigWidth * 0.4;
-
-    // Place centered near bottom
-    const x = (pageWidth - sigWidth) / 2;
-    const y = pageHeight - sigHeight - 40;
-
-    addSignatureAnnotation({
-      id: Date.now().toString(),
-      image: signature,
-      x,
-      y,
-      width: sigWidth,
-      height: sigHeight,
-      pageIndex: currentPage,
-    });
-
-    lastAutoSigRef.current = signature;
-  }, [signature, activeTool, currentPage, scale, addSignatureAnnotation]);
-
-  // Handle click to place text or signature (manual placement)
+  // Handle click to place text or signature
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -180,26 +141,26 @@ export function PDFViewer({
     const x = (e.clientX - rect.left) / scale;
     const y = (e.clientY - rect.top) / scale;
 
-    if (activeTool === "text" && inputText.trim()) {
+    if (activeTool === "text") {
+      // Create a new text box with placeholder text
       addAnnotation({
         id: Date.now().toString(),
-        text: inputText,
+        text: inputText.trim() || "", // Empty for placeholder
         x,
         y,
-        fontSize: 12,
+        fontSize: 14,
         pageIndex: currentPage,
         color: "#000000",
       });
       setInputText("");
     } else if (activeTool === "signature" && signature) {
-      // Manual placement also supported
       addSignatureAnnotation({
         id: Date.now().toString(),
         image: signature,
         x,
         y,
-        width: 80,
-        height: 40,
+        width: 150,
+        height: 60,
         pageIndex: currentPage,
       });
     }
@@ -263,8 +224,10 @@ export function PDFViewer({
           />
 
           <div
-            className="absolute inset-0 z-10"
-            style={{ pointerEvents: activeTool === "text" || activeTool === "signature" ? "auto" : "none" }}
+            className={`absolute inset-0 z-10 ${
+              activeTool === "text" ? "cursor-text" : activeTool === "signature" ? "cursor-crosshair" : ""
+            }`}
+            style={{ pointerEvents: activeTool ? "auto" : "none" }}
             onClick={handleOverlayClick}
           >
             {annotations

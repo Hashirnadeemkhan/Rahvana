@@ -1,4 +1,4 @@
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts, degrees } from "pdf-lib";
 
 /**
  * ✅ Load a PDF file into pdf-lib
@@ -50,7 +50,8 @@ export async function addImageToPDF(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
+  rotation = 0
 ): Promise<PDFDocument> {
   const pages = pdfDoc.getPages();
   const page = pages[pageIndex];
@@ -59,7 +60,7 @@ export async function addImageToPDF(
   let embeddedImage;
   if (imageData.startsWith("data:image/png")) {
     embeddedImage = await pdfDoc.embedPng(imageData);
-  } else if (imageData.startsWith("data:image/jpeg")) {
+  } else if (imageData.startsWith("data:image/jpeg") || imageData.startsWith("data:image/jpg")) {
     embeddedImage = await pdfDoc.embedJpg(imageData);
   } else {
     throw new Error("Unsupported image format (only PNG or JPEG allowed)");
@@ -70,6 +71,7 @@ export async function addImageToPDF(
     y: pageHeight - y - height,
     width,
     height,
+    rotate: degrees(rotation),
   });
 
   return pdfDoc;
@@ -86,7 +88,7 @@ export async function savePDF(pdfDoc: PDFDocument): Promise<Uint8Array> {
 /**
  * ✅ Helper to download the edited PDF
  */
-export async function downloadPDF(pdfDoc: PDFDocument): Promise<void> {
+export async function downloadPDF(pdfDoc: PDFDocument, filename = "edited.pdf"): Promise<void> {
   const pdfBytes = await pdfDoc.save();
   const safeBytes = new Uint8Array(pdfBytes);
   const blob = new Blob([safeBytes], { type: "application/pdf" });
@@ -94,7 +96,7 @@ export async function downloadPDF(pdfDoc: PDFDocument): Promise<void> {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "edited.pdf";
+  link.download = filename;
   link.click();
 
   URL.revokeObjectURL(url);
