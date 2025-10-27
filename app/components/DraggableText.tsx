@@ -50,11 +50,9 @@ export default function DraggableText({
         onClick={(e) => {
           e.stopPropagation();
           setIsSelected(true);
+          setIsEditing(true); // Enable editing on single click
         }}
-        onDoubleClick={(e) => {
-          e.stopPropagation();
-          setIsEditing(true);
-        }}
+        // Removed onDoubleClick handler since it's no longer needed
       >
         {/* Blue Border Box (SmallPDF style) */}
         <div
@@ -208,13 +206,6 @@ export default function DraggableText({
                   />
                 </svg>
               </button>
-            </div>
-          )}
-
-          {/* Helper Text (Only when no text) */}
-          {!data.text && !isEditing && !isSelected && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none whitespace-nowrap">
-              Double-click to edit
             </div>
           )}
         </div>
