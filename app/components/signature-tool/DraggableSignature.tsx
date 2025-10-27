@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useRef, useState, useEffect } from "react";
 import Draggable from "react-draggable";
 
@@ -27,16 +28,12 @@ export default function DraggableSignature({
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const [showControls, setShowControls] = useState(false);
   const [rotation, setRotation] = useState(data.rotation || 0);
+  const [isRotating, setIsRotating] = useState(false);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Resize state
   const [isResizing, setIsResizing] = useState(false);
-  const resizeStartRef = useRef<{ 
-    x: number; 
-    y: number; 
-    width: number; 
-    height: number;
-  } | null>(null);
+  const resizeStartRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
 
   // Handle resize
   useEffect(() => {
@@ -48,7 +45,6 @@ export default function DraggableSignature({
       const deltaX = e.clientX - resizeStartRef.current.x;
       const deltaY = e.clientY - resizeStartRef.current.y;
 
-      // Convert screen delta to PDF units
       const newWidth = Math.max(40, resizeStartRef.current.width + deltaX / scale);
       const newHeight = Math.max(20, resizeStartRef.current.height + deltaY / scale);
 
@@ -85,20 +81,39 @@ export default function DraggableSignature({
     document.body.style.cursor = "nwse-resize";
   };
 
-  const handleRotateLeft = (e: React.MouseEvent) => {
+  // Handle rotation with circular handle
+  const handleRotateStart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newRotation = (rotation - 15) % 360;
-    setRotation(newRotation);
-    onUpdate(data.id, { rotation: newRotation });
+    setIsRotating(true);
   };
 
-  const handleRotateRight = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const newRotation = (rotation + 15) % 360;
-    setRotation(newRotation);
-    onUpdate(data.id, { rotation: newRotation });
+  const handleRotateMove = (e: MouseEvent) => {
+    if (!isRotating || !nodeRef.current) return;
+    const rect = nodeRef.current.getBoundingClientRect();
+    const centerX = rect.left + (data.width * scale) / 2;
+    const centerY = rect.top + (data.height * scale) / 2;
+    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    const degrees = (angle * 180) / Math.PI;
+    setRotation(Math.round(degrees));
+    onUpdate(data.id, { rotation: degrees });
   };
 
+  const handleRotateEnd = () => {
+    setIsRotating(false);
+  };
+
+  useEffect(() => {
+    if (isRotating) {
+      document.addEventListener("mousemove", handleRotateMove);
+      document.addEventListener("mouseup", handleRotateEnd);
+      return () => {
+        document.removeEventListener("mousemove", handleRotateMove);
+        document.removeEventListener("mouseup", handleRotateEnd);
+      };
+    }
+  }, [isRotating]);
+
+  // Handle mouse enter/leave for controls
   const handleMouseEnter = () => {
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
@@ -113,6 +128,7 @@ export default function DraggableSignature({
     }, 2000);
   };
 
+  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (hideTimeoutRef.current) {
@@ -152,14 +168,13 @@ export default function DraggableSignature({
           setShowControls(true);
         }}
       >
-        {/* Selection Border with Blue Dashed Box */}
+        {/* Selection Border with Clean Blue Dashed Box */}
         {showControls && (
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               border: "2px dashed #3B82F6",
               borderRadius: "4px",
-              animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
             }}
           />
         )}
@@ -175,51 +190,27 @@ export default function DraggableSignature({
             objectFit: "contain",
             pointerEvents: "none",
             transform: `rotate(${rotation}deg)`,
-            transition: "transform 0.2s ease",
+            transition: isRotating ? "none" : "transform 0.2s ease",
             userSelect: "none",
           }}
         />
 
-        {/* Control Toolbar */}
+        {/* Control Toolbar (Moved to Bottom) */}
         {showControls && (
           <div 
-            className="absolute -top-12 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-white shadow-xl rounded-lg p-1.5 border-2 border-blue-500"
+            className="absolute bottom-[-40px] left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-white shadow-xl rounded-lg p-2 border-2 border-blue-500"
             style={{ zIndex: 100 }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            {/* Rotate Left */}
-            <button
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={handleRotateLeft}
-              className="w-9 h-9 bg-gray-100 hover:bg-blue-100 rounded-md flex items-center justify-center transition text-gray-700 hover:text-blue-600"
-              title="Rotate left (15°)"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-              </svg>
-            </button>
-
-            {/* Rotate Right */}
-            <button
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={handleRotateRight}
-              className="w-9 h-9 bg-gray-100 hover:bg-blue-100 rounded-md flex items-center justify-center transition text-gray-700 hover:text-blue-600"
-              title="Rotate right (15°)"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 10H11a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
-              </svg>
-            </button>
-
-            {/* Delete */}
+            {/* Delete Button */}
             <button
               onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(data.id);
               }}
-              className="w-9 h-9 bg-red-500 hover:bg-red-600 text-white rounded-md flex items-center justify-center transition"
+              className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition"
               title="Delete signature"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,7 +230,7 @@ export default function DraggableSignature({
           </>
         )}
 
-        {/* Bottom-right Resize Handle - LARGER & MORE VISIBLE */}
+        {/* Bottom-right Resize Handle */}
         {showControls && (
           <div
             onMouseDown={handleResizeStart}
@@ -251,6 +242,31 @@ export default function DraggableSignature({
             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M7 17L17 7M17 17L7 7" />
             </svg>
+          </div>
+        )}
+
+        {/* Circular Rotation Handle with Gap (SmallPDF Style, Removed Blue Line) */}
+        {showControls && (
+          <div
+            className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center cursor-grab active:cursor-grabbing"
+            style={{ top: '-60px', zIndex: 110 }} // Increased gap from top
+            onMouseDown={handleRotateStart}
+          >
+            {/* Removed the blue connection line */}
+            
+            {/* Rotation Circle */}
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 border-3 border-white rounded-full hover:scale-125 transition-transform shadow-xl flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            
+            {/* Degree Display While Rotating */}
+            {isRotating && (
+              <div className="absolute -bottom-10 bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap animate-pulse">
+                {rotation}°
+              </div>
+            )}
           </div>
         )}
       </div>

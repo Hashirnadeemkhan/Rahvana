@@ -44,17 +44,22 @@ export function PDFViewer({
   inputText,
   setInputText,
   signature,
+  isSignatureFloating,
+  setIsSignatureFloating,
 }: {
   activeTool: "text" | "signature" | null;
   inputText: string;
   setInputText: (text: string) => void;
   signature: string | null;
+  isSignatureFloating: boolean;
+  setIsSignatureFloating: (value: boolean) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(1.5);
   const [isLoading, setIsLoading] = useState(false);
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null); // Track cursor position
 
   const {
     currentPage,
@@ -70,8 +75,6 @@ export function PDFViewer({
     updateSignatureAnnotation,
     deleteSignatureAnnotation,
   } = usePDFStore();
-
-  const lastAutoSigRef = useRef<string | null>(null);
 
   // Load the PDF
   useEffect(() => {
@@ -132,6 +135,27 @@ export function PDFViewer({
     };
   }, [pdfDoc, currentPage, scale]);
 
+  // Track cursor movement for floating signature
+  useEffect(() => {
+    if (!isSignatureFloating || !overlayRef.current || !signature) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setCursorPos({ x, y });
+    };
+
+    const overlay = overlayRef.current;
+    overlay.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      overlay.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [isSignatureFloating, signature]);
+
   // Handle click to place text or signature
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -142,10 +166,9 @@ export function PDFViewer({
     const y = (e.clientY - rect.top) / scale;
 
     if (activeTool === "text") {
-      // Create a new text box with placeholder text
       addAnnotation({
         id: Date.now().toString(),
-        text: inputText.trim() || "", // Empty for placeholder
+        text: inputText.trim() || "",
         x,
         y,
         fontSize: 14,
@@ -153,16 +176,17 @@ export function PDFViewer({
         color: "#000000",
       });
       setInputText("");
-    } else if (activeTool === "signature" && signature) {
+    } else if (activeTool === "signature" && signature && isSignatureFloating) {
       addSignatureAnnotation({
         id: Date.now().toString(),
         image: signature,
         x,
         y,
-        width: 150,
-        height: 60,
+        width: 150, // Default width
+        height: 60, // Default height
         pageIndex: currentPage,
       });
+      setIsSignatureFloating(false); // Stop floating after placing
     }
   };
 
@@ -225,11 +249,16 @@ export function PDFViewer({
 
           <div
             className={`absolute inset-0 z-10 ${
-              activeTool === "text" ? "cursor-text" : activeTool === "signature" ? "cursor-crosshair" : ""
+              activeTool === "text"
+                ? "cursor-text"
+                : activeTool === "signature" && isSignatureFloating
+                ? "cursor-crosshair"
+                : ""
             }`}
             style={{ pointerEvents: activeTool ? "auto" : "none" }}
             onClick={handleOverlayClick}
           >
+            {/* Render existing annotations */}
             {annotations
               .filter((ann: Annotation) => ann.pageIndex === currentPage)
               .map((annotation: Annotation) => (
@@ -253,6 +282,33 @@ export function PDFViewer({
                   scale={scale}
                 />
               ))}
+
+            {/* Floating Signature Preview */}
+            {isSignatureFloating && signature && cursorPos && (
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  left: `${cursorPos.x - 75 * scale}px`, // Center the signature on cursor
+                  top: `${cursorPos.y - 30 * scale}px`, // Center vertically
+                  width: `${150 * scale}px`, // Scaled width
+                  height: `${60 * scale}px`, // Scaled height
+                  opacity: 0.7, // Semi-transparent to indicate preview
+                  zIndex: 100,
+                }}
+              >
+                <img
+                  src={signature}
+                  alt="Floating Signature"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    pointerEvents: "none",
+                    userSelect: "none",
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

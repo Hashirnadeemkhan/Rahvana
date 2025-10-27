@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePDFStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Download, X, Type } from "lucide-react";
@@ -17,49 +17,21 @@ export function PDFEditor() {
   const [inputText, setInputText] = useState("");
   const [signature, setSignature] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  
+  const [isSignatureFloating, setIsSignatureFloating] = useState(false); // New state for floating signature
+
   const { 
     pdfFile,
     annotations, 
     signatureAnnotations, 
-    reset, 
-    addSignatureAnnotation, 
-    currentPage
+    reset 
   } = usePDFStore();
 
-  // Auto-insert signature when it's created
-  useEffect(() => {
-    if (signature && pdfFile) {
-      const canvas = document.querySelector('canvas');
-      if (!canvas) return;
-
-      const pagePixelWidth = canvas.width;
-      const pagePixelHeight = canvas.height;
-      const scale = 1.5;
-
-      const pageWidth = pagePixelWidth / scale;
-      const pageHeight = pagePixelHeight / scale;
-
-      const sigWidth = Math.min(200, pageWidth * 0.4);
-      const sigHeight = sigWidth * 0.4;
-
-      const x = (pageWidth - sigWidth) / 2;
-      const y = pageHeight - sigHeight - 60;
-
-      addSignatureAnnotation({
-        id: Date.now().toString(),
-        image: signature,
-        x,
-        y,
-        width: sigWidth,
-        height: sigHeight,
-        pageIndex: currentPage,
-        rotation: 0,
-      });
-
-      setActiveTool(null);
-    }
-  }, [signature, pdfFile, currentPage, addSignatureAnnotation]);
+  // Handle signature creation
+  const handleSignature = (sig: string) => {
+    setSignature(sig);
+    setActiveTool("signature");
+    setIsSignatureFloating(true); // Enable floating mode when signature is created
+  };
 
   const handleDownload = async () => {
     if (!pdfFile) {
@@ -110,7 +82,6 @@ export function PDFEditor() {
       
       await downloadPDF(pdfDoc, "signed-document.pdf");
       alert("✅ PDF downloaded successfully!");
-
     } catch (error) {
       console.error("Download error:", error);
       alert(`❌ Failed to download PDF: ${error instanceof Error ? error.message : String(error)}`);
@@ -127,9 +98,12 @@ export function PDFEditor() {
           📄 PDF Editor Pro
         </h1>
         <div className="flex items-center gap-3">
-          {/* Text Tool - SmallPDF Style */}
+          {/* Text Tool */}
           <Button
-            onClick={() => setActiveTool(activeTool === "text" ? null : "text")}
+            onClick={() => {
+              setActiveTool(activeTool === "text" ? null : "text");
+              setIsSignatureFloating(false); // Disable floating signature when switching tools
+            }}
             variant={activeTool === "text" ? "default" : "outline"}
             size="sm"
             className={`gap-2 h-9 transition-all ${
@@ -165,7 +139,11 @@ export function PDFEditor() {
                 />
                 <span className="text-xs text-green-600 font-semibold">✓ Active</span>
                 <Button
-                  onClick={() => setSignature(null)}
+                  onClick={() => {
+                    setSignature(null);
+                    setIsSignatureFloating(false); // Clear floating state
+                    setActiveTool(null);
+                  }}
                   variant="ghost"
                   size="sm"
                   className="p-1 h-6 w-6 hover:bg-red-50"
@@ -182,7 +160,7 @@ export function PDFEditor() {
                 </Button>
               </div>
             )}
-            <SignatureTool onSignature={setSignature} />
+            <SignatureTool onSignature={handleSignature} />
           </div>
 
           {/* Download Button */}
@@ -229,6 +207,8 @@ export function PDFEditor() {
             inputText={inputText}
             setInputText={setInputText}
             signature={signature}
+            isSignatureFloating={isSignatureFloating} // Pass floating state
+            setIsSignatureFloating={setIsSignatureFloating} // Pass setter
           />
         </div>
       </div>
