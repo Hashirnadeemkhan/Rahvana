@@ -9,11 +9,18 @@ interface Category {
   description: string
 }
 
+interface Example {
+  type: "good" | "bad"
+  title: string
+  description: string
+  image: string
+}
+
 interface PhotoGuideCategoryProps {
   category: Category
 }
 
-const examplesByCategory: Record<string, any[]> = {
+const examplesByCategory: Record<string, Example[]> = {
   lighting: [
     {
       type: "good",
