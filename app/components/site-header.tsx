@@ -1,5 +1,4 @@
 "use client"
-
 import Link from "next/link"
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
@@ -18,24 +17,21 @@ export function SiteHeader() {
   const useHoverDropdown = () => {
     const [isOpen, setIsOpen] = useState(false)
     const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
     const handleMouseEnter = () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
       setIsOpen(true)
     }
-
     const handleMouseLeave = () => {
       timeoutRef.current = setTimeout(() => {
         setIsOpen(false)
       }, 800)
     }
-
     return { isOpen, setIsOpen, handleMouseEnter, handleMouseLeave }
   }
 
   const visaMenu = useHoverDropdown()
   const serviceMenu = useHoverDropdown()
-  const toolsMenu = useHoverDropdown() // NEW for TOOLS dropdown
+  const toolsMenu = useHoverDropdown() // For TOOLS dropdown
 
   return (
     <header className="sticky top-0 z-50 border-b border-primary/20 bg-gradient-to-r from-primary/10 via-white to-primary/10 backdrop-blur-lg shadow-md">
@@ -48,7 +44,6 @@ export function SiteHeader() {
           >
             RAHVANA
           </Link>
-
           <nav className="hidden md:flex items-center gap-3">
             <Link
               href="/"
@@ -149,7 +144,7 @@ export function SiteHeader() {
               </DropdownMenu>
             </div>
 
-            {/* ===== TOOLS (Hover Dropdown) ===== */}
+            {/* ===== TOOLS (Hover Dropdown) - UPDATED WITH IV TOOL ===== */}
             <div
               className="relative"
               onMouseEnter={toolsMenu.handleMouseEnter}
@@ -167,7 +162,6 @@ export function SiteHeader() {
                     <ChevronDown className="h-3 w-3 group-data-[state=open]:rotate-180 transition-transform duration-200" />
                   </Button>
                 </DropdownMenuTrigger>
-
                 <DropdownMenuContent
                   align="start"
                   className="rounded-lg shadow-lg border border-gray-200 w-64 mt-2 animate-in fade-in slide-in-from-top-2 duration-200 bg-white p-2"
@@ -179,8 +173,8 @@ export function SiteHeader() {
                     Available Tools
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="my-1" />
-
-                  {/* PDF Processing Link */}
+                  
+                  {/* PDF Processing */}
                   <DropdownMenuItem asChild>
                     <Link
                       href="/pdf-processing"
@@ -193,6 +187,8 @@ export function SiteHeader() {
                       <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
                     </Link>
                   </DropdownMenuItem>
+
+                  {/* Signature Tool */}
                   <DropdownMenuItem asChild>
                     <Link
                       href="/signature-image-processing"
@@ -201,6 +197,20 @@ export function SiteHeader() {
                       <div className="flex items-center gap-3">
                         <FileText className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
                         <span className="text-sm font-medium">Create Signature</span>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
+                    </Link>
+                  </DropdownMenuItem>
+
+                  {/* NEW: IV Tool */}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/iv-tool"
+                      className="flex items-center justify-between gap-3 w-full text-gray-700 hover:text-primary p-3 rounded-md transition-all hover:bg-primary/8 cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-medium">IV Tool</span>
                       </div>
                       <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
                     </Link>
@@ -224,7 +234,6 @@ export function SiteHeader() {
 
         {/* Right: Search + Login */}
         <div className="flex items-center gap-3">
-          {/* Search Button */}
           <Button
             variant="outline"
             size="icon"
@@ -233,9 +242,11 @@ export function SiteHeader() {
           >
             <Search className="h-5 w-5 text-gray-600" aria-hidden="true" />
           </Button>
-
-          {/* Login Button */}
-         <Link href="/signup"><Button className="font-semibold text-white shadow-md hover:bg-primary/90 transition-all">LOGIN</Button></Link>
+          <Link href="/signup">
+            <Button className="font-semibold text-white shadow-md hover:bg-primary/90 transition-all">
+              LOGIN
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -310,7 +321,7 @@ export function SiteHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Mobile Tools Dropdown */}
+        {/* Mobile Tools Dropdown - WITH IV TOOL */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -327,6 +338,7 @@ export function SiteHeader() {
               Available Tools
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="my-1" />
+            
             <DropdownMenuItem asChild>
               <Link
                 href="/pdf-processing"
@@ -336,6 +348,28 @@ export function SiteHeader() {
                 <span className="text-sm font-medium">PDF Processing</span>
               </Link>
             </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link
+                href="/signature-image-processing"
+                className="flex items-center gap-3 text-gray-700 hover:text-primary p-3 rounded-md hover:bg-primary/8 transition-all group"
+              >
+                <FileText className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                <span className="text-sm font-medium">Create Signature</span>
+              </Link>
+            </DropdownMenuItem>
+
+            {/* IV Tool in Mobile */}
+            <DropdownMenuItem asChild>
+              <Link
+                href="/iv-tool"
+                className="flex items-center gap-3 text-gray-700 hover:text-primary p-3 rounded-md hover:bg-primary/8 transition-all group"
+              >
+                <FileText className="h-4 w-4 text-primary/60 group-hover:text-primary transition-colors" />
+                <span className="text-sm font-medium">IV Tool</span>
+              </Link>
+            </DropdownMenuItem>
+
             <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
               More tools coming soon
             </DropdownMenuItem>
