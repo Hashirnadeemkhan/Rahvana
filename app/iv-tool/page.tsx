@@ -140,14 +140,7 @@ export default function Home() {
     setCountryOptions([]);
   };
 
-  const getCategoryLabel = (cat: string) => {
-    const labels: Record<string, string> = {
-      'immediate-relative': 'Immediate Relative',
-      'family-sponsored': 'Family-Sponsored Preference',
-      'employment-based': 'Employment-Based Preference'
-    };
-    return labels[cat] || cat;
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-10 px-4">

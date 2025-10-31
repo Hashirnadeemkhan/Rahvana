@@ -2,11 +2,11 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import remove_bg_router, iv_schedule_router
-import cv2
+
 import numpy as np
 from PIL import Image
 import io
-from rembg import remove
+
 
 app = FastAPI()
 
