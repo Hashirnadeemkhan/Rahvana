@@ -98,48 +98,22 @@ export default function PassportPhoto() {
         </h2>
 
         <ul className="grid md:grid-cols-2 gap-6 text-gray-700">
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>
-              <strong>1.</strong> Submit <strong>one color photo</strong>
-            </span>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>
-              <strong>2.</strong> Photo taken in the <strong>last 6 months</strong>
-            </span>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>
-              <strong>3.</strong> Clear image of your <strong>full face</strong>
-            </span>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>
-              <strong>4.</strong> No editing, filters, or AI alterations
-            </span>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>
-              <strong>5.</strong> Face the camera <strong>straight</strong>, no head tilt
-            </span>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>
-              <strong>6.</strong> <strong>Remove eyeglasses</strong>
-            </span>
-          </li>
-          <li className="flex items-start gap-3 md:col-span-2">
-            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>
-              <strong>7.</strong> Plain <strong>white or off-white background</strong> – no shadows, textures, or lines
-            </span>
-          </li>
+          {[
+            "Submit one color photo",
+            "Photo taken in the last 6 months",
+            "Clear image of your full face",
+            "No editing, filters, or AI alterations",
+            "Face the camera straight, no head tilt",
+            "Remove eyeglasses",
+            "Plain white or off-white background – no shadows, textures, or lines",
+          ].map((req, i) => (
+            <li key={i} className="flex items-start gap-3 md:col-span-1">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <span>
+                <strong>{i + 1}.</strong> {req}
+              </span>
+            </li>
+          ))}
         </ul>
       </section>
 
@@ -163,11 +137,13 @@ export default function PassportPhoto() {
               onChange={handleFileChange}
             />
             {preview ? (
-              <img
-                src={preview}
-                alt="Preview"
-                className="mx-auto max-h-48 rounded-lg shadow"
-              />
+              <div className="flex justify-center">
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-64 h-64 object-cover rounded-lg shadow"
+                />
+              </div>
             ) : (
               <div className="flex flex-col items-center text-gray-500">
                 <Upload className="w-10 h-10 mb-2" />
@@ -225,11 +201,13 @@ export default function PassportPhoto() {
               <CheckCircle className="w-6 h-6" />
               Photo Ready!
             </p>
-            <img
-              src={result}
-              alt="Passport photo result"
-              className="mx-auto w-64 h-80 object-cover rounded-lg shadow-xl border-4 border-white"
-            />
+            <div className="flex justify-center">
+              <img
+                src={result}
+                alt="Passport photo result"
+                className="w-64 h-64 object-cover rounded-lg shadow-xl border-4 border-white"
+              />
+            </div>
             <a
               href={result}
               download="passport-photo.jpg"
