@@ -1,8 +1,8 @@
-// @/lib/api.ts
-import axios from "axios";
+// // @/lib/api.ts
+// import axios from "axios";
 
-const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/v1",  // ← Add /api/v1
-});
+// const api = axios.create({
+//   baseURL: "http://127.0.0.1:8000/api/v1",  // ← Add /api/v1
+// });
 
-export default api;
+// export default api;
