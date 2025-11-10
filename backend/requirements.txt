@@ -9,7 +9,7 @@ pypdf
 reportlab
 python-multipart
 uvicorn
-pydantic-settings==2.1.0
+pydantic-settings==1.1.0
 pydantic==1.10.16
 fastapi
 uvicorn
