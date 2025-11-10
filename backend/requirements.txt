@@ -16,4 +16,4 @@ uvicorn
 pymupdf==1.24.10  # fitz
 Pillow
 opencv-python-headless==4.12.0.88
-rembg
+rembg==2.0.58
