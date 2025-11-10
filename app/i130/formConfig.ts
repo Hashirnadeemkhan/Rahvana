@@ -504,6 +504,286 @@ export const formFields: Field[] = [
       { label: "Annulled", value: "Annulled", pdfKey: "marital_status_Annulled" },
     ],
   },
+
+  // ============================================
+  // PAGE 3: SPOUSE & MARRIAGE DETAILS
+  // ============================================
+  {
+    key: "spouse1_date_marriage",
+    pdfKey: "Pt2Line18_DateOfMarriage",
+    label: "18. Date of Current Marriage (mm/dd/yyyy)",
+    type: "text",
+    section: "Your Marital Information",
+    placeholder: "MM/DD/YYYY",
+  },
+  {
+    key: "spouse1_place_city",
+    pdfKey: "Pt2Line19a_CityTown",
+    label: "19.a. City/Town of Current Marriage",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse1_place_state",
+    pdfKey: "Pt2Line19b_State",
+    label: "19.b. State",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse1_place_province",
+    pdfKey: "Pt2Line19c_Province",
+    label: "19.c. Province",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse1_place_country",
+    pdfKey: "Pt2Line19d_Country",
+    label: "19.d. Country",
+    type: "text",
+    section: "Your Marital Information",
+  },
+
+  // Spouse 1 Full Name
+  {
+    key: "spouse1_family_name",
+   pdfKey: "Pt2Line20a_FamilyName",
+    label: "20.a. Family Name (Last Name) - Spouse 1",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse1_given_name",
+ pdfKey: "Pt2Line20b_GivenName",
+    label: "20.b. Given Name (First Name)",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse1_middle_name",
+    pdfKey: "Pt2Line20c_MiddleName",
+    label: "20.c. Middle Name",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse1_marriage_end_date",
+    pdfKey: "Pt2Line21_DateMarriageEnded",
+    label: "21. Date Marriage Ended (if applicable)",
+    type: "text",
+    section: "Your Marital Information",
+    placeholder: "MM/DD/YYYY",
+  },
+
+  // Spouse 2 (Previous Spouse)
+  {
+    key: "spouse2_family_name",
+    pdfKey: "Pt2Line22a_FamilyName",
+    label: "22.a. Family Name (Last Name) - Spouse 2",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse2_given_name",
+    pdfKey: "Pt2Line22b_GivenName",
+    label: "22.b. Given Name (First Name)",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse2_middle_name",
+    pdfKey: "Pt2Line22c_MiddleName",
+    label: "22.c. Middle Name",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse2_marriage_end_date",
+    pdfKey: "Pt2Line23_DateMarriageEnded",
+    label: "23. Date Marriage Ended - Spouse 2",
+    type: "text",
+    section: "Your Marital Information",
+    placeholder: "MM/DD/YYYY",
+  },
+
+  // Spouse 3
+  {
+    key: "spouse3_family_name",
+    pdfKey: "Pt2Line24_FamilyName",
+    label: "24. Family Name (Last Name) - Spouse 3",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse3_given_name",
+    pdfKey: "Pt2Line24_GivenName",
+    label: "24. Given Name (First Name)",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse3_middle_name",
+    pdfKey: "Pt2Line24_MiddleName",
+    label: "24. Middle Name",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse3_date_of_birth",
+    pdfKey: "Pt2Line25_DateofBirth",
+    label: "25. Date of Birth - Spouse 3",
+    type: "text",
+    section: "Your Marital Information",
+    placeholder: "MM/DD/YYYY",
+  },
+  {
+    key: "spouse3_sex",
+    pdfKey: "Pt2Line26",
+    label: "26. Sex - Spouse 3",
+    type: "radio",
+    section: "Your Marital Information",
+    options: [
+      { label: "Male", value: "Male", pdfKey: "Pt2Line26_Male" },
+      { label: "Female", value: "Female", pdfKey: "Pt2Line26_Female" },
+    ],
+  },
+
+  // Spouse 3 Residence
+  {
+    key: "spouse3_country_birth",
+    pdfKey: "Pt2Line27_CountryofBirth",
+    label: "27. Country of Birth - Spouse 3",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse3_city_residence",
+    pdfKey: "Pt2Line28_CityTownOrVillageOfResidence",
+    label: "28. City/Town/Village of Residence - Spouse 3",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "spouse3_country_residence",
+    pdfKey: "Pt2Line29_CountryOfResidence",
+    label: "29. Country of Residence - Spouse 3",
+    type: "text",
+    section: "Your Marital Information",
+  },
+
+  // Parent 1
+  {
+    key: "parent1_family_name",
+    pdfKey: "Pt2Line30a_FamilyName",
+    label: "30.a. Family Name (Last Name) - Parent 1",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "parent1_given_name",
+    pdfKey: "Pt2Line30b_GivenName",
+    label: "30.b. Given Name (First Name)",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "parent1_middle_name",
+    pdfKey: "Pt2Line30c_MiddleName",
+    label: "30.c. Middle Name",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "parent1_date_of_birth",
+    pdfKey: "Pt2Line31_DateofBirth",
+    label: "31. Date of Birth - Parent 1",
+    type: "text",
+    section: "Your Marital Information",
+    placeholder: "MM/DD/YYYY",
+  },
+  {
+    key: "parent1_sex",
+    pdfKey: "Pt2Line32",
+    label: "32. Sex - Parent 1",
+    type: "radio",
+    section: "Your Marital Information",
+    options: [
+      { label: "Male", value: "Male", pdfKey: "Pt2Line32_Male" },
+      { label: "Female", value: "Female", pdfKey: "Pt2Line32_Female" },
+    ],
+  },
+
+  // Parent 1 Residence
+  {
+    key: "parent1_country_birth",
+    pdfKey: "Pt2Line33_CountryofBirth",
+    label: "33. Country of Birth - Parent 1",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "parent1_city_residence",
+    pdfKey: "Pt2Line34_CityTownOrVillageOfResidence",
+    label: "34. City/Town/Village of Residence - Parent 1",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "parent1_country_residence",
+    pdfKey: "Pt2Line35_CountryOfResidence",
+    label: "35. Country of Residence - Parent 1",
+    type: "text",
+    section: "Your Marital Information",
+  },
+
+  // Citizenship Status
+  {
+    key: "citizenship_status",
+    pdfKey: "Pt2Line36",
+    label: "36. I am a (Select only one box):",
+    type: "radio",
+    section: "Your Marital Information",
+    options: [
+      { label: "U.S. Citizen", value: "USCitizen", pdfKey: "Pt2Line36_USCitizen" },
+      { label: "Lawful Permanent Resident", value: "LPR", pdfKey: "Pt2Line36_LPR" },
+    ],
+  },
+  {
+    key: "naturalization_certificate",
+    pdfKey: "Pt2Line36",
+    label: "Have you obtained a Certificate of Naturalization or Certificate of Citizenship?",
+    type: "radio",
+    section: "Your Marital Information",
+    options: [
+      { label: "Yes", value: "Yes", pdfKey: "Pt2Line36_Yes" },
+      { label: "No", value: "No", pdfKey: "Pt2Line36_No" },
+    ],
+  },
+
+  // Certificate Details
+  {
+    key: "certificate_number",
+    pdfKey: "Pt2Line37a_CertificateNumber",
+    label: "37.a. Certificate Number",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "certificate_place",
+    pdfKey: "Pt2Line37b_PlaceOfIssuance",
+    label: "37.b. Place of Issuance",
+    type: "text",
+    section: "Your Marital Information",
+  },
+  {
+    key: "certificate_date",
+    pdfKey: "Pt2Line37c_DateOfIssuance",
+    label: "37.c. Date of Issuance (mm/dd/yyyy)",
+    type: "text",
+    section: "Your Marital Information",
+    placeholder: "MM/DD/YYYY",
+  },
 ];
 
 export const getInitialFormData = () => {

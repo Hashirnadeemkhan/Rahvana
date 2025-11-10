@@ -150,6 +150,11 @@ FIELD_MAPPING = {
 "Pt2Line19b_State": "form1[0].#subform[2].Pt2Line19b_State[0]",
 "Pt2Line19c_Province": "form1[0].#subform[2].Pt2Line19c_Province[0]",
 "Pt2Line19d_Country": "form1[0].#subform[2].Pt2Line19d_Country[0]",
+"Pt2Line21_DateMarriageEnded": "form1[0].#subform[2].Pt2Line21_DateMarriageEnded[0]",
+"Pt2Line22a_FamilyName": "form1[0].#subform[2].Pt2Line22a_FamilyName[0]",
+"Pt2Line22b_GivenName": "form1[0].#subform[2].Pt2Line22b_GivenName[0]",
+"Pt2Line22c_MiddleName": "form1[0].#subform[2].Pt2Line22c_MiddleName[0]",
+"Pt2Line23_DateMarriageEnded": "form1[0].#subform[2].Pt2Line23_DateMarriageEnded[0]",
 
 "Pt2Line23a_checkbox": "form1[0].#subform[2].Pt2Line23a_checkbox[0]",
 "Pt2Line23b_checkbox": "form1[0].#subform[2].Pt2Line23b_checkbox[0]",

@@ -41,7 +41,7 @@ app.include_router(remove_bg_router, prefix="/api/v1", tags=["remove-bg"])
 app.include_router(iv_schedule_router, prefix="/api/v1", tags=["iv-schedule"])
 app.include_router(i130_router, prefix="/api/v1", tags=["i130"])
 
-# --- Uvicorn start for local & Render ---
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Render sets PORT automatically
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+# # --- Uvicorn start for local & Render ---
+# if __name__ == "__main__":
+#     port = int(os.environ.get("PORT", 8000))  # Render sets PORT automatically
+#     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
