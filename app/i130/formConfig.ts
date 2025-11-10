@@ -1,6 +1,6 @@
 // app/i130/formConfig.ts
 
-export type FieldType = "text" | "radio";
+export type FieldType = "text" | "radio" | "checkbox";
 
 export type Field = {
   key: string;
@@ -784,6 +784,359 @@ export const formFields: Field[] = [
     section: "Your Marital Information",
     placeholder: "MM/DD/YYYY",
   },
+  // ============================================
+// PAGE 4: ADDITIONAL INFORMATION (Petitioner)
+// ============================================
+
+// ============================================
+// ITEM 40: ADMISSION TO THE U.S.
+// ============================================
+{
+  key: "class_of_admission",
+  pdfKey: "Pt2Line40a_ClassOfAdmission",
+  label: "40.a. Class of Admission",
+  type: "text",
+  section: "Your U.S. Entry Information",
+  placeholder: "e.g. B2, F1, H1B",
+},
+{
+  key: "date_of_admission",
+  pdfKey: "Pt2Line40b_DateOfAdmission",
+  label: "40.b. Date of Admission (mm/dd/yyyy)",
+  type: "text",
+  section: "Your U.S. Entry Information",
+  placeholder: "MM/DD/YYYY",
+},
+{
+  key: "city_of_admission",
+  pdfKey: "Pt2Line40d_CityOrTown",
+  label: "40.d. City or Town of Admission",
+  type: "text",
+  section: "Your U.S. Entry Information",
+},
+{
+  key: "state_of_admission",
+  pdfKey: "Pt2Line40e_State",
+  label: "40.e. State of Admission",
+  type: "text", // ComboBox in PDF → use text or dropdown
+  section: "Your U.S. Entry Information",
+},
+
+// ============================================
+// ITEM 41: CURRENT EMPLOYMENT ADDRESS (If different)
+// ============================================
+{
+  key: "employment_different_address",
+  pdfKey: "employment_different_address",
+  label: "41. Is your current employment address different from your current physical address?",
+  type: "radio",
+  section: "Employment Information",
+  options: [
+    { label: "Yes", value: "Yes", pdfKey: "Pt2Line41_Yes" },
+    { label: "No", value: "No", pdfKey: "Pt2Line41_No" },
+  ],
+},
+
+// Employment Address (Conditional)
+{
+  key: "employment_street",
+  pdfKey: "Pt2Line41_StreetNumberName",
+  label: "41.a. Street Number and Name",
+  type: "text",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+},
+{
+  key: "employment_unit_type",
+  pdfKey: "employment_unit_type",
+  label: "41.b. Unit",
+  type: "radio",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+  options: [
+    { label: "Apt.", value: "Apt", pdfKey: "Pt2Line41_Unit[0]" },
+    { label: "Ste.", value: "Ste", pdfKey: "Pt2Line41_Unit[1]" },
+    { label: "Flr.", value: "Flr", pdfKey: "Pt2Line41_Unit[2]" },
+  ],
+},
+{
+  key: "employment_unit_number",
+  pdfKey: "Pt2Line41_AptSteFlrNumber",
+  label: "41.c. Apt./Ste./Flr. Number",
+  type: "text",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+},
+{
+  key: "employment_city",
+  pdfKey: "Pt2Line41_CityOrTown",
+  label: "41.d. City or Town",
+  type: "text",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+},
+{
+  key: "employment_state",
+  pdfKey: "Pt2Line41_State",
+  label: "41.e. State",
+  type: "text",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+},
+{
+  key: "employment_zip",
+  pdfKey: "Pt2Line41_ZipCode",
+  label: "41.f. ZIP Code",
+  type: "text",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+  maxLength: 5,
+},
+{
+  key: "employment_province",
+  pdfKey: "Pt2Line41_Province",
+  label: "41.g. Province",
+  type: "text",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+},
+{
+  key: "employment_postal_code",
+  pdfKey: "Pt2Line41_PostalCode",
+  label: "41.h. Postal Code",
+  type: "text",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+},
+{
+  key: "employment_country",
+  pdfKey: "Pt2Line41_Country",
+  label: "41.i. Country",
+  type: "text",
+  section: "Employment Information",
+  condition: (d) => d.employment_different_address === "Yes",
+},
+
+// ============================================
+// ITEM 42-43: CURRENT EMPLOYMENT DETAILS
+// ============================================
+{
+  key: "current_occupation",
+  pdfKey: "Pt2Line42_Occupation",
+  label: "42. Current Occupation",
+  type: "text",
+  section: "Employment Information",
+},
+{
+  key: "employment_start_date",
+  pdfKey: "Pt2Line43a_DateFrom",
+  label: "43.a. Date Employment Began (mm/dd/yyyy)",
+  type: "text",
+  section: "Employment Information",
+  placeholder: "MM/DD/YYYY",
+},
+{
+  key: "employment_end_date",
+  pdfKey: "Pt2Line43b_DateTo",
+  label: "43.b. Date Employment Ended (mm/dd/yyyy)",
+  type: "text",
+  section: "Employment Information",
+  placeholder: "MM/DD/YYYY or PRESENT",
+},
+
+// ============================================
+// ITEM 44-47: PREVIOUS EMPLOYMENT
+// ============================================
+{
+  key: "previous_employer_name",
+  pdfKey: "Pt2Line44_EmployerOrOrgName",
+  label: "44. Name of Employer or Organization",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_employer_street",
+  pdfKey: "Pt2Line45_StreetNumberName",
+  label: "45.a. Street Number and Name",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_unit_type",
+  pdfKey: "previous_unit_type",
+  label: "45.b. Unit",
+  type: "radio",
+  section: "Previous Employment",
+  options: [
+    { label: "Apt.", value: "Apt", pdfKey: "Pt2Line45_Unit[0]" },
+    { label: "Ste.", value: "Ste", pdfKey: "Pt2Line45_Unit[1]" },
+    { label: "Flr.", value: "Flr", pdfKey: "Pt2Line45_Unit[2]" },
+  ],
+},
+{
+  key: "previous_unit_number",
+  pdfKey: "Pt2Line45_AptSteFlrNumber",
+  label: "45.c. Apt./Ste./Flr. Number",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_city",
+  pdfKey: "Pt2Line45_CityOrTown",
+  label: "45.d. City or Town",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_state",
+  pdfKey: "Pt2Line45_State",
+  label: "45.e. State",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_zip",
+  pdfKey: "Pt2Line45_ZipCode",
+  label: "45.f. ZIP Code",
+  type: "text",
+  section: "Previous Employment",
+  maxLength: 5,
+},
+{
+  key: "previous_province",
+  pdfKey: "Pt2Line45_Province",
+  label: "45.g. Province",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_postal_code",
+  pdfKey: "Pt2Line45_PostalCode",
+  label: "45.h. Postal Code",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_country",
+  pdfKey: "Pt2Line45_Country",
+  label: "45.i. Country",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_occupation",
+  pdfKey: "Pt2Line46_Occupation",
+  label: "46. Occupation",
+  type: "text",
+  section: "Previous Employment",
+},
+{
+  key: "previous_employment_start",
+  pdfKey: "Pt2Line47a_DateFrom",
+  label: "47.a. Date From (mm/dd/yyyy)",
+  type: "text",
+  section: "Previous Employment",
+  placeholder: "MM/DD/YYYY",
+},
+{
+  key: "previous_employment_end",
+  pdfKey: "Pt2Line47b_DateTo",
+  label: "47.b. Date To (mm/dd/yyyy)",
+  type: "text",
+  section: "Previous Employment",
+  placeholder: "MM/DD/YYYY",
+},
+
+// ============================================
+// ITEM 48: ETHNICITY
+// ============================================
+{
+  key: "ethnicity",
+  pdfKey: "ethnicity",
+  label: "48. Ethnicity (Select only one box)",
+  type: "radio",
+  section: "Physical Characteristics",
+  options: [
+    { label: "Hispanic or Latino", value: "hispanic", pdfKey: "Pt3Line1_Ethnicity[0]" },
+    { label: "Not Hispanic or Latino", value: "not_hispanic", pdfKey: "Pt3Line1_Ethnicity[1]" },
+  ],
+},
+
+// ============================================
+// ITEM 49: RACE
+// ============================================
+{
+  key: "race",
+  pdfKey: "race",
+  label: "49. Race (Select all that apply)",
+  type: "checkbox",
+  section: "Physical Characteristics",
+  options: [
+    { label: "White", value: "white", pdfKey: "Pt3Line2_Race_White" },
+    { label: "Asian", value: "asian", pdfKey: "Pt3Line2_Race_Asian" },
+    { label: "Black or African American", value: "black", pdfKey: "Pt3Line2_Race_Black" },
+    { label: "American Indian or Alaska Native", value: "native", pdfKey: "Pt3Line2_Race_AmericanIndianAlaskaNative" },
+    { label: "Native Hawaiian or Other Pacific Islander", value: "pacific", pdfKey: "Pt3Line2_Race_NativeHawaiianOtherPacificIslander" },
+  ],
+},
+
+// ============================================
+// ITEM 50: HEIGHT
+// ============================================
+{
+  key: "height_feet",
+  pdfKey: "Pt3Line3_HeightFeet",
+  label: "50.a. Feet",
+  type: "text",
+  section: "Physical Characteristics",
+  placeholder: "5",
+  maxLength: 1,
+},
+{
+  key: "height_inches",
+  pdfKey: "Pt3Line3_HeightInches",
+  label: "50.b. Inches",
+  type: "text",
+  section: "Physical Characteristics",
+  placeholder: "10",
+  maxLength: 2,
+},
+
+// ============================================
+// ITEM 51: WEIGHT
+// ============================================
+{
+  key: "weight_pounds",
+  pdfKey: "weight_pounds",
+  label: "51. Weight (in pounds)",
+  type: "text",
+  section: "Physical Characteristics",
+  placeholder: "150",
+  maxLength: 3,
+  // Note: PDF splits into 3 fields — handle in backend
+},
+
+// ============================================
+// ITEM 52: EYE COLOR
+// ============================================
+{
+  key: "eye_color",
+  pdfKey: "eye_color",
+  label: "52. Eye Color (Select only one box)",
+  type: "radio",
+  section: "Physical Characteristics",
+  options: [
+    { label: "Black", value: "black", pdfKey: "Pt3Line5_EyeColor[0]" },
+    { label: "Blue", value: "blue", pdfKey: "Pt3Line5_EyeColor[1]" },
+    { label: "Brown", value: "brown", pdfKey: "Pt3Line5_EyeColor[2]" },
+    { label: "Gray", value: "gray", pdfKey: "Pt3Line5_EyeColor[3]" },
+    { label: "Green", value: "green", pdfKey: "Pt3Line5_EyeColor[4]" },
+    { label: "Hazel", value: "hazel", pdfKey: "Pt3Line5_EyeColor[5]" },
+    { label: "Maroon", value: "maroon", pdfKey: "Pt3Line5_EyeColor[6]" },
+    { label: "Pink", value: "pink", pdfKey: "Pt3Line5_EyeColor[7]" },
+    { label: "Unknown/Other", value: "other", pdfKey: "Pt3Line5_EyeColor[8]" },
+  ],
+},
 ];
 
 export const getInitialFormData = () => {

@@ -191,4 +191,68 @@ FIELD_MAPPING = {
 "Pt2Line37a_CertificateNumber": "form1[0].#subform[2].Pt2Line37a_CertificateNumber[0]",
 "Pt2Line37b_PlaceOfIssuance": "form1[0].#subform[2].Pt2Line37b_PlaceOfIssuance[0]",
 "Pt2Line37c_DateOfIssuance": "form1[0].#subform[2].Pt2Line37c_DateOfIssuance[0]",
+# ============================================
+# PAGE 4 - ADDITIONAL INFO
+# ============================================
+
+# 40
+"Pt2Line40a_ClassOfAdmission": "form1[0].#subform[3].Pt2Line40a_ClassOfAdmission[0]",
+"Pt2Line40b_DateOfAdmission": "form1[0].#subform[3].Pt2Line40b_DateOfAdmission[0]",
+"Pt2Line40d_CityOrTown": "form1[0].#subform[3].Pt2Line40d_CityOrTown[0]",
+"Pt2Line40e_State": "form1[0].#subform[3].Pt2Line40e_State[0]",
+
+# 41
+"Pt2Line41_Yes": "form1[0].#subform[3].Pt2Line41_Yes[0]",
+"Pt2Line41_No": "form1[0].#subform[3].Pt2Line41_No[0]",
+"Pt2Line41_StreetNumberName": "form1[0].#subform[3].Pt2Line41_StreetNumberName[0]",
+"Pt2Line41_Unit[0]": "form1[0].#subform[3].Pt2Line41_Unit[0]",
+"Pt2Line41_Unit[1]": "form1[0].#subform[3].Pt2Line41_Unit[1]",
+"Pt2Line41_Unit[2]": "form1[0].#subform[3].Pt2Line41_Unit[2]",
+"Pt2Line41_AptSteFlrNumber": "form1[0].#subform[3].Pt2Line41_AptSteFlrNumber[0]",
+"Pt2Line41_CityOrTown": "form1[0].#subform[3].Pt2Line41_CityOrTown[0]",
+"Pt2Line41_State": "form1[0].#subform[3].Pt2Line41_State[0]",
+"Pt2Line41_ZipCode": "form1[0].#subform[3].Pt2Line41_ZipCode[0]",
+"Pt2Line41_Province": "form1[0].#subform[3].Pt2Line41_Province[0]",
+"Pt2Line41_PostalCode": "form1[0].#subform[3].Pt2Line41_PostalCode[0]",
+"Pt2Line41_Country": "form1[0].#subform[3].Pt2Line41_Country[0]",
+
+# 42-47
+"Pt2Line42_Occupation": "form1[0].#subform[3].Pt2Line42_Occupation[0]",
+"Pt2Line43a_DateFrom": "form1[0].#subform[3].Pt2Line43a_DateFrom[0]",
+"Pt2Line43b_DateTo": "form1[0].#subform[3].Pt2Line43b_DateTo[0]",
+"Pt2Line44_EmployerOrOrgName": "form1[0].#subform[3].Pt2Line44_EmployerOrOrgName[0]",
+"Pt2Line45_StreetNumberName": "form1[0].#subform[3].Pt2Line45_StreetNumberName[0]",
+"Pt2Line45_Unit[0]": "form1[0].#subform[3].Pt2Line45_Unit[0]",
+"Pt2Line45_Unit[1]": "form1[0].#subform[3].Pt2Line45_Unit[1]",
+"Pt2Line45_Unit[2]": "form1[0].#subform[3].Pt2Line45_Unit[2]",
+"Pt2Line45_AptSteFlrNumber": "form1[0].#subform[3].Pt2Line45_AptSteFlrNumber[0]",
+"Pt2Line45_CityOrTown": "form1[0].#subform[3].Pt2Line45_CityOrTown[0]",
+"Pt2Line45_State": "form1[0].#subform[3].Pt2Line45_State[0]",
+"Pt2Line45_ZipCode": "form1[0].#subform[3].Pt2Line45_ZipCode[0]",
+"Pt2Line45_Province": "form1[0].#subform[3].Pt2Line45_Province[0]",
+"Pt2Line45_PostalCode": "form1[0].#subform[3].Pt2Line45_PostalCode[0]",
+"Pt2Line45_Country": "form1[0].#subform[3].Pt2Line45_Country[0]",
+"Pt2Line46_Occupation": "form1[0].#subform[3].Pt2Line46_Occupation[0]",
+"Pt2Line47a_DateFrom": "form1[0].#subform[3].Pt2Line47a_DateFrom[0]",
+"Pt2Line47b_DateTo": "form1[0].#subform[3].Pt2Line47b_DateTo[0]",
+
+# 48-52
+"Pt3Line1_Ethnicity[0]": "form1[0].#subform[3].Pt3Line1_Ethnicity[0]",
+"Pt3Line1_Ethnicity[1]": "form1[0].#subform[3].Pt3Line1_Ethnicity[1]",
+"Pt3Line2_Race_White": "form1[0].#subform[3].Pt3Line2_Race_White[0]",
+"Pt3Line2_Race_Asian": "form1[0].#subform[3].Pt3Line2_Race_Asian[0]",
+"Pt3Line2_Race_Black": "form1[0].#subform[3].Pt3Line2_Race_Black[0]",
+"Pt3Line2_Race_AmericanIndianAlaskaNative": "form1[0].#subform[3].Pt3Line2_Race_AmericanIndianAlaskaNative[0]",
+"Pt3Line2_Race_NativeHawaiianOtherPacificIslander": "form1[0].#subform[3].Pt3Line2_Race_NativeHawaiianOtherPacificIslander[0]",
+"Pt3Line3_HeightFeet": "form1[0].#subform[3].Pt3Line3_HeightFeet[0]",
+"Pt3Line3_HeightInches": "form1[0].#subform[3].Pt3Line3_HeightInches[0]",
+"Pt3Line5_EyeColor[0]": "form1[0].#subform[3].Pt3Line5_EyeColor[0]",
+"Pt3Line5_EyeColor[1]": "form1[0].#subform[3].Pt3Line5_EyeColor[1]",
+"Pt3Line5_EyeColor[2]": "form1[0].#subform[3].Pt3Line5_EyeColor[2]",
+"Pt3Line5_EyeColor[3]": "form1[0].#subform[3].Pt3Line5_EyeColor[3]",
+"Pt3Line5_EyeColor[4]": "form1[0].#subform[3].Pt3Line5_EyeColor[4]",
+"Pt3Line5_EyeColor[5]": "form1[0].#subform[3].Pt3Line5_EyeColor[5]",
+"Pt3Line5_EyeColor[6]": "form1[0].#subform[3].Pt3Line5_EyeColor[6]",
+"Pt3Line5_EyeColor[7]": "form1[0].#subform[3].Pt3Line5_EyeColor[7]",
+"Pt3Line5_EyeColor[8]": "form1[0].#subform[3].Pt3Line5_EyeColor[8]",
 }
