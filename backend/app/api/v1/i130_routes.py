@@ -70,16 +70,20 @@ class PDFFillerService:
 pdf_service = PDFFillerService(FIELD_MAPPING)
 
 def find_pdf_template() -> str:
-    # Start from current file: app/api/v1/i130_routes.py
-    current = os.path.dirname(__file__)
-    backend_root = os.path.abspath(os.path.join(current, "..", "..", ".."))  # → backend/
-
-    for name in ["i130.pdf", "i130_base.pdf"]:
-        path = os.path.join(backend_root, name)
+    # Render-specific paths first
+    possible_paths = [
+        "/app/i130.pdf",  # Render container root
+        "/app/i130_base.pdf",
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", "i130.pdf"),  # Fallback for local
+        os.path.join(os.path.dirname(__file__), "..", "..", "i130.pdf"),  # Another fallback
+    ]
+    
+    for path in possible_paths:
         if os.path.exists(path):
-            print(f"Found PDF: {path}")  # Debug
+            print(f"Found PDF: {path}")  # Debug log
             return path
-    raise FileNotFoundError(f"PDF not found in {backend_root}. Looked for i130.pdf or i130_base.pdf")
+            
+    raise FileNotFoundError("PDF template not found. Ensure i130.pdf is in backend root.")
 
 @router.post("/fill-pdf")
 async def fill_pdf(request: Request):

@@ -7,15 +7,15 @@ load_dotenv()
 # Paths - FIXED FOR YOUR DIRECTORY STRUCTURE
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # backend folder
 DATA_DIR = BASE_DIR / "data"  # backend/data
-FORMS_DIR = DATA_DIR / "forms"  # backend/data/forms
+
 
 # Ensure directories exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
-FORMS_DIR.mkdir(parents=True, exist_ok=True)
+
 
 print(f"\n📂 BASE_DIR: {BASE_DIR}")
 print(f"📂 DATA_DIR: {DATA_DIR}")
-print(f"📂 FORMS_DIR: {FORMS_DIR}")
+
 
 class Settings:
     # Project
@@ -28,8 +28,6 @@ class Settings:
     
     # Paths - YAHAN SAHI PATHS DAL DIYE
     DATA_DIR: Path = DATA_DIR
-    FORMS_DIR: Path = FORMS_DIR
-    I130_JSON_PATH: Path = FORMS_DIR / "i130-form.json"  # ✅ FIXED
     I130_PDF_PATH: Path = DATA_DIR / "i130.pdf"  # ✅ FIXED
     
     # CORS
@@ -37,8 +35,11 @@ class Settings:
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:3001",
-    ]
+        "https://www.rahvana.com/"
     
+    ]
+    class Config:
+        env_file = ".env"
     # File size limits
     MAX_PDF_SIZE_MB: int = 50
     MAX_JSON_SIZE_MB: int = 10
