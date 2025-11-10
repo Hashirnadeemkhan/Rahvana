@@ -84,11 +84,15 @@ export default function I130Form() {
       }
     });
 
-    const res = await fetch("http://localhost:8000/api/v1/fill-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+ const apiUrl = typeof window !== "undefined" 
+  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1")
+  : "http://localhost:8000/api/v1"; // fallback for SSR
+
+const res = await fetch(`${apiUrl}/fill-pdf`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload),
+});
 
     if (!res.ok) return alert("Error generating PDF");
 

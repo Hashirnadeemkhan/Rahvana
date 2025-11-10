@@ -14,3 +14,6 @@ pydantic==2.5.0
 fastapi
 uvicorn
 pymupdf==1.24.10  # fitz
+Pillow
+opencv-python-headless==4.8.0.132
+rembg

@@ -54,7 +54,7 @@ export default function PassportPhoto() {
     formData.append("file", file);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/remove-bg`, {
+      const res = await fetch(`http://localhost:8000/api/v1/remove-bg`, {
 
         method: "POST",
         body: formData,
