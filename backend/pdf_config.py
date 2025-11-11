@@ -255,4 +255,145 @@ FIELD_MAPPING = {
 "Pt3Line5_EyeColor[6]": "form1[0].#subform[3].Pt3Line5_EyeColor[6]",
 "Pt3Line5_EyeColor[7]": "form1[0].#subform[3].Pt3Line5_EyeColor[7]",
 "Pt3Line5_EyeColor[8]": "form1[0].#subform[3].Pt3Line5_EyeColor[8]",
+
+
+# page 5 and page6
+# ============================================
+# PAGE 5 - PART 4 (Applicant Info)
+# ============================================
+
+"Pt4Line1_AlienNumber": "form1[0].#subform[4].#area[6].Pt4Line1_AlienNumber[0]",
+"Pt4Line2_USCISOnlineActNumber": "form1[0].#subform[4].#area[7].Pt4Line2_USCISOnlineActNumber[0]",
+"Pt4Line3_SSN": "form1[0].#subform[4].Pt4Line3_SSN[0]",
+"Pt4Line4a_FamilyName": "form1[0].#subform[4].Pt4Line4a_FamilyName[0]",
+"Pt4Line4b_GivenName": "form1[0].#subform[4].Pt4Line4b_GivenName[0]",
+"Pt4Line4c_MiddleName": "form1[0].#subform[4].Pt4Line4c_MiddleName[0]",
+"P4Line5a_FamilyName": "form1[0].#subform[4].P4Line5a_FamilyName[0]",
+"Pt4Line5b_GivenName": "form1[0].#subform[4].Pt4Line5b_GivenName[0]",
+"Pt4Line5c_MiddleName": "form1[0].#subform[4].Pt4Line5c_MiddleName[0]",
+"Pt4Line7_CityTownOfBirth": "form1[0].#subform[4].Pt4Line7_CityTownOfBirth[0]",
+"Pt4Line8_CountryOfBirth": "form1[0].#subform[4].Pt4Line8_CountryOfBirth[0]",
+"Pt4Line9_DateOfBirth": "form1[0].#subform[4].Pt4Line9_DateOfBirth[0]",
+"Pt4Line9_Male": "form1[0].#subform[4].Pt4Line9_Male[0]",
+"Pt4Line9_Female": "form1[0].#subform[4].Pt4Line9_Female[0]",
+
+# Hair Color (Pt3Line6) - Checkboxes
+"Pt3Line6_HairColor_Black": "form1[0].#subform[4].Pt3Line6_HairColor[0]",
+"Pt3Line6_HairColor_Blonde": "form1[0].#subform[4].Pt3Line6_HairColor[1]",
+"Pt3Line6_HairColor_Brown": "form1[0].#subform[4].Pt3Line6_HairColor[2]",
+"Pt3Line6_HairColor_Gray": "form1[0].#subform[4].Pt3Line6_HairColor[3]",
+"Pt3Line6_HairColor_Red": "form1[0].#subform[4].Pt3Line6_HairColor[4]",
+"Pt3Line6_HairColor_Sandy": "form1[0].#subform[4].Pt3Line6_HairColor[5]",
+"Pt3Line6_HairColor_White": "form1[0].#subform[4].Pt3Line6_HairColor[6]",
+"Pt3Line6_HairColor_Bald": "form1[0].#subform[4].Pt3Line6_HairColor[7]",
+"Pt3Line6_HairColor_Unknown": "form1[0].#subform[4].Pt3Line6_HairColor[8]",
+
+# Pt4Line10 - Ethnicity
+"Pt4Line10_Yes": "form1[0].#subform[4].Pt4Line10_Yes[0]",
+"Pt4Line10_No": "form1[0].#subform[4].Pt4Line10_No[0]",
+"Pt4Line10_Unknown": "form1[0].#subform[4].Pt4Line10_Unknown[0]",
+
+# Current Physical Address (Pt4Line11)
+"Pt4Line11_StreetNumberName": "form1[0].#subform[4].Pt4Line11_StreetNumberName[0]",
+"Pt4Line11_Unit_Ste": "form1[0].#subform[4].Pt4Line11_Unit[0]",
+"Pt4Line11_Unit_Apt": "form1[0].#subform[4].Pt4Line11_Unit[1]",
+"Pt4Line11_Unit_Flr": "form1[0].#subform[4].Pt4Line11_Unit[2]",
+"Pt4Line11_AptSteFlrNumber": "form1[0].#subform[4].Pt4Line11_AptSteFlrNumber[0]",
+"Pt4Line11_CityOrTown": "form1[0].#subform[4].Pt4Line11_CityOrTown[0]",
+"Pt4Line11_State": "form1[0].#subform[4].Pt4Line11_State[0]",
+"Pt4Line11_ZipCode": "form1[0].#subform[4].Pt4Line11_ZipCode[0]",
+"Pt4Line11_Province": "form1[0].#subform[4].Pt4Line11_Province[0]",
+"Pt4Line11_PostalCode": "form1[0].#subform[4].Pt4Line11_PostalCode[0]",
+"Pt4Line11_Country": "form1[0].#subform[4].Pt4Line11_Country[0]",
+
+# Mailing Address (Pt4Line12)
+"Pt4Line12a_StreetNumberName": "form1[0].#subform[4].Pt4Line12a_StreetNumberName[0]",
+"Pt4Line12b_Unit_Ste": "form1[0].#subform[4].Pt4Line12b_Unit[0]",
+"Pt4Line12b_Unit_Apt": "form1[0].#subform[4].Pt4Line12b_Unit[1]",
+"Pt4Line12b_Unit_Flr": "form1[0].#subform[4].Pt4Line12b_Unit[2]",
+"Pt4Line12b_AptSteFlrNumber": "form1[0].#subform[4].Pt4Line12b_AptSteFlrNumber[0]",
+"Pt4Line12c_CityOrTown": "form1[0].#subform[4].Pt4Line12c_CityOrTown[0]",
+"Pt4Line12d_State": "form1[0].#subform[4].Pt4Line12d_State[0]",
+"Pt4Line12e_ZipCode": "form1[0].#subform[4].Pt4Line12e_ZipCode[0]",
+
+# Address in Care Of (Pt4Line13)
+"Pt4Line13_StreetNumberName": "form1[0].#subform[4].Pt4Line13_StreetNumberName[0]",
+"Pt4Line13_Unit_Ste": "form1[0].#subform[4].Pt4Line13_Unit[0]",
+"Pt4Line13_Unit_Apt": "form1[0].#subform[4].Pt4Line13_Unit[1]",
+"Pt4Line13_Unit_Flr": "form1[0].#subform[4].Pt4Line13_Unit[2]",
+"Pt4Line13_AptSteFlrNumber": "form1[0].#subform[4].Pt4Line13_AptSteFlrNumber[0]",
+"Pt4Line13_CityOrTown": "form1[0].#subform[4].Pt4Line13_CityOrTown[0]",
+"Pt4Line13_Province": "form1[0].#subform[4].Pt4Line13_Province[0]",
+"Pt4Line13_PostalCode": "form1[0].#subform[4].Pt4Line13_PostalCode[0]",
+"Pt4Line13_Country": "form1[0].#subform[4].Pt4Line13_Country[0]",
+
+# Daytime Phone
+"Pt4Line14_DaytimePhoneNumber": "form1[0].#subform[4].Pt4Line14_DaytimePhoneNumber[0]",
+
+# ============================================
+# PAGE 6 - PART 4 (Continued)
+# ============================================
+
+# Mobile & Email
+"Pt4Line15_MobilePhoneNumber": "form1[0].#subform[5].Pt4Line15_MobilePhoneNumber[0]",
+"Pt4Line16_EmailAddress": "form1[0].#subform[5].Pt4Line16_EmailAddress[0]",
+
+# Number of Marriages
+"Pt4Line17_NumberofMarriages": "form1[0].#subform[5].Pt4Line17_NumberofMarriages[0]",
+
+# Marital Status Checkboxes
+"Pt4Line18_Married": "form1[0].#subform[5].Pt4Line18_MaritalStatus[0]",
+"Pt4Line18_Divorced": "form1[0].#subform[5].Pt4Line18_MaritalStatus[1]",
+"Pt4Line18_Widowed": "form1[0].#subform[5].Pt4Line18_MaritalStatus[2]",
+"Pt4Line18_Single": "form1[0].#subform[5].Pt4Line18_MaritalStatus[3]",
+"Pt4Line18_Annulled": "form1[0].#subform[5].Pt4Line18_MaritalStatus[4]",
+"Pt4Line18_LegallySeparated": "form1[0].#subform[5].Pt4Line18_MaritalStatus[5]",
+
+# Current Spouse Name
+"Pt4Line18a_FamilyName": "form1[0].#subform[5].Pt4Line18a_FamilyName[0]",
+"Pt4Line18b_GivenName": "form1[0].#subform[5].Pt4Line18b_GivenName[0]",
+"Pt4Line18c_MiddleName": "form1[0].#subform[5].Pt4Line18c_MiddleName[0]",
+
+# Date of Marriage
+"Pt4Line19_DateOfMarriage": "form1[0].#subform[5].Pt4Line19_DateOfMarriage[0]",
+
+# Place of Marriage
+"Pt4Line20a_CityTown": "form1[0].#subform[5].Pt4Line20a_CityTown[0]",
+"Pt4Line20b_State": "form1[0].#subform[5].Pt4Line20b_State[0]",
+"Pt4Line20c_Province": "form1[0].#subform[5].Pt4Line20c_Province[0]",
+"Pt4Line20d_Country": "form1[0].#subform[5].Pt4Line20d_Country[0]",
+
+# Previous Spouse
+"Pt4Line16a_FamilyName": "form1[0].#subform[5].Pt4Line16a_FamilyName[0]",
+"Pt4Line16b_GivenName": "form1[0].#subform[5].Pt4Line16b_GivenName[0]",
+"Pt4Line16c_MiddleName": "form1[0].#subform[5].Pt4Line16c_MiddleName[0]",
+"Pt4Line17_DateMarriageEnded": "form1[0].#subform[5].Pt4Line17_DateMarriageEnded[0]",
+"Pt4Line17_DateMarriageEnded_Extra": "form1[0].#subform[5].Pt4Line17_DateMarriageEnded[1]",
+
+# Child 1
+"Pt4Line30a_FamilyName": "form1[0].#subform[5].Pt4Line30a_FamilyName[0]",
+"Pt4Line30b_GivenName": "form1[0].#subform[5].Pt4Line30b_GivenName[0]",
+"Pt4Line30c_MiddleName": "form1[0].#subform[5].Pt4Line30c_MiddleName[0]",
+"Pt4Line31_Relationship": "form1[0].#subform[5].Pt4Line31_Relationship[0]",
+"Pt4Line32_DateOfBirth": "form1[0].#subform[5].Pt4Line32_DateOfBirth[0]",
+"Pt4Line49_CountryOfBirth": "form1[0].#subform[5].Pt4Line49_CountryOfBirth[0]",
+
+# Child 2
+"Pt4Line34a_FamilyName": "form1[0].#subform[5].Pt4Line34a_FamilyName[0]",
+"Pt4Line34b_GivenName": "form1[0].#subform[5].Pt4Line34b_GivenName[0]",
+"Pt4Line34c_MiddleName": "form1[0].#subform[5].Pt4Line34c_MiddleName[0]",
+"Pt4Line35_Relationship": "form1[0].#subform[5].Pt4Line35_Relationship[0]",
+"Pt4Line36_DateOfBirth": "form1[0].#subform[5].Pt4Line36_DateOfBirth[0]",
+"Pt4Line37_CountryOfBirth": "form1[0].#subform[5].Pt4Line37_CountryOfBirth[0]",
+
+# Child 3
+"Pt4Line38a_FamilyName": "form1[0].#subform[5].Pt4Line38a_FamilyName[0]",
+"Pt4Line38b_GivenName": "form1[0].#subform[5].Pt4Line38b_GivenName[0]",
+"Pt4Line38c_MiddleName": "form1[0].#subform[5].Pt4Line38c_MiddleName[0]",
+"Pt4Line39_Relationship": "form1[0].#subform[5].Pt4Line39_Relationship[0]",
+"Pt4Line40_DateOfBirth": "form1[0].#subform[5].Pt4Line40_DateOfBirth[0]",
+"Pt4Line41_CountryOfBirth": "form1[0].#subform[5].Pt4Line41_CountryOfBirth[0]",
+
+# Barcode (PDF417)
+"PDF417BarCode1": "form1[0].#pageSet[0].Page1[5].PDF417BarCode1[0]",
 }

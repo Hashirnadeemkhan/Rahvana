@@ -1,7 +1,6 @@
 // app/i130/page.tsx
 "use client";
 import { useState, useCallback, useEffect } from "react";
-
 import { formFields,getInitialFormData } from "../i130/formConfig";
 
 // Safe Input & Button
@@ -25,7 +24,7 @@ const SafeButton = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
 type RadioOption = {
   label: string;
   value: string;
-  pdfKey?: string;
+  pdfKey: string;
 };
 
 type RadioGroupProps = {
@@ -54,11 +53,37 @@ const RadioGroup = ({ name, options, value, onChange }: RadioGroupProps) => (
   </div>
 );
 
+// Checkbox Component
+type CheckboxProps = {
+  name: string;
+  label: string;
+  checked: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+const Checkbox = ({ name, label, checked, onChange }: CheckboxProps) => (
+  <label className="flex items-center text-sm font-normal text-gray-700 mt-2">
+    <input
+      type="checkbox"
+      name={name}
+      checked={checked}
+      onChange={onChange}
+      className="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+      suppressHydrationWarning={true}
+    />
+    {label}
+  </label>
+);
+
 export default function I130Form() {
   const [formData, setFormData] = useState(getInitialFormData());
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({ 
+      ...prev, 
+      [name]: type === "checkbox" ? (checked ? "Yes" : "") : value 
+    }));
   }, []);
 
   const submit = async () => {
@@ -79,30 +104,41 @@ export default function I130Form() {
               payload[opt.pdfKey] = "Off";
             });
         }
+      } else if (field.type === "checkbox") {
+        payload[field.pdfKey] = value === "Yes" ? "Yes" : "Off";
       } else {
         payload[field.pdfKey] = value;
       }
     });
 
- const apiUrl = typeof window !== "undefined" 
-  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1")
-  : "http://localhost:8000/api/v1"; // fallback for SSR
+    const apiUrl = typeof window !== "undefined" 
+      ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1")
+      : "http://localhost:8000/api/v1";
 
-const res = await fetch(`${apiUrl}/fill-pdf`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload),
-});
+    try {
+      const res = await fetch(`${apiUrl}/fill-pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    if (!res.ok) return alert("Error generating PDF");
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Server error:", errorText);
+        return alert("Error generating PDF: " + errorText);
+      }
 
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "i130-filled.pdf";
-    a.click();
-    URL.revokeObjectURL(url);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "i130-filled.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error submitting form. Please check console for details.");
+    }
   };
 
   // Cleanup fdprocessedid
@@ -119,6 +155,8 @@ const res = await fetch(`${apiUrl}/fill-pdf`, {
     "Part 2. Information About You (Petitioner)",
     "Address History",
     "Your Marital Information",
+    "Immigration & Employment Information",
+    "Biographic Information",
     
   ];
 
@@ -129,49 +167,61 @@ const res = await fetch(`${apiUrl}/fill-pdf`, {
       </h1>
 
       <div className="space-y-10">
-        {sections.map((section) => (
-          <div
-            key={section}
-            className="bg-white p-8 border border-gray-200 rounded-xl shadow-lg"
-          >
-            <h2 className="text-2xl font-bold text-blue-600 mb-6 border-b pb-2">
-              {section}
-            </h2>
+        {sections.map((section) => {
+          const fieldsInSection = formFields.filter(
+            (f) =>
+              f.section === section &&
+              (!f.condition || f.condition(formData))
+          );
 
-            <div className="space-y-6">
-              {formFields
-                .filter(
-                  (f) =>
-                    f.section === section &&
-                    (!f.condition || f.condition(formData))
-                )
-                .map((field) => (
+          if (fieldsInSection.length === 0) return null;
+
+          return (
+            <div
+              key={section}
+              className="bg-white p-8 border border-gray-200 rounded-xl shadow-lg"
+            >
+              <h2 className="text-2xl font-bold text-blue-600 mb-6 border-b pb-2">
+                {section}
+              </h2>
+
+              <div className="space-y-6">
+                {fieldsInSection.map((field) => (
                   <div key={field.key} className="space-y-2">
                     <label className="block text-base font-semibold text-gray-800">
                       {field.label}
                     </label>
 
-                    {field.type === "text" ? (
+                    {field.type === "text" || field.type === "date" ? (
                       <SafeInput
+                        type={field.type === "date" ? "text" : "text"}
                         name={field.key}
                         value={formData[field.key]}
                         onChange={handleChange}
                         placeholder={field.placeholder}
                         maxLength={field.maxLength}
                       />
-                    ) : (
+                    ) : field.type === "radio" ? (
                       <RadioGroup
                         name={field.key}
                         options={field.options!}
                         value={formData[field.key]}
                         onChange={handleChange}
                       />
-                    )}
+                    ) : field.type === "checkbox" ? (
+                      <Checkbox
+                        name={field.key}
+                        label={field.label}
+                        checked={formData[field.key] === "Yes"}
+                        onChange={handleChange}
+                      />
+                    ) : null}
                   </div>
                 ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <SafeButton
