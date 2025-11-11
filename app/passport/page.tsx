@@ -3,6 +3,11 @@
 import { useState, useRef } from "react";
 import { Upload, AlertCircle, Download, CheckCircle, X } from "lucide-react";
 
+// **Yahan Par Change Kiya Gaya Hai**
+// NEXT_PUBLIC_API_URL ko check karein. Agar woh maujood nahi hai (jaise local development mein),
+// toh hardcoded local URL ko fallback ke taur par istemal karein.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
 export default function PassportPhoto() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -49,20 +54,23 @@ export default function PassportPhoto() {
 
     setLoading(true);
     setError(null);
+    
+    // API_BASE ab ya toh deployed URL hoga ya localhost URL.
+    const API_ENDPOINT = `${API_BASE}/remove-bg`;
+    console.log(`Calling API: ${API_ENDPOINT}`);
 
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/remove-bg`, {
-
+      const res = await fetch(API_ENDPOINT, {
         method: "POST",
         body: formData,
       });
 
       if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err || "Failed to process image.");
+        const errorText = await res.text();
+        throw new Error(`Server Error (${res.status}): ${errorText.substring(0, 100)}...`);
       }
 
       const blob = await res.blob();
@@ -72,7 +80,7 @@ export default function PassportPhoto() {
       setError(
         err instanceof Error
           ? err.message
-          : "Server error. Make sure the backend is running."
+          : `An unknown error occurred. API Base: ${API_BASE}`
       );
     } finally {
       setLoading(false);
