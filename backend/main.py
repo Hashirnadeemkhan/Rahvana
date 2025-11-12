@@ -35,10 +35,16 @@ app = FastAPI(
 
 # =========================================================================
 # 3. CORS Middleware (Your existing code - yeh sahi lag raha hai)
-# =========================================================================
+ALLOWED_ORIGINS = [
+    "https://www.rahvana.com",       # <--- Aapka Live Frontend URL
+    "https://rahvana-1.onrender.com", # <--- Aapka Live Backend URL
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,  
+    # settings.CORS_ORIGINS ki jagah hard-coded list use karein
+    allow_origins=ALLOWED_ORIGINS,  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
