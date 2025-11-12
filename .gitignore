@@ -178,5 +178,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 echo ".venv/" >> .gitignore
-
+venv/
 backend/.venv/

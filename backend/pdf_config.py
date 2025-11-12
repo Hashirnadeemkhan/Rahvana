@@ -396,4 +396,7 @@ FIELD_MAPPING = {
 
 # Barcode (PDF417)
 "PDF417BarCode1": "form1[0].#pageSet[0].Page1[5].PDF417BarCode1[0]",
+
+
+# page 7
 }

@@ -1,21 +1,30 @@
-// app/i130/page.tsx
+// app/components/DynamicForm.tsx - FIX
+
 "use client";
 import { useState, useCallback, useEffect } from "react";
-import { formFields,getInitialFormData } from "../i130/formConfig";
+import { formFields, getInitialFormData } from "@/app/i130/formConfig";
 
 // Safe Input & Button
-const SafeInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-  <input
-    {...props}
-    className={`border p-2 w-full mt-1 rounded focus:border-blue-500 focus:ring-1 ${props.className || ""}`}
-    suppressHydrationWarning={true}
-  />
-);
+const SafeInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
+  const { value, ...rest } = props;
+  return (
+    <input
+      {...rest}
+      value={value ?? ""} // Ensure value is always a string, never undefined
+      className={`border p-2 w-full mt-1 rounded focus:border-blue-500 focus:ring-1 ${
+        rest.className || ""
+      }`}
+      suppressHydrationWarning={true}
+    />
+  );
+};
 
 const SafeButton = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     {...props}
-    className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${props.className || ""}`}
+    className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+      props.className || ""
+    }`}
     suppressHydrationWarning={true}
   />
 );
@@ -37,7 +46,10 @@ type RadioGroupProps = {
 const RadioGroup = ({ name, options, value, onChange }: RadioGroupProps) => (
   <div className="flex flex-wrap gap-4 mt-2">
     {options.map((opt: RadioOption) => (
-      <label key={opt.value} className="flex items-center text-sm font-normal text-gray-700">
+      <label
+        key={opt.value}
+        className="flex items-center text-sm font-normal text-gray-700"
+      >
         <input
           type="radio"
           name={name}
@@ -76,44 +88,57 @@ const Checkbox = ({ name, label, checked, onChange }: CheckboxProps) => (
 );
 
 export default function I130Form() {
-  const [formData, setFormData] = useState(getInitialFormData());
+  // Initialize with all fields as empty strings (not undefined)
+  const [formData, setFormData] = useState<Record<string, string>>(() =>
+    getInitialFormData()
+  );
+  const [isClient, setIsClient] = useState(false);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: type === "checkbox" ? (checked ? "Yes" : "") : value 
-    }));
+  // Only render after client-side hydration
+  useEffect(() => {
+    setIsClient(true);
   }, []);
 
-  const submit = async () => {
-    const payload: Record<string, string> = {};
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value, type, checked } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        [name]:
+          type === "checkbox" ? (checked ? "Yes" : "") : value || "",
+      }));
+    },
+    []
+  );
 
-    formFields.forEach((field) => {
-      const value = formData[field.key];
-      if (!value) return;
+ const submit = async () => {
+  const payload: Record<string, string> = {};
 
-      if (field.type === "radio" && field.options) {
-        const selected = field.options.find((opt) => opt.value === value);
-        if (selected) {
-          payload[selected.pdfKey] = "Yes";
-          // Uncheck others
-          field.options
-            .filter((opt) => opt.value !== value)
-            .forEach((opt) => {
-              payload[opt.pdfKey] = "Off";
-            });
-        }
-      } else if (field.type === "checkbox") {
-        payload[field.pdfKey] = value === "Yes" ? "Yes" : "Off";
-      } else {
-        payload[field.pdfKey] = value;
+  formFields.forEach((field) => {
+    const value = formData[field.key];
+    if (!value) return;
+
+    if (field.type === "radio" && field.options) {
+      const selected = field.options.find((opt) => opt.value === value);
+      if (selected) {
+        payload[selected.pdfKey] = "Yes";
+
+        // SAB BAQI OPTIONS KO "Off" BHEJO
+        field.options
+          .filter((opt) => opt.value !== value)
+          .forEach((opt) => {
+            payload[opt.pdfKey] = "Off";
+          });
       }
-    });
+    } else {
+      payload[field.pdfKey] = value;
+    }
+  });
 
-    const apiUrl = typeof window !== "undefined" 
-      ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1")
-      : "http://localhost:8000/api/v1";
+    const apiUrl =
+      typeof window !== "undefined"
+        ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1"
+        : "http://localhost:8000/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/fill-pdf`, {
@@ -144,7 +169,9 @@ export default function I130Form() {
   // Cleanup fdprocessedid
   useEffect(() => {
     const t = setTimeout(() => {
-      document.querySelectorAll("[fdprocessedid]").forEach((el) => el.removeAttribute("fdprocessedid"));
+      document
+        .querySelectorAll("[fdprocessedid]")
+        .forEach((el) => el.removeAttribute("fdprocessedid"));
     }, 100);
     return () => clearTimeout(t);
   }, []);
@@ -154,11 +181,30 @@ export default function I130Form() {
     "Part 1. Relationship",
     "Part 2. Information About You (Petitioner)",
     "Address History",
+    "Your U.S. Entry Information",
+    "Employment Information",
+    "Previous Employment",
     "Your Marital Information",
     "Immigration & Employment Information",
+    "Physical Characteristics",
     "Biographic Information",
-    
+    "Part 3. Biographic Information",
+    "Part 4. Information About Your Relative",
+    "Part 4. Current Physical Address",
+    "Part 4. Address Where Your Relative Intends to Live",
+    "Part 4. Address Abroad (if not immigrating to U.S.)",
+    "Part 4. Contact Information",
+    "Part 4. Marital Information",
+    "Part 4. Current Marriage Information",
+    "Part 4. Names of Prior Spouses",
+    "Part 4. Information About Your Relative's Parents",
+    "Part 4. Information About Your Relative's Current Spouse",
   ];
+
+  // Don't render until client-side to avoid hydration mismatch
+  if (!isClient) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   return (
     <div className="p-6 max-w-5xl mx-auto bg-gray-50 min-h-screen">
@@ -196,7 +242,7 @@ export default function I130Form() {
                       <SafeInput
                         type={field.type === "date" ? "text" : "text"}
                         name={field.key}
-                        value={formData[field.key]}
+                        value={formData[field.key] ?? ""}
                         onChange={handleChange}
                         placeholder={field.placeholder}
                         maxLength={field.maxLength}
@@ -205,7 +251,7 @@ export default function I130Form() {
                       <RadioGroup
                         name={field.key}
                         options={field.options!}
-                        value={formData[field.key]}
+                        value={formData[field.key] ?? ""}
                         onChange={handleChange}
                       />
                     ) : field.type === "checkbox" ? (
