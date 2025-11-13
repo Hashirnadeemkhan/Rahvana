@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { usePDFStore } from "@/formConfig.ts/store";
+import { usePDFStore } from "@/lib/store";
 
 // Dynamically import editor/upload with SSR disabled
 const PDFUpload = dynamic(() => import("../components/pdf-upload").then(mod => mod.PDFUpload), { ssr: false });
