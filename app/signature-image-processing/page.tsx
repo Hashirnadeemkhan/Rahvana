@@ -12,7 +12,7 @@ import {
   validateImageFile,
   readFileAsDataURL,
   downloadImage,
-} from '@/formConfig.ts/imageProcessor';
+} from '@/lib/imageProcessor';
 
 export default function SignatureRemoverPage() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);

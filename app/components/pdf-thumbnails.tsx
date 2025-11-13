@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePDFStore } from "@/formConfig.ts/store";
-import { cn } from "@/formConfig.ts/utils";
+import { usePDFStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import type * as PDFJS from "pdfjs-dist";
 
