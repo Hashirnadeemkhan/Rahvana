@@ -398,5 +398,305 @@ FIELD_MAPPING = {
 "PDF417BarCode1": "form1[0].#pageSet[0].Page1[5].PDF417BarCode1[0]",
 
 
-# page 7
+# page 7# ============================================
+
+#   "# Spouse / Co-Applicant Name",
+  "Pt4Line42a_FamilyName": "form1[0].#subform[6].Pt4Line42a_FamilyName[0]",
+  "Pt4Line42b_GivenName": "form1[0].#subform[6].Pt4Line42b_GivenName[0]",
+  "Pt4Line42c_MiddleName": "form1[0].#subform[6].Pt4Line42c_MiddleName[0]",
+
+#   "# Spouse Relationship",
+  "Pt4Line43_Relationship": "form1[0].#subform[6].Pt4Line43_Relationship[0]",
+
+#   "# Spouse Date of Birth",
+  "Pt4Line44_DateOfBirth": "form1[0].#subform[6].Pt4Line44_DateOfBirth[0]",
+
+#   "# Spouse Country of Birth",
+  "Pt4Line45_CountryOfBirth": "form1[0].#subform[6].Pt4Line45_CountryOfBirth[0]",
+
+#   "# Spouse Previous Legal Name",
+  "Pt4Line46a_FamilyName": "form1[0].#subform[6].Pt4Line46a_FamilyName[0]",
+  "Pt4Line46b_GivenName": "form1[0].#subform[6].Pt4Line46b_GivenName[0]",
+  "Pt4Line46c_MiddleName": "form1[0].#subform[6].Pt4Line46c_MiddleName[0]",
+
+#   "# Spouse Previous Relationship",
+  "Pt4Line47_Relationship": "form1[0].#subform[6].Pt4Line47_Relationship[0]",
+
+#   "# Spouse Previous Date of Birth",
+  "Pt4Line48_DateOfBirth": "form1[0].#subform[6].Pt4Line48_DateOfBirth[0]",
+
+#   "# Spouse Previous Country of Birth",
+  "Pt4Line49_CountryOfBirth": "form1[0].#subform[6].Pt4Line49_CountryOfBirth[1]",
+
+#   "# Is Spouse a U.S. Citizen?",
+  "Pt4Line20_Yes": "form1[0].#subform[6].Pt4Line20_Yes[0]",
+  "Pt4Line20_No": "form1[0].#subform[6].Pt4Line20_No[0]",
+
+#   "# Spouse Immigration Status",
+  "Pt4Line21a_ClassOfAdmission": "form1[0].#subform[6].Pt4Line21a_ClassOfAdmission[0]",
+  "Pt4Line21b_ArrivalDeparture": "form1[0].#subform[6].#area[8].Pt4Line21b_ArrivalDeparture[0]",
+  "Pt4Line21c_DateOfArrival": "form1[0].#subform[6].Pt4Line21c_DateOfArrival[0]",
+  "Pt4Line21d_DateExpired": "form1[0].#subform[6].Pt4Line21d_DateExpired[0]",
+
+#   "# Passport / Travel Document",
+  "Pt4Line22_PassportNumber": "form1[0].#subform[6].Pt4Line22_PassportNumber[0]",
+  "Pt4Line23_TravelDocNumber": "form1[0].#subform[6].Pt4Line23_TravelDocNumber[0]",
+  "Pt4Line24_CountryOfIssuance": "form1[0].#subform[6].Pt4Line24_CountryOfIssuance[0]",
+  "Pt4Line25_ExpDate": "form1[0].#subform[6].Pt4Line25_ExpDate[0]",
+
+#   "# Employer Information",
+  "Pt4Line26_NameOfCompany": "form1[0].#subform[6].Pt4Line26_NameOfCompany[0]",
+  "Pt4Line26_StreetNumberName": "form1[0].#subform[6].Pt4Line26_StreetNumberName[0]",
+  "Pt4Line26_Unit_Ste": "form1[0].#subform[6].Pt4Line26_Unit[0]",
+  "Pt4Line26_Unit_Apt": "form1[0].#subform[6].Pt4Line26_Unit[1]",
+  "Pt4Line26_Unit_Flr": "form1[0].#subform[6].Pt4Line26_Unit[2]",
+  "Pt4Line26_AptSteFlrNumber": "form1[0].#subform[6].Pt4Line26_AptSteFlrNumber[0]",
+  "Pt4Line26_CityOrTown": "form1[0].#subform[6].Pt4Line26_CityOrTown[0]",
+  "Pt4Line26_State": "form1[0].#subform[6].Pt4Line26_State[0]",
+  "Pt4Line26_ZipCode": "form1[0].#subform[6].Pt4Line26_ZipCode[0]",
+  "Pt4Line26_Province": "form1[0].#subform[6].Pt4Line26_Province[0]",
+  "Pt4Line26_PostalCode": "form1[0].#subform[6].Pt4Line26_PostalCode[0]",
+  "Pt4Line26_Country": "form1[0].#subform[6].Pt4Line26_Country[0]",
+
+#   "# Employment Start Date",
+  "Pt4Line27_DateEmploymentBegan": "form1[0].#subform[6].Pt4Line27_DateEmploymentBegan[0]",
+
+#   "# Prior Removal/Exclusion?",
+  "Pt4Line28_Yes": "form1[0].#subform[6].Pt4Line28_Yes[0]",
+  "Pt4Line28_No": "form1[0].#subform[6].Pt4Line28_No[0]",
+
+#   "# Type of Proceeding",
+  "Pt4Line54_Removal": "form1[0].#subform[6].Pt4Line54_Removal[0]",
+  "Pt4Line54_Exclusion": "form1[0].#subform[6].Pt4Line54_Exclusion[0]",
+  "Pt4Line54_Rescission": "form1[0].#subform[6].Pt4Line54_Rescission[0]",
+  "Pt4Line54_JudicialProceedings": "form1[0].#subform[6].Pt4Line54_JudicialProceedings[0]",
+
+#   "# Proceeding Location",
+  "Pt4Line55a_CityOrTown": "form1[0].#subform[6].Pt4Line55a_CityOrTown[0]",
+  "Pt4Line55b_State": "form1[0].#subform[6].Pt4Line55b_State[0]",
+
+#   "# Date of Proceeding",
+  "Pt4Line56_Date": "form1[0].#subform[6].Pt4Line56_Date[0]",
+
+#   "# Barcode (PDF417) - Page 7",
+  "PDF417BarCode1": "form1[0].#pageSet[0].Page1[6].PDF417BarCode1[0]",
+
+
+#   page 8 (Continuation Sheet)
+
+
+#   "# Barcode (PDF417) - Page 8",
+"PDF417BarCode1": "form1[0].#pageSet[0].Page1[7].PDF417BarCode1[0]",
+
+#   "# Person's Name",
+"Pt4Line55a_FamilyName": "form1[0].#subform[7].Pt4Line55a_FamilyName[0]",
+"Pt4Line55b_GivenName": "form1[0].#subform[7].Pt4Line55b_GivenName[0]",
+"Pt4Line55c_MiddleName": "form1[0].#subform[7].Pt4Line55c_MiddleName[0]",
+
+#   "# Address 1",
+"Pt4Line56_StreetNumberName": "form1[0].#subform[7].Pt4Line56_StreetNumberName[0]",
+"Pt4Line56_Unit_Ste": "form1[0].#subform[7].Pt4Line56_Unit[0]",
+"Pt4Line56_Unit_Apt": "form1[0].#subform[7].Pt4Line56_Unit[1]",
+"Pt4Line56_Unit_Flr": "form1[0].#subform[7].Pt4Line56_Unit[2]",
+"Pt4Line56_AptSteFlrNumber": "form1[0].#subform[7].Pt4Line56_AptSteFlrNumber[0]",
+"Pt4Line56_CityOrTown": "form1[0].#subform[7].Pt4Line56_CityOrTown[0]",
+"Pt4Line56_Province": "form1[0].#subform[7].Pt4Line56_Province[0]",
+"Pt4Line56_PostalCode": "form1[0].#subform[7].Pt4Line56_PostalCode[0]",
+"Pt4Line56_Country": "form1[0].#subform[7].Pt4Line56_Country[0]",
+
+#   "# Address 2",
+"Pt4Line57_StreetNumberName": "form1[0].#subform[7].Pt4Line57_StreetNumberName[0]",
+"Pt4Line57_Unit_Ste": "form1[0].#subform[7].Pt4Line57_Unit[0]",
+"Pt4Line57_Unit_Apt": "form1[0].#subform[7].Pt4Line57_Unit[1]",
+"Pt4Line57_Unit_Flr": "form1[0].#subform[7].Pt4Line57_Unit[2]",
+"Pt4Line57_AptSteFlrNumber": "form1[0].#subform[7].Pt4Line57_AptSteFlrNumber[0]",
+"Pt4Line57_CityOrTown": "form1[0].#subform[7].Pt4Line57_CityOrTown[0]",
+"Pt4Line57_State": "form1[0].#subform[7].Pt4Line57_State[0]",
+"Pt4Line57_ZipCode": "form1[0].#subform[7].Pt4Line57_ZipCode[0]",
+"Pt4Line57_Province": "form1[0].#subform[7].Pt4Line57_Province[0]",
+"Pt4Line57_PostalCode": "form1[0].#subform[7].Pt4Line57_PostalCode[0]",
+"Pt4Line57_Country": "form1[0].#subform[7].Pt4Line57_Country[0]",
+
+#   "# Address Dates",
+"Pt4Line58a_DateFrom": "form1[0].#subform[7].Pt4Line58a_DateFrom[0]",
+"Pt4Line58b_DateTo": "form1[0].#subform[7].Pt4Line58b_DateTo[0]",
+
+#   "# Location of Proceeding",
+"Pt4Line61a_CityOrTown": "form1[0].#subform[7].Pt4Line61a_CityOrTown[0]",
+"Pt4Line61b_Province": "form1[0].#subform[7].Pt4Line61b_Province[0]",
+"Pt4Line61c_Country": "form1[0].#subform[7].Pt4Line61c_Country[0]",
+
+#   "# Prior Removal / Exclusion Question",
+"Part4Line1_Yes": "form1[0].#subform[7].Part4Line1_Yes[0]",
+"Part4Line1_No": "form1[0].#subform[7].Part4Line1_No[0]",
+
+#   "# Related Person’s Name",
+"Pt5Line2a_FamilyName": "form1[0].#subform[7].Pt5Line2a_FamilyName[0]",
+"Pt5Line2b_GivenName": "form1[0].#subform[7].Pt5Line2b_GivenName[0]",
+"Pt5Line2c_MiddleName": "form1[0].#subform[7].Pt5Line2c_MiddleName[0]",
+
+#   "# Proceeding Details",
+"Pt5Line3a_CityOrTown": "form1[0].#subform[7].Pt5Line3a_CityOrTown[0]",
+"Pt5Line3b_State": "form1[0].#subform[7].Pt5Line3b_State[0]",
+"Pt5Line4_DateFiled": "form1[0].#subform[7].Pt5Line4_DateFiled[0]",
+"Pt5Line5_Result": "form1[0].#subform[7].Pt5Line5_Result[0]",
+
+#   "# Additional Person (Relationship)",
+"Pt4Line6a_FamilyName": "form1[0].#subform[7].Pt4Line6a_FamilyName[0]",
+"Pt4Line6b_GivenName": "form1[0].#subform[7].Pt4Line6b_GivenName[0]",
+"Pt4Line6c_MiddleName": "form1[0].#subform[7].Pt4Line6c_MiddleName[0]",
+"Pt4Line7_Relationship": "form1[0].#subform[7].Pt4Line7_Relationship[0]",
+
+#   "# Place of Filing",
+"Pt4Line60a_CityOrTown": "form1[0].#subform[7].Pt4Line60a_CityOrTown[0]",
+"Pt4Line60b_State": "form1[0].#subform[7].Pt4Line60b_State[0]",
+
+# =============================================
+# PAGE 9 & 10 - FULL CORRECT MAPPING
+# =============================================
+
+# --- PAGE 9 ---
+"PDF417BarCode1_Page9": "form1[0].#pageSet[0].Page1[8].PDF417BarCode1[0]",
+
+# Contact Info
+"Pt6Line3_DaytimePhoneNumber": "form1[0].#subform[8].Pt6Line3_DaytimePhoneNumber[0]",
+"Pt6Line4_MobileNumber": "form1[0].#subform[8].Pt6Line4_MobileNumber[0]",
+"Pt6Line5_Email": "form1[0].#subform[8].Pt6Line5_Email[0]",
+
+# Interpreter Help (Radio: Yes/No)
+"Pt6Line1Checkbox_Yes": "form1[0].#subform[8].Pt6Line1Checkbox[0]",
+"Pt6Line1Checkbox_No": "form1[0].#subform[8].Pt6Line1Checkbox[1]",
+"Pt6Line1b_Language": "form1[0].#subform[8].Pt6Line1b_Language[0]",
+
+# Representative Help (Checkbox)
+"Pt6Line2_Checkbox": "form1[0].#subform[8].Pt6Line2_Checkbox[0]",
+"Pt6Line2_RepresentativeName": "form1[0].#subform[8].Pt6Line2_RepresentativeName[0]",
+
+# Signature
+"P5_Line6a_SignatureofApplicant": "form1[0].#subform[8].P5_Line6a_SignatureofApplicant[0]",
+"Pt6Line6b_DateofSignature": "form1[0].#subform[8].Pt6Line6b_DateofSignature[0]",
+
+# --- PAGE 10 ---
+"PDF417BarCode1_Page10": "form1[0].#pageSet[0].Page1[9].PDF417BarCode1[0]",
+
+# PART 7: Interpreter Details
+"Pt7Line1a_InterpreterFamilyName": "form1[0].#subform[9].Pt7Line1a_InterpreterFamilyName[0]",
+"Pt7Line1b_InterpreterGivenName": "form1[0].#subform[9].Pt7Line1b_InterpreterGivenName[0]",
+"Pt7Line2_InterpreterBusinessorOrg": "form1[0].#subform[9].Pt7Line2_InterpreterBusinessorOrg[0]",
+
+# Interpreter Address
+"Pt7Line3_StreetNumberName": "form1[0].#subform[9].Pt7Line3_StreetNumberName[0]",
+"Pt7Line3_Unit_Ste": "form1[0].#subform[9].Pt7Line3_Unit[0]",
+"Pt7Line3_Unit_Apt": "form1[0].#subform[9].Pt7Line3_Unit[1]",
+"Pt7Line3_Unit_Flr": "form1[0].#subform[9].Pt7Line3_Unit[2]",
+"Pt7Line3_AptSteFlrNumber": "form1[0].#subform[9].Pt7Line3_AptSteFlrNumber[0]",
+"Pt7Line3_CityOrTown": "form1[0].#subform[9].Pt7Line3_CityOrTown[0]",
+"Pt7Line3_State": "form1[0].#subform[9].Pt7Line3_State[0]",
+"Pt7Line3_ZipCode": "form1[0].#subform[9].Pt7Line3_ZipCode[0]",
+"Pt7Line3_Province": "form1[0].#subform[9].Pt7Line3_Province[0]",
+"Pt7Line3_PostalCode": "form1[0].#subform[9].Pt7Line3_PostalCode[0]",
+"Pt7Line3_Country": "form1[0].#subform[9].Pt7Line3_Country[0]",
+
+# Interpreter Contact
+"Pt7Line4_InterpreterDaytimeTelephone": "form1[0].#subform[9].Pt7Line4_InterpreterDaytimeTelephone[0]",
+"Pt7Line5_Email": "form1[0].#subform[9].Pt7Line5_Email[0]",
+"Pt4Line53_DaytimePhoneNumber": "form1[0].#subform[9].Pt4Line53_DaytimePhoneNumber[0]",  # Extra phone field
+
+# Language Name
+"Pt7_NameofLanguage": "form1[0].#subform[9].Pt7_NameofLanguage[0]",
+
+# Interpreter Signature
+"Pt7Line7a_Signature": "form1[0].#subform[9].Pt7Line7a_Signature[0]",
+"Pt7Line7b_DateofSignature": "form1[0].#subform[9].Pt7Line7b_DateofSignature[0]",
+
+# PART 8: Preparer Details
+"Pt8Line1a_PreparerFamilyName": "form1[0].#subform[9].Pt8Line1a_PreparerFamilyName[0]",
+"Pt8Line1b_PreparerGivenName": "form1[0].#subform[9].Pt8Line1b_PreparerGivenName[0]",
+"Pt8Line2_BusinessName": "form1[0].#subform[9].Pt8Line2_BusinessName[0]",
+
+# Preparer Address
+"Pt8Line3_StreetNumberName": "form1[0].#subform[9].Pt8Line3_StreetNumberName[0]",
+"Pt8Line3_Unit_Ste": "form1[0].#subform[9].Pt8Line3_Unit[0]",
+"Pt8Line3_Unit_Apt": "form1[0].#subform[9].Pt8Line3_Unit[1]",
+"Pt8Line3_Unit_Flr": "form1[0].#subform[9].Pt8Line3_Unit[2]",
+"Pt8Line3_AptSteFlrNumber": "form1[0].#subform[9].Pt8Line3_AptSteFlrNumber[0]",
+"Pt8Line3_CityOrTown": "form1[0].#subform[9].Pt8Line3_CityOrTown[0]",
+"Pt8Line3_State": "form1[0].#subform[9].Pt8Line3_State[0]",
+"Pt8Line3_ZipCode": "form1[0].#subform[9].Pt8Line3_ZipCode[0]",
+"Pt8Line3_Province": "form1[0].#subform[9].Pt8Line3_Province[0]",
+"Pt8Line3_PostalCode": "form1[0].#subform[9].Pt8Line3_PostalCode[0]",
+"Pt8Line3_Country": "form1[0].#subform[9].Pt8Line3_Country[0]",
+
+
+# =============================================
+# PAGE 11 - PART 8: Preparer's Contact & Certification
+# =============================================
+
+# Barcode (Page 11)
+"PDF417BarCode1_Page11": "form1[0].#pageSet[0].Page1[10].PDF417BarCode1[0]",
+
+# Preparer's Contact Info
+"Pt8Line4_DaytimePhoneNumber": "form1[0].#subform[10].Pt8Line4_DaytimePhoneNumber[0]",
+"Pt8Line5_PreparerFaxNumber": "form1[0].#subform[10].Pt8Line5_PreparerFaxNumber[0]",
+"Pt8Line6_Email": "form1[0].#subform[10].Pt8Line6_Email[0]",
+
+# 7. Preparer Certification (Checkboxes)
+"Pt8Line7_Checkbox_Yes": "form1[0].#subform[10].Pt8Line7_Checkbox[0]",  # I certify...
+"Pt8Line7_Checkbox_No": "form1[0].#subform[10].Pt8Line7_Checkbox[1]",   # I do not certify...
+
+# 7.b. Interpreter Used?
+"Pt8Line7b_Checkbox_Yes": "form1[0].#subform[10].Pt8Line7b_Checkbox[0]",
+"Pt8Line7b_Checkbox_No": "form1[0].#subform[10].Pt8Line7b_Checkbox[1]",
+
+# Signature
+"Pt8Line8a_Signature": "form1[0].#subform[10].Pt8Line8a_Signature[0]",
+"Pt8Line8b_DateofSignature": "form1[0].#subform[10].Pt8Line8b_DateofSignature[0]",
+
+
+# =============================================
+# PAGE 12 - PART 9: Additional Information
+# =============================================
+
+# Barcode (Page 12)
+"PDF417BarCode1_Page12": "form1[0].#pageSet[0].Page1[11].PDF417BarCode1[0]",
+
+# Beneficiary's A-Number (top right)
+"Pt2Line1_AlienNumber_Page12": "form1[0].#subform[11].Pt2Line1_AlienNumber[1]",
+
+# === ADDITIONAL INFORMATION BLOCKS ===
+
+# Block 3
+"Pt9Line3a_PageNumber": "form1[0].#subform[11].Pt9Line3a_PageNumber[0]",
+"Pt9Line3b_PartNumber": "form1[0].#subform[11].Pt9Line3b_PartNumber[0]",
+"Pt9Line3c_ItemNumber": "form1[0].#subform[11].Pt9Line3c_ItemNumber[0]",
+"Pt9Line3d_AdditionalInfo": "form1[0].#subform[11].Pt9Line3d_AdditionalInfo[0]",
+
+# Block 4
+"Pt9Line4a_PageNumber": "form1[0].#subform[11].Pt9Line4a_PageNumber[0]",
+"Pt9Line4b_PartNumber": "form1[0].#subform[11].Pt9Line4b_PartNumber[0]",
+"Pt9Line4c_ItemNumber": "form1[0].#subform[11].Pt9Line4c_ItemNumber[0]",
+"Pt9Line4d_AdditionalInfo": "form1[0].#subform[11].Pt9Line4d_AdditionalInfo[0]",
+
+# Block 5 (Top Right)
+"Pt9Line5a_PageNumber": "form1[0].#subform[11].Pt9Line5a_PageNumber[0]",
+"Pt9Line5b_PartNumber": "form1[0].#subform[11].Pt9Line5b_PartNumber[0]",
+"Pt9Line5c_ItemNumber": "form1[0].#subform[11].Pt9Line5c_ItemNumber[0]",
+"Pt9Line5d_AdditionalInfo": "form1[0].#subform[11].Pt9Line5d_AdditionalInfo[0]",
+
+# Block 6
+"Pt9Line6a_PageNumber": "form1[0].#subform[11].Pt9Line6a_PageNumber[0]",
+"Pt9Line6b_PartNumber": "form1[0].#subform[11].Pt9Line6b_PartNumber[0]",
+"Pt9Line6c_ItemNumber": "form1[0].#subform[11].Pt9Line6c_ItemNumber[0]",
+"Pt9Line6d_AdditionalInfo": "form1[0].#subform[11].Pt9Line6d_AdditionalInfo[0]",
+
+# Block 7
+"Pt9Line7a_PageNumber": "form1[0].#subform[11].Pt9Line9a_PageNumber[0]",  # Note: PDF says Pt9Line9a but it's 7a
+"Pt9Line7b_PartNumber": "form1[0].#subform[11].Pt9Line7b_PartNumber[0]",
+"Pt9Line7c_ItemNumber": "form1[0].#subform[11].Pt9Line7c_ItemNumber[0]",
+"Pt9Line7d_AdditionalInfo": "form1[0].#subform[11].Pt9Line7d_AdditionalInfo[0]",
+
+# === EXTRA FIELDS ON PAGE 12 (Beneficiary Name Repeat) ===
+"Pt2Line4a_FamilyName_Page12": "form1[0].#subform[11].Pt2Line4a_FamilyName[1]",
+"Pt2Line4b_GivenName_Page12": "form1[0].#subform[11].Pt2Line4b_GivenName[1]",
+"Pt2Line4c_MiddleName_Page12": "form1[0].#subform[11].Pt2Line4c_MiddleName[1]",
 }

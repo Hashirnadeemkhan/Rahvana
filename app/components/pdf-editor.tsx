@@ -2,11 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { usePDFStore } from "@/lib/store";
+import { usePDFStore } from "@/formConfig.ts/store";
 import { Button } from "@/components/ui/button";
 import { Download, X, Type } from "lucide-react";
 import Image from "next/image";
-import { loadPDF, addTextToPDF, addImageToPDF, downloadPDF } from "@/lib/pdf-utils";
+import { loadPDF, addTextToPDF, addImageToPDF, downloadPDF } from "@/formConfig.ts/pdf-utils";
 import SignatureTool from "./signature-tool/SignatureTool";
 
 const PDFViewer = dynamic(() => import("./pdf-viewer").then(m => m.PDFViewer), { ssr: false });

@@ -1,6 +1,6 @@
 // app/i130/formConfig.ts
 
-export type FieldType = "text" | "radio" | "checkbox" |"date" | "hidden";
+export type FieldType = "text" | "radio" | "checkbox" |"date" | "hidden" | "select" | "textarea";
 
 export type Field = {
   key: string;
@@ -12,6 +12,7 @@ export type Field = {
   options?: { label: string; value: string; pdfKey: string }[];
   condition?: (data: Record<string, string>) => boolean;
   section?: string;
+  value?: string;
 };
 
 export const formFields: Field[] = [
@@ -1855,6 +1856,1384 @@ export const formFields: Field[] = [
 },
 
 // page 7
+{
+  key: "beneficiary_familyName",
+  label: "37.a. Family Name (Last Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line42a_FamilyName",
+  placeholder: "Last Name",
+},
+{
+  key: "beneficiary_givenName",
+  label: "37.b. Given Name (First Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line42b_GivenName",
+  placeholder: "First Name",
+},
+{
+  key: "beneficiary_middleName",
+  label: "37.c. Middle Name",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line42c_MiddleName",
+  placeholder: "Middle Name (if any)",
+},
+
+// 38. Relationship
+{
+  key: "beneficiary_relationship",
+  label: "38. Relationship",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line43_Relationship",
+  placeholder: "e.g., Spouse, Child",
+},
+
+// 39. Date of Birth
+{
+  key: "beneficiary_dateOfBirth",
+  label: "39. Date of Birth (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line44_DateOfBirth",
+  placeholder: "MM/DD/YYYY",
+},
+
+// 40. Country of Birth
+{
+  key: "beneficiary_countryOfBirth",
+  label: "40. Country of Birth",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line45_CountryOfBirth",
+  placeholder: "Country Name",
+},
+
+// 41-44: Previous Legal Name
+{
+  key: "beneficiary_prevFamilyName",
+  label: "41.a. Family Name (Last Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line46a_FamilyName",
+  placeholder: "Last Name (if different)",
+},
+{
+  key: "beneficiary_prevGivenName",
+  label: "41.b. Given Name (First Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line46b_GivenName",
+  placeholder: "First Name",
+},
+{
+  key: "beneficiary_prevMiddleName",
+  label: "41.c. Middle Name",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line46c_MiddleName",
+  placeholder: "Middle Name",
+},
+{
+  key: "beneficiary_prevRelationship",
+  label: "42. Relationship",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line47_Relationship",
+  placeholder: "e.g., Maiden Name",
+},
+{
+  key: "beneficiary_prevDateOfBirth",
+  label: "43. Date of Birth (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line48_DateOfBirth",
+  placeholder: "MM/DD/YYYY",
+},
+{
+  key: "beneficiary_prevCountryOfBirth",
+  label: "44. Country of Birth",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line49_CountryOfBirth",
+  placeholder: "Country Name",
+},
+
+// 45. Ever in US?
+{
+  key: "beneficiary_everInUS",
+  label: "45. Was the beneficiary EVER in the United States?",
+  type: "radio",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "beneficiary_everInUS",
+  options: [
+    { label: "Yes", value: "Yes", pdfKey: "Pt4Line20_Yes" },
+    { label: "No",  value: "No",  pdfKey: "Pt4Line20_No" },
+  ],
+},
+
+// 46.a-d: Only if Yes
+{
+  key: "beneficiary_classOfAdmission",
+  label: "46.a. He or she arrived as a (Class of Admission):",
+  type: "select",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line21a_ClassOfAdmission",
+  placeholder: "Select Class of Admission",
+  options: [
+    { label: "1B1 - H-1B1 SPECIALTY OCCUPATION", value: "1B1", pdfKey: "dummy_1B1" },
+    { label: "1B2 - H-1B2 DoD SPECIALTY", value: "1B2", pdfKey: "dummy_1B2" },
+    { label: "1B3 - H-1B3 FASHION MODEL", value: "1B3", pdfKey: "dummy_1B3" },
+    { label: "1B4 - H-1B4 UNIQUE PGM ARTIST-ENT", value: "1B4", pdfKey: "dummy_1B4" },
+    { label: "1B5 - H-1B5 ALIEN ATHLETE", value: "1B5", pdfKey: "dummy_1B5" },
+    { label: "1BS - SUPPORT PERSON OF H-1", value: "1BS", pdfKey: "dummy_1BS" },
+  ],
+  condition: (data) => data.beneficiary_everInUS === "Yes",
+},
+{
+  key: "beneficiary_i94Number",
+  label: "46.b. Form I-94 Arrival-Departure Record Number",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line21b_ArrivalDeparture",
+  placeholder: "11-digit number",
+  maxLength: 11,
+  condition: (data) => data.beneficiary_everInUS === "Yes",
+},
+{
+  key: "beneficiary_dateOfArrival",
+  label: "46.c. Date of Arrival (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line21c_DateOfArrival",
+  placeholder: "MM/DD/YYYY",
+  condition: (data) => data.beneficiary_everInUS === "Yes",
+},
+{
+  key: "beneficiary_stayExpiredDate",
+  label: "46.d. Date authorized stay expired (mm/dd/yyyy or D/S)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line21d_DateExpired",
+  placeholder: "MM/DD/YYYY or D/S",
+  condition: (data) => data.beneficiary_everInUS === "Yes",
+},
+
+// 47-50: Passport / Travel Document
+{
+  key: "beneficiary_passportNumber",
+  label: "47. Passport Number",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line22_PassportNumber",
+  placeholder: "Passport Number",
+},
+{
+  key: "beneficiary_travelDocNumber",
+  label: "48. Travel Document Number",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line23_TravelDocNumber",
+  placeholder: "Travel Document Number",
+},
+{
+  key: "beneficiary_docCountryOfIssuance",
+  label: "49. Country of Issuance",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line24_CountryOfIssuance",
+  placeholder: "Country Name",
+},
+{
+  key: "beneficiary_docExpirationDate",
+  label: "50. Expiration Date (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line25_ExpDate",
+  placeholder: "MM/DD/YYYY",
+},
+
+// 51: Employment Information
+{
+  key: "beneficiary_employerName",
+  label: "51.a. Name of Current Employer",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_NameOfCompany",
+  placeholder: "Company Name",
+},
+{
+  key: "beneficiary_employerStreet",
+  label: "51.b. Street Number and Name",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_StreetNumberName",
+  placeholder: "123 Main St",
+},
+
+// 51.c: Unit Type (Ste/Apt/Flr) — UNIQUE KEY
+{
+  key: "beneficiary_employerUnitType",
+  label: "51.c. Unit",
+  type: "radio",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "beneficiary_employerUnitType",
+  options: [
+    { label: "Ste", value: "Ste", pdfKey: "Pt4Line26_Unit[0]" },
+    { label: "Apt", value: "Apt", pdfKey: "Pt4Line26_Unit[1]" },
+    { label: "Flr", value: "Flr", pdfKey: "Pt4Line26_Unit[2]" },
+  ],
+},
+{
+  key: "beneficiary_employerUnitNumber",
+  label: "Apt/Ste/Flr Number",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_AptSteFlrNumber",
+  placeholder: "101",
+  condition: (data) => ["Ste", "Apt", "Flr"].includes(data.beneficiary_employerUnitType),
+},
+
+{
+  key: "beneficiary_employerCity",
+  label: "51.d. City or Town",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_CityOrTown",
+  placeholder: "New York",
+},
+{
+  key: "beneficiary_employerState",
+  label: "51.e. State",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_State",
+  placeholder: "NY",
+},
+{
+  key: "beneficiary_employerZip",
+  label: "51.f. ZIP Code",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_ZipCode",
+  placeholder: "10001",
+  maxLength: 5,
+},
+{
+  key: "beneficiary_employerProvince",
+  label: "51.g. Province",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_Province",
+  placeholder: "Ontario",
+},
+{
+  key: "beneficiary_employerPostalCode",
+  label: "51.h. Postal Code",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_PostalCode",
+  placeholder: "A1B 2C3",
+},
+{
+  key: "beneficiary_employerCountry",
+  label: "51.i. Country",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line26_Country",
+  placeholder: "Canada",
+},
+
+// 52. Employment Start Date
+{
+  key: "beneficiary_employmentStartDate",
+  label: "52. Date Employment Began (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line27_DateEmploymentBegan",
+  placeholder: "MM/DD/YYYY",
+},
+
+// 53. Immigration Proceedings
+{
+  key: "beneficiary_inImmigrationProceedings",
+  label: "53. Was the beneficiary EVER in immigration proceedings?",
+  type: "radio",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "beneficiary_inImmigrationProceedings",
+  options: [
+    { label: "Yes", value: "Yes", pdfKey: "Pt4Line28_Yes" },
+    { label: "No",  value: "No",  pdfKey: "Pt4Line28_No" },
+  ],
+},
+
+// 54. Type of Proceedings — INDIVIDUAL CHECKBOXES (UI SUPPORTED)
+{
+  key: "beneficiary_proceedingRemoval",
+  label: "Removal",
+  type: "checkbox",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line54_Removal",
+  condition: (data) => data.beneficiary_inImmigrationProceedings === "Yes",
+},
+{
+  key: "beneficiary_proceedingExclusion",
+  label: "Exclusion/Deportation",
+  type: "checkbox",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line54_Exclusion",
+  condition: (data) => data.beneficiary_inImmigrationProceedings === "Yes",
+},
+{
+  key: "beneficiary_proceedingRescission",
+  label: "Rescission",
+  type: "checkbox",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line54_Rescission",
+  condition: (data) => data.beneficiary_inImmigrationProceedings === "Yes",
+},
+{
+  key: "beneficiary_proceedingJudicial",
+  label: "Other Judicial Proceedings",
+  type: "checkbox",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line54_JudicialProceedings",
+  condition: (data) => data.beneficiary_inImmigrationProceedings === "Yes",
+},
+
+// 55-56: Proceeding Location & Date
+{
+  key: "beneficiary_proceedingCity",
+  label: "55.a. City or Town",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line55a_CityOrTown",
+  placeholder: "City Name",
+  condition: (data) => data.beneficiary_inImmigrationProceedings === "Yes",
+},
+{
+  key: "beneficiary_proceedingState",
+  label: "55.b. State",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line55b_State",
+  placeholder: "NY",
+  condition: (data) => data.beneficiary_inImmigrationProceedings === "Yes",
+},
+{
+  key: "beneficiary_proceedingDate",
+  label: "56. Date (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line56_Date",
+  placeholder: "MM/DD/YYYY",
+  condition: (data) => data.beneficiary_inImmigrationProceedings === "Yes",
+},
+
+// Hidden Barcode
+{
+  key: "beneficiary_page7Barcode",
+  label: "PDF417 Barcode (Page 7)",
+  type: "hidden",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "PDF417BarCode1",
+  value: "form1[0].#pageSet[0].Page1[6].PDF417BarCode1[0]",
+},
+
+// =============================================
+// PAGE 8 - PART 4: Information About Beneficiary (Continued)
+// =============================================
+
+// 55.a-c: Beneficiary's Previous Spouse or Person
+{
+  key: "beneficiary_prevSpouseFamilyName",
+  label: "55.a. Family Name (Last Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line55a_FamilyName",
+  placeholder: "Last Name",
+},
+{
+  key: "beneficiary_prevSpouseGivenName",
+  label: "55.b. Given Name (First Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line55b_GivenName",
+  placeholder: "First Name",
+},
+{
+  key: "beneficiary_prevSpouseMiddleName",
+  label: "55.c. Middle Name",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line55c_MiddleName",
+  placeholder: "Middle Name",
+},
+
+// 56: Previous Spouse's Address
+{
+  key: "beneficiary_prevSpouseStreet",
+  label: "56. Street Number and Name",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line56_StreetNumberName",
+  placeholder: "123 Main St",
+},
+{
+  key: "beneficiary_prevSpouseUnitType",
+  label: "56. Unit",
+  type: "radio",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "beneficiary_prevSpouseUnitType",
+  options: [
+    { label: "Ste", value: "Ste", pdfKey: "Pt4Line56_Unit[0]" },
+    { label: "Apt", value: "Apt", pdfKey: "Pt4Line56_Unit[1]" },
+    { label: "Flr", value: "Flr", pdfKey: "Pt4Line56_Unit[2]" },
+  ],
+},
+{
+  key: "beneficiary_prevSpouseUnitNumber",
+  label: "Apt/Ste/Flr Number",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line56_AptSteFlrNumber",
+  placeholder: "101",
+  condition: (data) => ["Ste", "Apt", "Flr"].includes(data.beneficiary_prevSpouseUnitType),
+},
+{
+  key: "beneficiary_prevSpouseCity",
+  label: "56. City or Town",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line56_CityOrTown",
+  placeholder: "New York",
+},
+{
+  key: "beneficiary_prevSpouseProvince",
+  label: "56. Province",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line56_Province",
+  placeholder: "Ontario",
+},
+{
+  key: "beneficiary_prevSpousePostalCode",
+  label: "56. Postal Code",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line56_PostalCode",
+  placeholder: "A1B 2C3",
+},
+{
+  key: "beneficiary_prevSpouseCountry",
+  label: "56. Country",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line56_Country",
+  placeholder: "Canada",
+},
+
+// 57: Beneficiary's Current Address in U.S.
+{
+  key: "beneficiary_currentUSStreet",
+  label: "57. Street Number and Name",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line57_StreetNumberName",
+  placeholder: "456 Elm St",
+},
+{
+  key: "beneficiary_currentUSUnitType",
+  label: "57. Unit",
+  type: "radio",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "beneficiary_currentUSUnitType",
+  options: [
+    { label: "Ste", value: "Ste", pdfKey: "Pt4Line57_Unit[0]" },
+    { label: "Apt", value: "Apt", pdfKey: "Pt4Line57_Unit[1]" },
+    { label: "Flr", value: "Flr", pdfKey: "Pt4Line57_Unit[2]" },
+  ],
+},
+{
+  key: "beneficiary_currentUSUnitNumber",
+  label: "Apt/Ste/Flr Number",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line57_AptSteFlrNumber",
+  placeholder: "202",
+  condition: (data) => ["Ste", "Apt", "Flr"].includes(data.beneficiary_currentUSUnitType),
+},
+{
+  key: "beneficiary_currentUSCity",
+  label: "57. City or Town",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line57_CityOrTown",
+  placeholder: "Los Angeles",
+},
+{
+  key: "beneficiary_currentUSState",
+  label: "57. State",
+  type: "select",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line57_State",
+  placeholder: "Select State",
+  options: [
+    { label: "CA", value: "CA", pdfKey: "state_CA" },
+    { label: "NY", value: "NY", pdfKey: "state_NY" },
+    { label: "TX", value: "TX", pdfKey: "state_TX" },
+    // Add more states as needed
+  ],
+},
+{
+  key: "beneficiary_currentUSZip",
+  label: "57. ZIP Code",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line57_ZipCode",
+  placeholder: "90210",
+  maxLength: 5,
+},
+{
+  key: "beneficiary_currentUSProvince",
+  label: "57. Province",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line57_Province",
+  placeholder: "Ontario",
+},
+{
+  key: "beneficiary_currentUSPostalCode",
+  label: "57. Postal Code",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line57_PostalCode",
+  placeholder: "M5V 2T6",
+},
+{
+  key: "beneficiary_currentUSCountry",
+  label: "57. Country",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line57_Country",
+  placeholder: "United States",
+},
+
+// 58.a-b: Dates of Marriage
+{
+  key: "beneficiary_marriageDateFrom",
+  label: "58.a. Date Marriage Began (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line58a_DateFrom",
+  placeholder: "MM/DD/YYYY",
+},
+{
+  key: "beneficiary_marriageDateTo",
+  label: "58.b. Date Marriage Ended (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line58b_DateTo",
+  placeholder: "MM/DD/YYYY",
+},
+
+// 60.a-b: Beneficiary's Intended Address in U.S.
+{
+  key: "beneficiary_intendedCity",
+  label: "60.a. City or Town",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line60a_CityOrTown",
+  placeholder: "Chicago",
+},
+{
+  key: "beneficiary_intendedState",
+  label: "60.b. State",
+  type: "select",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line60b_State",
+  placeholder: "Select State",
+  options: [
+    { label: "IL", value: "IL", pdfKey: "state_IL" },
+    { label: "FL", value: "FL", pdfKey: "state_FL" },
+    // Add more
+  ],
+},
+
+// 61.a-c: Beneficiary's Address Abroad
+{
+  key: "beneficiary_abroadCity",
+  label: "61.a. City or Town",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line61a_CityOrTown",
+  placeholder: "London",
+},
+{
+  key: "beneficiary_abroadProvince",
+  label: "61.b. Province",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line61b_Province",
+  placeholder: "Greater London",
+},
+{
+  key: "beneficiary_abroadCountry",
+  label: "61.c. Country",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line61c_Country",
+  placeholder: "United Kingdom",
+},
+
+// Part 5: Previous Petitions
+{
+  key: "hasPreviousPetition",
+  label: "1. Has anyone ever filed a petition for the beneficiary before?",
+  type: "radio",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "hasPreviousPetition",
+  options: [
+    { label: "Yes", value: "Yes", pdfKey: "Part4Line1_Yes" },
+    { label: "No", value: "No", pdfKey: "Part4Line1_No" },
+  ],
+},
+
+// 2.a-c: Petitioner's Name (if Yes)
+{
+  key: "previousPetitionerFamilyName",
+  label: "2.a. Family Name (Last Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt5Line2a_FamilyName",
+  condition: (data) => data.hasPreviousPetition === "Yes",
+},
+{
+  key: "previousPetitionerGivenName",
+  label: "2.b. Given Name (First Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt5Line2b_GivenName",
+  condition: (data) => data.hasPreviousPetition === "Yes",
+},
+{
+  key: "previousPetitionerMiddleName",
+  label: "2.c. Middle Name",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt5Line2c_MiddleName",
+  condition: (data) => data.hasPreviousPetition === "Yes",
+},
+
+// 3.a-b: Previous Filing Location
+{
+  key: "previousFilingCity",
+  label: "3.a. City or Town",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt5Line3a_CityOrTown",
+  condition: (data) => data.hasPreviousPetition === "Yes",
+},
+{
+  key: "previousFilingState",
+  label: "3.b. State",
+  type: "select",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt5Line3b_State",
+  condition: (data) => data.hasPreviousPetition === "Yes",
+  options: [
+    { label: "TX", value: "TX", pdfKey: "state_TX" },
+    // Add more
+  ],
+},
+
+// 4. Date Filed
+{
+  key: "previousFilingDate",
+  label: "4. Date Filed (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt5Line4_DateFiled",
+  placeholder: "MM/DD/YYYY",
+  condition: (data) => data.hasPreviousPetition === "Yes",
+},
+
+// 5. Result
+{
+  key: "previousFilingResult",
+  label: "5. Result",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt5Line5_Result",
+  placeholder: "Approved/Denied",
+  condition: (data) => data.hasPreviousPetition === "Yes",
+},
+
+// 6.a-c: Beneficiary's Child
+{
+  key: "beneficiary_childFamilyName",
+  label: "6.a. Family Name (Last Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line6a_FamilyName",
+},
+{
+  key: "beneficiary_childGivenName",
+  label: "6.b. Given Name (First Name)",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line6b_GivenName",
+},
+{
+  key: "beneficiary_childMiddleName",
+  label: "6.c. Middle Name",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line6c_MiddleName",
+},
+
+// 7. Relationship
+{
+  key: "beneficiary_childRelationship",
+  label: "7. Relationship",
+  type: "text",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "Pt4Line7_Relationship",
+  placeholder: "Child",
+},
+
+// Hidden Barcode
+{
+  key: "beneficiary_page8Barcode",
+  label: "PDF417 Barcode (Page 8)",
+  type: "hidden",
+  section: "Part 4. Information About Beneficiary (Continued)",
+  pdfKey: "form1[0].#pageSet[0].Page1[7].PDF417BarCode1[0]",
+  value: "form1[0].#pageSet[0].Page1[7].PDF417BarCode1[0]",
+},
+
+
+// === PAGE 9 ===
+// Part 6. Petitioner’s Contact Information, Declaration, and Signature
+
+{
+  key: "petitioner_daytimePhone",
+  label: "1. Daytime Telephone Number",
+  type: "text",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "Pt6Line3_DaytimePhoneNumber",
+  placeholder: "(123) 456-7890",
+},
+{
+  key: "petitioner_mobile",
+  label: "2. Mobile Telephone Number (if any)",
+  type: "text",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "Pt6Line4_MobileNumber",
+  placeholder: "(123) 456-7890",
+},
+{
+  key: "petitioner_email",
+  label: "3. Email Address (if any)",
+  type: "text",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "Pt6Line5_Email",
+  placeholder: "you@example.com",
+},
+
+// Interpreter Help
+{
+  key: "interpreter_help_english",
+  label: "1.a. I can read and understand English...",
+  type: "radio",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "interpreter_help_english",
+  options: [
+    { label: "Yes", value: "Yes", pdfKey: "Pt6Line1Checkbox[0]" },
+    { label: "No", value: "No", pdfKey: "Pt6Line1Checkbox[1]" },
+  ],
+},
+{
+  key: "interpreter_language",
+  label: "1.c. Language used by interpreter",
+  type: "text",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "Pt6Line1b_Language",
+  placeholder: "Spanish",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+
+// Representative Help
+{
+  key: "representative_help",
+  label: "2.a. At my request, the preparer named below...",
+  type: "checkbox",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "Pt6Line2_Checkbox",
+},
+{
+  key: "representative_name",
+  label: "2.b. Name of Preparer (if any)",
+  type: "text",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "Pt6Line2_RepresentativeName",
+  placeholder: "John Doe",
+  condition: (data) => data.representative_help === "Yes",
+},
+
+// Signature
+{
+  key: "petitioner_signature",
+  label: "6.a. Signature of Petitioner",
+  type: "text",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "P5_Line6a_SignatureofApplicant",
+  placeholder: "John A. Smith",
+},
+{
+  key: "petitioner_signature_date",
+  label: "6.b. Date of Signature (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "Pt6Line6b_DateofSignature",
+  placeholder: "MM/DD/YYYY",
+},
+
+// Hidden Barcode (Page 9)
+{
+  key: "page9_barcode",
+  label: "PDF417 Barcode (Page 9)",
+  type: "hidden",
+  section: "Part 6. Petitioner’s Contact Information, Declaration, and Signature",
+  pdfKey: "form1[0].#pageSet[0].Page1[8].PDF417BarCode1[0]",
+  value: "form1[0].#pageSet[0].Page1[8].PDF417BarCode1[0]",
+},
+
+
+// =============================================
+// PAGE 10 - PART 7 & 8: Interpreter & Preparer Details
+// =============================================
+
+// PART 7: Interpreter's Information
+{
+  key: "interpreter_familyName",
+  label: "1.a. Interpreter's Family Name",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line1a_InterpreterFamilyName",
+  placeholder: "Garcia",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_givenName",
+  label: "1.b. Interpreter's Given Name",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line1b_InterpreterGivenName",
+  placeholder: "Maria",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_business",
+  label: "2. Interpreter's Business or Organization Name",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line2_InterpreterBusinessorOrg",
+  placeholder: "ABC Translation Services",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+
+// Interpreter Address
+{
+  key: "interpreter_street",
+  label: "3. Street Number and Name",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line3_StreetNumberName",
+  placeholder: "789 Oak St",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_unitType",
+  label: "3. Unit",
+  type: "radio",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "interpreter_unitType",
+  options: [
+    { label: "Ste", value: "Ste", pdfKey: "Pt7Line3_Unit[0]" },
+    { label: "Apt", value: "Apt", pdfKey: "Pt7Line3_Unit[1]" },
+    { label: "Flr", value: "Flr", pdfKey: "Pt7Line3_Unit[2]" },
+  ],
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_unitNumber",
+  label: "Apt/Ste/Flr Number",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line3_AptSteFlrNumber",
+  placeholder: "303",
+  condition: (data) => data.interpreter_help_english === "No" && ["Ste", "Apt", "Flr"].includes(data.interpreter_unitType),
+},
+{
+  key: "interpreter_city",
+  label: "3. City or Town",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line3_CityOrTown",
+  placeholder: "Miami",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_state",
+  label: "3. State",
+  type: "select",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line3_State",
+  placeholder: "Select State",
+  options: [
+    { label: "FL", value: "FL", pdfKey: "state_FL" },
+    { label: "CA", value: "CA", pdfKey: "state_CA" },
+  ],
+  condition: (data) => data.interpreter_help_english === "No",
+},
+
+{
+  key: "interpreter_zip",
+  label: "3. ZIP Code",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line3_ZipCode",
+  placeholder: "33101",
+  maxLength: 5,
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_province",
+  label: "3. Province",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line3_Province",
+  placeholder: "Ontario",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_postalCode",
+  label: "3. Postal Code",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line3_PostalCode",
+  placeholder: "M5V 2T6",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_country",
+  label: "3. Country",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line3_Country",
+  placeholder: "Canada",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+
+// Interpreter Contact
+{
+  key: "interpreter_daytimePhone",
+  label: "4. Daytime Telephone Number",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line4_InterpreterDaytimeTelephone",
+  placeholder: "(305) 555-0198",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_email",
+  label: "5. Email Address",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line5_Email",
+  placeholder: "maria@translation.com",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+
+// Interpreter Signature
+{
+  key: "interpreter_signature",
+  label: "7.a. Signature of Interpreter",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line7a_Signature",
+  placeholder: "Maria Garcia",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+{
+  key: "interpreter_signature_date",
+  label: "7.b. Date of Signature (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7Line7b_DateofSignature",
+  placeholder: "MM/DD/YYYY",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+
+// Language Name (Top of Page 10)
+{
+  key: "interpreter_language_name",
+  label: "Language Name",
+  type: "text",
+  section: "Part 7. Interpreter's Contact Information, Certification, and Signature",
+  pdfKey: "Pt7_NameofLanguage",
+  placeholder: "Spanish",
+  condition: (data) => data.interpreter_help_english === "No",
+},
+
+
+// PART 8: Preparer's Information
+{
+  key: "preparer_familyName",
+  label: "1.a. Preparer's Family Name",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line1a_PreparerFamilyName",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_givenName",
+  label: "1.b. Preparer's Given Name",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line1b_PreparerGivenName",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_business",
+  label: "2. Preparer's Business or Organization Name",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line2_BusinessName",
+  condition: (data) => data.representative_help === "Yes",
+},
+
+// Preparer Address
+{
+  key: "preparer_street",
+  label: "3. Street Number and Name",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line3_StreetNumberName",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_unitType",
+  label: "3. Unit",
+  type: "radio",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "preparer_unitType",
+  options: [
+    { label: "Ste", value: "Ste", pdfKey: "Pt8Line3_Unit[0]" },
+    { label: "Apt", value: "Apt", pdfKey: "Pt8Line3_Unit[1]" },
+    { label: "Flr", value: "Flr", pdfKey: "Pt8Line3_Unit[2]" },
+  ],
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_unitNumber",
+  label: "Apt/Ste/Flr Number",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line3_AptSteFlrNumber",
+  condition: (data) => data.representative_help === "Yes" && ["Ste", "Apt", "Flr"].includes(data.preparer_unitType),
+},
+{
+  key: "preparer_city",
+  label: "3. City or Town",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line3_CityOrTown",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_state",
+  label: "3. State",
+  type: "select",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line3_State",
+  options: [
+    { label: "NY", value: "NY", pdfKey: "state_NY" },
+  ],
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_zip",
+  label: "3. ZIP Code",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line3_ZipCode",
+  maxLength: 5,
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_province",
+  label: "3. Province",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line3_Province",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_postalCode",
+  label: "3. Postal Code",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line3_PostalCode",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_country",
+  label: "3. Country",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line3_Country",
+  condition: (data) => data.representative_help === "Yes",
+},
+
+// Hidden Barcode (Page 10)
+{
+  key: "page10_barcode",
+  label: "PDF417 Barcode (Page 10)",
+  type: "hidden",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "form1[0].#pageSet[0].Page1[9].PDF417BarCode1[0]",
+  value: "form1[0].#pageSet[0].Page1[9].PDF417BarCode1[0]",
+},
+
+
+// =============================================
+// PAGE 11 - PART 8: Preparer Certification
+// =============================================
+
+{
+  key: "preparer_daytimePhone",
+  label: "4. Daytime Telephone Number",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line4_DaytimePhoneNumber",
+  placeholder: "(555) 123-4567",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_fax",
+  label: "5. Fax Number (if any)",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line5_PreparerFaxNumber",
+  placeholder: "(555) 987-6543",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_email",
+  label: "6. Email Address (if any)",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line6_Email",
+  placeholder: "preparer@lawfirm.com",
+  condition: (data) => data.representative_help === "Yes",
+},
+
+// 7. Certification
+{
+  key: "preparer_certify",
+  label: "7. I certify, under penalty of perjury...",
+  type: "radio",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "preparer_certify",
+  options: [
+    { label: "Yes", value: "Yes", pdfKey: "Pt8Line7_Checkbox_Yes" },
+    { label: "No", value: "No", pdfKey: "Pt8Line7_Checkbox_No" },
+  ],
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_interpreter_used",
+  label: "7.b. An interpreter was used",
+  type: "radio",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "preparer_interpreter_used",
+  options: [
+    { label: "Yes", value: "Yes", pdfKey: "Pt8Line7b_Checkbox_Yes" },
+    { label: "No", value: "No", pdfKey: "Pt8Line7b_Checkbox_No" },
+  ],
+  condition: (data) => data.representative_help === "Yes",
+},
+
+// Signature
+{
+  key: "preparer_signature",
+  label: "8.a. Signature of Preparer",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line8a_Signature",
+  placeholder: "Jane Doe",
+  condition: (data) => data.representative_help === "Yes",
+},
+{
+  key: "preparer_signature_date",
+  label: "8.b. Date of Signature (mm/dd/yyyy)",
+  type: "text",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "Pt8Line8b_DateofSignature",
+  placeholder: "MM/DD/YYYY",
+  condition: (data) => data.representative_help === "Yes",
+},
+
+// Hidden Barcode
+{
+  key: "page11_barcode",
+  label: "PDF417 Barcode (Page 11)",
+  type: "hidden",
+  section: "Part 8. Preparer's Contact Information, Certification, and Signature",
+  pdfKey: "form1[0].#pageSet[0].Page1[10].PDF417BarCode1[0]",
+  value: "form1[0].#pageSet[0].Page1[10].PDF417BarCode1[0]",
+},
+
+
+// =============================================
+// PAGE 12 - PART 9: Additional Information
+// =============================================
+
+{
+  key: "additional_info_a_number",
+  label: "A-Number (Top Right)",
+  type: "text",
+  section: "Part 9. Additional Information",
+  pdfKey: "Pt2Line1_AlienNumber_Page12",
+  placeholder: "A12345678",
+},
+
+// === 5 BLOCKS OF ADDITIONAL INFO ===
+{
+  key: "addl_3_page",
+  label: "3.a. Page Number",
+  type: "text",
+  section: "Part 9. Additional Information",
+  pdfKey: "Pt9Line3a_PageNumber",
+  maxLength: 2,
+},
+{
+  key: "addl_3_part",
+  label: "3.b. Part Number",
+  type: "text",
+  section: "Part 9. Additional Information",
+  pdfKey: "Pt9Line3b_PartNumber",
+  maxLength: 2,
+},
+{
+  key: "addl_3_item",
+  label: "3.c. Item Number",
+  type: "text",
+  section: "Part 9. Additional Information",
+  pdfKey: "Pt9Line3c_ItemNumber",
+  maxLength: 3,
+},
+{
+  key: "addl_3_text",
+  label: "3.d. Additional Information",
+  type: "textarea",
+  section: "Part 9. Additional Information",
+  pdfKey: "Pt9Line3d_AdditionalInfo",
+  placeholder: "Explain here...",
+},
+
+// Repeat for 4, 5, 6, 7 → (same pattern)
+{
+  key: "addl_4_page", label: "4.a. Page Number", type: "text", pdfKey: "Pt9Line4a_PageNumber", maxLength: 2,
+},
+{
+  key: "addl_4_part", label: "4.b. Part Number", type: "text", pdfKey: "Pt9Line4b_PartNumber", maxLength: 2,
+},
+{
+  key: "addl_4_item", label: "4.c. Item Number", type: "text", pdfKey: "Pt9Line4c_ItemNumber", maxLength: 3,
+},
+{
+  key: "addl_4_text", label: "4.d. Additional Information", type: "textarea", pdfKey: "Pt9Line4d_AdditionalInfo",
+},
+
+// Block 5 (Top Right)
+{
+  key: "addl_5_page", label: "5.a. Page Number", type: "text", pdfKey: "Pt9Line5a_PageNumber", maxLength: 2,
+},
+{
+  key: "addl_5_part", label: "5.b. Part Number", type: "text", pdfKey: "Pt9Line5b_PartNumber", maxLength: 2,
+},
+{
+  key: "addl_5_item", label: "5.c. Item Number", type: "text", pdfKey: "Pt9Line5c_ItemNumber", maxLength: 3,
+},
+{
+  key: "addl_5_text", label: "5.d. Additional Information", type: "textarea", pdfKey: "Pt9Line5d_AdditionalInfo",
+},
+
+// Block 6
+{
+  key: "addl_6_page", label: "6.a. Page Number", type: "text", pdfKey: "Pt9Line6a_PageNumber", maxLength: 2,
+},
+{
+  key: "addl_6_part", label: "6.b. Part Number", type: "text", pdfKey: "Pt9Line6b_PartNumber", maxLength: 2,
+},
+{
+  key: "addl_6_item", label: "6.c. Item Number", type: "text", pdfKey: "Pt9Line6c_ItemNumber", maxLength: 3,
+},
+{
+  key: "addl_6_text", label: "6.d. Additional Information", type: "textarea", pdfKey: "Pt9Line6d_AdditionalInfo",
+},
+
+// Block 7
+{
+  key: "addl_7_page", label: "7.a. Page Number", type: "text", pdfKey: "Pt9Line9a_PageNumber", maxLength: 2,
+},
+{
+  key: "addl_7_part", label: "7.b. Part Number", type: "text", pdfKey: "Pt9Line7b_PartNumber", maxLength: 2,
+},
+{
+  key: "addl_7_item", label: "7.c. Item Number", type: "text", pdfKey: "Pt9Line7c_ItemNumber", maxLength: 3,
+},
+{
+  key: "addl_7_text", label: "7.d. Additional Information", type: "textarea", pdfKey: "Pt9Line7d_AdditionalInfo",
+},
+
+// Beneficiary Name (Repeated on Page 12)
+{
+  key: "beneficiary_familyName_page12",
+  label: "Family Name (Repeated)",
+  type: "text",
+  section: "Part 9. Additional Information",
+  pdfKey: "Pt2Line4a_FamilyName_Page12",
+},
+{
+  key: "beneficiary_givenName_page12",
+  label: "Given Name (Repeated)",
+  type: "text",
+  section: "Part 9. Additional Information",
+  pdfKey: "Pt2Line4b_GivenName_Page12",
+},
+{
+  key: "beneficiary_middleName_page12",
+  label: "Middle Name (Repeated)",
+  type: "text",
+  section: "Part 9. Additional Information",
+  pdfKey: "Pt2Line4c_MiddleName_Page12",
+},
+
+// Hidden Barcode
+{
+  key: "page12_barcode",
+  label: "PDF417 Barcode (Page 12)",
+  type: "hidden",
+  section: "Part 9. Additional Information",
+  pdfKey: "form1[0].#pageSet[0].Page1[11].PDF417BarCode1[0]",
+  value: "form1[0].#pageSet[0].Page1[11].PDF417BarCode1[0]",
+},
 
 
 ];

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { SignatureImageProcessor } from "@/lib/imageProcessor";
+import { SignatureImageProcessor } from "@/formConfig.ts/imageProcessor";
 import SignaturePerspectiveCorrection from "./SignaturePerspectiveCorrection";
 
 type Props = {
