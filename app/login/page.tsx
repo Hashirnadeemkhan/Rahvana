@@ -90,7 +90,7 @@ export default function LoginPage() {
         </Card>
 
         <p className="text-center text-sm text-slate-600">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <button
             onClick={() => router.push("/signup")}
             className="text-primary font-semibold hover:underline"
