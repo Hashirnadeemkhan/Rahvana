@@ -6,14 +6,44 @@ import ProtectedRoute from "@/app/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+// Define TypeScript interfaces for profile data
+interface InitialQuestions {
+  dateOfBirth: string;
+  gender: string;
+  nationality: string;
+  maritalStatus: string;
+}
+
+interface CompleteProfile {
+  fullLegalName: string;
+  phoneNumber: string;
+  cnic: string;
+  passportNumber: string;
+  currentEmployer: string;
+  position: string;
+}
+
+interface UserProfile {
+  initialQuestions?: InitialQuestions;
+  completeProfile?: CompleteProfile;
+}
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  // Profile data (tum already use kar rahe ho)
-  const profileData = localStorage.getItem("userProfile");
-  const profile = profileData ? JSON.parse(profileData) : null;
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    const data = localStorage.getItem("userProfile");
+    if (data) {
+      setProfile(JSON.parse(data));
+    }
+    setLoadingProfile(false);
+  }, []);
 
   const hasInitialQuestions = profile?.initialQuestions;
   const hasCompleteProfile = profile?.completeProfile;
@@ -22,6 +52,16 @@ export default function DashboardPage() {
   const handleEditProfile = () => {
     router.push("/initial-questions");
   };
+
+  if (loadingProfile) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen flex items-center justify-center">
+          <p>Loading profile...</p>
+        </div>
+      </ProtectedRoute>
+    );
+  }
 
   return (
     <ProtectedRoute>
@@ -38,34 +78,34 @@ export default function DashboardPage() {
               <Button
                 onClick={() => router.push("/settings")}
                 variant="outline"
-                className="border-slate-300 text-slate-700 hover:bg-slate-100 bg-transparent"
+                className="border-slate-300 text-slate-700 hover:bg-slate-100"
               >
                 Settings
               </Button>
               <Button
                 onClick={logout}
                 variant="outline"
-                className="border-slate-300 text-slate-700 hover:bg-slate-100 bg-transparent"
+                className="border-slate-300 text-slate-700 hover:bg-slate-100"
               >
                 Logout
               </Button>
             </div>
           </div>
 
-          {/* Secure Account Alert (for Google users) */}
+          {/* Google User Password Alert */}
           {!user?.password && (
             <Card className="p-6 bg-amber-50 border border-amber-200 shadow-md mb-8">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-amber-900 mb-2">Secure Your Account</h3>
                   <p className="text-amber-700 mb-4">
-                    You signed in with Google. Set a password to protect your account and enable email login.
+                    You signed in with Google. Set a password to enable email login.
                   </p>
                   <Button onClick={() => router.push("/settings")} className="bg-amber-600 hover:bg-amber-700 text-white">
                     Set Password Now
                   </Button>
                 </div>
-                <div className="text-4xl">Lock</div>
+                <div className="text-4xl">🔒</div>
               </div>
             </Card>
           )}
@@ -85,7 +125,7 @@ export default function DashboardPage() {
                         Start Now
                       </Button>
                     </div>
-                    <div className="text-4xl">Clipboard</div>
+                    <div className="text-4xl">📋</div>
                   </div>
                 </Card>
               )}
@@ -98,21 +138,18 @@ export default function DashboardPage() {
                       <p className="text-amber-700 mb-4">
                         Finish your full profile to unlock all features.
                       </p>
-                      <Button
-                        onClick={() => router.push("/complete-profile")}
-                        className="bg-amber-600 hover:bg-amber-700 text-white"
-                      >
+                      <Button onClick={() => router.push("/complete-profile")} className="bg-amber-600 hover:bg-amber-700 text-white">
                         Continue
                       </Button>
                     </div>
-                    <div className="text-4xl">Pen</div>
+                    <div className="text-4xl">✏️</div>
                   </div>
                 </Card>
               )}
             </div>
           )}
 
-          {/* Profile Completion Progress */}
+          {/* Profile Progress Bar */}
           <Card className="p-8 bg-white shadow-lg border-0 mb-8">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -121,93 +158,59 @@ export default function DashboardPage() {
               </div>
               <div className="text-4xl font-bold text-slate-900">{completionPercentage}%</div>
             </div>
-            <div className="w-full h-4 bg-slate-200 rounded-full mb-6">
+            <div className="w-full h-4 bg-slate-200 rounded-full">
               <div
-                className="h-full bg-slate-900 rounded-full transition-all duration-300"
+                className="h-full bg-slate-900 rounded-full transition-all duration-500"
                 style={{ width: `${completionPercentage}%` }}
-              ></div>
+              />
             </div>
-            {completionPercentage < 100 && (
-              <p className="text-sm text-slate-600">
-                {!hasInitialQuestions
-                  ? "Start by answering initial questions"
-                  : "Complete your detailed profile to finish setup"}
-              </p>
-            )}
-            {completionPercentage === 100 && (
-              <p className="text-sm text-green-600 font-medium">Your profile is complete!</p>
-            )}
           </Card>
 
-          {/* Account Information */}
+          {/* Account Info */}
           <Card className="p-6 bg-white shadow-lg border-0 mb-8">
             <h3 className="text-lg font-semibold text-slate-900 mb-4">Account Information</h3>
             <div className="space-y-3">
-              <div>
-                <p className="text-sm text-slate-600">Email</p>
-                <p className="font-medium text-slate-900">{user?.email}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600">Member Since</p>
-                <p className="font-medium text-slate-900">
-                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600">Login Method</p>
-                <p className="font-medium text-slate-900">
-                  {user?.password ? "Email + Password" : "Google Sign-In"}
-                </p>
-              </div>
+              <div><p className="text-sm text-slate-600">Email</p><p className="font-medium">{user?.email}</p></div>
+              <div><p className="text-sm text-slate-600">Member Since</p><p className="font-medium">
+                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Just now"}
+              </p></div>
+              <div><p className="text-sm text-slate-600">Login Method</p><p className="font-medium">
+                {user?.password ? "Email + Password" : "Google Sign-In"}
+              </p></div>
             </div>
           </Card>
 
-          {/* Initial Questions Summary */}
+          {/* Initial Questions */}
           {hasInitialQuestions && (
             <Card className="p-6 bg-white shadow-lg border-0 mb-8">
               <h3 className="text-lg font-semibold text-slate-900 mb-4">Initial Information</h3>
               <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-slate-600">Date of Birth</p>
-                  <p className="font-medium text-slate-900">{profile?.initialQuestions?.dateOfBirth}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600">Gender</p>
-                  <p className="font-medium text-slate-900 capitalize">{profile?.initialQuestions?.gender}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600">Nationality</p>
-                  <p className="font-medium text-slate-900">{profile?.initialQuestions?.nationality}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600">Marital Status</p>
-                  <p className="font-medium text-slate-900 capitalize">{profile?.initialQuestions?.maritalStatus}</p>
-                </div>
+                <div><p className="text-sm text-slate-600">Date of Birth</p><p className="font-medium">{profile.initialQuestions?.dateOfBirth}</p></div>
+                <div><p className="text-sm text-slate-600">Gender</p><p className="font-medium capitalize">{profile.initialQuestions?.gender}</p></div>
+                <div><p className="text-sm text-slate-600">Nationality</p><p className="font-medium">{profile.initialQuestions?.nationality}</p></div>
+                <div><p className="text-sm text-slate-600">Marital Status</p><p className="font-medium capitalize">{profile.initialQuestions?.maritalStatus}</p></div>
               </div>
             </Card>
           )}
 
-          {/* Complete Profile Summary */}
+          {/* Complete Profile */}
           {hasCompleteProfile && (
             <Card className="p-6 bg-white shadow-lg border-0">
               <h3 className="text-lg font-semibold text-slate-900 mb-4">Complete Profile Data</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><p className="text-sm text-slate-600">Full Legal Name</p><p className="font-medium text-slate-900">{profile?.completeProfile?.fullLegalName}</p></div>
-                <div><p className="text-sm text-slate-600">Phone Number</p><p className="font-medium text-slate-900">{profile?.completeProfile?.phoneNumber}</p></div>
-                <div><p className="text-sm text-slate-600">CNIC</p><p className="font-medium text-slate-900">{profile?.completeProfile?.cnic}</p></div>
-                <div><p className="text-sm text-slate-600">Passport Number</p><p className="font-medium text-slate-900">{profile?.completeProfile?.passportNumber}</p></div>
-                <div><p className="text-sm text-slate-600">Current Employer</p><p className="font-medium text-slate-900">{profile?.completeProfile?.currentEmployer}</p></div>
-                <div><p className="text-sm text-slate-600">Position</p><p className="font-medium text-slate-900">{profile?.completeProfile?.position}</p></div>
+                <div><p className="text-sm text-slate-600">Full Legal Name</p><p className="font-medium">{profile.completeProfile?.fullLegalName}</p></div>
+                <div><p className="text-sm text-slate-600">Phone</p><p className="font-medium">{profile.completeProfile?.phoneNumber}</p></div>
+                <div><p className="text-sm text-slate-600">CNIC</p><p className="font-medium">{profile.completeProfile?.cnic}</p></div>
+                <div><p className="text-sm text-slate-600">Passport</p><p className="font-medium">{profile.completeProfile?.passportNumber}</p></div>
+                <div><p className="text-sm text-slate-600">Employer</p><p className="font-medium">{profile.completeProfile?.currentEmployer}</p></div>
+                <div><p className="text-sm text-slate-600">Position</p><p className="font-medium">{profile.completeProfile?.position}</p></div>
               </div>
-              <Button
-                onClick={handleEditProfile}
-                variant="outline"
-                className="mt-6 border-slate-300 text-slate-700 hover:bg-slate-100 bg-transparent"
-              >
+              <Button onClick={handleEditProfile} variant="outline" className="mt-6">
                 Edit Profile
               </Button>
             </Card>
           )}
+
         </div>
       </div>
     </ProtectedRoute>
