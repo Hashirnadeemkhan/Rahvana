@@ -1,4 +1,4 @@
-# Arachnie API – TL;DR (Simple English Explanation)
+# Arachnie API 
 
 This is the backend server (FastAPI + Python) that does all the heavy work for the immigration web app.
 
@@ -55,3 +55,4 @@ No manual work. No Photoshop. No typing into PDFs.
 Everything happens automatically when the user clicks "Submit".
 
 Deploy it anywhere (Render, Railway, AWS, etc.) — it just works.
+
