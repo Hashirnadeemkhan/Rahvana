@@ -1,4 +1,4 @@
-// app/signup/page.tsx
+// app/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,29 +8,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 
-export default function SignupPage() {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { signup, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!email.includes("@")) return setError("Please enter a valid email");
-    if (password.length < 6) return setError("Password must be at least 6 characters");
-
-    signup(email, password);
+    if (!login(email, password)) {
+      setError("Invalid email or password");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">Create Account</h1>
-          <p className="text-slate-600 mt-2">Get started in seconds</p>
+          <h1 className="text-3xl font-bold text-slate-900">Welcome Back</h1>
+          <p className="text-slate-600 mt-2">Sign in to your account</p>
         </div>
 
         <Button
@@ -51,7 +50,7 @@ export default function SignupPage() {
             <div className="w-full border-t border-slate-300"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-slate-50 text-slate-600">or sign up with email</span>
+            <span className="px-2 bg-slate-50 text-slate-600">or sign in with email</span>
           </div>
         </div>
 
@@ -73,7 +72,7 @@ export default function SignupPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Create a password"
+                placeholder="Enter your password"
                 required
               />
             </div>
@@ -85,15 +84,18 @@ export default function SignupPage() {
             )}
 
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold">
-              Create Account
+              Sign In
             </Button>
           </form>
         </Card>
 
         <p className="text-center text-sm text-slate-600">
-          Already have an account?{" "}
-          <button onClick={() => router.push("/login")} className="text-primary font-semibold hover:underline">
-            Sign in
+          Don't have an account?{" "}
+          <button
+            onClick={() => router.push("/signup")}
+            className="text-primary font-semibold hover:underline"
+          >
+            Sign up
           </button>
         </p>
       </div>

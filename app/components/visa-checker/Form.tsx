@@ -1,0 +1,150 @@
+// frontend/components/visa-checker/Form.tsx
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function Form() {
+  const [form, setForm] = useState({
+    category: 'EB-2',
+    priorityDate: '',
+    country: 'India',
+    applicationType: 'Consular Processing',
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');  // Added for better error handling
+  const router = useRouter();
+
+  const handleSubmit = async () => {
+    if (!form.priorityDate) {
+      setError('Please enter your Priority Date');
+      return;
+    }
+    setError('');  // Clear previous errors
+
+    setLoading(true);
+
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/visa-checker/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status} - ${res.statusText}`);
+      }
+
+      const result = await res.json();
+      localStorage.setItem('visaResult', JSON.stringify(result));
+      router.push('/visa-checker/result');
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white p-8 rounded-xl shadow-lg">
+      <div className="space-y-6">
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {/* Visa Category */}
+        <div>
+          <label className="block font-bold text-gray-700 mb-2">Visa Category</label>
+          <select
+            suppressHydrationWarning
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+          >
+            <option value="EB-1">EB-1 (Priority Workers)</option>
+            <option value="EB-2">EB-2 (Advanced Degree)</option>
+            <option value="EB-3">EB-3 (Skilled Workers)</option>
+            <option value="F1">F1 (Unmarried Sons/Daughters of Citizens)</option>
+            <option value="F2A">F2A (Spouses & Children of LPR)</option>
+            <option value="F2B">F2B (Unmarried Sons/Daughters of LPR)</option>
+            <option value="F3">F3 (Married Sons/Daughters of Citizens)</option>
+            <option value="F4">F4 (Brothers/Sisters of Citizens)</option>
+          </select>
+        </div>
+
+        {/* Priority Date */}
+        <div>
+          <label className="block font-bold text-gray-700 mb-2">Priority Date</label>
+          <input
+            suppressHydrationWarning
+            type="date"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            value={form.priorityDate}
+            onChange={(e) => setForm({ ...form, priorityDate: e.target.value })}
+            required
+          />
+          <p className="text-sm text-gray-500 mt-1">Found on your I-797, I-140, or PERM approval</p>
+        </div>
+
+        {/* Country */}
+        <div>
+          <label className="block font-bold text-gray-700 mb-2">Country of Chargeability</label>
+          <select
+            suppressHydrationWarning
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            value={form.country}
+            onChange={(e) => setForm({ ...form, country: e.target.value })}
+          >
+            <option value="All Other Countries">All Chargeability Areas Except Those Listed</option>
+            <option value="China">China (mainland born)</option>
+            <option value="India">India</option>
+            <option value="Mexico">Mexico</option>
+            <option value="Philippines">Philippines</option>
+          </select>
+        </div>
+
+        {/* Application Type */}
+        <div>
+          <label className="block font-bold text-gray-700 mb-2">Application Type</label>
+          <select
+            suppressHydrationWarning
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            value={form.applicationType}
+            onChange={(e) => setForm({ ...form, applicationType: e.target.value })}
+          >
+            <option value="Consular Processing">Consular Processing (Outside USA)</option>
+            <option value="Adjustment of Status">Adjustment of Status (I-485 in USA)</option>
+          </select>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          suppressHydrationWarning
+          onClick={handleSubmit}
+          disabled={loading}
+          className={`w-full py-3 rounded-lg font-bold text-white transition-all ${
+            loading
+              ? 'bg-indigo-400 cursor-not-allowed'
+              : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+          }`}
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              Checking...
+            </span>
+          ) : (
+            'Check My Status'
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
