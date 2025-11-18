@@ -1,45 +1,57 @@
-# Arachnie API 
+# Arachnie API – TL;DR (Simple English Explanation)
 
-This is the backend server (built with FastAPI) that powers the entire immigration web app.
+This is the backend server (FastAPI + Python) that does all the heavy work for the immigration web app.
 
 ### What does it do?
 
 #### 1. Creates Perfect Passport Photos Automatically  
-- User uploads any selfie or photo  
-- AI removes the background instantly  
-- Detects the face and crops it exactly like a real passport photo  
-- Resizes to official 2×2 inch size (600×600 pixels @ 300 DPI)  
-- Slightly enhances brightness & smoothness  
-- Returns a ready-to-print passport photo  
+- User uploads any photo/selfie  
+- AI removes background in seconds  
+- Detects face and crops it exactly like official passport photo rules  
+- Resizes to correct 2×2 inch size (600×600 pixels)  
+- Improves lighting & smoothness  
+- Returns ready-to-print passport photo  
 
-**Endpoint:** `POST /api/v1/remove-bg` (upload an image → get perfect passport photo back)
+Endpoint: `POST /api/v1/remove-bg`
 
-#### 2. Auto-Fills USCIS I-130 PDF Form  
-- User fills the form on the website (name, address, DOB, etc.)  
-- This server takes that data  
-- Opens the official USCIS I-130 PDF template  
-- Fills every field correctly behind the scenes  
-- Returns a fully filled, ready-to-submit PDF  
+#### 2. Auto-Fills USCIS I-130 Form (PDF)  
+- User fills personal info on the website (name, address, DOB, etc.)  
+- This server opens the real USCIS I-130 PDF  
+- Automatically fills every field correctly  
+- Returns a complete, ready-to-submit filled PDF  
 
-**Endpoint:** `POST /api/v1/fill-pdf` (send form data → download filled I-130 PDF)
+Endpoint: `POST /api/v1/fill-pdf`
 
-#### 3. Immigrant Visa (IV) Schedule Checker  
-- Fetches latest visa bulletin data from official sources  
-- Lets users search by city or visa category  
-- Shows when their priority date becomes current  
+#### 3. Visa Bulletin Checker – Tells You When Your Case Becomes Current  
+- Checks the latest U.S. Department of State Visa Bulletin  
+- Supports Family (F1–F4) and Employment (EB-1 to EB-5) categories  
+- Compares your **Priority Date** with the **Final Action Date**  
+- Instantly tells you:  
+  - **Current** → You can file/submit now!  
+  - **Waiting** → How many days/months/years behind you are  
+  - Special smart estimate for **F3 Philippines** (based on real historical movement)  
 
-**Endpoint:** `GET /api/v1/iv-schedule`
+Endpoint: `POST /api/v1/visa-checker/check`
 
-#### 4. Health & Debug Tools  
-- `/health` → quick check if server is alive  
-- `/debug-fields` → shows all fillable fields in the I-130 PDF (useful for developers)  
-- `/form-structure` → shows exactly which form keys the frontend should send
+#### 4. Immigrant Visa (IV) Schedule Lookup  
+- Shows latest interview scheduling dates from U.S. embassies worldwide  
+- Filter by city or visa category  
 
-### Tech Summary (for non-devs)
-- Runs on Python + FastAPI (very fast & modern)  
-- Can run locally or deployed on Render/Vercel/etc.  
-- Automatically loads AI model for background removal (if available)  
-- Works on both development and production
+Endpoint: `GET /api/v1/iv-schedule`
 
-That’s it!  
-Frontend talks to this backend → magic happens → users get perfect photos and filled forms without doing anything manually.
+#### 5. Health & Debug Tools (for developers)  
+- `/health` → Is the server running?  
+- `/debug-fields` → See all fillable fields inside the I-130 PDF  
+- `/form-structure` → Know exactly which data keys the frontend must send  
+
+### In Simple Words:
+Your website is just a beautiful form.  
+This backend is the **brain** that:
+- Turns selfies → passport photos  
+- Turns form answers → filled government PDFs  
+- Turns priority dates → "You're current!" or "Wait 3 more years"
+
+No manual work. No Photoshop. No typing into PDFs.  
+Everything happens automatically when the user clicks "Submit".
+
+Deploy it anywhere (Render, Railway, AWS, etc.) — it just works.
