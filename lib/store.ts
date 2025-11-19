@@ -1,7 +1,9 @@
 // /lib/store.ts
 import { create } from "zustand";
 import type { PDFDocument } from "pdf-lib";
+import { persist } from "zustand/middleware";
 
+// ---------------- PDF EDITOR TYPES ----------------
 interface TextAnnotation {
   id: string;
   pageIndex: number;
@@ -32,7 +34,6 @@ interface PDFEditorStore {
   annotations: TextAnnotation[];
   signatureAnnotations: SignatureAnnotation[];
 
-  // NEW: store processed signature image (dataURL) so any page can read it
   signatureImage: string | null;
   setSignatureImage: (img: string | null) => void;
 
@@ -49,19 +50,25 @@ interface PDFEditorStore {
   getPageAnnotations: (pageIndex: number) => TextAnnotation[];
 
   addSignatureAnnotation: (signature: SignatureAnnotation) => void;
-  updateSignatureAnnotation: (id: string, updates: Partial<SignatureAnnotation>) => void;
+  updateSignatureAnnotation: (
+    id: string,
+    updates: Partial<SignatureAnnotation>
+  ) => void;
   deleteSignatureAnnotation: (id: string) => void;
   getPageSignatures: (pageIndex: number) => SignatureAnnotation[];
 
   setSelectedAnnotation: (id: string | null) => void;
+
   reset: () => void;
 }
 
+// ---------------- PDF EDITOR STORE ----------------
 export const usePDFStore = create<PDFEditorStore>((set, get) => ({
   pdfFile: null,
   pdfDoc: null,
   currentPage: 0,
   totalPages: 0,
+
   annotations: [],
   signatureAnnotations: [],
   signatureImage: null,
@@ -128,3 +135,42 @@ export const usePDFStore = create<PDFEditorStore>((set, get) => ({
       selectedAnnotation: null,
     }),
 }));
+
+// ---------------- IMMIGRATION STORE ----------------
+interface ImmigrationStore {
+  completed: number[];
+  isDark: boolean;
+
+  completeStep: (id: number) => void;
+  uncompleteStep: (id: number) => void; // <-- Added
+  reset: () => void;
+  toggleTheme: () => void;
+}
+
+export const useStore = create<ImmigrationStore>()(
+  persist(
+    (set) => ({
+      completed: [],
+      isDark: false,
+
+      completeStep: (id) =>
+        set((state) => ({
+          completed: state.completed.includes(id)
+            ? state.completed
+            : [...state.completed, id],
+        })),
+
+      uncompleteStep: (id) =>
+        set((state) => ({
+          completed: state.completed.filter((stepId) => stepId !== id),
+        })),
+
+      reset: () => set({ completed: [] }),
+
+      toggleTheme: () => set((state) => ({ isDark: !state.isDark })),
+    }),
+    {
+      name: "immigration-journey",
+    }
+  )
+);

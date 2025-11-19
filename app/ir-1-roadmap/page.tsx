@@ -1,93 +1,99 @@
-"use client"
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, ArrowDown, ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { useStore } from "@/lib/store";
+import { immigrationSteps } from "@/lib/steps";
 
-export default function IR1RoadmapPage() {
+import IslandCard from "../components/IR-pathway-roadmap/IslandCard";
+import StepDialog from "../components/IR-pathway-roadmap/StepDialog";
+import ProgressBar from "../components/IR-pathway-roadmap/ProgressBar";
+import CompletionDialog from "../components/IR-pathway-roadmap/CompletionDialog";
+import Confetti from "react-confetti";
+import { useEffect, useState } from "react";
+
+export default function Home() {
+  const { completed, completeStep } = useStore();
+  const [openStep, setOpenStep] = useState<number | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const progress = (completed.length / immigrationSteps.length) * 100;
+  const isComplete = completed.length === immigrationSteps.length;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isComplete) {
+      setShowConfetti(true);
+      setShowCompletionDialog(true);
+    }
+  }, [isComplete]);
+
+  if (!mounted) return null;
+
   return (
-    <section className="container mx-auto px-6 py-20">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-blue-700 mb-4">
-          IR-1 Road Map
-        </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Follow each step carefully to complete your IR-1 visa process efficiently.  
-          This roadmap visually guides you from start to finish.
-        </p>
-      </div>
-
-      {/* Roadmap */}
-      <div className="flex flex-col items-center gap-16">
-        {/* Row 1 (→ direction) */}
-        <div className="flex justify-center items-center gap-6">
-          <Step label="Step 1" />
-          <ArrowRight className="text-blue-500 w-6 h-6" />
-          <Step label="Step 2" />
-          <ArrowRight className="text-blue-500 w-6 h-6" />
-          <Step label="Step 3" />
-          <ArrowRight className="text-blue-500 w-6 h-6" />
-          <Step label="Step 4" />
-        </div>
-
-        {/* ↓ under Step 4 */}
-        <div className="flex justify-center w-full">
-          <div className="flex justify-end w-[640px]">
-            <ArrowDown className="text-blue-500 w-7 h-7" />
+    <>
+      {showConfetti && <Confetti recycle={false} numberOfPieces={200} />}
+      
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-all">
+        {/* Header with Progress */}
+        <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-border shadow-sm">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex flex-col gap-4">
+              <div className="animate-slide-left">
+                <h1 className="text-4xl md:text-5xl font-bold text-foreground text-balance">
+                  Pakistan to USA Spousal Journey
+                </h1>
+                <p className="text-muted-foreground mt-2">Track your immigration pathway step by step</p>
+              </div>
+              <ProgressBar completed={completed.length} total={immigrationSteps.length} />
+            </div>
           </div>
         </div>
 
-        {/* Row 2 (← direction) */}
-        <div className="flex justify-center items-center gap-6 flex-row-reverse">
-          <Step label="Step 5" />
-          <ArrowLeft className="text-blue-500 w-6 h-6" />
-          <Step label="Step 6" />
-          <ArrowLeft className="text-blue-500 w-6 h-6" />
-          <Step label="Step 7" />
-          <ArrowLeft className="text-blue-500 w-6 h-6" />
-          <Step label="Step 8" />
-        </div>
-
-        {/* ↓ under Step 5 */}
-        <div className="flex justify-center w-full">
-          <div className="flex justify-start w-[640px]">
-            <ArrowDown className="text-blue-500 w-7 h-7" />
+        <main className="container mx-auto px-4 py-16 pb-20">
+          {/* Steps Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {immigrationSteps.map((step, index) => (
+              <div
+                key={step.id}
+                className="animate-slide-up"
+                style={{
+                  animationDelay: `${index * 50}ms`,
+                }}
+              >
+                <IslandCard
+                  step={step}
+                  isCompleted={completed.includes(step.id)}
+                  onClick={() => setOpenStep(step.id)}
+                />
+              </div>
+            ))}
           </div>
-        </div>
+        </main>
 
-        {/* Row 3 (→ direction) */}
-        <div className="flex justify-center items-center gap-6">
-          <Step label="Step 9" />
-          <ArrowRight className="text-blue-500 w-6 h-6" />
-          <Step label="Step 10" />
-          <ArrowRight className="text-blue-500 w-6 h-6" />
-          <Step label="Step 11" />
-          <ArrowRight className="text-blue-500 w-6 h-6" />
-          <Step label="Step 12" />
-        </div>
+        <StepDialog
+          step={immigrationSteps.find((s) => s.id === openStep)}
+          isCompleted={completed.includes(openStep || 0)}
+          open={!!openStep}
+          onOpenChange={(o) => !o && setOpenStep(null)}
+          onComplete={() => {
+            if (openStep) {
+              completeStep(openStep);
+              setShowConfetti(true);
+              setTimeout(() => setShowConfetti(false), 3000);
+            }
+          }}
+        />
+
+        <CompletionDialog
+          open={showCompletionDialog}
+          onOpenChange={setShowCompletionDialog}
+          progress={progress}
+        />
       </div>
-
-      {/* Back button */}
-      <div className="text-center mt-16">
-        <Link href="/#ir-category">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-md">
-            Back to IR Category
-          </Button>
-        </Link>
-      </div>
-    </section>
-  )
-}
-
-/* Reusable Step component */
-function Step({ label }: { label: string }) {
-  return (
-    <Card className="min-w-[120px] bg-white border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200 flex justify-center items-center">
-      <CardContent className="py-4 px-2 text-center font-medium text-blue-700">
-        {label}
-      </CardContent>
-    </Card>
-  )
+    </>
+  );
 }
