@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo, useEffect } from "react"
-import { formFields, getInitialFormData } from "@/lib/formConfig"
+import { formFields,getInitialFormData } from "@/lib/formConfig/i130"
 import { ProgressBar } from "./progress-bar"
 import { FormStep } from "./form-step"
 import { ReviewPage } from "./review-page"

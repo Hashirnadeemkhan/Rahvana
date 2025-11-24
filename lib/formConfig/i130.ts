@@ -1,4 +1,3 @@
-// app/i130/formConfig.ts
 
 export type FieldType = "text" | "radio" | "checkbox" |"date" | "hidden" | "select" | "textarea";
 

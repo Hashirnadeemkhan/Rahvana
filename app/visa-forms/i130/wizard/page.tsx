@@ -1,6 +1,6 @@
 "use client"
 
-import { MultiStepForm } from "@/app/components/i1130/multi-step-form"
+import { MultiStepForm } from "@/app/components/forms/i130/multi-step-form"
 
 export default function Home() {
   return (

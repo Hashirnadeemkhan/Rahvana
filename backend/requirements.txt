@@ -17,4 +17,6 @@ Pillow
 opencv-python-headless==4.12.0.88
 rembg==2.0.65
 onnxruntime 
-
+openai
+python-dotenv
+openai-agent-sdk

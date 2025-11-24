@@ -1,11 +1,9 @@
-# app/core/config.py
-
 from pathlib import Path
 import os
 from dotenv import load_dotenv
 from typing import List
 
-# .env file load karein
+# .env file load karein (Yeh .env.local/backend/.env dono ko dhoondh lega)
 load_dotenv()
 
 # Paths - FIXED FOR YOUR DIRECTORY STRUCTURE
@@ -31,8 +29,20 @@ class Settings:
     
     # Paths
     DATA_DIR: Path = DATA_DIR
-    I130_PDF_PATH: Path = DATA_DIR / "i130.pdf"
+    I130_PDF_PATH: Path = BASE_DIR / "pdfs" / "i130.pdf"
     
+    # --- [ RAG KEYS ADD KI GAYI HAIN - NO EFFECT ON EXISTING CODE ] ---
+    
+    # AI/RAG Settings (Gemini Key for server-side processing)
+    # Yeh sirf RAG ingestion aur API route use karega, baki code ko chhoota nahi hai.
+    GEMINI_KEY: str = os.getenv("GEMINI_KEY", "") 
+    
+    # Supabase/Vector DB Settings (For knowledge base connection)
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
+    SUPABASE_ANON_KEY: str = os.getenv("SUPABASE_ANON_KEY", "") 
+
+    # --- --- --- --- --- --- --- ---
+
     # CORS - NOTE: Yahan value .env se RAW string ke roop mein load hogi
     CORS_ORIGINS_RAW: str = os.getenv("CORS_ORIGINS", "")
     
