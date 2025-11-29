@@ -1,9 +1,6 @@
 "use client"
 
-interface Field {
-  key: string
-  label: string
-}
+import type { Field } from "@/lib/formConfig/types";
 
 interface ReviewPageProps {
   formData: Record<string, string>

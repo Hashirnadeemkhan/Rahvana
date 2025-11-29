@@ -1,18 +1,9 @@
+// C:\Users\HP\Desktop\arachnie\Arachnie\lib\formConfig\i130.ts
+import type { Field } from "./types";
 
-export type FieldType = "text" | "radio" | "checkbox" |"date" | "hidden" | "select" | "textarea";
-
-export type Field = {
-  key: string;
-  pdfKey: string;
-  label: string;
-  type: FieldType;
-  placeholder?: string;
-  maxLength?: number;
-  options?: { label: string; value: string; pdfKey: string }[];
-  condition?: (data: Record<string, string>) => boolean;
-  section?: string;
-  value?: string;
-};
+export const formId = "i130"
+export const formTitle = "Form I-130";
+export const formSubtitle = "Petition for Alien Relative";
 
 export const formFields: Field[] = [
   // ============================================
@@ -3242,3 +3233,11 @@ export const getInitialFormData = () => {
   formFields.forEach((f) => (data[f.key] = ""));
   return data;
 };
+export const i130Config = {
+  formId,
+  formTitle,
+  formSubtitle,
+  formFields,
+}
+
+export default i130Config

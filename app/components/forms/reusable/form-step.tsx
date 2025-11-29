@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import type { Field as FormField } from "@/lib/formConfig/i130"   
+import type { Field as FormField } from "@/lib/formConfig/types"
 
 const SafeInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
   const { value, ...rest } = props

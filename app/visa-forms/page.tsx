@@ -1,3 +1,4 @@
+// C:\Users\HP\Desktop\arachnie\Arachnie\app\visa-forms\page.tsx
 "use client";
 
 import { FileText, ArrowRight, CheckCircle, Info } from 'lucide-react';
@@ -46,14 +47,15 @@ const VISA_FORMS = [
 ];
 
 export default function VisaFormSelector() {
-  const handleStartForm = (formCode: string) => {
-    // Navigate based on form code
-    if (formCode === 'I-130') {
-      window.location.href = `/visa-forms/i130/wizard`;
-    } else {
-      alert(`Form ${formCode} is coming soon!`);
-    }
-  };
+const handleStartForm = (formCode: string) => {
+  // Ye line sabse important hai — "I-130", "I-130A" ko "i130", "i130a" bana dega
+  const normalized = formCode
+    .replace(/[^a-zA-Z0-9]/g, "")  // saare hyphen, dash hata de
+    .toLowerCase()
+
+  // Ab saare forms ke liye route ban jayega
+  window.location.href = `/visa-forms/${normalized}/wizard`
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-8 px-4">

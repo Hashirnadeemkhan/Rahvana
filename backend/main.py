@@ -1,4 +1,4 @@
-# backend/main.py
+# C:\Users\HP\Desktop\arachnie\Arachnie\backend\main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
@@ -18,8 +18,9 @@ except Exception as e:
 # Routers
 from app.api.v1.remove_bg import router as remove_bg_router
 from app.api.v1.iv_schedule import router as iv_schedule_router
-from app.api.v1.i130_routes import router as i130_router
 from app.api.v1.visa_checker import router as visa_checker_router
+from app.api.v1.pdf_routes import router as pdf_router
+from app.api.v1.whatsapp import router as whatsapp_router
 
 # App
 app = FastAPI(
@@ -30,13 +31,20 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS — Auto detect dev/production from .env
+# FIXED CORS CONFIGURATION
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.get_cors_origins(),
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        # Add your production URL when deployed
+        settings.API_BASE_URL if 'render.com' in settings.API_BASE_URL else "",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],  # Important for file downloads
 )
 
 @app.get("/")
@@ -53,8 +61,9 @@ def health():
 # Mount Routers
 app.include_router(remove_bg_router, prefix="/api/v1", tags=["remove-bg"])
 app.include_router(iv_schedule_router, prefix="/api/v1", tags=["iv-schedule"])
-app.include_router(i130_router, prefix="/api/v1", tags=["i130"])
+app.include_router(pdf_router, prefix="/api/v1", tags=["pdf-forms"])
 app.include_router(visa_checker_router, prefix="/api/v1/visa-checker", tags=["visa-checker"])
+app.include_router(whatsapp_router, prefix="/api/v1", tags=["whatsapp-ai"])
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

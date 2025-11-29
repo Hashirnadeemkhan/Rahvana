@@ -1,0 +1,56 @@
+[project]
+name = "arachnie-backend"
+version = "0.1.0"
+description = "Arachnie Backend with WhatsApp AI Integration"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.32.0",
+    "python-multipart>=0.0.12",
+    "pydantic>=2.11.0",
+    "pydantic-settings>=2.11.0",
+    "requests>=2.32.0",
+    "beautifulsoup4>=4.12.0",
+    "playwright>=1.48.0",
+    "pandas>=2.2.0",
+    "pdfplumber>=0.11.0",
+    "reportlab>=4.2.0",
+    "pypdf>=5.1.0",
+    "pymupdf>=1.24.10",
+    "pycryptodome>=3.21.0",
+    "Pillow>=11.0.0",
+    "opencv-python-headless>=4.12.0.88",
+    "rembg>=2.0.65",
+    "onnxruntime>=1.20.0",
+    "openai>=1.50.0",
+    "sentence-transformers>=3.3.0",
+     "openai-agents>=1.4.0",
+    "qdrant-client>=1.11.0",
+    "translatepy>=2.3",
+    "python-dotenv>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Package path fix
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+# Fixed UV dependency syntax (avoids warning)
+[dependency-groups]
+dev = [
+    "fastapi",
+    "pytest",
+    "watchfiles",
+]
+
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
