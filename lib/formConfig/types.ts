@@ -5,7 +5,7 @@ export type FieldType =
   | "date"
   | "hidden"
   | "select"
-  | "combo"      // <-- Added: for state/province dropdowns
+  | "combo"
   | "textarea";
 
 export type Field = {
@@ -15,16 +15,19 @@ export type Field = {
   type: FieldType;
   placeholder?: string;
   maxLength?: number;
-  required?: boolean;                    // <-- Added
+  required?: boolean;
   options?: { label: string; value: string; pdfKey: string }[];
-  
-  // Condition function must return boolean
   condition?: (data: Record<string, string>) => boolean;
-  
   section?: string;
   value?: string;
-  
-  // Optional: for repeatable sections (like household members)
   repeatable?: boolean;
   groupId?: string;
+};
+
+// ✅ Add this: FormConfig type
+export type FormConfig = {
+  formTitle?: string;
+  formSubtitle?: string;
+  formFields: Field[];
+  getInitialFormData: () => Record<string, string>;
 };
