@@ -38,11 +38,13 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:3001",
+        "https://rahvana-1.onrender.com",
+        "https://www.rahvana.com",
         # Add your production URL when deployed
         settings.API_BASE_URL if 'render.com' in settings.API_BASE_URL else "",
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["Content-Disposition"],  # Important for file downloads
 )
