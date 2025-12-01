@@ -1,42 +1,50 @@
+# backend/app/api/v1/remove_bg.py
+
 from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import Response
+from rembg import remove
+from rembg.session_factory import new_session
 import cv2
 import numpy as np
 from PIL import Image
 import io
-from rembg import remove
-from rembg.session_factory import new_session
 import os
 
 router = APIRouter()
 
 # ------------------------------
-# FORCE REMBG TO USE u2netp ONLY
+# REMBG SINGLETON (Lazy Loading)
 # ------------------------------
-os.environ["U2NET_HOME"] = "/opt/render/.u2net"
-REMBG_MODEL = "u2netp"
+REMBG_SESSION = None
 
-# PRELOAD SMALL MODEL ONLY
-REMBG_SESSION = new_session(REMBG_MODEL)
+def get_rembg_session():
+    global REMBG_SESSION
+    if REMBG_SESSION is None:
+        os.environ["U2NET_HOME"] = "/opt/render/.u2net"
+        REMBG_SESSION = new_session("u2netp")      # smallest model
+    return REMBG_SESSION
 
 
 @router.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...)):
     input_image = await file.read()
 
-    # Remove background using SMALL MODEL ONLY
-    removed = remove(input_image, session=REMBG_SESSION)
+    # load model once only
+    session = get_rembg_session()
 
-    # Convert to RGBA
+    # remove background
+    removed = remove(input_image, session=session)
+
+    # convert to RGBA
     img = Image.open(io.BytesIO(removed)).convert("RGBA")
     white_bg = Image.new("RGB", img.size, (255, 255, 255))
     white_bg.paste(img, mask=img.split()[3])
 
-    # Convert to CV2
+    # convert to cv2
     img_cv = cv2.cvtColor(np.array(white_bg), cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
 
-    # Face detection
+    # face detect
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
     )
@@ -57,10 +65,10 @@ async def remove_bg(file: UploadFile = File(...)):
     else:
         cropped = img_cv
 
-    # Resize 600x600
+    # resize 600x600
     final_img = cv2.resize(cropped, (600, 600), interpolation=cv2.INTER_AREA)
 
-    # Smooth + brighten
+    # smooth + brighten
     lab = cv2.cvtColor(final_img, cv2.COLOR_BGR2LAB)
     l, a, b = cv2.split(lab)
     l = cv2.add(l, 8)
