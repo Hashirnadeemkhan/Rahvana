@@ -2,7 +2,7 @@
 name = "arachnie-backend"
 version = "0.1.0"
 description = "Arachnie Backend with WhatsApp AI Integration"
-requires-python = ">=3.10"
+requires-python =">=3.10,<3.13"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn>=0.32.0",
@@ -24,7 +24,7 @@ dependencies = [
     "onnxruntime>=1.20.0",
     "openai>=1.50.0",
     "sentence-transformers>=3.3.0",
-     "openai-agents>=1.4.0",
+    "openai-agents==0.6.1",
     "qdrant-client>=1.11.0",
     "translatepy>=2.3",
     "python-dotenv>=1.0.0",
