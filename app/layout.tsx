@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { SiteHeader } from './components/site-header';
 import { AuthProvider } from './context/AuthContext';
+import { FloatingChatWidget } from './components/floating-chat-widget';
 
 
 export const metadata: Metadata = {
@@ -16,6 +17,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <SiteHeader />
           {children}
+        <FloatingChatWidget />
+
         </AuthProvider>
       </body>
     </html>
