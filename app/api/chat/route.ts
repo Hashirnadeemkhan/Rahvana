@@ -12,8 +12,22 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // FIXED: Correct endpoint path
-    const response = await fetch("http://localhost:8000/api/v1/ask-whatsapp", {
+    // --- SMART URL LOGIC START ---
+    // Production me NEXT_PUBLIC_API_URL use karega, Local me localhost fallback
+    let baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    
+    // Trailing slash safe remove
+    baseUrl = baseUrl.replace(/\/$/, "");
+
+    // Path construct logic: Check if /api/v1 exists
+    const endpoint = baseUrl.includes("/api/v1") 
+      ? `${baseUrl}/ask-whatsapp`        // Vercel config: .../api/v1/ask-whatsapp
+      : `${baseUrl}/api/v1/ask-whatsapp` // Local config: .../api/v1/ask-whatsapp
+
+    console.log("NextJS API Proxy calling Backend at:", endpoint);
+    // --- SMART URL LOGIC END ---
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",

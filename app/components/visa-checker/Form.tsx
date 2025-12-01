@@ -1,4 +1,3 @@
-// frontend/components/visa-checker/Form.tsx
 'use client';
 
 import { useState } from 'react';
@@ -12,7 +11,7 @@ export default function Form() {
     applicationType: 'Consular Processing',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');  // Added for better error handling
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSubmit = async () => {
@@ -20,14 +19,27 @@ export default function Form() {
       setError('Please enter your Priority Date');
       return;
     }
-    setError('');  // Clear previous errors
-
+    setError('');
     setLoading(true);
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-     const res = await fetch(`${baseUrl}/api/v1/visa-checker/check`, {
+      // --- SMART URL LOGIC START ---
+      // Step 1: Env variable uthao ya Localhost fallback lo
+      let baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      
+      // Step 2: Trailing slash (/) hata do agar last mein hai
+      baseUrl = baseUrl.replace(/\/$/, '');
 
+      // Step 3: Check kro ke '/api/v1' already URL mein hai ya nahi
+      // Agar tumne Vercel me '/api/v1' lagaya hai, to hum dobara nahi lagayenge.
+      const endpoint = baseUrl.includes('/api/v1')
+        ? `${baseUrl}/visa-checker/check`       // Agar api/v1 hai -> seedha endpoint
+        : `${baseUrl}/api/v1/visa-checker/check`; // Agar nahi hai -> api/v1 add kro
+
+      console.log("Fetching from:", endpoint); // Debugging ke liye best hai
+      // --- SMART URL LOGIC END ---
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
