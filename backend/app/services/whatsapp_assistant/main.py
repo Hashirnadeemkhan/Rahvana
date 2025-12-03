@@ -14,7 +14,7 @@ from agents import (
     SQLiteSession,
 )
 
-# --- FIX 1: Absolute import (app ke andar se tool import kar rahe hain) ---
+# --- FIX 1: Absolute import (importing tool from inside app) ---
 from app.services.whatsapp_assistant.tools import search_chat_history
 
 
@@ -33,11 +33,11 @@ provider = AsyncOpenAI(
 )
 
 model = OpenAIChatCompletionsModel(
-    model="gemini-1.5-flash",          # ya "gemini-1.5-pro" jo bhi latest ho
+    model="gemini-2.5-flash",          # or "gemini-1.5-pro", whichever is latest
     openai_client=provider,
 )
 
-# Tracing off kar di (optional, production mein useful hota hai debug ke liye)
+# Disable tracing (optional, useful for debugging in production)
 set_tracing_disabled(disabled=True)
 
 
@@ -45,21 +45,29 @@ set_tracing_disabled(disabled=True)
 whatsapp_agent = Agent(
     name="WhatsApp Analyst",
     instructions="""
-You are a friendly WhatsApp Assistant. Tum user ke saath natural Hindi/English mix mein baat karo.
+You are a friendly WhatsApp Assistant. Follow these rules carefully:
 
-Rules:
-1. Pehle hamesha search_chat_history tool use karo.
-2. Agar history mein relevant data mila to usi se natural jawab do.
-   → Kabhi bhi "chat history", "database", "previous messages" jaise words mat bolna.
-3. Agar "NO_RELEVANT_DATA_FOUND" aaya to apne general knowledge se naturally jawab do.
-4. Helpful, concise aur dostana bano. Past conversations yaad rakho.
+1. Always start by using the `search_chat_history` tool.
+2. If relevant data is found in history, respond naturally based on it.
+   → Never mention "chat history", "database", or "previous messages".
+3. If "NO_RELEVANT_DATA_FOUND" is returned, answer naturally using your general knowledge.
+4. Be helpful, concise, and friendly. Remember past conversations.
+5. Language Handling:
+   - Mirror the user's language by default:
+     • English → respond in English
+     • Roman Urdu → respond in Roman Urdu
+     • Urdu (Arabic script) → respond in Urdu
+     • Any other language → respond in that same language naturally
+   - However, detect if the user **wants to switch to English or another language**. Respect their preference and respond in that language while keeping the tone, style, and context natural.
+   - Always understand the user’s **tone, intent, and emotional cues** to adjust your responses accordingly.
+6. Maintain a natural, friendly, and conversational style. Be context-aware and helpful.
 """,
     model=model,
     tools=[search_chat_history],
     model_settings=ModelSettings(
         temperature=0.3,
         max_tokens=500,
-        tool_choice="required",   # Force karta hai tool use karne ko
+        tool_choice="required",   # Forces the tool to be used
     ),
 )
 
@@ -71,8 +79,8 @@ session = SQLiteSession("whatsapp_conversation_db")
 # ==================== MAIN API FUNCTION ====================
 async def get_whatsapp_response(user_query: str) -> str:
     """
-    Yeh function FastAPI ya kisi bhi API endpoint se call hogi.
-    Ek user query lega → Agent ko dega → Final answer string return karega.
+    This function can be called from FastAPI or any API endpoint.
+    It takes a user query → sends it to the Agent → returns the final answer as a string.
     """
     try:
         result = await Runner.run(
@@ -81,7 +89,7 @@ async def get_whatsapp_response(user_query: str) -> str:
             session=session,
         )
 
-        # Final output nikalte hain
+        # Extract the final output
         if hasattr(result, "final_output") and result.final_output:
             return result.final_output.strip()
         else:
@@ -89,10 +97,10 @@ async def get_whatsapp_response(user_query: str) -> str:
 
     except Exception as e:
         print(f"[ERROR] Agent generation failed: {e}")
-        return "Sorry, kuch technical issue aa gaya. Thodi der baad try karo! 😔"
+        return "Sorry, a technical issue occurred. Please try again later! 😔"
 
 
-# ==================== TESTING CLI (Direct script run karne ke liye) ====================
+# ==================== TESTING CLI (Run script directly) ====================
 if __name__ == "__main__":
     async def test_cli():
         print("\n🤖 WhatsApp Agent Testing Mode (type 'exit' or 'quit' to stop)\n")
@@ -109,7 +117,7 @@ if __name__ == "__main__":
                 print(f"AI: {response}\n")
 
             except KeyboardInterrupt:
-                print("\n\nBye! Take care � ya")
+                print("\n\nBye! Take care 👋")
                 break
             except Exception as e:
                 print(f"Unexpected error: {e}")
