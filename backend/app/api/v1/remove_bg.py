@@ -1,5 +1,7 @@
+# C:\Users\HP\Desktop\arachnie\Arachnie\backend\app\api\v1\remove_bg.py
 from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import Response
+
 from rembg import remove
 from rembg.session_factory import new_session
 import cv2
@@ -10,20 +12,18 @@ import os
 
 router = APIRouter()
 
-# ----------------- Lazy load REMBG -----------------
-REMBG_SESSION = None
-def get_rembg_session():
-    global REMBG_SESSION
-    if REMBG_SESSION is None:
-        os.environ["U2NET_HOME"] = "/opt/render/.u2net"
-        REMBG_SESSION = new_session("u2netp")  # Smallest model for RAM safety
-    return REMBG_SESSION
+# ------------------------------
+# LOAD REMBG MODEL ON STARTUP
+# ------------------------------
+os.environ["U2NET_HOME"] = "/opt/render/.u2net"
+REMBG_SESSION = new_session("u2netp")   # smallest + fastest model
+
 
 @router.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...)):
     input_image = await file.read()
-    session = get_rembg_session()
-    removed = remove(input_image, session=session)
+
+    removed = remove(input_image, session=REMBG_SESSION)
 
     # Convert to RGBA
     img = Image.open(io.BytesIO(removed)).convert("RGBA")
@@ -35,28 +35,30 @@ async def remove_bg(file: UploadFile = File(...)):
     gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
 
     # Face detection
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    face_cascade = cv2.CascadeClassifier(
+        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+    )
     faces = face_cascade.detectMultiScale(gray, 1.1, 6)
 
     if len(faces) > 0:
-        x, y, w, h = sorted(faces, key=lambda f: f[2]*f[3], reverse=True)[0]
-        cx, cy = x + w//2, y + h//2
+        x, y, w, h = sorted(faces, key=lambda f: f[2] * f[3], reverse=True)[0]
+        cx, cy = x + w // 2, y + h // 2
         crop_size = int(max(w, h) * 2.0)
-        y_shift = int(h*0.3)
+        y_shift = int(h * 0.3)
 
-        y1 = max(cy - crop_size//2 - y_shift, 0)
+        y1 = max(cy - crop_size // 2 - y_shift, 0)
         y2 = min(y1 + crop_size, img_cv.shape[0])
-        x1 = max(cx - crop_size//2, 0)
+        x1 = max(cx - crop_size // 2, 0)
         x2 = min(x1 + crop_size, img_cv.shape[1])
 
         cropped = img_cv[y1:y2, x1:x2]
     else:
         cropped = img_cv
 
-    # Resize 600x600
+    # Resize
     final_img = cv2.resize(cropped, (600, 600), interpolation=cv2.INTER_AREA)
 
-    # Smooth + brighten
+    # Enhancement
     lab = cv2.cvtColor(final_img, cv2.COLOR_BGR2LAB)
     l, a, b = cv2.split(lab)
     l = cv2.add(l, 8)
