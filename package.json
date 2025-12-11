@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+   "@sparticuz/chromium": "^131.0.0",
     "@clerk/nextjs": "^6.34.0",
     "@google/generative-ai": "^0.24.1",
     "@mozilla/readability": "^0.6.0",
@@ -23,7 +24,9 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/toolbar": "^3.12.0",
+ 
     "@supabase/supabase-js": "^2.76.1",
+    "@types/pdfkit": "^0.17.4",
     "axios": "^1.12.2",
     "cheerio": "^1.1.2",
     "class-variance-authority": "^0.7.1",
@@ -34,10 +37,13 @@
     "framer-motion": "^12.23.24",
     "gsap": "^3.13.0",
     "helmet": "^8.1.0",
+    "html-to-pdfmake": "^2.5.32",
     "jsdom": "^27.0.1",
     "jspdf": "^3.0.3",
     "konva": "^10.0.8",
     "lucide-react": "^0.545.0",
+    "mammoth": "^1.11.0",
+    "markdown-it": "^14.1.0",
     "multer": "^2.0.2",
     "next": "^15.5.6",
     "next-themes": "^0.4.6",
@@ -48,6 +54,8 @@
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^2.3.11",
     "pdfjs-dist": "^3.11.174",
+    "pdfkit": "^0.17.2",
+    "pdfmake": "^0.2.20",
     "react": "^19.1.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.1.0",
@@ -90,6 +98,6 @@
   },
   "optionalDependencies": {
     "puppeteer": "^22.15.0",
-    "puppeteer-core": "^22.0.0"
+    "puppeteer-core": "^22.15.0"
   }
 }

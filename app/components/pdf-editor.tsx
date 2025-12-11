@@ -4,214 +4,309 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { usePDFStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Download, X, Type } from "lucide-react";
-import Image from "next/image";
-import { loadPDF, addTextToPDF, addImageToPDF, downloadPDF } from "@/lib/pdf-utils";
+import { Download, LayoutGrid, Type, Stamp, Check, } from "lucide-react";
+import ShapeFormattingToolbar from "./shape-formating-toolbar";
 import SignatureTool from "./signature-tool/SignatureTool";
-
-const PDFViewer = dynamic(() => import("./pdf-viewer").then(m => m.PDFViewer), { ssr: false });
-const PDFThumbnails = dynamic(() => import("./pdf-thumbnails").then(m => m.PDFThumbnails), { ssr: false });
+import { OrganizePagesModal } from "./organize-pages-modal";
+import { EditTextModal } from "./edit-text-modal";
+import { createEditedPDF, downloadPDF } from "@/lib/pdf-utils";
+import { TextFormattingToolbar, TextFormat } from "./text-formatting-toolbar";
+import {  Square, X } from "lucide-react";
+// Dynamic Components
+const PDFViewer = dynamic(() => import("./pdf-viewer").then((m) => m.PDFViewer), { ssr: false });
+const PDFThumbnails = dynamic(() => import("./pdf-thumbnails").then((m) => m.PDFThumbnails), { ssr: false });
 
 export function PDFEditor() {
-  const [activeTool, setActiveTool] = useState<"text" | "signature" | null>(null);
+  const [activeTool, setActiveTool] = useState<"text" | "signature" | "shapes" | null>(null);
   const [inputText, setInputText] = useState("");
   const [signature, setSignature] = useState<string | null>(null);
+
   const [isDownloading, setIsDownloading] = useState(false);
-  const [isSignatureFloating, setIsSignatureFloating] = useState(false); // New state for floating signature
+  const [isSignatureFloating, setIsSignatureFloating] = useState(false);
 
-  const { 
-    pdfFile,
-    annotations, 
-    signatureAnnotations, 
-    reset 
-  } = usePDFStore();
+  const [showOrganizeModal, setShowOrganizeModal] = useState(false);
+  const [showEditTextModal, setShowEditTextModal] = useState(false);
 
-  // Handle signature creation
+  const [showShapesDropdown, setShowShapesDropdown] = useState(false);
+  const [showSignDropdown, setShowSignDropdown] = useState(false);
+  
+  const [selectedShape, setSelectedShape] = useState<any>(null);
+  const [isShapeFloating, setIsShapeFloating] = useState(false);
+
+  // === SELECTION STATE ===
+  const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null);
+
+  // === DEFAULT FORMAT (For New Text) ===
+  const [defaultTextFormat, setDefaultTextFormat] = useState<TextFormat>({
+    font: "Arial",
+    size: 18,
+    color: "#000000",
+    bgColor: "#ffffff",
+    opacity: 100,
+    bold: false,
+    italic: false,
+    underline: false,
+    align: "left",
+  });
+
+  const { pdfFile, annotations, updateAnnotation, signatureAnnotations, shapeAnnotations, updateShapeAnnotation, addShapeAnnotation, pageModifications, reset } = usePDFStore();
+
+  // === COMPUTED FORMAT (For Toolbar) ===
+  // If text is selected, show its format. Otherwise, show default.
+  const getActiveFormat = (): TextFormat => {
+    if (selectedAnnotationId) {
+      const ann = annotations.find(a => a.id === selectedAnnotationId);
+      if (ann) {
+        return {
+          font: ann.font || "Arial",
+          size: ann.fontSize || 18,
+          color: ann.color || "#000000",
+          bgColor: ann.bgColor || "transparent",
+          opacity: ann.opacity || 100,
+          bold: ann.bold || false,
+          italic: ann.italic || false,
+          underline: ann.underline || false,
+          align: ann.align || "left",
+        };
+      }
+    }
+    return defaultTextFormat;
+  };
+
+  const currentToolbarFormat = getActiveFormat();
+
+  // === GET SELECTED SHAPE ===
+  const getSelectedShape = () => {
+    if (selectedAnnotationId) {
+      return shapeAnnotations.find(s => s.id === selectedAnnotationId);
+    }
+    return null;
+  };
+
+  const selectedShapeAnnotation = getSelectedShape();
+
+  // === DUPLICATE SHAPE ===
+  const handleDuplicateShape = (shape: any) => {
+    const newShape = {
+      ...shape,
+      id: Date.now().toString(),
+      x: shape.x + 20, // Offset slightly
+      y: shape.y + 20,
+    };
+    addShapeAnnotation(newShape);
+    setSelectedAnnotationId(newShape.id); // Select the new duplicate
+  };
+
+  // === HANDLE FORMAT CHANGE ===
+  const handleFormatChange = (newFormat: Partial<TextFormat>) => {
+    // 1. If an annotation is selected, update IT immediately (Real-time editing)
+    if (selectedAnnotationId) {
+        const updates: any = {};
+        if (newFormat.font !== undefined) updates.font = newFormat.font;
+        if (newFormat.size !== undefined) updates.fontSize = newFormat.size; // Note: size -> fontSize
+        if (newFormat.color !== undefined) updates.color = newFormat.color;
+        if (newFormat.bgColor !== undefined) updates.bgColor = newFormat.bgColor;
+        if (newFormat.opacity !== undefined) updates.opacity = newFormat.opacity;
+        if (newFormat.bold !== undefined) updates.bold = newFormat.bold;
+        if (newFormat.italic !== undefined) updates.italic = newFormat.italic;
+        if (newFormat.underline !== undefined) updates.underline = newFormat.underline;
+        if (newFormat.align !== undefined) updates.align = newFormat.align;
+        
+        updateAnnotation(selectedAnnotationId, updates);
+    }
+    
+    // 2. Always update the default for the NEXT text box to match current style
+    setDefaultTextFormat((prev) => ({ ...prev, ...newFormat }));
+  };
+
   const handleSignature = (sig: string) => {
     setSignature(sig);
     setActiveTool("signature");
-    setIsSignatureFloating(true); // Enable floating mode when signature is created
+    setIsSignatureFloating(true);
+  };
+
+  const handleShapeSelect = (shapeType: string) => {
+     setSelectedShape(shapeType);
+     setActiveTool("shapes");
+     setIsShapeFloating(true);
+     setShowShapesDropdown(false);
   };
 
   const handleDownload = async () => {
-    if (!pdfFile) {
-      alert("No PDF file loaded");
-      return;
-    }
-
-    if (signatureAnnotations.length === 0 && annotations.length === 0) {
-      alert("Please add at least one signature or text annotation");
-      return;
-    }
-
+    if (!pdfFile) return alert("No PDF loaded");
     setIsDownloading(true);
-
     try {
-      const pdfDoc = await loadPDF(pdfFile);
-      
-      if (!pdfDoc || !pdfDoc.getPages) {
-        throw new Error("Failed to load PDF document properly");
-      }
-
-      // Add text annotations
-      for (const annotation of annotations) {
-        await addTextToPDF(
-          pdfDoc,
-          annotation.pageIndex,
-          annotation.text,
-          annotation.x,
-          annotation.y,
-          annotation.fontSize,
-          annotation.color
-        );
-      }
-
-      // Add signature annotations
-      for (const sig of signatureAnnotations) {
-        await addImageToPDF(
-          pdfDoc,
-          sig.pageIndex,
-          sig.image,
-          sig.x,
-          sig.y,
-          sig.width,
-          sig.height,
-          sig.rotation || 0
-        );
-      }
-      
-      await downloadPDF(pdfDoc, "signed-document.pdf");
-      alert("✅ PDF downloaded successfully!");
+      const editedPdf = await createEditedPDF(pdfFile, pageModifications, annotations, signatureAnnotations);
+      await downloadPDF(editedPdf, "edited-document.pdf");
+      alert("PDF downloaded successfully!");
     } catch (error) {
-      console.error("Download error:", error);
-      alert(`❌ Failed to download PDF: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-      setIsDownloading(false);
+      alert("Failed to download PDF.");
+      console.error(error);
     }
+    setIsDownloading(false);
   };
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
-      <div className="flex items-center justify-between bg-white border-b px-6 py-4 shadow-sm">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          📄 PDF Editor Pro
-        </h1>
-        <div className="flex items-center gap-3">
-          {/* Text Tool */}
-          <Button
-            onClick={() => {
-              setActiveTool(activeTool === "text" ? null : "text");
-              setIsSignatureFloating(false); // Disable floating signature when switching tools
-            }}
-            variant={activeTool === "text" ? "default" : "outline"}
-            size="sm"
-            className={`gap-2 h-9 transition-all ${
-              activeTool === "text" 
-                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg" 
-                : "hover:bg-blue-50 hover:border-blue-300"
-            }`}
-          >
-            <Type className="h-4 w-4" />
-            {activeTool === "text" ? "✓ Text Mode Active" : "Add Text"}
-          </Button>
+      {/* HEADER */}
+      <div className="bg-white border-b px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-between max-w-full">
+          <h1 className="text-lg font-bold text-gray-900">PDF Editor Pro</h1>
 
-          {/* Active Text Mode Indicator */}
-          {activeTool === "text" && (
-            <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
-              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-xs text-blue-700 font-medium">Click anywhere to add text</span>
+          {/* CENTER TOOLBAR */}
+          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg p-1 mx-auto">
+            <button onClick={() => setShowOrganizeModal(true)} className="p-2 hover:bg-gray-100 rounded transition-colors">
+              <LayoutGrid className="w-5 h-5 text-gray-700" />
+            </button>
+            <div className="w-px h-6 bg-gray-200 mx-0.5" />
+            
+            {/* TEXT TOOL */}
+            <button
+              onClick={() => {
+                // Toggle tool. If turning on, deselect any current annotation to start fresh
+                if (activeTool !== "text") setSelectedAnnotationId(null);
+                setActiveTool(activeTool === "text" ? null : "text");
+                setShowShapesDropdown(false);
+                setShowSignDropdown(false);
+              }}
+              className={`p-2 rounded transition-colors ${activeTool === "text" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+              title="Add Text"
+            >
+              <Type className={`w-5 h-5 ${activeTool === "text" ? "text-blue-600" : "text-gray-700"}`} />
+            </button>
+
+            {/* SHAPES DROPDOWN */}
+            <div className="relative">
+  {/* Signature Icon — NOT MODIFIED */}
+  <button
+    onClick={() => setShowShapesDropdown(!showShapesDropdown)}
+    className={`p-2 rounded transition-colors ${
+      activeTool === "shapes" ? "bg-blue-100" : "hover:bg-gray-100"
+    }`}
+  >
+    <Stamp
+      className={`w-5 h-5 ${
+        activeTool === "shapes" ? "text-blue-600" : "text-gray-700"
+      }`}
+    />
+  </button>
+
+  {showShapesDropdown && (
+    <div className="absolute top-full mt-1 left-0 bg-white border rounded shadow-lg z-50 w-44">
+
+    
+
+<button
+  onClick={() => handleShapeSelect("check")}
+  className="w-full px-4 py-2 text-left hover:bg-gray-50 border-b flex items-center gap-2"
+>
+  <Check size={18} />
+  <span>Check</span>
+</button>
+
+<button
+  onClick={() => handleShapeSelect("cross")}
+  className="w-full px-4 py-2 text-left hover:bg-gray-50 border-b flex items-center gap-2"
+>
+  <X size={18} />
+  <span>Cross</span>
+</button>
+
+{/* Rectangle instead of Arrow */}
+<button
+  onClick={() => handleShapeSelect("rectangle")}
+  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
+>
+  <Square size={18} />
+  <span>Rectangle</span>
+</button>
+
+   
+      {/* Arrow */}
+      <button
+        onClick={() => handleShapeSelect("arrow")}
+        className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
+      >
+        <span className="text-lg">↗</span>
+        <span>Arrow</span>
+      </button>
+
+    </div>
+  )}
+</div>
+
+
+            {/* SIGNATURE DROPDOWN */}
+             <div className="relative">
+              <button onClick={() => setShowSignDropdown(!showSignDropdown)} className={`p-2 rounded transition-colors ${activeTool === "signature" ? "bg-blue-100" : "hover:bg-gray-100"}`}>
+                    <SignatureTool onSignature={(sig) => { handleSignature(sig); setShowSignDropdown(false); }} />
+              </button>
+            
             </div>
-          )}
-
-          {/* Signature Tool */}
-          <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200">
-            {signature && (
-              <div className="flex items-center gap-2 bg-white rounded-lg p-1.5 border border-gray-200">
-                <Image 
-                  height={32} 
-                  width={60} 
-                  src={signature} 
-                  alt="Current signature" 
-                  className="h-8 w-auto object-contain" 
-                />
-                <span className="text-xs text-green-600 font-semibold">✓ Active</span>
-                <Button
-                  onClick={() => {
-                    setSignature(null);
-                    setIsSignatureFloating(false); // Clear floating state
-                    setActiveTool(null);
-                  }}
-                  variant="ghost"
-                  size="sm"
-                  className="p-1 h-6 w-6 hover:bg-red-50"
-                  aria-label="Remove signature"
-                >
-                  <svg className="h-3 w-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </Button>
-              </div>
-            )}
-            <SignatureTool onSignature={handleSignature} />
           </div>
 
-          {/* Download Button */}
-          <Button 
-            onClick={handleDownload}
-            disabled={isDownloading || (signatureAnnotations.length === 0 && annotations.length === 0)}
-            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isDownloading ? (
-              <>
-                <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                Downloading...
-              </>
-            ) : (
-              <>
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </>
-            )}
-          </Button>
-
-          {/* Close Button */}
-          <Button onClick={reset} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
-            <X className="h-4 w-4 mr-2" />
-            Close
-          </Button>
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-2">
+            <Button onClick={handleDownload} disabled={isDownloading} className="bg-green-600 hover:bg-green-700 text-white">
+              <Download className="h-4 w-4 mr-2" />
+              {isDownloading ? "Processing..." : "Download"}
+            </Button>
+            <Button onClick={reset} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50"><X className="h-4 w-4" /></Button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* ===== TEXT FORMATTING TOOLBAR ===== */}
+      {/* SHOW IF: activeTool is "text" OR any text annotation is currently selected */}
+      {(activeTool === "text" || (selectedAnnotationId && annotations.find(a => a.id === selectedAnnotationId))) && (
+        <div className="absolute top-[70px] left-1/2 -translate-x-1/2 z-50">
+          <TextFormattingToolbar
+            format={currentToolbarFormat}
+            onFormatChange={handleFormatChange}
+          />
+        </div>
+      )}
+
+      {/* ===== SHAPE FORMATTING TOOLBAR ===== */}
+      {/* SHOW IF: A shape annotation is currently selected */}
+      {selectedShapeAnnotation && (
+        <div className="absolute top-[70px] left-1/2 -translate-x-1/2 z-50">
+          <ShapeFormattingToolbar
+            shape={selectedShapeAnnotation}
+            onUpdate={updateShapeAnnotation}
+            onDuplicate={handleDuplicateShape}
+          />
+        </div>
+      )}
+
+      {/* MAIN CONTENT */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Thumbnails Sidebar */}
-        <div className="w-32 border-r bg-white overflow-hidden shadow-sm">
+        <div className="w-28 border-r bg-white overflow-y-auto shadow-sm">
           <PDFThumbnails />
         </div>
-
-        {/* PDF Viewer */}
         <div className="flex-1 overflow-hidden relative">
           <PDFViewer
             activeTool={activeTool}
             inputText={inputText}
             setInputText={setInputText}
             signature={signature}
-            isSignatureFloating={isSignatureFloating} // Pass floating state
-            setIsSignatureFloating={setIsSignatureFloating} // Pass setter
+            textFormat={defaultTextFormat} // Use default for *creating* new ones
+            isSignatureFloating={isSignatureFloating}
+            setIsSignatureFloating={setIsSignatureFloating}
+            selectedShape={selectedShape}
+            isShapeFloating={isShapeFloating}
+            setIsShapeFloating={setIsShapeFloating}
+            onExitAddText={() => setActiveTool(null)}
+            // SELECTION PROPS
+            selectedAnnotationId={selectedAnnotationId}
+            onSelectAnnotation={setSelectedAnnotationId}
           />
         </div>
       </div>
+
+      <OrganizePagesModal isOpen={showOrganizeModal} onClose={() => setShowOrganizeModal(false)} />
+      <EditTextModal isOpen={showEditTextModal} onClose={() => setShowEditTextModal(false)} />
     </div>
   );
 }
+

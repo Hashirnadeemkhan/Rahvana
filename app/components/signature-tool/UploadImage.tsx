@@ -1,108 +1,181 @@
-"use client";
-import React, { useState } from "react";
-import ImageFilterEditor from "./ImageFilterEditor";
+// components/signature-tool/UploadImage.tsx
+"use client"
+
+import React, { useState, useEffect } from "react"
+import { SignatureImageProcessor } from "@/lib/imageProcessor"
 
 type Props = {
-  onUpload: (dataURL: string) => void;
-  closeModal: () => void;
-};
+  onUpload: (dataURL: string) => void
+  closeModal: () => void
+}
+
+const colors = [
+  { name: "Black", value: "#000000" },
+  { name: "Blue", value: "#2563eb" },
+  { name: "Red", value: "#dc2626" },
+]
 
 export default function UploadImage({ onUpload, closeModal }: Props) {
-  const [image, setImage] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null)
+  const [processedImage, setProcessedImage] = useState<string | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [selectedColor, setSelectedColor] = useState<string>("#000000")
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  useEffect(() => {
+    if (uploadedImage) processUploadedImage()
+  }, [uploadedImage])
 
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload a valid image file (PNG, JPG, HEIC)');
-      return;
+  useEffect(() => {
+    if (processedImage && selectedColor) applyColorToSignature()
+  }, [selectedColor, processedImage])
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload a valid image file")
+      return
     }
-
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
-      alert('File size must be less than 10MB');
-      return;
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      if (typeof ev.target?.result === "string") {
+        setUploadedImage(ev.target.result)
+      }
     }
+    reader.readAsDataURL(file)
+  }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = event.target?.result as string;
-      setImage(img);
-    };
-    reader.onerror = () => {
-      alert('Failed to read file. Please try again.');
-    };
-    reader.readAsDataURL(file);
-  };
+  const processUploadedImage = async () => {
+    if (!uploadedImage) return
+    setIsProcessing(true)
+    try {
+      const processor = new SignatureImageProcessor()
+      const result = await processor.processImage(uploadedImage, {
+        threshold: 140,
+        contrast: 2.5,
+        darknessFactor: 0.3,
+        noiseReduction: true,
+        edgeSmoothing: true,
+        aggressiveMode: true,
+      })
+      setProcessedImage(result)
+      processor.destroy()
+    } catch (err) {
+      console.error(err)
+      alert("Failed to process image")
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const applyColorToSignature = () => {
+    if (!processedImage) return
+    const img = new Image()
+    img.src = processedImage
+    img.onload = () => {
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return
+      canvas.width = img.width
+      canvas.height = img.height
+      ctx.drawImage(img, 0, 0)
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const data = imageData.data
+
+      const hex = selectedColor.replace("#", "")
+      const r = parseInt(hex.substring(0, 2), 16)
+      const g = parseInt(hex.substring(2, 4), 16)
+      const b = parseInt(hex.substring(4, 6), 16)
+
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] > 0) {
+          const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3
+          const factor = 1 - brightness / 255
+          data[i] = r * factor
+          data[i + 1] = g * factor
+          data[i + 2] = b * factor
+        }
+      }
+      ctx.putImageData(imageData, 0, 0)
+      setProcessedImage(canvas.toDataURL("image/png"))
+    }
+  }
+
+  const handleClear = () => {
+    setUploadedImage(null)
+    setProcessedImage(null)
+    setSelectedColor("#000000")
+  }
+
+  const handleCreate = () => {
+    if (processedImage) {
+      onUpload(processedImage)
+      closeModal()
+    }
+  }
 
   return (
-    <div className="p-4">
-      {!image ? (
-        <div className="space-y-4">
-          {/* Upload Zone */}
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-400 hover:bg-blue-50/50 transition">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-              id="signature-upload"
-            />
-            <label
-              htmlFor="signature-upload"
-              className="cursor-pointer flex flex-col items-center gap-4"
-            >
-              <div className="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-full">
-                <svg className="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+    <div className="space-y-4">
+      {/* Color Selection */}
+      <div className="flex gap-3">
+        {colors.map((color) => (
+          <button
+            key={color.value}
+            onClick={() => setSelectedColor(color.value)}
+            className={`w-10 h-10 rounded-full transition-all ${
+              selectedColor === color.value ? "ring-4 ring-blue-300 ring-offset-2" : ""
+            }`}
+            style={{ backgroundColor: color.value }}
+            title={color.name}
+          />
+        ))}
+      </div>
+
+      {/* Canvas Area */}
+      <div className="relative border-2 border-gray-200 rounded-lg bg-white overflow-hidden" style={{ height: "400px" }}>
+        {!processedImage ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <label className="cursor-pointer">
+              <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+              <div className="text-center text-gray-400">
+                <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
                 </svg>
-              </div>
-              <div>
-                <span className="text-lg text-gray-700 font-semibold block">Click to upload signature image</span>
-                <span className="text-sm text-gray-500 mt-1 block">PNG, JPG, HEIC supported (max 10MB)</span>
+                <p className="text-sm">Click to upload signature image</p>
               </div>
             </label>
           </div>
-
-          {/* Tips Section */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Tips for Best Results
-            </h3>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span><strong>White paper:</strong> Use clean white or light-colored paper</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span><strong>Good lighting:</strong> Bright, even lighting without shadows</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span><strong>Dark ink:</strong> Use blue or black pen for clear contrast</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold">✓</span>
-                <span><strong>Clear photo:</strong> Take a straight, focused photo</span>
-              </li>
-            </ul>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center p-8">
+            {isProcessing ? (
+              <div className="text-blue-600 text-sm">Processing...</div>
+            ) : (
+              <img src={processedImage} alt="Processed Signature" className="max-w-full max-h-full object-contain" />
+            )}
           </div>
-        </div>
-      ) : (
-        <ImageFilterEditor
-          imageSrc={image}
-          onDone={(final) => {
-            onUpload(final);
-            closeModal();
-          }}
-          onCancel={() => setImage(null)}
-        />
-      )}
+        )}
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-3">
+        {processedImage && (
+          <button onClick={handleClear} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition">
+            Clear
+          </button>
+        )}
+        <button onClick={closeModal} className="px-5 py-2 text-sm text-gray-700 font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          Cancel
+        </button>
+        <button
+          onClick={handleCreate}
+          disabled={!processedImage || isProcessing}
+          className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          Create
+        </button>
+      </div>
     </div>
-  );
+  )
 }

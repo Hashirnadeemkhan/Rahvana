@@ -1,52 +1,53 @@
-'use client';
+"use client"
 
-import React, { useRef, useState } from 'react';
-import { Upload, FileImage } from 'lucide-react';
+import type React from "react"
+import { useRef, useState } from "react"
+import { Upload, ImageIcon, type File } from "lucide-react"
 
 interface SignatureUploaderProps {
-  onFileSelect: (file: File) => void;
-  disabled?: boolean;
+  onFileSelect: (file: File) => void
+  disabled?: boolean
 }
 
 export default function SignatureUploader({ onFileSelect, disabled = false }: SignatureUploaderProps) {
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
+    e.preventDefault()
+    setIsDragging(false)
 
-    if (disabled) return;
+    if (disabled) return
 
-    const files = e.dataTransfer.files;
+    const files = e.dataTransfer.files
     if (files.length > 0) {
-      onFileSelect(files[0]);
+      onFileSelect(files[0])
     }
-  };
+  }
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!disabled) {
-      setIsDragging(true);
+      setIsDragging(true)
     }
-  };
+  }
 
   const handleDragLeave = () => {
-    setIsDragging(false);
-  };
+    setIsDragging(false)
+  }
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    const files = e.target.files
     if (files && files.length > 0) {
-      onFileSelect(files[0]);
+      onFileSelect(files[0])
     }
-  };
+  }
 
   const handleClick = () => {
     if (!disabled) {
-      fileInputRef.current?.click();
+      fileInputRef.current?.click()
     }
-  };
+  }
 
   return (
     <div
@@ -55,13 +56,13 @@ export default function SignatureUploader({ onFileSelect, disabled = false }: Si
       onDragLeave={handleDragLeave}
       onClick={handleClick}
       className={`
-        border-4 border-dashed rounded-2xl p-8 sm:p-16 text-center
+        border-2 rounded-lg p-8 sm:p-12 text-center
         transition-all cursor-pointer
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
         ${
           isDragging
-            ? 'border-blue-500 bg-blue-50 scale-105'
-            : 'border-gray-300 bg-white hover:border-blue-400 hover:bg-gray-50'
+            ? "border-slate-400 bg-slate-50"
+            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
         }
       `}
     >
@@ -76,33 +77,28 @@ export default function SignatureUploader({ onFileSelect, disabled = false }: Si
 
       <div className="flex flex-col items-center">
         {isDragging ? (
-          <FileImage className="w-16 h-16 sm:w-20 sm:h-20 text-blue-500 mb-4 sm:mb-6 animate-bounce" />
+          <ImageIcon className="w-12 h-12 text-slate-600 mb-4" />
         ) : (
-          <Upload className="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 mb-4 sm:mb-6" />
+          <Upload className="w-12 h-12 text-slate-400 mb-4" />
         )}
 
-        <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2 sm:mb-3">
-          {isDragging ? 'Drop your image here' : 'Upload Signature Photo'}
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">
+          {isDragging ? "Drop your image here" : "Upload Signature Photo"}
         </h3>
 
-        <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
-          Drag and drop or click to browse
-        </p>
+        <p className="text-slate-600 mb-6 text-sm">Drag and drop or click to browse your files</p>
 
         <button
           type="button"
           disabled={disabled}
-          className="bg-blue-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg 
-                     font-semibold hover:bg-blue-700 transition-colors text-sm sm:text-base
-                     disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-white bg-primary/90 text-white px-6 py-2.5 rounded transition-colors text-sm
+                     hover:bg-primary/100 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Choose File
         </button>
 
-        <p className="text-xs text-gray-500 mt-4">
-          Supported formats: JPG, PNG, HEIC • Max size: 10MB
-        </p>
+        <p className="text-xs text-slate-500 mt-4">Supported: JPG, PNG, HEIC • Max 10MB</p>
       </div>
     </div>
-  );
+  )
 }

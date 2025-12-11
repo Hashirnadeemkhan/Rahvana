@@ -1,64 +1,81 @@
-"use client";
-import React, { useRef } from "react";
-import SignatureCanvas from "react-signature-canvas";
+"use client"
+
+import { useRef, useState } from "react"
+import SignatureCanvas from "react-signature-canvas"
 
 type Props = {
-  onSave: (dataURL: string) => void;
-  closeModal: () => void;
-};
+  onSave: (dataURL: string) => void
+  closeModal: () => void
+}
 
 export default function SignaturePad({ onSave, closeModal }: Props) {
-  const sigRef = useRef<SignatureCanvas | null>(null);
+  const sigRef = useRef<SignatureCanvas | null>(null)
+  const [penColor, setPenColor] = useState("#000000")
+
+  const colors = [
+    { name: "Black", value: "#000000" },
+    { name: "Blue", value: "#1E40AF" },
+    { name: "Red", value: "#DC2626" },
+  ]
 
   const handleSave = () => {
-    if (sigRef.current && !sigRef.current.isEmpty()) {
-      const canvas = sigRef.current.getCanvas();
-      
-      // Ensure transparent background
-      const dataURL = canvas.toDataURL("image/png");
-      onSave(dataURL);
-      closeModal();
-    } else {
-      alert("Please draw a signature before saving.");
+    if (!sigRef.current?.isEmpty()) {
+      const canvas = sigRef.current?.getCanvas()
+      const dataURL = canvas?.toDataURL("image/png")
+      if (dataURL) {
+        onSave(dataURL)
+        closeModal() // Modal band karne ke liye
+      }
     }
-  };
+  }
 
-  const handleClear = () => sigRef.current?.clear();
+  const handleClear = () => {
+    sigRef.current?.clear()
+  }
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4">
+      <div className="flex items-center gap-2">
+        {colors.map((color) => (
+          <button
+            key={color.value}
+            onClick={() => setPenColor(color.value)}
+            className={`w-8 h-8 rounded-full transition-all ${
+              penColor === color.value ? "ring-2 ring-offset-2 ring-blue-500 scale-110" : ""
+            }`}
+            style={{ backgroundColor: color.value }}
+          />
+        ))}
+      </div>
+
+      <div className="bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
         <SignatureCanvas
           ref={sigRef}
-          penColor="black"
-          canvasProps={{
-            className: "w-full h-40 touch-none",
-            style: { 
-              background: "transparent",
-              touchAction: "none",
-            },
-          }}
+          penColor={penColor}
+          canvasProps={{ className: "w-full h-48 touch-none", style: { background: "white" } }}
         />
       </div>
 
-      <p className="text-xs text-gray-500 text-center">
-        ✍️ Draw your signature above
-      </p>
-
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         <button
           onClick={handleClear}
-          className="flex-1 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
+          className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"
         >
           Clear
         </button>
         <button
-          onClick={handleSave}
-          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition font-semibold"
+          onClick={closeModal}
+          className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
         >
-          Save Signature
+          Cancel
+        </button>
+        <button
+          onClick={handleSave}
+          className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+        >
+          Create
         </button>
       </div>
     </div>
-  );
+  )
 }

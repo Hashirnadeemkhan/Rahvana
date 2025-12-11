@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePDFStore } from "@/lib/store";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { usePDFStore, type ShapeType } from "@/lib/store";
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DraggableText from "./DraggableText";
+import DraggableTextPro from "./DraggableTextPro";
+import DraggableShape from "./DraggableShape";
 import DraggableSignature from "./signature-tool/DraggableSignature";
+import ShapeFormattingToolbar from "./shape-formating-toolbar";
 
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
+import type { TextFormat } from "./text-formatting-toolbar";
 
 let pdfjsLib: typeof import("pdfjs-dist") | null = null;
 
@@ -19,47 +22,44 @@ async function initPdfJs() {
   return pdfjs;
 }
 
-type Annotation = {
-  id: string;
-  pageIndex: number;
-  text: string;
-  x: number;
-  y: number;
-  fontSize: number;
-  color: string;
-};
-
-type SignatureAnnotation = {
-  id: string;
-  pageIndex: number;
-  image: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
 export function PDFViewer({
   activeTool,
-  inputText,
-  setInputText,
   signature,
   isSignatureFloating,
   setIsSignatureFloating,
+  textFormat,
+  selectedShape,
+  isShapeFloating,
+  setIsShapeFloating,
+  onExitAddText,
+  selectedAnnotationId,
+  onSelectAnnotation,
 }: {
-  activeTool: "text" | "signature" | null;
+  activeTool: "text" | "signature" | "shapes" | null;
   inputText: string;
   setInputText: (text: string) => void;
   signature: string | null;
   isSignatureFloating: boolean;
-  setIsSignatureFloating: (value: boolean) => void;
+  setIsSignatureFloating: (v: boolean) => void;
+  textFormat?: TextFormat;
+  selectedShape?: ShapeType | null;
+  isShapeFloating?: boolean;
+  setIsShapeFloating?: (v: boolean) => void;
+  onExitAddText?: () => void;
+  selectedAnnotationId: string | null;
+  onSelectAnnotation: (id: string | null) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   const [scale, setScale] = useState(1.5);
   const [isLoading, setIsLoading] = useState(false);
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
-  const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null); // Track cursor position
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
+  const [pageWidth, setPageWidth] = useState(0);
+  const [pageHeight, setPageHeight] = useState(0);
+  const [fitMode, setFitMode] = useState<"width" | "height">("width");
 
   const {
     currentPage,
@@ -74,75 +74,113 @@ export function PDFViewer({
     addSignatureAnnotation,
     updateSignatureAnnotation,
     deleteSignatureAnnotation,
+    shapeAnnotations,
+    addShapeAnnotation,
+    updateShapeAnnotation,
+    deleteShapeAnnotation,
+    pageModifications,
+    setTotalPages,
   } = usePDFStore();
 
-  // Load the PDF
+  const actualTotalPages = pageModifications.length > 0
+    ? pageModifications.filter((mod) => !mod.deleted).length
+    : totalPages;
+
+  const getCurrentPageInfo = () => {
+    if (pageModifications.length === 0) return { originalIndex: currentPage, rotation: 0 };
+    const activePages = pageModifications.filter((mod) => !mod.deleted);
+    if (currentPage >= activePages.length) return { originalIndex: 0, rotation: 0 };
+    const pageMod = activePages[currentPage];
+    return { originalIndex: pageMod.originalIndex, rotation: pageMod.rotation };
+  };
+
+  // Load PDF
   useEffect(() => {
     if (!pdfFile) return;
-
     const loadPdf = async () => {
-      const pdfjs = await initPdfJs();
-      const loadedPdf = await pdfjs.getDocument(await pdfFile.arrayBuffer()).promise as PDFDocumentProxy;
-      setPdfDoc(loadedPdf);
+      try {
+        const pdfjs = await initPdfJs();
+        const loadedPdf = await pdfjs.getDocument(await pdfFile.arrayBuffer()).promise;
+        setPdfDoc(loadedPdf);
+        setTotalPages(loadedPdf.numPages);
+      } catch (error: any) {
+        // Handle RenderingCancelledException gracefully
+        if (error?.name !== "RenderingCancelledException") {
+          console.error("Error loading PDF:", error);
+        }
+      }
     };
-
     loadPdf();
-  }, [pdfFile]);
+  }, [pdfFile, setTotalPages]);
 
-  // Render a specific page
+  // Render Page
   useEffect(() => {
     if (!pdfDoc || !canvasRef.current) return;
-
     let renderTask: RenderTask | null = null;
     let cancelled = false;
 
     const renderPage = async () => {
       try {
         setIsLoading(true);
-        const page: PDFPageProxy = await pdfDoc.getPage(currentPage + 1);
+        const pageInfo = getCurrentPageInfo();
+        const page = await pdfDoc.getPage(pageInfo.originalIndex + 1);
         if (cancelled) return;
 
-        const viewport = page.getViewport({ scale });
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const context = canvas.getContext("2d");
-        if (!context) return;
+        const viewport = page.getViewport({ scale, rotation: pageInfo.rotation });
+        
+        // Store original page dimensions
+        const originalViewport = page.getViewport({ scale: 1, rotation: pageInfo.rotation });
+        setPageWidth(originalViewport.width);
+        setPageHeight(originalViewport.height);
 
+        const canvas = canvasRef.current!;
+        const context = canvas.getContext("2d")!;
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        canvas.style.width = `${viewport.width}px`;
-        canvas.style.height = `${viewport.height}px`;
 
-        if (renderTask) renderTask.cancel();
-
+        if (renderTask) {
+          try {
+            renderTask.cancel();
+          } catch (e) {
+            // Ignore cancellation errors
+          }
+        }
+        
         renderTask = page.render({ canvasContext: context, viewport });
         await renderTask.promise;
-      } catch (error) {
-        if ((error as Error).name === "RenderingCancelledException") {
-          return;
+
+        if (!cancelled) setIsLoading(false);
+      } catch (error: any) {
+        // Handle RenderingCancelledException gracefully
+        if (error?.name === "RenderingCancelledException") {
+          console.warn("Page rendering was cancelled");
+        } else {
+          console.error("Error rendering page:", error);
         }
-        console.error("Error rendering PDF page:", error);
-      } finally {
         if (!cancelled) setIsLoading(false);
       }
     };
 
     renderPage();
-
     return () => {
       cancelled = true;
-      if (renderTask) renderTask.cancel();
+      if (renderTask) {
+        try {
+          renderTask.cancel();
+        } catch (e) {
+          // Ignore cancellation errors on cleanup
+        }
+      }
     };
-  }, [pdfDoc, currentPage, scale]);
+  }, [pdfDoc, currentPage, scale, pageModifications]);
 
-  // Track cursor movement for floating signature
+  // Move floating signature/shape
   useEffect(() => {
-    if (!isSignatureFloating || !overlayRef.current || !signature) return;
+    if ((!isSignatureFloating && !isShapeFloating) || !overlayRef.current) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
-
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       setCursorPos({ x, y });
@@ -150,168 +188,274 @@ export function PDFViewer({
 
     const overlay = overlayRef.current;
     overlay.addEventListener("mousemove", handleMouseMove);
+    return () => overlay.removeEventListener("mousemove", handleMouseMove);
+  }, [isSignatureFloating, isShapeFloating]);
 
-    return () => {
-      overlay.removeEventListener("mousemove", handleMouseMove);
+  // Zoom with CTRL + scroll
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      setScale((prev) => Math.max(0.08, Math.min(6, prev + delta)));
     };
-  }, [isSignatureFloating, signature]);
 
-  // Handle click to place text or signature
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, []);
+
+  // Click to place text/signature/shape
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
+    if (e.target !== e.currentTarget) return;
+
+    if (!activeTool) {
+      onSelectAnnotation(null);
+      return;
+    }
+
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect || !canvasRef.current) return;
+    if (!rect) return;
 
     const x = (e.clientX - rect.left) / scale;
     const y = (e.clientY - rect.top) / scale;
 
     if (activeTool === "text") {
+      const id = Date.now().toString();
       addAnnotation({
-        id: Date.now().toString(),
-        text: inputText.trim() || "",
+        id,
+        text: "Insert text",
         x,
         y,
-        fontSize: 14,
+        fontSize: textFormat?.size || 14,
         pageIndex: currentPage,
-        color: "#000000",
+        color: textFormat?.color || "#000000",
+        font: textFormat?.font || "Arial",
+        bold: textFormat?.bold || false,
+        italic: textFormat?.italic || false,
+        underline: textFormat?.underline || false,
+        align: textFormat?.align || "left",
+        bgColor: textFormat?.bgColor || "transparent",
+        opacity: textFormat?.opacity || 100,
+        rotation: 0,
+        width: 150,
+        height: 50,
       });
-      setInputText("");
+      onExitAddText?.();
+      onSelectAnnotation(id);
+
     } else if (activeTool === "signature" && signature && isSignatureFloating) {
       addSignatureAnnotation({
         id: Date.now().toString(),
         image: signature,
         x,
         y,
-        width: 150, // Default width
-        height: 60, // Default height
+        width: 150,
+        height: 60,
         pageIndex: currentPage,
+        rotation: 0,
       });
-      setIsSignatureFloating(false); // Stop floating after placing
+      setIsSignatureFloating(false);
+      onExitAddText?.();
+
+    } else if (activeTool === "shapes" && selectedShape && isShapeFloating) {
+      const id = Date.now().toString();
+      addShapeAnnotation({
+        id,
+        type: selectedShape,
+        x,
+        y,
+        size: 12,
+        color: "#000000",
+        pageIndex: currentPage,
+        rotation: 0,
+      });
+      setIsShapeFloating?.(false);
+      onExitAddText?.();
+      onSelectAnnotation(id);
     }
   };
 
+  // Get selected shape (for toolbar)
+  const selectedShapeObj = shapeAnnotations.find((s) => s.id === selectedAnnotationId) || null;
+
   return (
-    <div className="flex flex-col gap-4 h-full">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between bg-white border-b px-4 py-3">
+    <div className="flex flex-col h-full">
+
+      {/* Top Toolbar */}
+      <div className="flex items-center justify-between bg-white border-b px-4 py-2 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-            disabled={currentPage === 0}
-            variant="ghost"
-            size="sm"
-          >
-            <ChevronLeft className="h-5 w-5" />
+          <Button onClick={() => setCurrentPage(Math.max(0, currentPage - 1))} disabled={currentPage === 0} variant="ghost" size="sm">
+            <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm font-medium min-w-fit">
-            {currentPage + 1} / {totalPages}
-          </span>
-          <Button
-            onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
-            disabled={currentPage === totalPages - 1}
-            variant="ghost"
-            size="sm"
-          >
-            <ChevronRight className="h-5 w-5" />
+          <span className="text-sm font-medium">{currentPage + 1} / {actualTotalPages}</span>
+          <Button onClick={() => setCurrentPage(Math.min(actualTotalPages - 1, currentPage + 1))} disabled={currentPage === actualTotalPages - 1} variant="ghost" size="sm">
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+
         <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setScale(Math.max(0.5, scale - 0.2))}
-            variant="ghost"
-            size="sm"
-          >
-            <ZoomOut className="h-5 w-5" />
+          <Button onClick={() => setScale((p) => Math.max(0.08, p - 0.2))} variant="ghost" size="sm">
+            <ZoomOut className="h-4 w-4" />
           </Button>
-          <span className="text-sm font-medium min-w-fit">
-            {Math.round(scale * 100)}%
-          </span>
-          <Button
-            onClick={() => setScale(Math.min(3, scale + 0.2))}
-            variant="ghost"
+
+          <Button 
+            onClick={() => {
+              if (containerRef.current) {
+                if (fitMode === "width" && pageWidth) {
+                  const containerWidth = containerRef.current.clientWidth - 32;
+                  setScale(containerWidth / pageWidth);
+                  setFitMode("height");
+                } else if (fitMode === "height" && pageHeight) {
+                  const containerHeight = containerRef.current.clientHeight - 32;
+                  setScale(containerHeight / pageHeight);
+                  setFitMode("width");
+                }
+              }
+            }}
+            variant="outline" 
             size="sm"
+            title={fitMode === "width" ? "Fit to Width" : "Fit to Height"}
           >
-            <ZoomIn className="h-5 w-5" />
+            <Maximize2 className="h-4 w-4" />
           </Button>
+
+          <span className="text-sm font-medium">{Math.round(scale * 100)}%</span>
+
+          <Button onClick={() => setScale((p) => Math.min(6, p + 0.2))} variant="ghost" size="sm">
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+
+          {/* Zoom Dropdown */}
+          <select
+            value={scale}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "fitWidth" && containerRef.current && pageWidth) {
+                const containerWidth = containerRef.current.clientWidth - 32;
+                setScale(containerWidth / pageWidth);
+              } else if (val === "fitHeight" && containerRef.current && pageHeight) {
+                const containerHeight = containerRef.current.clientHeight - 32;
+                setScale(containerHeight / pageHeight);
+              } else {
+                setScale(Number(val));
+              }
+            }}
+            className="text-sm border rounded px-2 py-1 bg-white"
+          >
+            <option value={0.5}>50%</option>
+            <option value={0.75}>75%</option>
+            <option value={1}>100% (Actual)</option>
+            <option value={1.25}>125%</option>
+            <option value={1.5}>150%</option>
+            <option value={2}>200%</option>
+            <option value={3}>300%</option>
+            <option value="fitWidth">Fit Width</option>
+            <option value="fitHeight">Fit Height</option>
+          </select>
         </div>
       </div>
 
-      {/* PDF + Overlay Container */}
-      <div className="flex-1 flex justify-center items-start overflow-auto bg-gray-100 p-4">
-        {isLoading && <div className="text-gray-500">Loading page...</div>}
+      {/* PDF Viewer */}
+      <div ref={containerRef} className="flex-1 flex justify-center items-start overflow-auto bg-gray-100 p-4">
+        
+        {isLoading && (
+          <div className="absolute top-1/2 left-1/2 text-gray-500 -translate-x-1/2 -translate-y-1/2 z-50">
+            Loading page...
+          </div>
+        )}
 
-        <div className="relative" ref={overlayRef}>
-          <canvas
-            ref={canvasRef}
-            className="shadow-lg bg-white z-0"
-            style={{ display: "block" }}
-          />
+        <div className="relative inline-block" ref={overlayRef}>
+          <canvas ref={canvasRef} className="shadow-lg bg-white z-0" />
 
           <div
-            className={`absolute inset-0 z-10 ${
-              activeTool === "text"
-                ? "cursor-text"
-                : activeTool === "signature" && isSignatureFloating
-                ? "cursor-crosshair"
-                : ""
-            }`}
-            style={{ pointerEvents: activeTool ? "auto" : "none" }}
+            className="absolute inset-0 z-10"
+            style={{
+              cursor:
+                activeTool === "text"
+                  ? "copy"
+                  : activeTool === "signature" && isSignatureFloating
+                  ? "crosshair"
+                  : activeTool === "shapes" && isShapeFloating
+                  ? "crosshair"
+                  : "default",
+            }}
             onClick={handleOverlayClick}
           >
-            {/* Render existing annotations */}
+            {/* Text Annots */}
             {annotations
-              .filter((ann: Annotation) => ann.pageIndex === currentPage)
-              .map((annotation: Annotation) => (
-                <DraggableText
-                  key={annotation.id}
-                  data={annotation}
+              .filter((ann) => ann.pageIndex === currentPage)
+              .map((ann) => (
+                <DraggableTextPro
+                  key={ann.id}
+                  data={ann}
                   onUpdate={updateAnnotation}
                   onDelete={deleteAnnotation}
                   scale={scale}
+                  onSelect={onSelectAnnotation}
+                  isSelected={selectedAnnotationId === ann.id}
                 />
               ))}
 
+            {/* Signature Annots */}
             {signatureAnnotations
-              .filter((sig: SignatureAnnotation) => sig.pageIndex === currentPage)
-              .map((signature: SignatureAnnotation) => (
+              .filter((sig) => sig.pageIndex === currentPage)
+              .map((sig) => (
                 <DraggableSignature
-                  key={signature.id}
-                  data={signature}
-                  onUpdate={(id, patch) => updateSignatureAnnotation(id, patch)}
+                  key={sig.id}
+                  data={sig}
+                  onUpdate={updateSignatureAnnotation}
                   onDelete={deleteSignatureAnnotation}
                   scale={scale}
                 />
               ))}
 
-            {/* Floating Signature Preview */}
+            {/* Shape Annots */}
+            {shapeAnnotations
+              .filter((shape) => shape.pageIndex === currentPage)
+              .map((shape) => (
+                <DraggableShape
+                  key={shape.id}
+                  data={shape}
+                  onUpdate={updateShapeAnnotation}
+                  onDelete={deleteShapeAnnotation}
+                  scale={scale}
+                  isSelected={selectedAnnotationId === shape.id}
+                  onSelect={onSelectAnnotation}
+                />
+              ))}
+
+            {/* Floating Signature */}
             {isSignatureFloating && signature && cursorPos && (
               <div
-                className="absolute pointer-events-none"
+                className="absolute pointer-events-none opacity-70"
                 style={{
-                  left: `${cursorPos.x - 75 * scale}px`, // Center the signature on cursor
-                  top: `${cursorPos.y - 30 * scale}px`, // Center vertically
-                  width: `${150 * scale}px`, // Scaled width
-                  height: `${60 * scale}px`, // Scaled height
-                  opacity: 0.7, // Semi-transparent to indicate preview
-                  zIndex: 100,
+                  left: `${cursorPos.x - 75 * scale}px`,
+                  top: `${cursorPos.y - 30 * scale}px`,
+                  width: `${150 * scale}px`,
+                  height: `${60 * scale}px`,
                 }}
               >
-                <img
-                  src={signature}
-                  alt="Floating Signature"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    pointerEvents: "none",
-                    userSelect: "none",
-                  }}
-                />
+                <img src={signature} alt="sig" className="w-full h-full object-contain" />
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Shape Toolbar */}
+      {selectedShapeObj && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999]">
+          <ShapeFormattingToolbar
+            shape={selectedShapeObj}
+            onUpdate={updateShapeAnnotation}
+          />
+        </div>
+      )}
     </div>
   );
 }
+
+export default PDFViewer;

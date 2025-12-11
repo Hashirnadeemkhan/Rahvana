@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { usePDFStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import type * as PDFJS from "pdfjs-dist";
 
 let pdfjsLib: typeof PDFJS | null = null;
@@ -17,34 +16,66 @@ async function initPdfJs() {
 }
 
 export function PDFThumbnails() {
-  const { currentPage, setCurrentPage, pdfFile, totalPages } = usePDFStore();
-  const [, setIsLoading] = useState(false);
-  const [thumbnails, setThumbnails] = useState<string[]>([]);
+  const { currentPage, setCurrentPage, pdfFile, totalPages, pageModifications } = usePDFStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [thumbnails, setThumbnails] = useState<Array<{ thumbnail: string; rotation: number; originalIndex: number }>>([]);
 
   useEffect(() => {
-    if (!pdfFile || totalPages === 0) return;
+    if (!pdfFile) return;
 
     const generateThumbnails = async () => {
       try {
         setIsLoading(true);
         const pdfjs = await initPdfJs();
         const pdf = await pdfjs.getDocument(await pdfFile.arrayBuffer()).promise;
-        const thumbs: string[] = [];
+        
+        // If no modifications yet, generate from original pages
+        if (pageModifications.length === 0) {
+          const thumbs: Array<{ thumbnail: string; rotation: number; originalIndex: number }> = [];
+          
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 0.3 });
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d")!;
 
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 0.5 });
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d")!;
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
 
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
+            await page.render({ canvasContext: context, viewport }).promise;
+            thumbs.push({
+              thumbnail: canvas.toDataURL(),
+              rotation: 0,
+              originalIndex: i - 1,
+            });
+          }
+          
+          setThumbnails(thumbs);
+        } else {
+          // Generate thumbnails based on modifications
+          const thumbs: Array<{ thumbnail: string; rotation: number; originalIndex: number }> = [];
 
-          await page.render({ canvasContext: context, viewport }).promise;
-          thumbs.push(canvas.toDataURL());
+          for (const mod of pageModifications) {
+            if (mod.deleted) continue;
+
+            const page = await pdf.getPage(mod.originalIndex + 1);
+            const viewport = page.getViewport({ scale: 0.3 });
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d")!;
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({ canvasContext: context, viewport }).promise;
+            thumbs.push({
+              thumbnail: canvas.toDataURL(),
+              rotation: mod.rotation,
+              originalIndex: mod.originalIndex,
+            });
+          }
+
+          setThumbnails(thumbs);
         }
-
-        setThumbnails(thumbs);
       } catch (error) {
         console.error("Error generating thumbnails:", error);
       } finally {
@@ -53,29 +84,44 @@ export function PDFThumbnails() {
     };
 
     generateThumbnails();
-  }, [pdfFile, totalPages]);
+  }, [pdfFile, totalPages, pageModifications]);
 
-  if (!pdfFile || totalPages === 0 || thumbnails.length === 0) return null;
+  if (!pdfFile) return null;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full p-4">
+        <div className="text-xs text-gray-500">Loading...</div>
+      </div>
+    );
+  }
+
+  if (thumbnails.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-2 bg-white border-r p-3 overflow-y-auto h-full">
+    <div className="flex flex-col gap-2 bg-gray-50 p-2 overflow-y-auto h-full" style={{ width: "120px", minWidth: "120px" }}>
       {thumbnails.map((thumb, index) => (
         <button
-          key={index}
+          key={`${thumb.originalIndex}-${index}`}
           onClick={() => setCurrentPage(index)}
           className={cn(
-            "relative rounded border-2 overflow-hidden transition-all hover:border-blue-400",
-            currentPage === index ? "border-blue-600 shadow-md" : "border-gray-200"
+            "relative rounded border overflow-hidden transition-all hover:border-blue-400 flex-shrink-0",
+            currentPage === index ? "border-2 border-blue-600 shadow-md" : "border border-gray-300"
           )}
+          style={{ width: "104px", height: "140px" }}
         >
-          <Image
-            src={thumb || "/placeholder.svg"}
-            alt={`Page ${index + 1}`}
-            className="w-full"
-            width={120}
-            height={160}
-          />
-          <span className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
+          <div className="w-full h-full flex items-center justify-center bg-white">
+            <img
+              src={thumb.thumbnail || "/placeholder.svg"}
+              alt={`Page ${index + 1}`}
+              className="max-w-full max-h-full object-contain"
+              style={{
+                transform: `rotate(${thumb.rotation}deg)`,
+                transition: "transform 0.2s ease",
+              }}
+            />
+          </div>
+          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
             {index + 1}
           </span>
         </button>

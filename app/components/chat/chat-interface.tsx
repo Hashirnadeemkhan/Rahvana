@@ -73,6 +73,7 @@ export function ChatInterface() {
 
       setMessages((prev) => [...prev, assistantMessage])
     } catch (error) {
+      console.error("Chat API error:", error);
       const errorMessage: Message = {
         id: (Date.now() + 2).toString(),
         type: "assistant",

@@ -1,93 +1,75 @@
-'use client';
-
-import React from 'react';
-import { Loader2, Sparkles } from 'lucide-react';
+"use client"
+import { Loader2, CheckCircle2 } from "lucide-react"
 
 interface SignatureProcessorProps {
-  progress?: number;
+  progress?: number
 }
 
 export default function SignatureProcessor({ progress = 0 }: SignatureProcessorProps) {
   const steps = [
-    { id: 1, label: 'Analyzing image...', icon: '🔍' },
-    { id: 2, label: 'Removing background...', icon: '🎨' },
-    { id: 3, label: 'Enhancing signature...', icon: '✨' },
-    { id: 4, label: 'Finalizing...', icon: '🎯' },
-  ];
+    { id: 1, label: "Analyzing image" },
+    { id: 2, label: "Removing background" },
+    { id: 3, label: "Enhancing signature" },
+    { id: 4, label: "Finalizing" },
+  ]
 
-  const currentStep = Math.min(Math.floor(progress / 25) + 1, 4);
+  const currentStep = Math.min(Math.floor(progress / 25) + 1, 4)
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12 text-center max-w-2xl mx-auto">
-      {/* Animated Icon */}
-      <div className="relative mb-6">
-        <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-ping opacity-75"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-            <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-white animate-pulse" />
+    <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 text-center max-w-2xl mx-auto border border-slate-200">
+      <div className="relative mb-8">
+        <div className="w-16 h-16 mx-auto">
+          <div className="absolute inset-0 bg-slate-900 rounded-full flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
           </div>
         </div>
       </div>
 
       {/* Main Title */}
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-        Processing Your Signature
-      </h2>
-      <p className="text-gray-600 mb-6 text-sm sm:text-base">
-        Please wait while we enhance your signature...
-      </p>
+      <h2 className="text-xl font-semibold text-slate-900 mb-2">Processing Your Signature</h2>
+      <p className="text-slate-600 mb-8 text-sm">Please wait while we enhance your signature...</p>
 
-      {/* Progress Bar */}
       <div className="mb-8">
-        <div className="w-full bg-gray-200 rounded-full h-3 sm:h-4 overflow-hidden">
+        <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-blue-500 to-purple-600 h-full rounded-full transition-all duration-500 ease-out"
+            className="bg-slate-900 h-full rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
-          >
-            <div className="w-full h-full bg-white opacity-30 animate-pulse"></div>
-          </div>
+          />
         </div>
-        <p className="text-sm text-gray-500 mt-2">{progress}% Complete</p>
+        <p className="text-xs text-slate-500 mt-3">{progress}% Complete</p>
       </div>
 
-      {/* Processing Steps */}
-      <div className="space-y-3 sm:space-y-4">
+      <div className="space-y-2">
         {steps.map((step) => (
           <div
             key={step.id}
-            className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg transition-all ${
+            className={`flex items-center gap-3 p-3 rounded transition-all ${
               step.id === currentStep
-                ? 'bg-blue-50 border-2 border-blue-300 scale-105'
+                ? "bg-slate-100 border border-slate-300"
                 : step.id < currentStep
-                ? 'bg-green-50 border-2 border-green-300'
-                : 'bg-gray-50 border-2 border-gray-200 opacity-50'
+                  ? "bg-slate-50 border border-slate-200"
+                  : "bg-white border border-slate-200 opacity-50"
             }`}
           >
-            <div className="text-2xl sm:text-3xl">{step.icon}</div>
-            <div className="flex-1 text-left">
-              <p className={`font-semibold text-sm sm:text-base ${
-                step.id === currentStep ? 'text-blue-700' : 
-                step.id < currentStep ? 'text-green-700' : 'text-gray-500'
-              }`}>
-                {step.label}
-              </p>
+            <div className="flex items-center justify-center w-5 h-5 flex-shrink-0">
+              {step.id < currentStep ? (
+                <CheckCircle2 className="w-5 h-5 text-slate-600" />
+              ) : step.id === currentStep ? (
+                <Loader2 className="w-4 h-4 text-slate-600 animate-spin" />
+              ) : (
+                <div className="w-3 h-3 bg-slate-300 rounded-full" />
+              )}
             </div>
-            {step.id === currentStep && (
-              <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 animate-spin" />
-            )}
-            {step.id < currentStep && (
-              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
-                ✓
-              </div>
-            )}
+            <p
+              className={`text-sm font-medium ${
+                step.id === currentStep ? "text-slate-900" : step.id < currentStep ? "text-slate-700" : "text-slate-500"
+              }`}
+            >
+              {step.label}
+            </p>
           </div>
         ))}
       </div>
-
-      {/* Fun Message */}
-      <p className="text-xs sm:text-sm text-gray-500 mt-6 italic">
-        ✨ Creating professional quality signature...
-      </p>
     </div>
-  );
+  )
 }

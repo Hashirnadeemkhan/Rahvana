@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { SiteHeader } from './components/site-header';
 import { AuthProvider } from './context/AuthContext';
-import { FloatingChatWidget } from './components/floating-chat-widget';
+import { FloatingChatWidget } from './components/chat/floating-chat-widget';
 
 
 export const metadata: Metadata = {
