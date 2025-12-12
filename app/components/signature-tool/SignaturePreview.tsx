@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { Download, RotateCcw, Check, Move, Crop } from "lucide-react"
+import { Download, RotateCcw, Check, Move, Crop, Sparkles } from "lucide-react"
 
 interface SignaturePreviewProps {
   originalImage: string
@@ -79,7 +79,6 @@ export default function SignaturePreview({
         { x: imageDimensions.width, y: imageDimensions.height },
         { x: 0, y: imageDimensions.height },
       ])
-
       const canvas = perspectiveCanvasRef.current
       if (canvas) {
         canvas.width = imageDimensions.width
@@ -108,7 +107,6 @@ export default function SignaturePreview({
 
     const img = new Image()
     img.src = processedImage
-
     img.onload = () => {
       const ctx = previewCanvas.getContext("2d")
       if (!ctx) return
@@ -132,7 +130,6 @@ export default function SignaturePreview({
               u * (1 - v) * imageDimensions.width +
               u * v * imageDimensions.width +
               (1 - u) * v * 0
-
             const srcY =
               (1 - u) * (1 - v) * 0 +
               u * (1 - v) * 0 +
@@ -144,7 +141,6 @@ export default function SignaturePreview({
               u * (1 - v) * corners[1].x +
               u * v * corners[2].x +
               (1 - u) * v * corners[3].x
-
             const dstY =
               (1 - u) * (1 - v) * corners[0].y +
               u * (1 - v) * corners[1].y +
@@ -285,7 +281,6 @@ export default function SignaturePreview({
       setIsDragging(true)
       setDragType(type)
     }
-
     setDragStart({ x: e.clientX, y: e.clientY })
   }
 
@@ -299,7 +294,6 @@ export default function SignaturePreview({
 
       const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX)
       const degrees = (angle * 180) / Math.PI
-
       setRotation(Math.round(degrees))
       return
     }
@@ -346,6 +340,7 @@ export default function SignaturePreview({
           }
         }
       }
+
       return newBox
     })
 
@@ -472,7 +467,7 @@ export default function SignaturePreview({
       <div className="space-y-6 animate-fade-in max-w-7xl mx-auto">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm">
           <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <Move className="w-7 h-7 text-" />
+            <Move className="w-7 h-7 text-blue-600" />
             Fix Perspective Tilt
           </h2>
           <p className="text-gray-700">Drag the blue corner handles to straighten your signature</p>
@@ -504,7 +499,6 @@ export default function SignaturePreview({
               className="relative p-6 bg-gray-50 flex items-center justify-center min-h-[500px]"
             >
               <canvas ref={perspectiveCanvasRef} className="max-w-full max-h-[450px] object-contain" />
-
               {imageDimensions &&
                 corners.map((corner, index) => {
                   const rect = perspectiveContainerRef.current?.getBoundingClientRect()
@@ -525,7 +519,6 @@ export default function SignaturePreview({
                     />
                   )
                 })}
-
               {imageDimensions && (
                 <svg className="absolute inset-0 pointer-events-none" style={{ width: "100%", height: "100%" }}>
                   {corners.map((corner, index) => {
@@ -614,7 +607,7 @@ export default function SignaturePreview({
           </div>
           <button
             onClick={() => setShowPerspective(true)}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all flex items-center gap-3 shadow-lg text-base"
+            className="px-6 py-3 bg-primary/90 hover:bg-primary/100 text-white rounded-xl font-bold transition-all flex items-center gap-3 shadow-lg text-base"
           >
             <Move className="w-5 h-5" />
             Fix Perspective
@@ -642,17 +635,13 @@ export default function SignaturePreview({
 
         {/* Enhanced Image */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-100 to-indigo-100 border-b border-blue-300 px-6 py-4 flex items-center justify-between">
-            <p className="text-gray-900 font-bold text-xl">Enhanced Version</p>
-            {!croppedImage && (
-              <button
-                onClick={applyCrop}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all flex items-center gap-2 shadow-md text-sm"
-              >
-                <Crop className="w-4 h-4" />
-                Apply Changes
-              </button>
-            )}
+          <div className="bg-gradient-to-r from-purple-100 to-pink-100 border-b border-purple-300 px-6 py-4">
+            <div className="flex items-center gap-3">
+            
+              <p className="text-gray-900 font-bold text-xl">
+                {croppedImage ? "Final Signature" : "Adjust Your Signature"}
+              </p>
+            </div>
           </div>
           <div
             ref={previewRef}
@@ -685,7 +674,7 @@ export default function SignaturePreview({
               {!croppedImage && (
                 <>
                   <div
-                    className="absolute border-3 border-blue-600 bg-blue-600/10 cursor-move"
+                    className="absolute border-3 border-primary bg-primary/10 cursor-move"
                     style={{
                       left: `${cropBox.x}px`,
                       top: `${cropBox.y}px`,
@@ -697,19 +686,19 @@ export default function SignaturePreview({
                   >
                     {/* Corner Handles */}
                     <div
-                      className="absolute -left-3 -top-3 w-6 h-6 bg-blue-600 border-3 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform z-10 shadow-lg"
+                      className="absolute -left-3 -top-3 w-6 h-6 bg-primary/90 border-3 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform z-10 shadow-lg"
                       onMouseDown={(e) => handleMouseDown(e, "nw")}
                     />
                     <div
-                      className="absolute -right-3 -top-3 w-6 h-6 bg-blue-600 border-3 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform z-10 shadow-lg"
+                      className="absolute -right-3 -top-3 w-6 h-6 bg-primary/90 border-3 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform z-10 shadow-lg"
                       onMouseDown={(e) => handleMouseDown(e, "ne")}
                     />
                     <div
-                      className="absolute -left-3 -bottom-3 w-6 h-6 bg-blue-600 border-3 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform z-10 shadow-lg"
+                      className="absolute -left-3 -bottom-3 w-6 h-6 bg-primary/90 border-3 border-white rounded-full cursor-nesw-resize hover:scale-125 transition-transform z-10 shadow-lg"
                       onMouseDown={(e) => handleMouseDown(e, "sw")}
                     />
                     <div
-                      className="absolute -right-3 -bottom-3 w-6 h-6 bg-blue-600 border-3 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform z-10 shadow-lg"
+                      className="absolute -right-3 -bottom-3 w-6 h-6 bg-primary/90 border-3 border-white rounded-full cursor-nwse-resize hover:scale-125 transition-transform z-10 shadow-lg"
                       onMouseDown={(e) => handleMouseDown(e, "se")}
                     />
 
@@ -720,7 +709,7 @@ export default function SignaturePreview({
                       onMouseDown={(e) => handleMouseDown(e, "rotate")}
                     >
                       <div className="w-1 h-10 bg-blue-600 rounded-full"></div>
-                      <div className="w-8 h-8 bg-blue-600 border-3 border-white rounded-full hover:scale-125 transition-transform shadow-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-primary/90 border-3 border-white rounded-full hover:scale-125 transition-transform shadow-lg flex items-center justify-center">
                         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
                             strokeLinecap="round"
@@ -731,7 +720,7 @@ export default function SignaturePreview({
                         </svg>
                       </div>
                       {isRotating && (
-                        <div className="absolute -bottom-10 bg-blue-600 text-white text-sm font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
+                        <div className="absolute -bottom-10 bg-primary/90 text-white text-sm font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
                           {rotation}°
                         </div>
                       )}
@@ -774,6 +763,18 @@ export default function SignaturePreview({
         </div>
       </div>
 
+      {!croppedImage && (
+        <div className="flex justify-center">
+          <button
+            onClick={applyCrop}
+            className="bg-primary/90 hover:bg-primary/100 text-white px-16 py-5 rounded-xl font-bold transition-all flex items-center justify-center gap-3 text-xl shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <Crop className="w-7 h-7" />
+            Apply Changes
+          </button>
+        </div>
+      )}
+
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-center gap-5">
         <button
@@ -801,17 +802,20 @@ export default function SignaturePreview({
           <h3 className="font-bold text-gray-900 text-lg mb-2">PNG Format</h3>
           <p className="text-gray-600 text-sm">Perfect for all uses</p>
         </div>
-        
         <div className="bg-white border-2 border-gray-200 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-shadow">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
           <h3 className="font-bold text-gray-900 text-lg mb-2">Transparent</h3>
           <p className="text-gray-600 text-sm">No background included</p>
         </div>
-        
         <div className="bg-white border-2 border-gray-200 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-shadow">
           <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -827,7 +831,12 @@ export default function SignaturePreview({
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8 shadow-md">
         <h3 className="font-bold text-gray-900 mb-6 text-2xl flex items-center gap-3">
           <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           How to Use Your Signature
         </h3>

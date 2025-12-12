@@ -12,7 +12,6 @@ interface CompressionResult {
 export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CompressionResult | null>(null);
   const [error, setError] = useState('');
@@ -54,9 +53,7 @@ export default function Home() {
 
     const formData = new FormData();
     formData.append('file', file);
-    if (password.trim()) {
-      formData.append('password', password.trim());
-    }
+
 
     try {
       const response = await fetch(`${apiUrl}/api/v1/compress`, {
@@ -97,7 +94,7 @@ export default function Home() {
         reduction: finalReduction.toFixed(2),
       });
 
-      setPassword('');
+  
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Compression failed. Please try again.';
       console.error('Compression error:', err);
@@ -124,17 +121,10 @@ export default function Home() {
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="bg-primary/90 p-10 text-white">
-            <div className="flex justify-center mb-4">
-              <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full">
-                <Zap className="h-12 w-12" />
-              </div>
-            </div>
             <h1 className="text-4xl md:text-5xl font-bold text-center mb-3">
-              Extreme PDF Compressor
+               PDF Compressor
             </h1>
-            <p className="text-center text-indigo-100 text-lg">
-              Maximum compression power • Up to 90% reduction
-            </p>
+
           </div>
 
           <div className="p-8 md:p-12">

@@ -96,7 +96,7 @@ class PDFProcessor:
             
             # Hardcoded settings
             target_dpi = 72
-            img_quality = 20
+            img_quality = 80
             max_dimension = 1024
             
             # --- STEP 1: Parallel Image Processing ---
