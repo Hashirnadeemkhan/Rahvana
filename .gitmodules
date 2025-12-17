@@ -1,0 +1,3 @@
+[submodule "backend/modnet"]
+	path = backend/modnet
+	url = https://github.com/ZHKKKe/MODNet
