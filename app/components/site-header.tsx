@@ -232,8 +232,6 @@ export function SiteHeader() {
                     { href: "/iv-tool", label: "IV Tool" },
                     { href: "/visa-forms", label: "Auto Form Filling" },
                     { href: "/visa-checker", label: "Visa Bulletin Checker" },
-                    { href: "/pdf-converter", label: "PDF Converter" },
-                    { href: "/compress", label: "PDF Compressor" },
                   ].map((item) => (
                     <DropdownMenuItem key={item.href} asChild>
                       <Link
@@ -314,8 +312,6 @@ export function SiteHeader() {
               { href: "/iv-tool", label: "IV Tool" },
               { href: "/visa-forms", label: "Auto Form Filling" },
               { href: "/visa-checker", label: "Visa Bulletin Checker" },
-              { href: "/pdf-converter", label: "PDF Converter" },
-              { href: "/compress", label: "PDF Compressor" },
             ].map((item) => (
               <DropdownMenuItem key={item.href} asChild>
                 <Link

@@ -1,12 +1,12 @@
-import React, { useState, useRef } from 'react';
-import { Upload, X, RotateCw, Download, GripVertical, Trash2, Copy, FileText, Grid3x3, List, Eye, FolderOpen } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import NextImage from 'next/image';
+import { Upload, X, RotateCw, Download, Trash2, Copy, Plus, Eye, GripHorizontal } from 'lucide-react';
 
 interface PDFPage {
   id: string;
   fileId: string;
   fileName: string;
   pageNumber: number;
-  totalPages: number;
   rotation: number;
   thumbnail: string;
 }
@@ -22,27 +22,35 @@ export default function PDFMergeAdvanced() {
   const [files, setFiles] = useState<PDFFileInfo[]>([]);
   const [allPages, setAllPages] = useState<PDFPage[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  const [organizeMode, setOrganizeMode] = useState(false);
   const [mergedPdfUrl, setMergedPdfUrl] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedPages, setSelectedPages] = useState<Set<string>>(new Set());
-  const [draggedPageIndex, setDraggedPageIndex] = useState<number | null>(null);
+
+  const [draggedFileId, setDraggedFileId] = useState<string | null>(null); // For dragging files in main mode
+  const [draggedPageIndex, setDraggedPageIndex] = useState<number | null>(null); // For dragging pages in preview mode
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-merge with debounce when in preview mode
+  useEffect(() => {
+    if (!previewMode || allPages.length === 0 || loading) return;
+
+    const timer = setTimeout(() => {
+      handleMerge(true); // true = auto mode (no need to set previewMode again)
+    }, 800); // 800ms delay — feels real-time but prevents too many merges
+
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allPages, previewMode]);
+
+  // --- File Conversion Logic ---
   const convertToPDF = async (file: File): Promise<File | null> => {
     try {
-      // If already PDF, return as is
-      if (file.type === 'application/pdf') {
-        return file;
-      }
+      if (file.type === 'application/pdf') return file;
 
       const pdfLib = await import('pdf-lib');
       const pdfDoc = await pdfLib.PDFDocument.create();
 
-      // Handle Images
       if (file.type.startsWith('image/')) {
         const arrayBuffer = await file.arrayBuffer();
         let image;
@@ -52,11 +60,10 @@ export default function PDFMergeAdvanced() {
         } else if (file.type === 'image/png') {
           image = await pdfDoc.embedPng(arrayBuffer);
         } else {
-          // Convert other image formats to canvas then to PNG
           const img = new Image();
           const blob = new Blob([arrayBuffer], { type: file.type });
           const url = URL.createObjectURL(blob);
-          
+
           await new Promise((resolve, reject) => {
             img.onload = resolve;
             img.onerror = reject;
@@ -68,156 +75,73 @@ export default function PDFMergeAdvanced() {
           canvas.height = img.height;
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0);
-          
+
           const pngBlob = await new Promise<Blob>((resolve) => {
             canvas.toBlob((blob) => resolve(blob!), 'image/png');
           });
-          
+
           const pngBuffer = await pngBlob.arrayBuffer();
           image = await pdfDoc.embedPng(pngBuffer);
           URL.revokeObjectURL(url);
         }
 
-        // Calculate proper A4 dimensions (595 x 842 points)
-        const A4_WIDTH = 595;
-        const A4_HEIGHT = 842;
-        const MARGIN = 40;
-        
-        const maxWidth = A4_WIDTH - (MARGIN * 2);
-        const maxHeight = A4_HEIGHT - (MARGIN * 2);
-        
-        // Calculate scaling to fit image within A4 with margins
-        let width = image.width;
-        let height = image.height;
-        
-        const widthRatio = maxWidth / width;
-        const heightRatio = maxHeight / height;
-        const scale = Math.min(widthRatio, heightRatio, 1); // Don't upscale
-        
-        width = width * scale;
-        height = height * scale;
-        
-        // Center the image on the page
-        const x = (A4_WIDTH - width) / 2;
-        const y = (A4_HEIGHT - height) / 2;
-        
-        const page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
-        page.drawImage(image, { x, y, width, height });
+        const page = pdfDoc.addPage([image.width, image.height]);
+        page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
       }
-      // Handle Word documents (.docx)
+      // Word & Excel conversion (same as before)
       else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         const mammoth = await import('mammoth');
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer });
-        
-        // Clean text - remove special characters that pdf-lib can't handle
-        const cleanText = result.value
-          .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII characters
-          .replace(/\r\n/g, '\n')
-          .replace(/\r/g, '\n');
-        
-        const A4_WIDTH = 595;
-        const A4_HEIGHT = 842;
-        const MARGIN = 50;
-        const LINE_HEIGHT = 14;
-        const FONT_SIZE = 11;
-        
+        const cleanText = result.value.replace(/[^\x00-\x7F]/g, '').replace(/\r\n/g, '\n');
+
+        const A4_WIDTH = 595, A4_HEIGHT = 842, MARGIN = 50, FONT_SIZE = 12;
         const lines = cleanText.split('\n');
         let currentPage = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
         let yPosition = A4_HEIGHT - MARGIN;
-        
+
         for (const line of lines) {
-          if (yPosition < MARGIN + LINE_HEIGHT) {
+          if (yPosition < MARGIN) {
             currentPage = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
             yPosition = A4_HEIGHT - MARGIN;
           }
-          
-          const trimmedLine = line.trim();
-          if (trimmedLine) {
-            try {
-              currentPage.drawText(trimmedLine.substring(0, 100), {
-                x: MARGIN,
-                y: yPosition,
-                size: FONT_SIZE,
-                maxWidth: A4_WIDTH - (MARGIN * 2),
-              });
-            } catch (err) {
-              // Skip lines that can't be rendered
-              console.warn('Skipping line with encoding issues');
-            }
-          }
-          yPosition -= LINE_HEIGHT;
+          currentPage.drawText(line.substring(0, 90), { x: MARGIN, y: yPosition, size: FONT_SIZE });
+          yPosition -= 16;
         }
       }
-      // Handle Excel files (.xlsx)
       else if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
         const XLSX = await import('xlsx');
         const arrayBuffer = await file.arrayBuffer();
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-        
-        const A4_WIDTH = 595;
-        const A4_HEIGHT = 842;
-        const MARGIN = 50;
-        const LINE_HEIGHT = 12;
-        const FONT_SIZE = 9;
-        
+        const A4_WIDTH = 595, A4_HEIGHT = 842, MARGIN = 50;
+
         for (const sheetName of workbook.SheetNames) {
           const sheet = workbook.Sheets[sheetName];
           const csv = XLSX.utils.sheet_to_csv(sheet);
-          const lines = csv.split('\n').filter(line => line.trim());
-          
+          const lines = csv.split('\n').filter((l: string) => l.trim());
+
           let currentPage = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
           let yPosition = A4_HEIGHT - MARGIN;
-          
-          // Add sheet name as header
-          currentPage.drawText(`Sheet: ${sheetName}`, {
-            x: MARGIN,
-            y: yPosition,
-            size: 12,
-          });
-          yPosition -= LINE_HEIGHT * 2;
-          
+
+          currentPage.drawText(`Sheet: ${sheetName}`, { x: MARGIN, y: yPosition, size: 14 });
+          yPosition -= 30;
+
           for (const line of lines) {
-            if (yPosition < MARGIN + LINE_HEIGHT) {
+            if (yPosition < MARGIN) {
               currentPage = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
               yPosition = A4_HEIGHT - MARGIN;
             }
-            
-            try {
-              const cleanLine = line.replace(/[^\x00-\x7F]/g, '');
-              currentPage.drawText(cleanLine.substring(0, 80), {
-                x: MARGIN,
-                y: yPosition,
-                size: FONT_SIZE,
-                maxWidth: A4_WIDTH - (MARGIN * 2),
-              });
-            } catch (err) {
-              console.warn('Skipping line with encoding issues');
-            }
-            yPosition -= LINE_HEIGHT;
+            currentPage.drawText(line.substring(0, 80), { x: MARGIN, y: yPosition, size: 10 });
+            yPosition -= 14;
           }
         }
       }
-      // Handle PowerPoint files (.pptx)
-      else if (file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-        // PowerPoint conversion not supported - skip this file
-        console.warn('PowerPoint files cannot be converted in browser');
-        return null;
-      }
-      else {
-        console.warn('Unsupported file type:', file.type);
-        return null;
-      }
+      else return null;
 
       const pdfBytes = await pdfDoc.save();
-      const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const pdfFile = new File([pdfBlob], file.name.replace(/\.[^/.]+$/, '') + '.pdf', {
-        type: 'application/pdf',
-      });
-
-      return pdfFile;
+      return new File([new Blob([new Uint8Array(pdfBytes)])], file.name.replace(/\.[^/.]+$/, "") + '.pdf', { type: 'application/pdf' });
     } catch (error) {
-      console.error('Error converting to PDF:', error);
+      console.error('Conversion Error:', error);
       return null;
     }
   };
@@ -233,7 +157,7 @@ export default function PDFMergeAdvanced() {
 
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 0.3 });
+        const viewport = page.getViewport({ scale: 0.4 });
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
 
@@ -243,17 +167,15 @@ export default function PDFMergeAdvanced() {
           await page.render({ canvasContext: context, viewport }).promise;
 
           pages.push({
-            id: `${fileId}-page-${i}`,
+            id: `${fileId}-page-${i}-${Date.now()}`,
             fileId,
             fileName: file.name,
             pageNumber: i,
-            totalPages: pdf.numPages,
             rotation: 0,
             thumbnail: canvas.toDataURL(),
           });
         }
       }
-
       return pages;
     } catch (error) {
       console.error('Error loading PDF:', error);
@@ -261,572 +183,425 @@ export default function PDFMergeAdvanced() {
     }
   };
 
-  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    await processFiles(Array.from(e.target.files));
-    e.target.value = '';
-  };
-
   const processFiles = async (incomingFiles: File[]) => {
     setLoading(true);
-    
-    const unsupportedFiles: string[] = [];
-    
     for (const file of incomingFiles) {
-      try {
-        // Check for PowerPoint files and skip them
-        if (file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' || 
-            file.name.toLowerCase().endsWith('.pptx') || 
-            file.name.toLowerCase().endsWith('.ppt')) {
-          unsupportedFiles.push(file.name);
-          continue;
-        }
-
-        // Convert to PDF if not already
-        const pdfFile = await convertToPDF(file);
-        
-        if (!pdfFile) {
-          alert(`Could not convert ${file.name} to PDF. Unsupported format.`);
-          continue;
-        }
-
-        const fileId = Math.random().toString(36).substr(2, 9) + Date.now();
+      if (file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) {
+        alert(`Skipping ${file.name}: PowerPoint not supported.`);
+        continue;
+      }
+      const pdfFile = await convertToPDF(file);
+      if (pdfFile) {
+        const fileId = Math.random().toString(36).substr(2, 9);
         const pages = await loadPDFPages(pdfFile, fileId);
-        
         if (pages.length > 0) {
-          const fileInfo: PDFFileInfo = {
-            id: fileId,
-            file: pdfFile,
-            name: pdfFile.name,
-            pages,
-          };
-          
-          setFiles(prev => [...prev, fileInfo]);
+          setFiles(prev => [...prev, { id: fileId, file: pdfFile, name: pdfFile.name, pages }]);
           setAllPages(prev => [...prev, ...pages]);
         }
-      } catch (error) {
-        console.error('Error processing file:', error);
-        alert(`Error processing ${file.name}`);
       }
     }
-    
-    // Show message for unsupported files
-    if (unsupportedFiles.length > 0) {
-      alert(
-        `PowerPoint files are not supported for browser conversion:\n\n${unsupportedFiles.join('\n')}\n\n` +
-        `Please export your PowerPoint as PDF first, then upload the PDF file.`
-      );
-    }
-    
     setLoading(false);
   };
 
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    await processFiles(Array.from(e.dataTransfer.files));
+  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    await processFiles(Array.from(e.target.files));
+    if (e.target.value) e.target.value = '';
   };
 
-  const removePage = (pageId: string) => {
-    setAllPages(allPages.filter(p => p.id !== pageId));
-    setSelectedPages(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(pageId);
-      return newSet;
-    });
+  const removePage = (pageId: string) => setAllPages(prev => prev.filter(p => p.id !== pageId));
+
+  // Function to rotate a single page (used in Preview Mode)
+  const rotateSinglePage = (pageId: string) => {
+    setAllPages(prev =>
+      prev.map(page =>
+        page.id === pageId
+          ? { ...page, rotation: (page.rotation + 90) % 360 }
+          : page
+      )
+    );
   };
 
-  const rotatePage = async (pageId: string) => {
-    setAllPages(allPages.map(p => 
-      p.id === pageId ? { ...p, rotation: (p.rotation + 90) % 360 } : p
-    ));
-    
-    const page = allPages.find(p => p.id === pageId);
-    if (page) {
-      const file = files.find(f => f.id === page.fileId);
-      if (file) {
-        try {
-          const pdfjs = await import('pdfjs-dist');
-          const arrayBuffer = await file.file.arrayBuffer();
-          const pdf = await pdfjs.getDocument(arrayBuffer).promise;
-          const pdfPage = await pdf.getPage(page.pageNumber);
-          const newRotation = (page.rotation + 90) % 360;
-          const viewport = pdfPage.getViewport({ scale: 0.3, rotation: newRotation });
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-
-          if (context) {
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            await pdfPage.render({ canvasContext: context, viewport }).promise;
-            
-            setAllPages(prev => prev.map(p => 
-              p.id === pageId 
-                ? { ...p, thumbnail: canvas.toDataURL(), rotation: newRotation }
-                : p
-            ));
-          }
-        } catch (error) {
-          console.error('Error rotating page:', error);
-        }
-      }
-    }
+  // Function to rotate all pages of a file (used in Main Mode)
+  const rotateFilePages = (fileId: string) => {
+    setAllPages(prev =>
+      prev.map(page =>
+        page.fileId === fileId
+          ? { ...page, rotation: (page.rotation + 90) % 360 }
+          : page
+      )
+    );
   };
 
   const duplicatePage = (pageId: string) => {
-    const page = allPages.find(p => p.id === pageId);
-    if (page) {
-      const duplicate = {
-        ...page,
-        id: `${page.id}-dup-${Date.now()}`,
-      };
-      const index = allPages.findIndex(p => p.id === pageId);
-      const newPages = [...allPages];
-      newPages.splice(index + 1, 0, duplicate);
-      setAllPages(newPages);
+    const index = allPages.findIndex(p => p.id === pageId);
+    if (index !== -1) {
+      const newPage = { ...allPages[index], id: `${allPages[index].id}-copy-${Date.now()}` };
+      setAllPages(prev => {
+        const newPages = [...prev];
+        newPages.splice(index + 1, 0, newPage);
+        return newPages;
+      });
     }
   };
 
-  const rotateAll = () => {
-    setAllPages(allPages.map(p => ({ ...p, rotation: (p.rotation + 90) % 360 })));
+  // Main Mode: Drag/Drop Files
+  const handleFileDragStart = (e: React.DragEvent, fileId: string) => {
+    setDraggedFileId(fileId);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const deleteSelected = () => {
-    if (selectedPages.size === 0) return;
-    if (selectedPages.size >= allPages.length) {
-      alert('Cannot delete all pages!');
-      return;
-    }
-    if (confirm(`Delete ${selectedPages.size} selected page(s)?`)) {
-      setAllPages(allPages.filter(p => !selectedPages.has(p.id)));
-      setSelectedPages(new Set());
-    }
-  };
-
-  const toggleSelect = (pageId: string) => {
-    setSelectedPages(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(pageId)) {
-        newSet.delete(pageId);
-      } else {
-        newSet.add(pageId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleDragStart = (index: number) => {
-    setDraggedPageIndex(index);
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleFileDragOver = (e: React.DragEvent, targetFileId: string) => {
     e.preventDefault();
-    if (draggedPageIndex === null || draggedPageIndex === index) return;
+    if (draggedFileId === targetFileId) return;
+  };
+
+  const handleFileDrop = (e: React.DragEvent, dropFileId: string) => {
+    e.preventDefault();
+    if (draggedFileId === null || draggedFileId === dropFileId) return;
+
+    const draggedIndex = files.findIndex(f => f.id === draggedFileId);
+    const dropIndex = files.findIndex(f => f.id === dropFileId);
+
+    if (draggedIndex === -1 || dropIndex === -1) return;
+
+    const newFiles = [...files];
+    const [moved] = newFiles.splice(draggedIndex, 1);
+    newFiles.splice(dropIndex, 0, moved);
+    setFiles(newFiles);
+
+    // Rebuild allPages in the new order
+    const newAllPages: PDFPage[] = [];
+    newFiles.forEach(file => {
+      newAllPages.push(...file.pages);
+    });
+    setAllPages(newAllPages);
+
+    setDraggedFileId(null);
+  };
+
+  // Preview Mode: Drag/Drop Pages
+  const handlePageDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedPageIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handlePageDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedPageIndex === index) return;
     setDragOverIndex(index);
   };
 
-  const handleDropReorder = (e: React.DragEvent, dropIndex: number) => {
+  const handlePageDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    
-    if (draggedPageIndex === null || draggedPageIndex === dropIndex) {
-      setDraggedPageIndex(null);
-      setDragOverIndex(null);
-      return;
-    }
+    if (draggedPageIndex === null || draggedPageIndex === dropIndex) return;
 
     const newPages = [...allPages];
-    const [draggedPage] = newPages.splice(draggedPageIndex, 1);
-    newPages.splice(dropIndex, 0, draggedPage);
-    
+    const [moved] = newPages.splice(draggedPageIndex, 1);
+    newPages.splice(dropIndex, 0, moved);
     setAllPages(newPages);
+
     setDraggedPageIndex(null);
     setDragOverIndex(null);
   };
 
-  const handleMerge = async () => {
-    if (allPages.length === 0) {
-      alert('Please add at least one file');
-      return;
-    }
+  const handleDragEnd = () => {
+    setDraggedPageIndex(null);
+    setDragOverIndex(null);
+    setDraggedFileId(null);
+  };
 
+  const handleMerge = async (auto = false) => {
+    if (allPages.length === 0) return;
     setLoading(true);
     try {
       const pdfLib = await import('pdf-lib');
       const mergedPdf = await pdfLib.PDFDocument.create();
 
       for (const page of allPages) {
-        const file = files.find(f => f.id === page.fileId);
-        if (!file) continue;
+        const fileInfo = files.find(f => f.id === page.fileId);
+        if (!fileInfo) continue;
 
-        const arrayBuffer = await file.file.arrayBuffer();
-        const pdf = await pdfLib.PDFDocument.load(arrayBuffer);
-        const [copiedPage] = await mergedPdf.copyPages(pdf, [page.pageNumber - 1]);
+        const arrayBuffer = await fileInfo.file.arrayBuffer();
+        const sourcePdf = await pdfLib.PDFDocument.load(arrayBuffer);
+        const [copiedPage] = await mergedPdf.copyPages(sourcePdf, [page.pageNumber - 1]);
 
-        if (page.rotation !== 0) {
-          const currentRotation = copiedPage.getRotation().angle;
-          copiedPage.setRotation(pdfLib.degrees(currentRotation + page.rotation));
-        }
+        const existingRotation = copiedPage.getRotation().angle;
+        copiedPage.setRotation(pdfLib.degrees(existingRotation + page.rotation));
 
         mergedPdf.addPage(copiedPage);
       }
 
-      const mergedPdfBytes = await mergedPdf.save();
-      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      setMergedPdfUrl(url);
-      setPreviewMode(true);
+      const mergedBytes = await mergedPdf.save();
+      const blob = new Blob([new Uint8Array(mergedBytes)], { type: 'application/pdf' });
+      const newUrl = URL.createObjectURL(blob);
+
+      if (mergedPdfUrl) URL.revokeObjectURL(mergedPdfUrl);
+      setMergedPdfUrl(newUrl);
+
+      if (!auto) setPreviewMode(true);
     } catch (err) {
+      alert('Error merging PDF');
       console.error(err);
-      alert('Error merging files: ' + (err as Error).message);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
-  const downloadMerged = () => {
-    if (!mergedPdfUrl) return;
-    const a = document.createElement('a');
-    a.href = mergedPdfUrl;
-    a.download = 'merged.pdf';
-    a.click();
-  };
+  // File Card Component (for Main Mode) - Now with working visual rotation
+  const FileCard = ({ file }: { file: PDFFileInfo }) => {
+    // Find the first page of this file from allPages (so we get updated rotation)
+    const firstPage = allPages.find(page => page.fileId === file.id);
 
-  const resetAll = () => {
-    setFiles([]);
-    setAllPages([]);
-    setPreviewMode(false);
-    setOrganizeMode(false);
-    setSelectedPages(new Set());
-    if (mergedPdfUrl) {
-      URL.revokeObjectURL(mergedPdfUrl);
-      setMergedPdfUrl(null);
-    }
-  };
-
-  if (previewMode && mergedPdfUrl) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
-        <div className="max-w-xl mx-auto">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-            <div className="flex items-center justify-between space-x-6 ">
-              <h2 className="text-xl font-semibold text-gray-900">Preview Merged PDF</h2>
-              <div className="flex gap-3">
-                <button
-                  onClick={downloadMerged}
-                  className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
-                >
-                  <Download size={18} />
-                  Download PDF
-                </button>
-                <button
-                  onClick={resetAll}
-                  className="flex items-center gap-2 bg-gray-600 text-white px-5 py-2 rounded-lg hover:bg-gray-700 transition font-medium"
-                >
-                  <X size={18} />
-                  Close
-                </button>
-              </div>
+      <div
+        draggable
+        onDragStart={(e) => handleFileDragStart(e, file.id)}
+        onDragOver={(e) => handleFileDragOver(e, file.id)}
+        onDrop={(e) => handleFileDrop(e, file.id)}
+        onDragEnd={handleDragEnd}
+        className={`
+          relative bg-white rounded-xl shadow-sm border transition-all duration-200 group select-none cursor-move
+          ${draggedFileId === file.id ? 'opacity-40 scale-95' : ''}
+          hover:border-blue-300
+        `}
+      >
+        {/* Top Bar */}
+        <div className="flex items-center justify-between p-2 border-b bg-gray-50 rounded-t-xl">
+          <span className="text-xs font-bold text-gray-500 bg-white px-2 py-0.5 rounded border">{file.pages.length} Pages</span>
+          <GripHorizontal className="text-gray-300 cursor-grab active:cursor-grabbing" size={16} />
+        </div>
+
+        {/* Thumbnail Section */}
+        <div className="relative aspect-[3/4] p-3 flex items-center justify-center overflow-hidden bg-white">
+          {/* Show first page's thumbnail with rotation */}
+          {firstPage?.thumbnail && (
+            <NextImage
+              src={firstPage.thumbnail}
+              alt=""
+              fill
+              style={{ transform: `rotate(${firstPage?.rotation || 0}deg)` }}
+              className="object-contain pointer-events-none"
+              unoptimized
+            />
+          )}
+          {/* Hover Overlay */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 backdrop-blur-[1px]">
+            <button
+              onClick={() => rotateFilePages(file.id)} // Rotate ALL pages of this file
+              className="bg-white p-2 rounded-full hover:bg-blue-500 hover:text-white shadow-lg"
+            >
+              <RotateCw size={18} />
+            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  // Duplicate the entire file
+                  const newFileId = Math.random().toString(36).substr(2, 9);
+                  const newFileName = `${file.name.replace(/\.[^/.]+$/, "")}_copy.pdf`;
+                  const newPages = file.pages.map(page => ({
+                    ...page,
+                    id: `${newFileId}-page-${page.pageNumber}-${Date.now()}`,
+                    fileId: newFileId,
+                    fileName: newFileName,
+                  }));
+
+                  setFiles(prev => [
+                    ...prev,
+                    {
+                      id: newFileId,
+                      file: file.file, // Same file object
+                      name: newFileName,
+                      pages: newPages,
+                    },
+                  ]);
+                  setAllPages(prev => [...prev, ...newPages]);
+                }}
+                className="bg-white p-2 rounded-full hover:bg-blue-500 hover:text-white shadow-lg"
+              >
+                <Copy size={16} />
+              </button>
+              <button
+                onClick={() => {
+                  // Remove the entire file and its pages
+                  setFiles(prev => prev.filter(f => f.id !== file.id));
+                  setAllPages(prev => prev.filter(p => p.fileId !== file.id));
+                }}
+                className="bg-white text-red-500 p-2 rounded-full hover:bg-red-500 hover:text-white shadow-lg"
+              >
+                <Trash2 size={16} />
+              </button>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <iframe
-              src={mergedPdfUrl}
-              className="w-full h-[calc(100vh-140px)]"
-              title="Merged PDF Preview"
-            />
-          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-2 border-t bg-gray-50 rounded-b-xl text-xs truncate" title={file.name}>
+          {file.name}
         </div>
       </div>
     );
-  }
+  };
 
-  if (organizeMode) {
+  // Page Thumbnail Card Component (for Preview Mode) - Matches your screenshot
+  const ThumbnailCard = ({ page, index }: { page: PDFPage; index: number }) => (
+    <div
+      draggable
+      onDragStart={(e) => handlePageDragStart(e, index)}
+      onDragOver={(e) => handlePageDragOver(e, index)}
+      onDrop={(e) => handlePageDrop(e, index)}
+      onDragEnd={handleDragEnd}
+      className={`
+        relative bg-white rounded-xl shadow-sm border transition-all duration-200 group select-none
+        ${draggedPageIndex === index ? 'opacity-40 scale-95' : ''}
+        ${dragOverIndex === index ? 'border-blue-500 border-2 scale-105 shadow-xl' : 'border-gray-200 hover:border-blue-300'}
+      `}
+    >
+      {/* Top Bar */}
+      <div className="flex items-center justify-between p-2 border-b bg-gray-50 rounded-t-xl">
+        <span className="text-xs font-bold text-gray-500 bg-white px-2 py-0.5 rounded border">{index + 1}</span>
+        <GripHorizontal className="text-gray-300 cursor-grab active:cursor-grabbing" size={16} />
+      </div>
+
+      {/* Thumbnail */}
+      <div className="relative aspect-[3/4] p-3 flex items-center justify-center overflow-hidden bg-white">
+        <NextImage src={page.thumbnail} alt="" fill style={{ transform: `rotate(${page.rotation}deg)` }} className="object-contain pointer-events-none" unoptimized />
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 backdrop-blur-[1px]">
+          <button onClick={() => rotateSinglePage(page.id)} className="bg-white p-2 rounded-full hover:bg-blue-500 hover:text-white shadow-lg">
+            <RotateCw size={18} />
+          </button>
+          <div className="flex gap-2">
+            <button onClick={() => duplicatePage(page.id)} className="bg-white p-2 rounded-full hover:bg-blue-500 hover:text-white shadow-lg">
+              <Copy size={16} />
+            </button>
+            <button onClick={() => removePage(page.id)} className="bg-white text-red-500 p-2 rounded-full hover:bg-red-500 hover:text-white shadow-lg">
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="p-2 border-t bg-gray-50 rounded-b-xl text-[10px] text-gray-500 truncate text-center" title={page.fileName}>
+        {page.fileName}
+      </div>
+    </div>
+  );
+
+  // PREVIEW MODE - Real-time editing + auto update
+  if (previewMode) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-4">
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">Organize Pages</h2>
-                <p className="text-sm text-gray-600 mt-1">{allPages.length} pages total</p>
-              </div>
-              <div className="flex gap-2 flex-wrap items-center">
-                <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded transition ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}`}
-                  >
-                    <Grid3x3 size={18} className="text-gray-700" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded transition ${viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-50'}`}
-                  >
-                    <List size={18} className="text-gray-700" />
-                  </button>
+          <div className="bg-white p-5 rounded-xl shadow-md mb-6 flex flex-wrap justify-between items-center gap-4">
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-bold">Live Edit & Preview</h2>
+              {loading ? (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <RotateCw className="animate-spin" size={18} />
+                  <span>Updating preview...</span>
                 </div>
-                {selectedPages.size > 0 && (
-                  <button
-                    onClick={deleteSelected}
-                    className="flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2 rounded-lg hover:bg-red-100 transition text-sm font-medium"
-                  >
-                    <Trash2 size={16} />
-                    Delete ({selectedPages.size})
-                  </button>
-                )}
-                <button
-                  onClick={rotateAll}
-                  className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
-                >
-                  <RotateCw size={16} />
-                  Rotate All
-                </button>
-                <button
-                  onClick={() => setOrganizeMode(false)}
-                  className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
-                >
-                  Done
-                </button>
-              </div>
+              ) : (
+                <span className="text-sm text-green-600">✓ Real-time updates</span>
+              )}
+            </div>
+            <div className="flex gap-3">
+              {mergedPdfUrl && (
+                <a href={mergedPdfUrl} download="merged.pdf" className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+                  <Download size={20} /> Download
+                </a>
+              )}
+              <button onClick={() => setPreviewMode(false)} className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+                <X size={20} /> Close
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Preview Area - Increased Width */}
+            <div className="lg:col-span-2 bg-white rounded-xl shadow-lg overflow-hidden h-[80vh]">
+              {mergedPdfUrl ? (
+                <iframe src={mergedPdfUrl} className="w-full h-full border-0" title="Live PDF Preview" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                  <p>Organize pages → preview will appear automatically</p>
+                </div>
+              )}
             </div>
 
-            {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {allPages.map((page, index) => (
-                  <div
-                    key={page.id}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDrop={(e) => handleDropReorder(e, index)}
-                    onClick={() => toggleSelect(page.id)}
-                    className={`relative group cursor-move rounded-lg overflow-hidden transition-all hover:shadow-md border-2 ${
-                      draggedPageIndex === index ? 'opacity-50' :
-                      dragOverIndex === index ? 'border-blue-600 bg-blue-50' :
-                      selectedPages.has(page.id) ? 'border-blue-600 shadow-md' :
-                      'border-gray-200'
-                    }`}
-                  >
-                    <div className="aspect-[3/4] bg-gray-100 flex items-center justify-center p-2">
-                      <img
-                        src={page.thumbnail}
-                        alt={`Page ${page.pageNumber}`}
-                        className="max-w-full max-h-full object-contain"
-                        style={{ transform: `rotate(${page.rotation}deg)` }}
-                      />
-                    </div>
-
-                    <div className="absolute bottom-2 left-2 bg-black/75 text-white text-xs font-semibold px-2 py-1 rounded">
-                      {index + 1}
-                    </div>
-
-                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          rotatePage(page.id);
-                        }}
-                        className="p-2 bg-white rounded-lg hover:bg-gray-100 transition"
-                        title="Rotate"
-                      >
-                        <RotateCw size={16} className="text-gray-700" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          duplicatePage(page.id);
-                        }}
-                        className="p-2 bg-white rounded-lg hover:bg-gray-100 transition"
-                        title="Duplicate"
-                      >
-                        <Copy size={16} className="text-gray-700" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removePage(page.id);
-                        }}
-                        className="p-2 bg-white rounded-lg hover:bg-gray-100 transition"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} className="text-red-600" />
-                      </button>
-                    </div>
-
-                    {selectedPages.has(page.id) && (
-                      <div className="absolute top-2 right-2 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow">
-                        ✓
-                      </div>
-                    )}
-                  </div>
-                ))}
+            {/* Pages Sidebar - Increased Width */}
+            <div className="bg-white rounded-xl shadow-md p-5 w-full max-w-md"> {/* <-- Increased width */}
+              <h3 className="text-lg font-semibold mb-4">Pages ({allPages.length})</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto">
+                {allPages.map((page, i) => <ThumbnailCard key={page.id} page={page} index={i} />)}
+                {/* Add More Button REMOVED in Preview Mode */}
+                {/* <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500"
+                >
+                  <Plus size={32} className="text-gray-400" />
+                  <p className="text-sm mt-2">Add More</p>
+                </div> */}
               </div>
-            ) : (
-              <div className="space-y-2">
-                {allPages.map((page, index) => (
-                  <div
-                    key={page.id}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDrop={(e) => handleDropReorder(e, index)}
-                    className={`flex items-center gap-3 bg-gray-50 rounded-lg p-3 border-2 transition-all cursor-move ${
-                      draggedPageIndex === index ? 'opacity-50 border-blue-600' :
-                      dragOverIndex === index ? 'border-blue-600 bg-blue-50' :
-                      selectedPages.has(page.id) ? 'border-blue-600 bg-blue-50' :
-                      'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedPages.has(page.id)}
-                      onChange={() => toggleSelect(page.id)}
-                      className="w-4 h-4"
-                    />
-                    <GripVertical size={18} className="text-gray-400" />
-                    <div className="w-14 h-18 bg-white rounded border border-gray-200 flex items-center justify-center flex-shrink-0">
-                      <img src={page.thumbnail} alt="" className="max-w-full max-h-full" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 text-sm">Page {index + 1}</p>
-                      <p className="text-xs text-gray-500 truncate">{page.fileName} - {page.pageNumber}/{page.totalPages}</p>
-                    </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => rotatePage(page.id)}
-                        className="p-2 bg-white rounded hover:bg-gray-100 transition border border-gray-200"
-                      >
-                        <RotateCw size={16} className="text-gray-700" />
-                      </button>
-                      <button
-                        onClick={() => duplicatePage(page.id)}
-                        className="p-2 bg-white rounded hover:bg-gray-100 transition border border-gray-200"
-                      >
-                        <Copy size={16} className="text-gray-700" />
-                      </button>
-                      <button
-                        onClick={() => removePage(page.id)}
-                        className="p-2 bg-white rounded hover:bg-gray-100 transition border border-gray-200"
-                      >
-                        <Trash2 size={16} className="text-red-600" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  // MAIN MODE: Show Files for Organization (Now with visual rotation)
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Merge Files to PDF</h1>
-          <p className="text-gray-600">Combine PDFs, Images, Word & Excel into one document</p>
-        </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto text-center mb-8">
+        <h1 className="text-4xl font-extrabold text-gray-800 mb-2">PDF Merger</h1>
+        <p className="text-gray-600">Merge, Organize, Rotate & Convert — All in Browser</p>
+      </div>
 
+      <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow">
+        <span className="text-gray-600">{files.length} files • {allPages.length} pages</span>
+        <div className="flex gap-3">
+          {files.length > 0 && (
+            <>
+              <button onClick={() => { setAllPages([]); setFiles([]); }} className="text-red-600 hover:bg-red-50 px-4 py-2 rounded flex items-center gap-2">
+                <Trash2 size={18} /> Clear
+              </button>
+              <button onClick={() => handleMerge()} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+                {loading ? <RotateCw className="animate-spin" /> : <Eye size={18} />}
+                Merge & Edit Live
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <input ref={fileInputRef} type="file" multiple accept=".pdf,.docx,.xlsx,.jpg,.jpeg,.png,.webp" onChange={handleFileInput} className="hidden" />
+
+      {files.length === 0 ? (
         <div
-          className={`bg-white rounded-lg shadow-sm px-52 border-2 border-dashed p-12 mb-6 transition-all ${
-            isDragging ? 'border-blue-600 bg-blue-50' : 'border-gray-300'
-          }`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
+          className="border-4 border-dashed border-gray-300 rounded-3xl p-32 cursor-pointer hover:border-blue-500 flex flex-col items-center justify-center"
+          onClick={() => fileInputRef.current?.click()}
+          onDrop={(e) => { e.preventDefault(); processFiles(Array.from(e.dataTransfer.files)); }}
+          onDragOver={(e) => e.preventDefault()}
         >
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Upload className="text-blue-600" size={32} />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Drop files here
-            </h3>
-            <p className="text-gray-600 mb-6 text-sm">
-              PDF, Images (JPG, PNG), Word (.docx), Excel (.xlsx)
-            </p>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Processing...' : 'Select Files'}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              onChange={handleFileInput}
-              className="hidden"
-            />
+          <Upload size={64} className="mx-auto text-blue-600 mb-6" />
+          <h3 className="text-2xl font-bold text-center">Drop files here</h3>
+          <p className="text-gray-500 text-center">PDF, Images, Word, Excel</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 pb-20">
+          {files.map((file) => (
+            <FileCard key={file.id} file={file} />
+          ))}
+          {/* Add More Button in Main Mode */}
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500"
+          >
+            <Plus size={32} className="text-gray-400" />
+            <p className="text-sm mt-2">Add More</p>
           </div>
         </div>
-
-        {allPages.length > 0 && (
-          <>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Selected Files</h3>
-                  <p className="text-sm text-gray-600">{files.length} files • {allPages.length} pages</p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setOrganizeMode(true)}
-                    className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition font-medium"
-                  >
-                    <FolderOpen size={18} />
-                    Organize Pages
-                  </button>
-                  <button
-                    onClick={resetAll}
-                    className="flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2 rounded-lg hover:bg-red-100 transition font-medium"
-                  >
-                    <Trash2 size={18} />
-                    Clear All
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {files.map((file, index) => (
-                  <div
-                    key={file.id}
-                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
-                  >
-                    <div className="w-10 h-10 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
-                      <FileText className="text-blue-600" size={20} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 text-sm truncate">{file.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {file.pages.length} page{file.pages.length !== 1 ? 's' : ''} • {(file.file.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={handleMerge}
-                disabled={loading || allPages.length === 0}
-                className="flex items-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-              >
-                <Eye size={20} />
-                {loading ? 'Processing...' : 'Merge & Preview'}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+      )}
     </div>
   );
 }

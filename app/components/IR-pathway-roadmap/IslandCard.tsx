@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, ChevronRight } from 'lucide-react';
+import { CheckCircle2, ChevronRight } from 'lucide-react';
 import { Step } from "@/lib/steps";
 
 interface Props {

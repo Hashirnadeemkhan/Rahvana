@@ -91,7 +91,7 @@ export default function SignatureUploader({ onFileSelect, disabled = false }: Si
         <button
           type="button"
           disabled={disabled}
-          className="text-white bg-primary/90 text-white px-6 py-2.5 rounded transition-colors text-sm
+          className="text-white bg-primary/90 px-6 py-2.5 rounded transition-colors text-sm
                      hover:bg-primary/100 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Choose File

@@ -2,12 +2,19 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, AlertCircle, Download, CheckCircle, X } from "lucide-react";
+import NextImage from "next/image";
+import { Upload, AlertCircle, Download, CheckCircle, X, } from "lucide-react";
 
-// **Yahan Par Change Kiya Gaya Hai**
-// NEXT_PUBLIC_API_URL ko check karein. Agar woh maujood nahi hai (jaise local development mein),
-// toh hardcoded local URL ko fallback ke taur par istemal karein.
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
+// Photo size presets (width x height in pixels at 300 DPI)
+const SIZE_PRESETS = [
+  { name: "2x2 inch (US Passport)", width: 600, height: 600, description: "Standard US passport size" },
+  { name: "35x45 mm (UK/EU)", width: 413, height: 531, description: "UK and European passport" },
+  { name: "35x35 mm (India)", width: 413, height: 413, description: "Indian passport size" },
+  { name: "33x48 mm (Canada)", width: 390, height: 567, description: "Canadian passport" },
+  { name: "Custom", width: 600, height: 600, description: "Set your own dimensions" },
+];
 
 export default function PassportPhoto() {
   const [file, setFile] = useState<File | null>(null);
@@ -15,6 +22,10 @@ export default function PassportPhoto() {
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSize, ] = useState(SIZE_PRESETS[0]);
+  const [customWidth] = useState(600);
+  const [customHeight] = useState(600);
+  const [, setProcessingStep] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Reset form
@@ -23,6 +34,7 @@ export default function PassportPhoto() {
     setPreview(null);
     setResult(null);
     setError(null);
+    setProcessingStep("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -49,21 +61,32 @@ export default function PassportPhoto() {
     setError(null);
   };
 
-  // Process image with background removal
+  // Get final dimensions
+  const getFinalDimensions = () => {
+    if (selectedSize.name === "Custom") {
+      return { width: customWidth, height: customHeight };
+    }
+    return { width: selectedSize.width, height: selectedSize.height };
+  };
+
+  // Process image with new passport-photo endpoint
   const handleProcess = async () => {
     if (!file) return;
 
     setLoading(true);
     setError(null);
-    
-    // API_BASE ab ya toh deployed URL hoga ya localhost URL.
-    const API_ENDPOINT = `${API_BASE}/remove-bg`;
+    setProcessingStep("Uploading image...");
+
+    const { width, height } = getFinalDimensions();
+    const API_ENDPOINT = `${API_BASE}/passport-photo?width=${width}&height=${height}&quality=95`;
     console.log(`Calling API: ${API_ENDPOINT}`);
 
     const formData = new FormData();
     formData.append("file", file);
 
     try {
+      setProcessingStep("AI removing background...");
+
       const res = await fetch(API_ENDPOINT, {
         method: "POST",
         body: formData,
@@ -74,15 +97,18 @@ export default function PassportPhoto() {
         throw new Error(`Server Error (${res.status}): ${errorText.substring(0, 100)}...`);
       }
 
+      setProcessingStep("Finalizing photo...");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       setResult(url);
+      setProcessingStep("");
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
           : `An unknown error occurred. API Base: ${API_BASE}`
       );
+      setProcessingStep("");
     } finally {
       setLoading(false);
     }
@@ -147,11 +173,13 @@ export default function PassportPhoto() {
               onChange={handleFileChange}
             />
             {preview ? (
-              <div className="flex justify-center">
-                <img
+              <div className="relative flex justify-center w-64 h-64 mx-auto">
+                <NextImage
                   src={preview}
                   alt="Preview"
-                  className="w-64 h-64 object-cover rounded-lg shadow"
+                  fill
+                  className="object-cover rounded-lg shadow"
+                  unoptimized
                 />
               </div>
             ) : (
@@ -211,11 +239,13 @@ export default function PassportPhoto() {
               <CheckCircle className="w-6 h-6" />
               Photo Ready!
             </p>
-            <div className="flex justify-center">
-              <img
+            <div className="relative flex justify-center w-64 h-64 mx-auto">
+              <NextImage
                 src={result}
                 alt="Passport photo result"
-                className="w-64 h-64 object-cover rounded-lg shadow-xl border-4 border-white"
+                fill
+                className="object-cover rounded-lg shadow-xl border-4 border-white"
+                unoptimized
               />
             </div>
             <a

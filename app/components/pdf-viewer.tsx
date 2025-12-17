@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { usePDFStore, type ShapeType } from "@/lib/store";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import DraggableShape from "./DraggableShape";
 import DraggableSignature from "./signature-tool/DraggableSignature";
 import ShapeFormattingToolbar from "./shape-formating-toolbar";
 
-import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
+import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 import type { TextFormat } from "./text-formatting-toolbar";
 
 let pdfjsLib: typeof import("pdfjs-dist") | null = null;
@@ -103,9 +104,9 @@ export function PDFViewer({
         const loadedPdf = await pdfjs.getDocument(await pdfFile.arrayBuffer()).promise;
         setPdfDoc(loadedPdf);
         setTotalPages(loadedPdf.numPages);
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Handle RenderingCancelledException gracefully
-        if (error?.name !== "RenderingCancelledException") {
+        if (error instanceof Error && error.name !== "RenderingCancelledException") {
           console.error("Error loading PDF:", error);
         }
       }
@@ -141,7 +142,7 @@ export function PDFViewer({
         if (renderTask) {
           try {
             renderTask.cancel();
-          } catch (e) {
+          } catch {
             // Ignore cancellation errors
           }
         }
@@ -150,9 +151,9 @@ export function PDFViewer({
         await renderTask.promise;
 
         if (!cancelled) setIsLoading(false);
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Handle RenderingCancelledException gracefully
-        if (error?.name === "RenderingCancelledException") {
+        if (error instanceof Error && error.name === "RenderingCancelledException") {
           console.warn("Page rendering was cancelled");
         } else {
           console.error("Error rendering page:", error);
@@ -167,11 +168,12 @@ export function PDFViewer({
       if (renderTask) {
         try {
           renderTask.cancel();
-        } catch (e) {
+        } catch {
           // Ignore cancellation errors on cleanup
         }
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdfDoc, currentPage, scale, pageModifications]);
 
   // Move floating signature/shape
@@ -438,7 +440,7 @@ export function PDFViewer({
                   height: `${60 * scale}px`,
                 }}
               >
-                <img src={signature} alt="sig" className="w-full h-full object-contain" />
+                <Image src={signature} alt="sig" fill className="object-contain" unoptimized />
               </div>
             )}
           </div>

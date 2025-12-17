@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 
 export type ShapeType = "checkmark" | "cross" 
 interface ShapesToolProps {

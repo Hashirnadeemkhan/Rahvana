@@ -3,6 +3,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
+import NextImage from "next/image"
 import { SignatureImageProcessor } from "@/lib/imageProcessor"
 
 
@@ -222,8 +223,8 @@ export default function ImageFilterEditor({ imageSrc, onDone, onCancel }: Props)
         {/* Original */}
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-gray-600">Original</p>
-          <div className="border border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center h-48">
-            <img src={imageSrc || "/placeholder.svg"} alt="Original" className="max-w-full max-h-full object-contain" />
+          <div className="relative border border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center h-48">
+            <NextImage src={imageSrc || "/placeholder.svg"} alt="Original" fill className="object-contain" unoptimized />
           </div>
         </div>
 
@@ -238,11 +239,12 @@ export default function ImageFilterEditor({ imageSrc, onDone, onCancel }: Props)
           >
             {processedImage && (
               <>
-                <img
-                  ref={imageRef}
+                <NextImage
                   src={processedImage || "/placeholder.svg"}
                   alt="Processed"
-                  className="absolute inset-0 max-w-full max-h-full object-contain pointer-events-none"
+                  fill
+                  className="object-contain pointer-events-none"
+                  unoptimized
                 />
 
                 {/* Crop Box - Clean & Professional */}

@@ -112,6 +112,7 @@ export default function DraggableSignature({
         document.removeEventListener("mouseup", handleRotateEnd);
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRotating]);
 
   // Handle mouse enter/leave for controls
@@ -181,6 +182,7 @@ export default function DraggableSignature({
         )}
 
         {/* Signature Image */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={data.image}
           alt="Signature"

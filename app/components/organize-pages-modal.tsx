@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
+import NextImage from "next/image"
 import { usePDFStore } from "@/lib/store"
 import { Button } from "@/components/ui/button"
 import { Trash2, RotateCw, X, Save, Copy } from "lucide-react"
@@ -28,10 +29,13 @@ export function OrganizePagesModal({ isOpen, onClose }: OrganizePagesModalProps)
   useEffect(() => {
     if (!isOpen || !pdfFile) return
     loadPDF()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, pdfFile])
 
   const loadPDF = async () => {
     try {
+      if (!pdfFile) return
+
       const pdfjs = await import("pdfjs-dist")
       pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
 
@@ -289,11 +293,13 @@ export function OrganizePagesModal({ isOpen, onClose }: OrganizePagesModalProps)
                 )}
               >
                 {/* Thumbnail */}
-                <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                  <img
+                <div className="relative w-full h-full flex items-center justify-center bg-gray-100">
+                  <NextImage
                     src={page.thumbnail || "/placeholder.svg"}
                     alt={`Page ${index + 1}`}
-                    className="max-w-full max-h-full object-contain"
+                    fill
+                    className="object-contain"
+                    unoptimized
                   />
                 </div>
 

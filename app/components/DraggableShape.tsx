@@ -1,21 +1,8 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { Trash2, RotateCw } from "lucide-react";
-
-export type ShapeType = "checkmark" | "cross" | "circle" | "square";
-
-type ShapeAnnotation = {
-  id: string;
-  type: ShapeType;
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  pageIndex: number;
-  rotation?: number;
-  strokeWidth?: number;
-};
+import type { ShapeAnnotation } from "@/lib/store";
 
 export default function DraggableShape({
   data,
@@ -142,7 +129,7 @@ export default function DraggableShape({
     };
 
     switch (data.type) {
-      case "checkmark":
+      case "check":
         return (
           <span
             style={{
@@ -174,26 +161,34 @@ export default function DraggableShape({
           </span>
         );
 
-      case "circle":
+      case "rectangle":
         return (
           <div
             style={{
               ...baseStyle,
-              borderRadius: "50%",
               border: `${strokeWidth}px solid ${data.color}`,
             }}
           />
         );
 
-      case "square":
+      case "arrow":
         return (
-          <div
+          <span
             style={{
               ...baseStyle,
-              border: `${strokeWidth}px solid ${data.color}`,
+              fontSize: s * 0.9,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: data.color,
             }}
-          />
+          >
+            ↗
+          </span>
         );
+
+      default:
+        return null;
     }
   };
 

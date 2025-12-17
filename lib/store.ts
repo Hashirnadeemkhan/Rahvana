@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import { persist } from "zustand/middleware"
 import type { PDFDocument } from "pdf-lib"
 
 // ============================================================================
@@ -36,7 +37,7 @@ export interface SignatureAnnotation {
   rotation?: number
 }
 
-export type ShapeType = "checkmark" | "cross"
+export type ShapeType = "check" | "cross" | "rectangle" | "arrow"
 
 export interface ShapeAnnotation {
   id: string
@@ -47,6 +48,10 @@ export interface ShapeAnnotation {
   size: number
   color: string
   rotation?: number
+  strokeWidth?: number
+  fillColor?: string
+  width?: number
+  height?: number
 }
 
 export interface PageModification {
@@ -192,3 +197,36 @@ export const usePDFStore = create<PDFEditorStore>((set, get) => ({
       pageModifications: [],
     }),
 }))
+
+// ============================================================================
+// IR PATHWAY ROADMAP STORE
+// ============================================================================
+
+interface RoadmapStore {
+  completedSteps: number[]
+  completeStep: (stepId: number) => void
+  uncompleteStep: (stepId: number) => void
+  resetProgress: () => void
+}
+
+export const useStore = create<RoadmapStore>()(
+  persist(
+    (set) => ({
+      completedSteps: [],
+      completeStep: (stepId) =>
+        set((state) => ({
+          completedSteps: state.completedSteps.includes(stepId)
+            ? state.completedSteps
+            : [...state.completedSteps, stepId],
+        })),
+      uncompleteStep: (stepId) =>
+        set((state) => ({
+          completedSteps: state.completedSteps.filter((id) => id !== stepId),
+        })),
+      resetProgress: () => set({ completedSteps: [] }),
+    }),
+    {
+      name: "roadmap-storage",
+    }
+  )
+)

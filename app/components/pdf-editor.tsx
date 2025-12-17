@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { usePDFStore } from "@/lib/store";
+import { usePDFStore, type ShapeAnnotation, type TextAnnotation, type ShapeType } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Download, LayoutGrid, Type, Stamp, Check, } from "lucide-react";
 import ShapeFormattingToolbar from "./shape-formating-toolbar";
@@ -30,7 +30,7 @@ export function PDFEditor() {
   const [showShapesDropdown, setShowShapesDropdown] = useState(false);
   const [showSignDropdown, setShowSignDropdown] = useState(false);
   
-  const [selectedShape, setSelectedShape] = useState<any>(null);
+  const [selectedShape, setSelectedShape] = useState<ShapeType | null>(null);
   const [isShapeFloating, setIsShapeFloating] = useState(false);
 
   // === SELECTION STATE ===
@@ -86,7 +86,7 @@ export function PDFEditor() {
   const selectedShapeAnnotation = getSelectedShape();
 
   // === DUPLICATE SHAPE ===
-  const handleDuplicateShape = (shape: any) => {
+  const handleDuplicateShape = (shape: ShapeAnnotation) => {
     const newShape = {
       ...shape,
       id: Date.now().toString(),
@@ -101,7 +101,7 @@ export function PDFEditor() {
   const handleFormatChange = (newFormat: Partial<TextFormat>) => {
     // 1. If an annotation is selected, update IT immediately (Real-time editing)
     if (selectedAnnotationId) {
-        const updates: any = {};
+        const updates: Partial<TextAnnotation> = {};
         if (newFormat.font !== undefined) updates.font = newFormat.font;
         if (newFormat.size !== undefined) updates.fontSize = newFormat.size; // Note: size -> fontSize
         if (newFormat.color !== undefined) updates.color = newFormat.color;
@@ -111,7 +111,7 @@ export function PDFEditor() {
         if (newFormat.italic !== undefined) updates.italic = newFormat.italic;
         if (newFormat.underline !== undefined) updates.underline = newFormat.underline;
         if (newFormat.align !== undefined) updates.align = newFormat.align;
-        
+
         updateAnnotation(selectedAnnotationId, updates);
     }
     
@@ -125,7 +125,7 @@ export function PDFEditor() {
     setIsSignatureFloating(true);
   };
 
-  const handleShapeSelect = (shapeType: string) => {
+  const handleShapeSelect = (shapeType: ShapeType) => {
      setSelectedShape(shapeType);
      setActiveTool("shapes");
      setIsShapeFloating(true);
@@ -236,12 +236,9 @@ export function PDFEditor() {
 </div>
 
 
-            {/* SIGNATURE DROPDOWN */}
-             <div className="relative">
-              <button onClick={() => setShowSignDropdown(!showSignDropdown)} className={`p-2 rounded transition-colors ${activeTool === "signature" ? "bg-blue-100" : "hover:bg-gray-100"}`}>
-                    <SignatureTool onSignature={(sig) => { handleSignature(sig); setShowSignDropdown(false); }} />
-              </button>
-            
+            {/* SIGNATURE TOOL */}
+            <div className="relative">
+              <SignatureTool onSignature={(sig) => { handleSignature(sig); setShowSignDropdown(false); }} />
             </div>
           </div>
 

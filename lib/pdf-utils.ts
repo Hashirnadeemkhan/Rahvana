@@ -135,6 +135,7 @@ export async function rotatePdfPage(pdfBytes: ArrayBuffer, pageIndex: number, an
 // ============================================================================
 
 export interface TextAnnotation {
+  id?: string
   text: string
   pageIndex: number
   x: number
@@ -148,6 +149,9 @@ export interface TextAnnotation {
   align?: "left" | "center" | "right"
   bgColor?: string
   opacity?: number
+  rotation?: number
+  width?: number
+  height?: number
 }
 
 export async function addTextAnnotationsToPdf(
@@ -181,6 +185,7 @@ export async function addTextAnnotationsToPdf(
 // ============================================================================
 
 export interface SignatureAnnotation {
+  id?: string
   image: string
   pageIndex: number
   x: number

@@ -92,9 +92,7 @@ export default function PDFConverterApp() {
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4">
-            <FileText className="w-8 h-8 text-white" />
-          </div>
+         
           <h1 className="text-4xl font-bold text-slate-900 mb-2">
             PDF Converter
           </h1>
@@ -124,7 +122,7 @@ export default function PDFConverterApp() {
             {!file ? (
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-50 rounded-full mb-4">
-                  <Upload className="w-10 h-10 text-blue-600" />
+                  <Upload className="w-10 h-10 text-primary/90" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2">
                   Drop your file here
@@ -172,10 +170,10 @@ export default function PDFConverterApp() {
           {converting && (
             <div className="px-12 py-6 bg-blue-50 border-b border-blue-100">
               <div className="flex items-center gap-3">
-                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                <Loader2 className="w-5 h-5 text-primary/90 animate-spin" />
                 <div>
                   <p className="font-medium text-blue-900">Converting to PDF...</p>
-                  <p className="text-sm text-blue-700">This may take a moment</p>
+                  <p className="text-sm text-primary/90">This may take a moment</p>
                 </div>
               </div>
             </div>
@@ -198,7 +196,7 @@ export default function PDFConverterApp() {
             <button
               onClick={handleConvert}
               disabled={!file || converting}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-600/20 disabled:shadow-none"
+              className="w-full bg-primary/90 hover:bg-primary/100 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-600/20 disabled:shadow-none"
             >
               {converting ? (
                 <>
@@ -219,7 +217,7 @@ export default function PDFConverterApp() {
         <div className="grid grid-cols-3 gap-6 mt-10">
           {["Fast", "Secure", "Free"].map((feature) => (
             <div key={feature} className="text-center">
-              <div className="text-3xl font-bold text-blue-600 mb-1">{feature}</div>
+              <div className="text-3xl font-bold text-primary/90 mb-1">{feature}</div>
               <p className="text-sm text-slate-600">
                 {feature === "Fast" && "Instant conversion"}
                 {feature === "Secure" && "Server-side processing"}

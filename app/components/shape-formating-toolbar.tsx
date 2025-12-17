@@ -2,19 +2,7 @@
 
 import { Copy } from "lucide-react"
 import ColorPicker from "./ColorPicker"
-import type { ShapeType } from "./DraggableShape"
-
-type ShapeAnnotation = {
-  id: string
-  type: ShapeType
-  x: number
-  y: number
-  size: number
-  color: string
-  pageIndex: number
-  rotation?: number
-  strokeWidth?: number
-}
+import type { ShapeAnnotation } from "@/lib/store"
 
 export default function ShapeFormattingToolbar({
   shape,
@@ -70,8 +58,8 @@ export default function ShapeFormattingToolbar({
         </button>
       </div>
 
-      {/* Stroke Width (only for circle/square) */}
-      {(shape.type === "circle" || shape.type === "square") && (
+      {/* Stroke Width (only for rectangle) */}
+      {shape.type === "rectangle" && (
         <>
           <div className="w-px h-6 bg-gray-200" />
           <div className="flex items-center gap-1.5">

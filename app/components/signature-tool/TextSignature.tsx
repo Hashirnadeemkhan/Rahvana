@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 
 type Props = {
   onGenerate: (dataURL: string) => void;
@@ -148,7 +149,7 @@ export default function TextSignature({ onGenerate, closeModal }: Props) {
       </div>
 
       {/* Font preload link - add to head if needed */}
-      <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Pacifico&family=Great+Vibes&family=Allura&display=swap" rel="stylesheet" />
+      <Link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Pacifico&family=Great+Vibes&family=Allura&display=swap" rel="stylesheet" />
     </div>
   );
 }

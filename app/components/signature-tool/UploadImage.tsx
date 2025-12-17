@@ -2,6 +2,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import NextImage from "next/image"
 import { SignatureImageProcessor } from "@/lib/imageProcessor"
 
 type Props = {
@@ -23,10 +24,12 @@ export default function UploadImage({ onUpload, closeModal }: Props) {
 
   useEffect(() => {
     if (uploadedImage) processUploadedImage()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uploadedImage])
 
   useEffect(() => {
     if (processedImage && selectedColor) applyColorToSignature()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedColor, processedImage])
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,9 +154,9 @@ export default function UploadImage({ onUpload, closeModal }: Props) {
           <div className="absolute inset-0 flex items-center justify-center p-8">
             {isProcessing ? (
               <div className="text-blue-600 text-sm">Processing...</div>
-            ) : (
-              <img src={processedImage} alt="Processed Signature" className="max-w-full max-h-full object-contain" />
-            )}
+            ) : processedImage ? (
+              <NextImage src={processedImage} alt="Processed Signature" fill className="object-contain" unoptimized />
+            ) : null}
           </div>
         )}
       </div>

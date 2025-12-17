@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import NextImage from "next/image";
 import { usePDFStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import type * as PDFJS from "pdfjs-dist";
+
 
 let pdfjsLib: typeof PDFJS | null = null;
 
@@ -110,15 +112,17 @@ export function PDFThumbnails() {
           )}
           style={{ width: "104px", height: "140px" }}
         >
-          <div className="w-full h-full flex items-center justify-center bg-white">
-            <img
+          <div className="relative w-full h-full flex items-center justify-center bg-white">
+            <NextImage
               src={thumb.thumbnail || "/placeholder.svg"}
               alt={`Page ${index + 1}`}
-              className="max-w-full max-h-full object-contain"
+              fill
+              className="object-contain"
               style={{
                 transform: `rotate(${thumb.rotation}deg)`,
                 transition: "transform 0.2s ease",
               }}
+              unoptimized
             />
           </div>
           <span className="absolute bottom-1 left-1/2 -translate-x-1/2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">

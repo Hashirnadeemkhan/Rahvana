@@ -5,7 +5,7 @@ import { AlertCircle } from "lucide-react"
 
 
 import SignatureUploader from "../components/signature-tool/SignatureUploader"
-import SignatureProcessor from "../components/signature-tool/SignatureProcessor"
+
 import SignaturePreview from "../components/signature-tool/SignaturePreview"
 import { SignatureImageProcessor, validateImageFile, readFileAsDataURL, downloadImage } from "@/lib/imageProcessor"
 
@@ -13,14 +13,13 @@ export default function SignatureRemoverPage() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
   const [processedImage, setProcessedImage] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [processingProgress, setProcessingProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
   const handleFileSelect = async (file: File) => {
     setError(null)
     setOriginalImage(null)
     setProcessedImage(null)
-    setProcessingProgress(0)
+
 
     const validation = validateImageFile(file)
     if (!validation.valid) {
@@ -31,22 +30,12 @@ export default function SignatureRemoverPage() {
     try {
       setIsProcessing(true)
 
-      setProcessingProgress(10)
       const imageData = await readFileAsDataURL(file)
       setOriginalImage(imageData)
-      setProcessingProgress(25)
+ 
 
       const processor = new SignatureImageProcessor()
 
-      const progressInterval = setInterval(() => {
-        setProcessingProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(progressInterval)
-            return prev
-          }
-          return prev + 10
-        })
-      }, 200)
 
       const processed = await processor.processImage(imageData, {
         threshold: 140,
@@ -57,9 +46,7 @@ export default function SignatureRemoverPage() {
         aggressiveMode: true,
       })
 
-      clearInterval(progressInterval)
-      setProcessingProgress(100)
-
+ 
       setProcessedImage(processed)
       processor.destroy()
 
@@ -70,7 +57,7 @@ export default function SignatureRemoverPage() {
       console.error("Processing error:", err)
       setError("Failed to process image. Please try again.")
       setIsProcessing(false)
-      setProcessingProgress(0)
+     
     }
   }
 
@@ -85,7 +72,7 @@ export default function SignatureRemoverPage() {
     setOriginalImage(null)
     setProcessedImage(null)
     setError(null)
-    setProcessingProgress(0)
+   
   }
 
   return (
@@ -144,7 +131,6 @@ export default function SignatureRemoverPage() {
             <SignatureUploader onFileSelect={handleFileSelect} disabled={isProcessing} />
           )}
 
-          {isProcessing && <SignatureProcessor progress={processingProgress} />}
 
           {processedImage && originalImage && !isProcessing && (
             <SignaturePreview

@@ -53,7 +53,7 @@ async def debug_pdf_fields(form_id: str):
             "pdf_path": pdf_service.pdf_path,
             "total_pdf_fields": len(fields),
             "mapped_in_config": len(pdf_service.field_mapping),
-            "sample_fields": fields[:100],
+              "fields": fields,
         }
     except (ValueError, FileNotFoundError) as e:
         raise HTTPException(status_code=404, detail=str(e))
