@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { SiteHeader } from './components/site-header';
+import { SiteHeader } from './components/layout/SiteHeader';
 import { AuthProvider } from './context/AuthContext';
-import { FloatingChatWidget } from './components/chat/floating-chat-widget';
+import { ClientWidgets } from './components/layout/ClientWidgets';
 
 
 export const metadata: Metadata = {
@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <AuthProvider>
           <SiteHeader />
           {children}
-        <FloatingChatWidget />
+        <ClientWidgets />
 
         </AuthProvider>
       </body>

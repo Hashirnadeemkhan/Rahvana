@@ -1,59 +1,45 @@
+// C:\Users\HP\Desktop\arachnie\Arachnie\app\components\signature-tool\DraggableSignature.tsx
 "use client";
 
-import type React from "react";
-import { useRef, useState, useEffect } from "react";
-import SelectionHandles from "./shared/SelectionHandles";
+import React, { useRef, useEffect } from "react";
+import SelectionHandles from "../../shared/SelectionHandles";
 
-export type PlacedText = {
+type SignatureAnnotation = {
   id: string;
-  text: string;
+  pageIndex: number;
+  image: string;
   x: number;
   y: number;
-  fontSize: number;
-  pageIndex: number;
-  color: string;
-  font?: string;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  align?: "left" | "center" | "right";
-  bgColor?: string;
-  opacity?: number;
+  width: number;
+  height: number;
   rotation?: number;
-  width?: number;
-  height?: number;
 };
 
-interface DraggableTextProProps {
-  data: PlacedText;
-  onUpdate: (id: string, patch: Partial<PlacedText>) => void;
+interface DraggableSignatureProps {
+  data: SignatureAnnotation;
+  onUpdate: (id: string, patch: Partial<SignatureAnnotation>) => void;
   onDelete: (id: string) => void;
   onSelect: (id: string) => void;
   scale: number;
   isSelected: boolean;
 }
 
-export default function DraggableTextPro({
+export default function DraggableSignature({
   data,
   onUpdate,
   onDelete,
   onSelect,
   scale,
   isSelected,
-}: DraggableTextProProps) {
+}: DraggableSignatureProps) {
   const nodeRef = useRef<HTMLDivElement | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(data.text);
-
-  const textWidth = data.width || 150;
-  const textHeight = data.height || 50;
   const rotation = data.rotation || 0;
 
-  // Click outside to exit editing
+  // Click outside to deselect
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (nodeRef.current && !nodeRef.current.contains(e.target as Node)) {
-        setIsEditing(false);
+        // Parent will handle deselection
       }
     };
     if (isSelected) {
@@ -64,7 +50,6 @@ export default function DraggableTextPro({
 
   // Drag
   const handleDrag = (e: React.MouseEvent) => {
-    if (isEditing) return;
     e.stopPropagation();
     e.preventDefault();
 
@@ -91,15 +76,15 @@ export default function DraggableTextPro({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
-  // Resize (8 handles)
+  // Resize (8 handles like text tool)
   const handleResize = (direction: string) => (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
 
     const startX = e.clientX;
     const startY = e.clientY;
-    const startWidth = textWidth;
-    const startHeight = textHeight;
+    const startWidth = data.width;
+    const startHeight = data.height;
     const startXPos = data.x;
     const startYPos = data.y;
 
@@ -112,39 +97,41 @@ export default function DraggableTextPro({
       let newX = startXPos;
       let newY = startYPos;
 
+      const minSize = 30;
+
       switch (direction) {
         case "top-left":
-          newWidth = Math.max(80, startWidth - deltaX);
-          newHeight = Math.max(30, startHeight - deltaY);
+          newWidth = Math.max(minSize, startWidth - deltaX);
+          newHeight = Math.max(minSize, startHeight - deltaY);
           newX = startXPos + deltaX;
           newY = startYPos + deltaY;
           break;
         case "top":
-          newHeight = Math.max(30, startHeight - deltaY);
+          newHeight = Math.max(minSize, startHeight - deltaY);
           newY = startYPos + deltaY;
           break;
         case "top-right":
-          newWidth = Math.max(80, startWidth + deltaX);
-          newHeight = Math.max(30, startHeight - deltaY);
+          newWidth = Math.max(minSize, startWidth + deltaX);
+          newHeight = Math.max(minSize, startHeight - deltaY);
           newY = startYPos + deltaY;
           break;
         case "right":
-          newWidth = Math.max(80, startWidth + deltaX);
+          newWidth = Math.max(minSize, startWidth + deltaX);
           break;
         case "bottom-right":
-          newWidth = Math.max(80, startWidth + deltaX);
-          newHeight = Math.max(30, startHeight + deltaY);
+          newWidth = Math.max(minSize, startWidth + deltaX);
+          newHeight = Math.max(minSize, startHeight + deltaY);
           break;
         case "bottom":
-          newHeight = Math.max(30, startHeight + deltaY);
+          newHeight = Math.max(minSize, startHeight + deltaY);
           break;
         case "bottom-left":
-          newWidth = Math.max(80, startWidth - deltaX);
-          newHeight = Math.max(30, startHeight + deltaY);
+          newWidth = Math.max(minSize, startWidth - deltaX);
+          newHeight = Math.max(minSize, startHeight + deltaY);
           newX = startXPos + deltaX;
           break;
         case "left":
-          newWidth = Math.max(80, startWidth - deltaX);
+          newWidth = Math.max(minSize, startWidth - deltaX);
           newX = startXPos + deltaX;
           break;
       }
@@ -203,67 +190,30 @@ export default function DraggableTextPro({
         e.stopPropagation();
         if (!isSelected) onSelect(data.id);
       }}
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-        if (isSelected) setIsEditing(true);
-      }}
     >
       <div
         className={`relative ${
           isSelected ? "ring-1 ring-blue-400 cursor-move" : "hover:ring-1 hover:ring-blue-300 cursor-pointer"
         } rounded-md transition-all`}
         style={{
-          width: `${textWidth}px`,
-          height: `${textHeight}px`,
-          padding: "8px",
-          backgroundColor: data.bgColor || "transparent",
-          opacity: (data.opacity || 100) / 100,
+          width: `${data.width * scale}px`,
+          height: `${data.height * scale}px`,
         }}
         onMouseDown={(e) => {
-          if (!isEditing && isSelected) handleDrag(e);
+          if (isSelected) handleDrag(e);
         }}
       >
-        {/* Editable Text */}
-        {isEditing ? (
-          <textarea
-            autoFocus
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            onBlur={() => {
-              if (editText.trim()) onUpdate(data.id, { text: editText });
-              setIsEditing(false);
-            }}
-            className="w-full h-full bg-transparent outline-none resize-none"
-            style={{
-              fontSize: data.fontSize,
-              color: data.color,
-              fontFamily: data.font || "Arial",
-              fontWeight: data.bold ? "bold" : "normal",
-              fontStyle: data.italic ? "italic" : "normal",
-              textDecoration: data.underline ? "underline" : "none",
-              textAlign: data.align || "left",
-            }}
-          />
-        ) : (
-          <div
-            className="w-full h-full overflow-hidden select-none"
-            style={{
-              fontSize: data.fontSize,
-              color: data.color,
-              fontFamily: data.font || "Arial",
-              fontWeight: data.bold ? "bold" : "normal",
-              fontStyle: data.italic ? "italic" : "normal",
-              textDecoration: data.underline ? "underline" : "none",
-              textAlign: data.align || "left",
-              wordWrap: "break-word",
-            }}
-          >
-            {data.text || "Insert text"}
-          </div>
-        )}
+        {/* Signature Image */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={data.image}
+          alt="Signature"
+          draggable={false}
+          className="w-full h-full object-contain pointer-events-none select-none"
+        />
 
         {/* SELECTION HANDLES - Shared Component */}
-        {isSelected && !isEditing && (
+        {isSelected && (
           <SelectionHandles
             rotation={rotation}
             onResize={handleResize}

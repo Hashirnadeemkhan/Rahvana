@@ -167,7 +167,7 @@ function markdownToPDF(md: string): ArrayBuffer {
     const headingMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
     if (headingMatch) {
       const level = headingMatch[1].length;
-      let headingText = headingMatch[2]
+      const headingText = headingMatch[2]
         .replace(/`/g, "")
         .replace(/[""'']/g, "")
         .replace(/["']/g, "")

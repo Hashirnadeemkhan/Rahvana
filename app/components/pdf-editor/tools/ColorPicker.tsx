@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 
-export { default as ColorPicker } from "./ColorPicker"
-
 interface ColorPickerProps {
   currentColor: string
   onColorChange: (color: string) => void

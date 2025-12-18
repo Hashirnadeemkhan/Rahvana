@@ -1,7 +1,7 @@
 "use client"
 
 import { Copy } from "lucide-react"
-import ColorPicker from "./ColorPicker"
+import ColorPicker from "../tools/ColorPicker"
 import type { ShapeAnnotation } from "@/lib/store"
 
 export default function ShapeFormattingToolbar({

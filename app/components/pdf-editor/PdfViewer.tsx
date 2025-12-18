@@ -5,13 +5,13 @@ import Image from "next/image";
 import { usePDFStore, type ShapeType } from "@/lib/store";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DraggableTextPro from "./DraggableTextPro";
-import DraggableShape from "./DraggableShape";
-import DraggableSignature from "./signature-tool/DraggableSignature";
-import ShapeFormattingToolbar from "./shape-formating-toolbar";
+import DraggableTextPro from "./text/DraggableTextPro";
+import DraggableShape from "./shapes/DraggableShape";
+import DraggableSignature from "./signature/DraggableSignature";
+import ShapeFormattingToolbar from "./shapes/ShapeFormattingToolbar";
 
 import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
-import type { TextFormat } from "./text-formatting-toolbar";
+import type { TextFormat } from "./text/TextFormattingToolbar";
 
 let pdfjsLib: typeof import("pdfjs-dist") | null = null;
 

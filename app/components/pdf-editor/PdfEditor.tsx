@@ -5,16 +5,16 @@ import { useState } from "react";
 import { usePDFStore, type ShapeAnnotation, type TextAnnotation, type ShapeType } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Download, LayoutGrid, Type, Stamp, Check, } from "lucide-react";
-import ShapeFormattingToolbar from "./shape-formating-toolbar";
-import SignatureTool from "./signature-tool/SignatureTool";
-import { OrganizePagesModal } from "./organize-pages-modal";
-import { EditTextModal } from "./edit-text-modal";
+import ShapeFormattingToolbar from "./shapes/ShapeFormattingToolbar";
+import SignatureTool from "./signature/SignatureTool";
+import { OrganizePagesModal } from "./pages/OrganizePagesModal";
+import { EditTextModal } from "./text/EditTextModal";
 import { createEditedPDF, downloadPDF } from "@/lib/pdf-utils";
-import { TextFormattingToolbar, TextFormat } from "./text-formatting-toolbar";
+import { TextFormattingToolbar, TextFormat } from "./text/TextFormattingToolbar";
 import {  Square, X } from "lucide-react";
 // Dynamic Components
-const PDFViewer = dynamic(() => import("./pdf-viewer").then((m) => m.PDFViewer), { ssr: false });
-const PDFThumbnails = dynamic(() => import("./pdf-thumbnails").then((m) => m.PDFThumbnails), { ssr: false });
+const PDFViewer = dynamic(() => import("./PdfViewer").then((m) => m.PDFViewer), { ssr: false });
+const PDFThumbnails = dynamic(() => import("./PdfThumbnails").then((m) => m.PDFThumbnails), { ssr: false });
 
 export function PDFEditor() {
   const [activeTool, setActiveTool] = useState<"text" | "signature" | "shapes" | null>(null);

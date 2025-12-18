@@ -3,9 +3,9 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { getFormConfig } from "@/lib/formConfig";
-import { ProgressBar } from "./progress-bar";
-import { FormStep } from "./form-step";
-import { ReviewPage } from "./review-page";
+import { ProgressBar } from "./ProgressBar";
+import { FormStep } from "./FormStep";
+import { ReviewPage } from "./ReviewPage";
 import type { Field as ConfigField } from "@/lib/formConfig/types";
 
 type ViewType = "form" | "review";

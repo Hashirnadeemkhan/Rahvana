@@ -5,11 +5,11 @@ import dynamic from "next/dynamic";
 import { usePDFStore } from "@/lib/store";
 
 // Dynamically import components (client-only)
-const PDFUpload = dynamic(() => import("../components/pdf-upload").then(mod => mod.PDFUpload), { ssr: false });
-const PDFEditor = dynamic(() => import("../components/pdf-editor").then(mod => mod.PDFEditor), { ssr: false });
-const PDFMergeAdvanced = dynamic(() => import("../components/pdf/pdf-merge"), { ssr: false });
-const CompressPDF = dynamic(() => import("../components/pdf/compress-pdf"), { ssr: false });
-const MultiFormatConverter = dynamic(() => import("../components/pdf/multi-format-converter"), { ssr: false });
+const PDFUpload = dynamic(() => import("../components/pdf-editor/PdfUpload").then(mod => mod.PDFUpload), { ssr: false });
+const PDFEditor = dynamic(() => import("../components/pdf-editor/PdfEditor").then(mod => mod.PDFEditor), { ssr: false });
+const PDFMergeAdvanced = dynamic(() => import("../components/pdf-tools/PdfMerge"), { ssr: false });
+const CompressPDF = dynamic(() => import("../components/pdf-tools/CompressPdf"), { ssr: false });
+const MultiFormatConverter = dynamic(() => import("../components/pdf-tools/MultiFormatConverter"), { ssr: false });
 
 export default function PDFProcessingPage() {
   const { pdfFile, reset } = usePDFStore();

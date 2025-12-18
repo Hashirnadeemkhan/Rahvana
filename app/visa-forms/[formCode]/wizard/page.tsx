@@ -1,5 +1,5 @@
 // C:\Users\HP\Desktop\arachnie\Arachnie\app\visa-forms\[formCode]\wizard\page.tsx
-import { MultiStepForm } from "@/app/components/forms/reusable/multi-step-form" 
+import { MultiStepForm } from "@/app/components/forms/auto-visaform-filling/MultiStepForm"
 
 // 2. Async Params Props Definition (Next 15 Fix)
 type Props = {

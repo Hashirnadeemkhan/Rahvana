@@ -1,6 +1,6 @@
 "use client"
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, ChevronDown } from "lucide-react"
-import ColorPicker from "./ColorPicker"
+import ColorPicker from "../tools/ColorPicker"
 
 export type TextFormat = {
   font: string
