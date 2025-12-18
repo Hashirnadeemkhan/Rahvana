@@ -1,10 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Loader2 } from "lucide-react"
+import dynamic from "next/dynamic"
 
-import SignatureUploader from "../components/signature-tool/SignatureUploader"
-import SignaturePreview from "../components/signature-tool/SignaturePreview"
+// Dynamically import components that use browser APIs - disable SSR
+const SignatureUploader = dynamic(
+  () => import("../components/signature-tool/SignatureUploader"),
+  {
+    ssr: false,
+    loading: () => <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>
+  }
+)
+const SignaturePreview = dynamic(
+  () => import("../components/signature-tool/SignaturePreview"),
+  {
+    ssr: false,
+    loading: () => <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>
+  }
+)
 
 // Dynamic import to avoid SSR issues with browser-only APIs
 type ImageProcessorModule = typeof import("@/lib/imageProcessor")
