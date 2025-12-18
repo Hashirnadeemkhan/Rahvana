@@ -118,7 +118,7 @@ export default function PassportPhoto() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-gray-800 flex flex-col items-center py-12 px-4">
       {/* Header */}
       <header className="text-center mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold text-indigo-700">
+        <h1 className="text-4xl md:text-5xl font-bold text-primary/90">
           Passport Photo Maker
         </h1>
         <p className="mt-2 text-lg text-gray-600">
@@ -128,7 +128,7 @@ export default function PassportPhoto() {
 
       {/* Official Guidelines */}
       <section className="w-full max-w-4xl mb-12 bg-white rounded-xl shadow-lg p-6 md:p-8">
-        <h2 className="flex items-center gap-2 text-2xl font-semibold text-indigo-600 mb-6">
+        <h2 className="flex items-center gap-2 text-2xl font-semibold text-primary/90 mb-6">
           <AlertCircle className="w-6 h-6" />
           Official Passport Photo Requirements
         </h2>
@@ -217,7 +217,7 @@ export default function PassportPhoto() {
             ${
               !file || loading
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-indigo-600 text-white hover:bg-indigo-700"
+                : "bg-primary/90 text-white hover:bg-primary/100"
             }`}
         >
           {loading ? (

@@ -40,7 +40,7 @@ export default function IRCategorySection() {
     <section id="ir-category" className="container mx-auto px-6 py-20">
       {/* Heading */}
       <div className="mx-auto max-w-3xl text-center bg-gradient-to-r from-blue-100 to-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
-        <h2 className="text-2xl md:text-3xl font-bold text-blue-700 tracking-wide">
+        <h2 className="text-2xl md:text-3xl font-bold text-primary/90 tracking-wide">
           IMMEDIATE RELATIVE (IR) CATEGORY
         </h2>
       </div>
@@ -88,14 +88,14 @@ function IRItemRow({
       <div className="space-y-5">
         <Card className="border-blue-100 hover:shadow-lg transition-all duration-200">
           <CardContent className="p-6">
-            <div className="text-2xl font-semibold text-blue-700">{title}</div>
+            <div className="text-2xl font-semibold text-primary/90">{title}</div>
             <p className="mt-3 text-gray-600 leading-relaxed">{description}</p>
           </CardContent>
         </Card>
 
         <Button
           asChild
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-md"
+          className="gap-2 bg-primary/90 hover:bg-primary/100 text-white rounded-md shadow-md"
         >
           <Link href={roadmapLink}>
             <MapPinned className="h-4 w-4" />
