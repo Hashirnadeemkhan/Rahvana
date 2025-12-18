@@ -1,27 +1,41 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AlertCircle } from "lucide-react"
 
-
 import SignatureUploader from "../components/signature-tool/SignatureUploader"
-
 import SignaturePreview from "../components/signature-tool/SignaturePreview"
-import { SignatureImageProcessor, validateImageFile, readFileAsDataURL, downloadImage } from "@/lib/imageProcessor"
+
+// Dynamic import to avoid SSR issues with browser-only APIs
+type ImageProcessorModule = typeof import("@/lib/imageProcessor")
+let imageProcessorModule: ImageProcessorModule | null = null
 
 export default function SignatureRemoverPage() {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
   const [processedImage, setProcessedImage] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isModuleLoaded, setIsModuleLoaded] = useState(false)
+
+  // Load the image processor module on client-side only
+  useEffect(() => {
+    import("@/lib/imageProcessor").then((mod) => {
+      imageProcessorModule = mod
+      setIsModuleLoaded(true)
+    })
+  }, [])
 
   const handleFileSelect = async (file: File) => {
+    if (!imageProcessorModule) {
+      setError("Image processor is loading, please try again.")
+      return
+    }
+
     setError(null)
     setOriginalImage(null)
     setProcessedImage(null)
 
-
-    const validation = validateImageFile(file)
+    const validation = imageProcessorModule.validateImageFile(file)
     if (!validation.valid) {
       setError(validation.error || "Invalid file")
       return
@@ -30,12 +44,10 @@ export default function SignatureRemoverPage() {
     try {
       setIsProcessing(true)
 
-      const imageData = await readFileAsDataURL(file)
+      const imageData = await imageProcessorModule.readFileAsDataURL(file)
       setOriginalImage(imageData)
- 
 
-      const processor = new SignatureImageProcessor()
-
+      const processor = new imageProcessorModule.SignatureImageProcessor()
 
       const processed = await processor.processImage(imageData, {
         threshold: 140,
@@ -46,7 +58,6 @@ export default function SignatureRemoverPage() {
         aggressiveMode: true,
       })
 
- 
       setProcessedImage(processed)
       processor.destroy()
 
@@ -57,14 +68,13 @@ export default function SignatureRemoverPage() {
       console.error("Processing error:", err)
       setError("Failed to process image. Please try again.")
       setIsProcessing(false)
-     
     }
   }
 
   const handleDownload = () => {
-    if (processedImage) {
+    if (processedImage && imageProcessorModule) {
       const timestamp = new Date().getTime()
-      downloadImage(processedImage, `signature-transparent-${timestamp}.png`)
+      imageProcessorModule.downloadImage(processedImage, `signature-transparent-${timestamp}.png`)
     }
   }
 
