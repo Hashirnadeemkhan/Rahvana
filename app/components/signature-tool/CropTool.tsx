@@ -341,8 +341,9 @@ export default function CropTool({
               Tilt
             </button>
             <button
-              onClick={() => {
-                onExit()
+              onClick={async () => {
+                // Apply crop first, then exit
+                await handleApplyCrop()
                 setRotation(0)
               }}
               className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-base shadow-md"

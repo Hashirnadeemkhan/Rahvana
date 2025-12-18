@@ -35,7 +35,7 @@ export default function SignaturePreview({
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    onDownload()
+    // Note: Not calling onDownload() to prevent double download
   }
 
   const handleReset = () => {

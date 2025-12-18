@@ -410,7 +410,9 @@ export function PDFViewer({
                   data={sig}
                   onUpdate={updateSignatureAnnotation}
                   onDelete={deleteSignatureAnnotation}
+                  onSelect={onSelectAnnotation}
                   scale={scale}
+                  isSelected={selectedAnnotationId === sig.id}
                 />
               ))}
 

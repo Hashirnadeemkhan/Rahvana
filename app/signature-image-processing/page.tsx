@@ -29,7 +29,7 @@ export default function SignatureRemoverPage() {
   const [processedImage, setProcessedImage] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isModuleLoaded, setIsModuleLoaded] = useState(false)
+  const [, setIsModuleLoaded] = useState(false)
 
   // Load the image processor module on client-side only
   useEffect(() => {
