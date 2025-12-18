@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-import InitialQuestionsForm from "../components/forms/onboarding/InitialQuestionsForm"
+import InitialQuestionsForm from "@/app/components/forms/onboarding/InitialQuestionsForm"
 
 export default function InitialQuestionsPage() {
   const router = useRouter()

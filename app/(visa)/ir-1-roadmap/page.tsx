@@ -3,10 +3,10 @@
 import { useStore } from "@/lib/store";
 import { immigrationSteps } from "@/lib/steps";
 
-import IslandCard from "../components/IR-pathway-roadmap/IslandCard";
-import StepDialog from "../components/IR-pathway-roadmap/StepDialog";
-import ProgressBar from "../components/IR-pathway-roadmap/ProgressBar";
-import CompletionDialog from "../components/IR-pathway-roadmap/CompletionDialog";
+import IslandCard from "@/app/components/IR-pathway-roadmap/IslandCard";
+import StepDialog from "@/app/components/IR-pathway-roadmap/StepDialog";
+import ProgressBar from "@/app/components/IR-pathway-roadmap/ProgressBar";
+import CompletionDialog from "@/app/components/IR-pathway-roadmap/CompletionDialog";
 import Confetti from "react-confetti";
 import { useEffect, useState } from "react";
 

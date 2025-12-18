@@ -6,14 +6,14 @@ import dynamic from "next/dynamic"
 
 // Dynamically import components that use browser APIs - disable SSR
 const SignatureUploader = dynamic(
-  () => import("../components/pdf-editor/signature/SignatureUploader"),
+  () => import("@/app/components/pdf-editor/signature/SignatureUploader"),
   {
     ssr: false,
     loading: () => <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>
   }
 )
 const SignaturePreview = dynamic(
-  () => import("../components/pdf-editor/signature/SignaturePreview"),
+  () => import("@/app/components/pdf-editor/signature/SignaturePreview"),
   {
     ssr: false,
     loading: () => <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-import CompleteProfileForm from "../components/forms/auth/CompleteProfileForm"
+import CompleteProfileForm from "@/app/components/forms/auth/CompleteProfileForm"
 
 export default function CompleteProfilePage() {
   const router = useRouter()
