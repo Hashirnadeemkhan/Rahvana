@@ -49,6 +49,7 @@ export default function CropTool({
 
     // Auto-detect signature bounds
     detectSignatureBounds(displayedWidth, displayedHeight)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentImage])
 
   const detectSignatureBounds = useCallback((displayedWidth: number, displayedHeight: number) => {
@@ -376,6 +377,7 @@ export default function CropTool({
               height: imageLoaded ? `${imageBounds.height}px` : 'auto',
             }}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               ref={imageRef}
               src={currentImage}

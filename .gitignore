@@ -180,3 +180,21 @@ vite.config.ts.timestamp-*
 echo ".venv/" >> .gitignore
 venv/
 backend/.venv/
+
+
+# Python
+__pycache__/
+*.pyc
+
+# Windows
+nul
+
+# Images / temp
+*.jpg
+*.jpeg
+*.png
+
+# ML Models
+*.pth
+*.ckpt
+*.onnx

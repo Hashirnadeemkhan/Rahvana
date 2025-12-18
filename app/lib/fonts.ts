@@ -5,7 +5,7 @@
 export async function getFont(fontName: string) {
   // This would normally load fonts using pdf-lib
   // For now returning a basic mapping
-  const fontMap: Record<string, any> = {
+  const fontMap: Record<string, null> = {
     Arial: null,
     Helvetica: null,
     "Times New Roman": null,

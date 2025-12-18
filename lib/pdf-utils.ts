@@ -60,7 +60,7 @@ export async function loadPDF(file: File): Promise<PDFDocument> {
   const arrayBuffer = await file.arrayBuffer()
   try {
     return await PDFDocument.load(arrayBuffer)
-  } catch (error) {
+  } catch {
     console.warn("PDF is encrypted, loading with ignoreEncryption option")
     return await PDFDocument.load(arrayBuffer, { ignoreEncryption: true })
   }
@@ -99,11 +99,9 @@ export async function applyPageModifications(
 
 export async function reorderPdfPages(pdfBytes: ArrayBuffer, pageOrder: number[]): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.load(pdfBytes)
-  const pages = pdfDoc.getPages()
   const newPdfDoc = await PDFDocument.create()
 
   for (const pageNum of pageOrder) {
-    const page = pages[pageNum - 1]
     const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [pageNum - 1])
     newPdfDoc.addPage(copiedPage)
   }
@@ -125,7 +123,7 @@ export async function deletePdfPages(pdfBytes: ArrayBuffer, pagesToDelete: numbe
 export async function rotatePdfPage(pdfBytes: ArrayBuffer, pageIndex: number, angle: number): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.load(pdfBytes)
   const page = pdfDoc.getPage(pageIndex)
-  page.setRotation(page.getRotation().angle + angle)
+  page.setRotation(degrees(page.getRotation().angle + angle))
 
   return new Uint8Array(await pdfDoc.save())
 }

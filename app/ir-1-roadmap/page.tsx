@@ -11,7 +11,7 @@ import Confetti from "react-confetti";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { completed, completeStep } = useStore();
+  const { completedSteps: completed, completeStep } = useStore();
   const [openStep, setOpenStep] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);

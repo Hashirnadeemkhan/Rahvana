@@ -28,7 +28,6 @@ export function PDFEditor() {
   const [showEditTextModal, setShowEditTextModal] = useState(false);
 
   const [showShapesDropdown, setShowShapesDropdown] = useState(false);
-  const [showSignDropdown, setShowSignDropdown] = useState(false);
   
   const [selectedShape, setSelectedShape] = useState<ShapeType | null>(null);
   const [isShapeFloating, setIsShapeFloating] = useState(false);
@@ -167,7 +166,6 @@ export function PDFEditor() {
                 if (activeTool !== "text") setSelectedAnnotationId(null);
                 setActiveTool(activeTool === "text" ? null : "text");
                 setShowShapesDropdown(false);
-                setShowSignDropdown(false);
               }}
               className={`p-2 rounded transition-colors ${activeTool === "text" ? "bg-blue-100" : "hover:bg-gray-100"}`}
               title="Add Text"
@@ -238,7 +236,7 @@ export function PDFEditor() {
 
             {/* SIGNATURE TOOL */}
             <div className="relative">
-              <SignatureTool onSignature={(sig) => { handleSignature(sig); setShowSignDropdown(false); }} />
+              <SignatureTool onSignature={(sig) => { handleSignature(sig); }} />
             </div>
           </div>
 
