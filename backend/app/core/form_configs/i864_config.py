@@ -21,6 +21,15 @@ FIELD_MAPPING = {
     "p1_legal_guardian_no":  "form1[0].#subform[0].P1_Line1e1_Checkbox[1]",
 
     # ============================================
+    # G-28 / Attorney Info
+    # ============================================
+    "g28_attached":                     "form1[0].#subform[0].G28-CheckBox1[0]",
+    "attorney_bar_number":              "form1[0].#subform[0].AttorneyStateBarNumber[0]",
+    "g28_uscis_account":                "form1[0].#subform[0].USCISOnlineAcctNumber[0]",
+    "form_barcode":                     "form1[0].#pageSet[0].Page1[0].PDF417BarCode1[0]",
+
+
+    # ============================================
     # PART 4 – Sponsor's Personal Information (Page 1–2)
     # ============================================
     "sponsor_family_name":  "form1[0].#subform[0].P4_Line1a_FamilyName[0]",
@@ -123,22 +132,183 @@ FIELD_MAPPING = {
     "household_member2_alien_number": "form1[0].#subform[3].P3_Line11_AlienNumber[0]",
     "household_member2_uscis_account": "form1[0].#subform[3].P3_Line12_AcctIdentifier[0]",
 
-    # Family member 3
-    "household_member3_family_name": "form1[0].#subform[3].P3_Line13a_FamilyName[0]",
-    "household_member3_given_name":  "form1[0].#subform[3].P3_Line13b_GivenName[0]",
-    "household_member3_middle_name": "form1[0].#subform[3].P3_Line13c_MiddleName[0]",
-    "household_member3_relationship": "form1[0].#subform[3].P3_Line14_Relationship[0]",
+    # Family member 3 (Continued)
+    "household_member3_dob":         "form1[0].#subform[3].P3_Line15_DateOfBirth[0]",
+    "household_member3_alien_number": "form1[0].#subform[3].P2_Line5_AlienNumber[2]", # Named P2_Line5_AlienNumber[2] in JSON
+    "household_member3_uscis_account": "form1[0].#subform[3].P3_Line17_AcctIdentifier[0]",
+
+    # Family member 4
+    "household_member4_family_name": "form1[0].#subform[3].P3_Line18a_FamilyName[0]",
+    "household_member4_given_name":  "form1[0].#subform[3].P3_Line18b_GivenName[0]",
+    "household_member4_middle_name": "form1[0].#subform[3].P3_Line18c_MiddleName[0]",
+    "household_member4_relationship": "form1[0].#subform[3].P3_Line19_Relationship[0]",
+    "household_member4_dob":         "form1[0].#subform[3].P3_Line20_DateOfBirth[0]",
+    "household_member4_alien_number": "form1[0].#subform[3].P3_Line21_AlienNumber[0]",
+    "household_member4_uscis_account": "form1[0].#subform[3].P3_Line22_AcctIdentifier[0]",
+
 
     # ============================================
-    # G-28 Attorney Info (Page 1)
+    # PART 5 – Sponsor's Household Size (Page 5)
     # ============================================
-    "g28_attorney_checkbox":       "form1[0].#subform[0].G28-CheckBox1[0]",
-    "g28_bar_number":              "form1[0].#subform[0].AttorneyStateBarNumber[0]",
-    "g28_uscis_account":           "form1[0].#subform[0].USCISOnlineAcctNumber[0]",
+    "hsize_total_immigrants":    "form1[0].#subform[4].P3_Line28_TotalNumberofImmigrants[0]",
+    "hsize_yourself":           "form1[0].#subform[4].P5_Line2_Yourself[0]",
+    "hsize_married":            "form1[0].#subform[4].P5_Line3_Married[0]",
+    "hsize_dependent_children": "form1[0].#subform[4].P5_Line4_DependentChildren[0]",
+    "hsize_other_dependents":   "form1[0].#subform[4].P5_Line5_OtherDependents[0]",
+    "hsize_sponsors":           "form1[0].#subform[4].P5_Line6_Sponsors[0]",
+    "hsize_same_residence":     "form1[0].#subform[4].P5_Line7_SameResidence[0]",
+    "hsize_total":              "form1[0].#subform[4].Override[0]", # Total household size
 
     # ============================================
-    # Additional Notes
+    # PART 6 – Sponsor's Employment and Income (Page 5-7)
     # ============================================
-    # Add more fields from later pages (Part 5, 6, 7, etc.) as you extract them.
-    # This mapping covers all fields present in your current JSON sample.
+    "emp_employed_chk":         "form1[0].#subform[4].P6_Line1_Checkbox[0]",
+    "emp_employer_name":        "form1[0].#subform[4].P6_Line1a_NameofEmployer[0]",
+    "emp_employer_name_2":      "form1[0].#subform[4].P6_Line1a1_NameofEmployer[0]",
+    "emp_employer_name_3":      "form1[0].#subform[4].P6_Line1a2_NameofEmployer[0]",
+    
+    "emp_self_employed_chk":    "form1[0].#subform[4].P6_Line4_Checkbox[0]",
+    "emp_self_employed_as":     "form1[0].#subform[4].P6_Line4a_SelfEmployedAs[0]",
+    
+    "emp_retired_chk":          "form1[0].#subform[4].P6_Line5_Checkbox[0]",
+    "emp_retired_date":         "form1[0].#subform[4].P6_Line5a_DateRetired[0]",
+    
+    "emp_unemployed_chk":       "form1[0].#subform[4].P6_Line6_Checkbox[0]",
+    "emp_unemployed_date":      "form1[0].#subform[4].P6_Line6a_DateofUnemployment[0]",
+    
+    "emp_current_annual_income": "form1[0].#subform[4].P6_Line2_TotalIncome[0]",
+
+    # Household Members Income (Page 6) - Optional repeated blocks
+    "hh_income1_name":          "form1[0].#subform[5].P6_Line3_Name[0]",
+    "hh_income1_relationship":  "form1[0].#subform[5].P6_Line4_Relationship[0]",
+    "hh_income1_amount":        "form1[0].#subform[5].P6_Line5_CurrentIncome[0]",
+
+    "hh_income2_name":          "form1[0].#subform[5].P6_Line6_Name[0]",
+    "hh_income2_relationship":  "form1[0].#subform[5].P6_Line7_Relationship[0]",
+    "hh_income2_amount":        "form1[0].#subform[5].P6_Line8_CurrentIncome[0]",
+
+    "hh_income3_name":          "form1[0].#subform[5].P6_Line9_Name[0]",
+    "hh_income3_relationship":  "form1[0].#subform[5].P6_Line10_Relationship[0]",
+    "hh_income3_amount":        "form1[0].#subform[5].P6_Line11_CurrentIncome[0]",
+
+    "hh_income4_name":          "form1[0].#subform[5].P6_Line12_Name[0]",
+    "hh_income4_relationship":  "form1[0].#subform[5].P6_Line13_Relationship[0]",
+    "hh_income4_amount":        "form1[0].#subform[5].P6_Line14_CurrentIncome[0]",
+
+    "hh_total_household_income": "form1[0].#subform[5].P6_Line15_TotalHouseholdIncome[0]",
+    
+    "hh_people_listed": "form1[0].#subform[5].P6_Line16_CompletedForm[0]",
+    "hh_intending_immigrant_check": "form1[0].#subform[5].P6_Line17_NotNeedComplete[0]",
+    "hh_intending_immigrant_dependents": "form1[0].#subform[5].P6_Line17_Name[0]",
+    
+    "tax_filed_3years_chk_yes":     "form1[0].#subform[5].P6_Line18a_Checkbox[0]", # Logic might need 18a [0] and [1] ? Checked PDF keys.
+    "tax_filed_3years_chk_no":     "form1[0].#subform[5].P6_Line18a_Checkbox[1]", # Logic might need 18a [0] and [1] ? Checked PDF keys.
+    # Note: JSON shows [0] for "P6_Line18a_Checkbox" and also [1]. 
+    # Usually "I have filed a Federal tax return for each of the three most recent tax years" is a single checkbox or Yes/No. 
+    # In JSON step 20: [500, 607...] and [542, 607...]. Looks like Yes/No or Optional/Mandatory.
+    # Assuming 'yes' triggers providing details.
+    
+    "tax_year_1":               "form1[0].#subform[6].P6_Line19a_TaxYear[0]",
+    "tax_income_1":             "form1[0].#subform[6].P6_Line19a_TotalIncome[0]",
+    
+    "tax_year_2":               "form1[0].#subform[6].P6_Line19b_TaxYear[0]",
+    "tax_income_2":             "form1[0].#subform[6].P6_Line19b_TotalIncome[0]",
+    
+    "tax_year_3":               "form1[0].#subform[6].P6_Line19c_TaxYear[0]",
+    "tax_income_3":             "form1[0].#subform[6].P6_Line19c_TotalIncome[0]",
+    
+    "tax_not_required_chk":     "form1[0].#subform[6].P6_Line17_IWasNotReq[0]",
+
+    # ============================================
+    # PART 7 – Use of Assets (Page 7-8)
+    # ============================================
+    "asset_sponsor_balance":    "form1[0].#subform[6].P7_Line1_BalanceofAccounts[0]",
+    "asset_sponsor_real_estate": "form1[0].#subform[6].P7_Line2_RealEstate[0]",
+    "asset_sponsor_stocks":     "form1[0].#subform[6].P7_Line3_StocksBonds[0]",
+    "asset_sponsor_total":      "form1[0].#subform[6].P7_Line4_Total[0]",
+    
+    "asset_hh_total":           "form1[0].#subform[6].P7_Line5_TotalAssetsHouseholdMembers[0]",
+    
+    # Assets for Principal Immigrant (Optional)
+    "asset_pig_balance":        "form1[0].#subform[7].P7_Line6_BalanceofAccounts[0]",
+    "asset_pig_real_estate":    "form1[0].#subform[7].P7_Line7_RealEstate[0]",
+    "asset_pig_stocks":         "form1[0].#subform[7].P7_Line8_StocksBonds[0]",
+    "asset_pig_total":          "form1[0].#subform[7].P7_Line9_Total[0]",
+    
+    "asset_total_value":        "form1[0].#subform[7].P7_Line10_TotalValueAssets[0]",
+
+    # ============================================
+    # PART 8 – Sponsor Contract & Contact (Page 10)
+    # ============================================
+    # "Can read english" check? JSON has P6_Line1_Checkbox[1] on Page 10.
+    # Page 10 fields:
+    # "form1[0].#subform[9].P6_Line1_Checkbox[1]" -> Looks like Language checkbox?
+    # "form1[0].#subform[9].P6_Line1_Checkbox[2]" -> ?
+    # "form1[0].#subform[9].P8_Line1b_language[0]" -> Language name if interpreter?
+    
+    "p8_can_read_english":      "form1[0].#subform[9].P6_Line1_Checkbox[1]", # Assuming this is the "I can read and understand English" check based on typical layout
+    "p8_interpreter_chk":       "form1[0].#subform[9].P6_Line1_Checkbox[2]",
+    "p8_language_used":         "form1[0].#subform[9].P8_Line1b_language[0]",
+    
+    "p8_preparer_chk":          "form1[0].#subform[9].P8_Line2_Checkbox[0]",
+    "p8_preparer_name":         "form1[0].#subform[9].P8_Line2_Attorney[0]", # Labeled P8_Line2_Attorney but likely used for Preparer name in typical logic
+    
+    "p8_sponsor_phone":         "form1[0].#subform[9].P8_Line3_DaytimeTelephoneNumber[0]",
+    "p8_sponsor_mobile":        "form1[0].#subform[9].P8_Line4_MobileTelephoneNumber[0]",
+    "p8_sponsor_email":         "form1[0].#subform[9].P7Line7_EmailAddress[0]",
+    "p8_sponsor_signature":     "form1[0].#subform[9].P8_Line9a_ApplicantSignature[0]",
+    "p8_sponsor_sign_date":     "form1[0].#subform[9].P7Line9b_DateofSignature[0]",
+
+    # ============================================
+    # PART 9 – Interpreter (Page 11)
+    # ============================================
+    "p9_interp_family_name":    "form1[0].#subform[10].P9_Line1a_InterpretersFamilyName[0]",
+    "p9_interp_given_name":     "form1[0].#subform[10].P9_Line1b_InterpretersGivenName[0]",
+    "p9_interp_business":       "form1[0].#subform[10].P8Line2_InterpretersBusinessName[0]",
+    "p9_interp_phone":          "form1[0].#subform[10].P9_Line4_InterpretersDaytimePhoneNumber[0]",
+    # Note: JSON has phone[1] as well, maybe mobile?
+    "p9_interp_email":          "form1[0].#subform[10].P9_Line5_InterpretersEmailAddress[0]",
+    "p9_interp_language":       "form1[0].#subform[10].P9_Language[0]",
+    "p9_interp_signature":      "form1[0].#subform[10].P9_Line6a_InterpretersSignature[0]",
+    "p9_interp_sign_date":      "form1[0].#subform[10].P9_Line6b_DateofSignature[0]",
+
+    # ============================================
+    # PART 10 – Preparer (Page 11)
+    # ============================================
+    "p10_prep_family_name":     "form1[0].#subform[10].P10_Line1a_PreparersFamilyName[0]",
+    "p10_prep_given_name":      "form1[0].#subform[10].P10_Line1b_PreparersGivenName[0]",
+    "p10_prep_business":        "form1[0].#subform[10].P10_Line2_PreparersBusinessName[0]",
+    "p10_prep_phone":           "form1[0].#subform[10].P10_Line4_PreparersDaytimePhoneNumber[0]",
+    "p10_prep_fax":             "form1[0].#subform[10].P10_Line5_PreparersFaxNumber[0]",
+    "p10_prep_email":           "form1[0].#subform[10].P10_Line6_PreparersEmailAddress[0]",
+    "p10_prep_signature":       "form1[0].#subform[10].P10_Line8a_PreparersSignature[0]",
+    "p10_prep_sign_date":       "form1[0].#subform[10].P10_Line8b_DateofSignature[0]",
+
+    # ============================================
+    # PART 11 – Additional Information (Page 12)
+    # ============================================
+    "p11_add_info_name_family": "form1[0].#subform[11].P4_Line1a_FamilyName[1]",
+    "p11_add_info_name_given":  "form1[0].#subform[11].P4_Line1b_GivenName[1]",
+    "p11_add_info_name_middle": "form1[0].#subform[11].P4_Line1c_MiddleName[1]",
+    "p11_add_info_alien_number": "form1[0].#subform[11].Global_ANumber[0].P4_Line12_AlienNumber[1]",
+    
+    "p11_add_info_page1":       "form1[0].#subform[11].P11_Line3a_PageNumber[0]",
+    "p11_add_info_part1":       "form1[0].#subform[11].P11_Line3b_PartNumber[0]",
+    "p11_add_info_item1":       "form1[0].#subform[11].P11_Line3c_ItemNumber[0]",
+    "p11_add_info_desc1":       "form1[0].#subform[11].P11_Line3d_AdditionalInfo[0]",
+    
+    "p11_add_info_page2":       "form1[0].#subform[11].P11_Line4a_PageNumber[0]",
+    "p11_add_info_part2":       "form1[0].#subform[11].P11_Line4b_PartNumber[0]",
+    "p11_add_info_item2":       "form1[0].#subform[11].P11_Line4c_ItemNumber[0]",
+    "p11_add_info_desc2":       "form1[0].#subform[11].P11_Line4d_AdditionalInfo[0]",
+    
+    "p11_add_info_page3":       "form1[0].#subform[11].P11_Line5a_PageNumber[0]",
+    "p11_add_info_part3":       "form1[0].#subform[11].P11_Line5b_PartNumber[0]",
+    "p11_add_info_item3":       "form1[0].#subform[11].P11_Line5c_ItemNumber[0]",
+    "p11_add_info_desc3":       "form1[0].#subform[11].P11_Line5d_AdditionalInfo[0]",
+    
+    "p11_add_info_page4":       "form1[0].#subform[11].P11_Line6a_PageNumber[0]",
+    "p11_add_info_part4":       "form1[0].#subform[11].P11_Line6b_PartNumber[0]",
+    "p11_add_info_item4":       "form1[0].#subform[11].P11_Line6c_ItemNumber[0]",
+    "p11_add_info_desc4":       "form1[0].#subform[11].P11_Line6d_AdditionalInfo[0]",
 }
