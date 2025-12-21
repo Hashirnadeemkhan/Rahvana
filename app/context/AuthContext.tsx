@@ -1,23 +1,19 @@
 // app/context/AuthContext.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { useRouter } from "next/navigation";
-
-interface User {
-  id: string;
-  email: string;
-  password: string;
-  createdAt: string;
-}
+import { createClient } from "@/lib/supabase/client";
+import type { User, AuthError } from "@supabase/supabase-js";
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => boolean;
-  signup: (email: string, password: string) => void;
-  loginWithGoogle: () => void;
-  logout: () => void;
   isLoading: boolean;
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signInWithGoogle: () => Promise<{ error: AuthError | null }>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,67 +22,137 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("authUser");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
-  }, []);
-
-  const signup = (email: string, password: string) => {
-    const newUser = {
-      id: Date.now().toString(),
-      email,
-      password,
-      createdAt: new Date().toISOString(),
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error("Error getting initial session:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    // Save to registered users list
-    const users = (JSON.parse(localStorage.getItem("registeredUsers") || "[]") as User[]);
-    users.push(newUser);
-    localStorage.setItem("registeredUsers", JSON.stringify(users));
+    getInitialSession();
 
-    // Login user
-    localStorage.setItem("authUser", JSON.stringify(newUser));
-    setUser(newUser);
-    router.push("/dashboard");
-  };
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
 
-  const login = (email: string, password: string): boolean => {
-    const users = (JSON.parse(localStorage.getItem("registeredUsers") || "[]") as User[]);
-    const found = users.find((u: User) => u.email === email && u.password === password);
+        if (event === "SIGNED_IN") {
+          router.refresh();
+        }
+        if (event === "SIGNED_OUT") {
+          router.push("/login");
+          router.refresh();
+        }
+      }
+    );
 
-    if (found) {
-      localStorage.setItem("authUser", JSON.stringify(found));
-      setUser(found);
-      router.push("/dashboard");
-      return true;
-    }
-    return false;
-  };
-
-  const loginWithGoogle = () => {
-    const googleUser = {
-      id: "google_" + Date.now(),
-      email: "user@gmail.com",
-      password: "",
-      createdAt: new Date().toISOString(),
+    return () => {
+      subscription.unsubscribe();
     };
-    localStorage.setItem("authUser", JSON.stringify(googleUser));
-    setUser(googleUser);
-    router.push("/dashboard");
-  };
+  }, [supabase, router]);
 
-  const logout = () => {
-    localStorage.removeItem("authUser");
-    setUser(null);
-    router.push("/login");
-  };
+  // Sign up with email and password
+  const signUp = useCallback(async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (!error) {
+        router.push("/dashboard");
+        router.refresh();
+      }
+
+      return { error };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase, router]);
+
+  // Sign in with email and password
+  const signIn = useCallback(async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (!error) {
+        router.push("/dashboard");
+        router.refresh();
+      }
+
+      return { error };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase, router]);
+
+  // Sign in with Google OAuth
+  const signInWithGoogle = useCallback(async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+    });
+
+    return { error };
+  }, [supabase]);
+
+  // Sign out
+  const signOut = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      router.push("/login");
+      router.refresh();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase, router]);
+
+  // Reset password
+  const resetPassword = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    return { error };
+  }, [supabase]);
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, loginWithGoogle, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        signUp,
+        signIn,
+        signInWithGoogle,
+        signOut,
+        resetPassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -94,6 +160,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
   return context;
 };
