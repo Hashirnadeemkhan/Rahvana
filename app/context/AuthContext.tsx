@@ -60,28 +60,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [supabase, router]);
 
-  // Sign up with email and password
+  // Sign up with email and password (using custom API with Resend)
   const signUp = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (!error) {
-        router.push("/dashboard");
-        router.refresh();
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          error: {
+            message: data.error || "Signup failed",
+            name: "SignupError",
+            status: response.status
+          } as AuthError
+        };
       }
 
-      return { error };
+      // Don't redirect to dashboard - user needs to confirm email first
+      return { error: null, emailSent: true };
+    } catch (error) {
+      console.error("Signup error:", error);
+      return {
+        error: {
+          message: "An unexpected error occurred",
+          name: "SignupError",
+          status: 500
+        } as AuthError
+      };
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, router]);
+  }, []);
 
   // Sign in with email and password
   const signIn = useCallback(async (email: string, password: string) => {

@@ -89,7 +89,7 @@ function ResetPasswordContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin" />
           <p className="text-slate-500 font-medium">Verifying your link...</p>
         </div>
       </div>
@@ -119,7 +119,7 @@ function ResetPasswordContent() {
 
               <div className="space-y-3">
                 <Link href="/forgot-password">
-                  <Button className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl shadow-lg shadow-slate-900/10">
+                  <Button className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl shadow-lg shadow-primary/10">
                     Request new link
                   </Button>
                 </Link>
@@ -159,7 +159,7 @@ function ResetPasswordContent() {
 
               <Button
                 onClick={() => router.push("/login")}
-                className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl shadow-lg shadow-slate-900/10"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl shadow-lg shadow-primary/10"
               >
                 Continue to login
               </Button>
@@ -194,7 +194,7 @@ function ResetPasswordContent() {
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
           {/* Header */}
           <div className="px-8 pt-10 pb-2 text-center">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-slate-700 to-slate-900 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-slate-300">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/80 to-primary rounded-full flex items-center justify-center mb-6 shadow-lg shadow-primary/30">
               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
@@ -398,7 +398,7 @@ function ResetPasswordContent() {
               <Button
                 type="submit"
                 disabled={isSubmitting || !passwordsMatch || passwordStrength < 2}
-                className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-slate-900/10"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/10"
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
@@ -447,7 +447,7 @@ export default function ResetPasswordPage() {
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin" />
             <p className="text-slate-500 font-medium">Loading...</p>
           </div>
         </div>

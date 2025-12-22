@@ -98,7 +98,7 @@ export default function ForgotPasswordPage() {
             <div className="px-8 py-6 bg-slate-50/50">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
                     1
                   </div>
                   <p className="text-sm text-slate-600">
@@ -106,7 +106,7 @@ export default function ForgotPasswordPage() {
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
                     2
                   </div>
                   <p className="text-sm text-slate-600">
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
                     3
                   </div>
                   <p className="text-sm text-slate-600">
@@ -147,7 +147,7 @@ export default function ForgotPasswordPage() {
                   )}
                 </Button>
                 <Link href="/login" className="flex-1">
-                  <Button className="w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium">
+                  <Button className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium">
                     Back to login
                   </Button>
                 </Link>
@@ -176,7 +176,7 @@ export default function ForgotPasswordPage() {
           {/* Header */}
           <div className="px-8 pt-10 pb-2 text-center">
             {/* Lock Icon */}
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-slate-700 to-slate-900 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-slate-300">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/80 to-primary rounded-full flex items-center justify-center mb-6 shadow-lg shadow-primary/30">
               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
@@ -230,7 +230,7 @@ export default function ForgotPasswordPage() {
                 type="submit"
                 disabled={isSubmitting}
                 suppressHydrationWarning
-                className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-slate-900/10"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-primary/10"
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">

@@ -40,16 +40,12 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Define protected routes
+  // Define protected routes (user must be logged in)
   const protectedRoutes = [
     '/dashboard',
     '/initial-questions',
     '/complete-profile',
     '/settings',
-    '/visa-forms',
-    '/passport',
-    '/pdf-processing',
-    '/signature-image-processing',
   ]
 
   // Define auth routes (should redirect to dashboard if logged in)
