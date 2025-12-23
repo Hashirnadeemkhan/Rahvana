@@ -178,11 +178,11 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
   return (
     <div className="w-full max-w-5xl mx-auto py-8 px-4">
       <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8">
+        <div className="bg-gradient-to-r from-primary to-primary text-white p-8">
           <h1 className="text-4xl font-bold mb-2">
             {config.formTitle || `USCIS Form ${formCode.toUpperCase()}`}
           </h1>
-          {config.formSubtitle && <p className="text-blue-100 text-lg">{config.formSubtitle}</p>}
+          {config.formSubtitle && <p className="text-primary text-lg">{config.formSubtitle}</p>}
         </div>
 
         <div className="p-8">
@@ -210,14 +210,14 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
                 </button>
                 <button
                   onClick={handleNext}
-                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition"
+                  className="px-8 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
                 >
                   {currentStep === totalSteps ? "Review Answers" : "Next"}
                 </button>
               </div>
 
-              <div className="mt-10 p-6 bg-blue-50 rounded-xl">
-                <p className="font-semibold text-blue-900 mb-4">Quick Navigation:</p>
+              <div className="mt-10 p-6 bg-primary/10 rounded-xl">
+                <p className="font-semibold text-primary mb-4">Quick Navigation:</p>
                 <div className="flex flex-wrap gap-3">
                   {sections.map((section, idx) => {
                     const label = section.title.split(".").pop()?.trim() || section.title;
@@ -227,8 +227,8 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
                         onClick={() => handleGoToStep(idx + 1)}
                         className={`px-5 py-2 rounded-lg text-sm font-medium transition ${
                           currentStep === idx + 1
-                            ? "bg-blue-600 text-white"
-                            : "bg-white text-blue-700 border border-blue-600 hover:bg-blue-50"
+                            ? "bg-primary text-white"
+                            : "bg-white text-primary border border-primary hover:bg-primary/80"
                         }`}
                       >
                         {label}

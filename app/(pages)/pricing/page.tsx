@@ -1,0 +1,47 @@
+export default function PricingSection() {
+    return (
+        <section id="pricing" className="block">
+            <div className="max-w-[1400px] mx-auto px-6 py-[60px]">
+                <h1 className="text-[40px] font-bold mb-4 text-center">Plain Pricing</h1>
+                <p className="text-slate-500 text-lg mb-12 text-center">Use the roadmap for free. Upgrade for automation and experts.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[1100px] mx-auto">
+                    <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm text-center">
+                        <h3 className="text-xl font-bold mb-2">Rahvana Core</h3>
+                        <div className="text-[48px] font-bold text-[#0d9488] my-4">$0 <span className="text-sm text-slate-400 font-normal">Free Forever</span></div>
+                        <ul className="text-left my-8 space-y-3">
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Full IR-1/CR-1 Step Roadmap</li>
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Pakistan Specific Checklists</li>
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Browser Progress Saving</li>
+                        </ul>
+                        <button className="w-full px-6 py-4 rounded-lg bg-white border border-slate-200 font-bold hover:border-[#0d9488] transition-colors">Get Started Free</button>
+                    </div>
+
+                    <div className="bg-white border-2 border-[#0d9488] rounded-xl p-8 shadow-xl text-center relative scale-105">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0d9488] text-white px-4 py-1 rounded-full text-xs font-bold uppercase">Popular</div>
+                        <h3 className="text-xl font-bold mb-2">Rahvana Plus</h3>
+                        <div className="text-[48px] font-bold text-[#0d9488] my-4">$9.99 <span className="text-sm text-slate-400 font-normal">one-time</span></div>
+                        <ul className="text-left my-8 space-y-3">
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Everything in Core</li>
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Cloud Backup (Cross-device)</li>
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Form Filling Masterclass</li>
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> NVC Document Verification</li>
+                        </ul>
+                        <button className="w-full px-6 py-4 rounded-lg bg-[#0d9488] text-white font-bold hover:bg-[#0f766e] transition-colors shadow-lg">Upgrade to Plus →</button>
+                    </div>
+
+                    <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm text-center opacity-70">
+                        <h3 className="text-xl font-bold mb-2">Rahvana Pro</h3>
+                        <div className="text-[48px] font-bold text-slate-500 my-4">$199 <span className="text-sm text-slate-400 font-normal">Expert Assitance</span></div>
+                        <ul className="text-left my-8 space-y-3">
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Everything in Plus</li>
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Document Review by Experts</li>
+                            <li className="flex gap-2 text-sm"><span className="text-green-500 font-bold">✓</span> Mock Interview Preparation</li>
+                        </ul>
+                        <button className="w-full px-6 py-4 rounded-lg bg-white border border-slate-200 font-bold cursor-not-allowed" disabled>In Beta</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
