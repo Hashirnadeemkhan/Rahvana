@@ -1,6 +1,5 @@
 "use client";
-import React, { useState } from "react";
-import Link from "next/link";
+import React, { useState, useEffect } from "react";
 
 type Props = {
   onGenerate: (dataURL: string) => void;
@@ -10,13 +9,34 @@ type Props = {
 export default function TextSignature({ onGenerate, closeModal }: Props) {
   const [name, setName] = useState("");
   const [selectedFont, setSelectedFont] = useState(0);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
+  // Professional signature fonts - diverse styles
   const fonts = [
-    { name: "Dancing Script", value: "'Dancing Script', cursive", weight: "400" },
-    { name: "Pacifico", value: "'Pacifico', cursive", weight: "400" },
-    { name: "Great Vibes", value: "'Great Vibes', cursive", weight: "400" },
-    { name: "Allura", value: "'Allura', cursive", weight: "400" },
+    { name: "Great Vibes", value: "'Great Vibes', cursive", weight: "400", style: "Elegant Script" },
+    { name: "Allura", value: "'Allura', cursive", weight: "400", style: "Formal Cursive" },
+    { name: "Alex Brush", value: "'Alex Brush', cursive", weight: "400", style: "Classic Script" },
+    { name: "Pinyon Script", value: "'Pinyon Script', cursive", weight: "400", style: "Traditional" },
+    { name: "Tangerine", value: "'Tangerine', cursive", weight: "700", style: "Refined" },
+    { name: "Sacramento", value: "'Sacramento', cursive", weight: "400", style: "Modern Script" },
+    { name: "Satisfy", value: "'Satisfy', cursive", weight: "400", style: "Casual Elegant" },
+    { name: "Marck Script", value: "'Marck Script', cursive", weight: "400", style: "Bold Script" },
   ];
+
+  // Load Google Fonts dynamically
+  useEffect(() => {
+    const fontFamilies = fonts.map(f => f.name.replace(/ /g, '+')).join('&family=');
+    const link = document.createElement('link');
+    link.href = `https://fonts.googleapis.com/css2?family=${fontFamilies}&display=swap`;
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+
+    link.onload = () => setFontsLoaded(true);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
 
   const handleGenerate = () => {
     if (!name.trim()) {
@@ -81,20 +101,20 @@ export default function TextSignature({ onGenerate, closeModal }: Props) {
       </div>
 
       {/* Font Styles */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1">
         {fonts.map((font, index) => (
           <button
             key={index}
             onClick={() => setSelectedFont(index)}
-            className={`p-4 border-2 rounded-lg transition-all text-center ${
+            className={`p-3 border-2 rounded-lg transition-all text-center ${
               selectedFont === index
                 ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
                 : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
             }`}
           >
             <div
-              className="text-2xl truncate"
-              style={{ 
+              className="text-2xl truncate mb-1"
+              style={{
                 fontFamily: font.value,
                 fontWeight: font.weight,
                 color: selectedFont === index ? "#1E40AF" : "#000000"
@@ -102,6 +122,7 @@ export default function TextSignature({ onGenerate, closeModal }: Props) {
             >
               {name || "Your Name"}
             </div>
+            <div className="text-xs text-gray-500">{font.style}</div>
           </button>
         ))}
       </div>
@@ -148,8 +169,6 @@ export default function TextSignature({ onGenerate, closeModal }: Props) {
         </button>
       </div>
 
-      {/* Font preload link - add to head if needed */}
-      <Link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Pacifico&family=Great+Vibes&family=Allura&display=swap" rel="stylesheet" />
     </div>
   );
 }
