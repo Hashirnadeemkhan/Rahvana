@@ -1,4 +1,3 @@
-// app/(main)/dashboard/page.tsx
 "use client";
 
 import React from 'react';
@@ -17,9 +16,6 @@ export default function DashboardPage() {
     const handleContinue = () => {
         router.push('/?section=ir1-journey');
     };
-export default function DashboardPage() {
-  const { user, signOut, isLoading } = useAuth();
-  const router = useRouter();
 
     const handleNavigate = (section: string) => {
         router.push(`/?section=${section}`);
