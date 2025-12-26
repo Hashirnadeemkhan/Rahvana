@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPinned, PlayCircle } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import RoadmapModal from "@/app/components/IR-pathway-roadmap/RoadmapModal";
 
 // ✅ Props type for item rows
 type IRItem = {
@@ -11,11 +13,15 @@ type IRItem = {
   description: string;
   videoLabel: string;
   roadmapLabel: string;
-  roadmapLink: string;
+  wizardLink: string;
 };
 
 // ✅ Main component
 export default function IRCategorySection() {
+  // Modal state
+  const [isRoadmapOpen, setIsRoadmapOpen] = useState(false);
+  const [activeRoadmap, setActiveRoadmap] = useState({ title: "" });
+
   // IR Category items
   const items: IRItem[] = [
     {
@@ -24,7 +30,7 @@ export default function IRCategorySection() {
         "This category applies to the spouse of a U.S. citizen. The process involves documentation, sponsorship, and consular interview steps. Our guide helps you every step of the way.",
       videoLabel: "Watch IR-1 Explainer Video",
       roadmapLabel: "View IR-1 Roadmap",
-      roadmapLink: "/ir-1-roadmap",
+      wizardLink: "/visa-category/ir-category/ir1-journey",
     },
     {
       title: "IR-5",
@@ -32,9 +38,14 @@ export default function IRCategorySection() {
         "The IR-5 visa is for parents of U.S. citizens aged 21 or older. We simplify the complex process by explaining each form, eligibility requirement, and timeline clearly.",
       videoLabel: "Watch IR-5 Explainer Video",
       roadmapLabel: "View IR-5 Roadmap",
-      roadmapLink: "/ir-5-roadmap",
+      wizardLink: "/visa-category/ir-category/ir5-journey",
     },
   ];
+
+  const handleOpenRoadmap = (title: string) => {
+    setActiveRoadmap({ title });
+    setIsRoadmapOpen(true);
+  };
 
   return (
     <section id="ir-category" className="container mx-auto px-6 py-20">
@@ -60,12 +71,18 @@ export default function IRCategorySection() {
       {/* IR Item Rows */}
       {items.map((item, index) => (
         <div key={index}>
-          <IRItemRow {...item} />
+          <IRItemRow {...item} onViewRoadmap={() => handleOpenRoadmap(item.title)} />
           {index !== items.length - 1 && (
             <div className="border-t border-blue-200 my-12" />
           )}
         </div>
       ))}
+
+      <RoadmapModal 
+        open={isRoadmapOpen} 
+        onOpenChange={setIsRoadmapOpen} 
+        title={`${activeRoadmap.title} Roadmap`} 
+      />
 
       {/* Hidden anchors (optional for scroll links) */}
       <div id="consultancy" className="sr-only">Consultancy section anchor</div>
@@ -80,8 +97,9 @@ function IRItemRow({
   description,
   videoLabel,
   roadmapLabel,
-  roadmapLink,
-}: IRItem) {
+  wizardLink,
+  onViewRoadmap,
+}: IRItem & { onViewRoadmap: () => void }) {
   return (
     <div className="grid md:grid-cols-2 gap-8 items-start">
       {/* Left: Text content */}
@@ -94,21 +112,28 @@ function IRItemRow({
         </Card>
 
         <Button
-          asChild
+          onClick={onViewRoadmap}
           className="gap-2 bg-primary/90 hover:bg-primary/100 text-white rounded-md shadow-md"
         >
-          <Link href={roadmapLink}>
-            <MapPinned className="h-4 w-4" />
-            {roadmapLabel}
+          <MapPinned className="h-4 w-4" />
+          {roadmapLabel}
+        </Button>
+        <Button
+          asChild
+          className="gap-2 bg-primary/90 ml-4 px-8 hover:bg-primary/100 text-white rounded-md shadow-md"
+        >
+          <Link href={wizardLink}>
+            <PlayCircle className="h-4 w-4" />
+            Start Journey
           </Link>
         </Button>
       </div>
 
       {/* Right: Video placeholder */}
-      <Card className="hover:shadow-lg border-blue-100 transition-all duration-200">
+      <Card className="hover:shadow-lg border-primary/20 transition-all duration-200">
         <CardContent className="p-4">
           <div
-            className="aspect-video w-full rounded-md bg-gradient-to-br from-gray-100 to-blue-50 grid place-items-center text-sm text-gray-500"
+            className="aspect-[21/9] w-full rounded-md bg-gradient-to-br from-gray-100 to-blue-50 grid place-items-center text-sm text-gray-500"
             aria-label={`${title} explainer video placeholder`}
           >
             <div className="flex flex-col items-center gap-2">

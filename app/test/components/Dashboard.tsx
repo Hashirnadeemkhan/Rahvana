@@ -1,42 +1,19 @@
-// app/(main)/dashboard/page.tsx
-"use client";
-
 import React from 'react';
-import { useAuth } from "@/app/context/AuthContext";
-import { useWizard } from './hooks/useWizard';
-import { roadmapData } from './data/roadmap';
-import { useRouter } from "next/navigation";
+import { WizardState } from '../../(main)/dashboard/hooks/useWizard';
+import { roadmapData } from '../../(main)/dashboard/data/roadmap';
 
-export default function DashboardPage() {
-    const { user, login } = useAuth();
-    const { state, isLoaded } = useWizard();
-    const router = useRouter();
+interface DashboardProps {
+    state: WizardState;
+    isSignedIn: boolean;
+    onContinue: () => void;
+    onNavigate: (section: string) => void;
+    onToggleAuth: () => void;
+}   
 
-    const isSignedIn = !!user;
-
-    const handleContinue = () => {
-        router.push('/?section=ir1-journey');
-    };
-export default function DashboardPage() {
-  const { user, signOut, isLoading } = useAuth();
-  const router = useRouter();
-
-    const handleNavigate = (section: string) => {
-        router.push(`/?section=${section}`);
-    };
-
-    const handleToggleAuth = () => {
-        // In a real app, this might redirect to login/signup
-        router.push('/login');
-    };
-
+export function Dashboard({ state, isSignedIn, onContinue, onNavigate, onToggleAuth }: DashboardProps) {
     const getTotalSteps = () => {
         return roadmapData.stages.reduce((acc, stage) => acc + stage.steps.length, 0);
     };
-
-    if (!isLoaded) {
-        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-    }
 
     const totalSteps = getTotalSteps();
     const completed = state.completedSteps.size;
@@ -55,7 +32,7 @@ export default function DashboardPage() {
                             <p className="text-slate-500 mb-6">Track journeys, save progress across devices, and get personalized recommendations.</p>
                             <button 
                                 className="px-6 py-3 rounded-lg bg-[#0d9488] text-white font-bold hover:bg-[#0f766e] transition-colors shadow-sm"
-                                onClick={handleToggleAuth}
+                                onClick={onToggleAuth}
                             >
                                 Sign In Free
                             </button>
@@ -69,11 +46,11 @@ export default function DashboardPage() {
                         <div className="bg-secondary text-white rounded-xl p-10 mb-10">
                             <h4 className="text-lg font-bold mb-3">📹 Getting Started with Rahvana (3 min)</h4>
                             <ul className="space-y-2 mb-4">
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Goals:</strong> Understand the 5 stages, set realistic expectations, feel supported</li>
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Target:</strong> Both petitioner and beneficiary</li>
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Topics:</strong> Timeline overview, cost breakdown, common mistakes to avoid, emotional support for separated couples</li>
+                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Goals:</strong> Quick platform tour, how to use wizard, where to find tools</li>
+                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Target:</strong> New users</li>
+                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Topics:</strong> Dashboard overview, starting your first journey, marking steps complete, using document vault</li>
                             </ul>
-                            <button className="px-6 py-3 rounded-lg border-2 border-white text-white font-bold cursor-not-allowed bg-[#ffffff33]">
+                            <button className="px-6 py-3 rounded-lg border-2 border-white text-white font-bold opacity-50 cursor-not-allowed">
                                 ▶ Play Video (Placeholder)
                             </button>
                         </div>
@@ -95,8 +72,8 @@ export default function DashboardPage() {
                                         <span className="text-slate-500">{progress}% Complete</span>
                                     </div>
                                     <button 
-                                        className=" px-8 py-3 rounded-lg bg-[#0d9488] text-white font-bold hover:bg-[#0f766e] transition-colors shadow-lg"
-                                        onClick={handleContinue}
+                                        className="w-full px-6 py-4 rounded-lg bg-[#0d9488] text-white font-bold hover:bg-[#0f766e] transition-colors shadow-lg"
+                                        onClick={onContinue}
                                     >
                                         Continue Journey →
                                     </button>
@@ -112,26 +89,27 @@ export default function DashboardPage() {
                             </div>
 
                             <div>
-                                <h3 className="text-xl font-bold mb-5">Tools You May Need Next</h3>
-                                <div className="grid grid-cols-1 gap-4">
-                                    <ToolCard 
-                                        title="Passport Photo Tool"
-                                        description="You'll need 2x2 photos for Stage I and II."
-                                        icon="📸"
-                                        badge="free"
-                                    />
-                                    <ToolCard 
-                                        title="I-864 Calculator"
-                                        description="Calculate income requirements early."
-                                        icon="💰"
-                                        badge="free"
-                                    />
-                                    <ToolCard 
-                                        title="Interview Prep"
-                                        description="Start preparing early with 50+ questions."
-                                        icon="🎯"
-                                        badge="premium"
-                                    />
+                                <h3 className="text-xl font-bold mb-5">Document Overview</h3>
+                                <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm text-center">
+                                    <div className="text-4xl mb-2">📁</div>
+                                    <p className="text-sm text-slate-500 mb-4">You have <strong>{Object.keys(state.docUploads || {}).length}</strong> documents in your vault.</p>
+                                    <button 
+                                        className="w-full px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-800 font-bold hover:border-[#0d9488] transition-colors"
+                                        onClick={onContinue}
+                                    >
+                                        Open Vault
+                                    </button>
+                                </div>
+
+                                <div className="mt-6 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                                    <h4 className="text-[14px] font-bold uppercase tracking-wider text-slate-400 mb-4">Upcoming Milestone</h4>
+                                    <div className="flex gap-3 items-start">
+                                        <div className="px-3 py-2 bg-[#5eead4] text-[#0f766e] rounded-lg font-bold text-lg">II</div>
+                                        <div>
+                                            <p className="font-bold text-sm">NVC/CEAC Processing</p>
+                                            <p className="text-xs text-slate-500">Typical wait: 4-9 months</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -141,21 +119,21 @@ export default function DashboardPage() {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <button 
                                     className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm text-center hover:shadow-md transition-all group"
-                                    onClick={() => handleNavigate('ir1-journey')}
+                                    onClick={() => onNavigate('ir1-journey')}
                                 >
                                     <h4 className="text-lg font-bold mb-1 group-hover:text-[#0d9488] transition-colors">📋 Open IR-1 Wizard</h4>
                                     <p className="text-sm text-slate-500">Continue your journey</p>
                                 </button>
                                 <button 
                                     className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm text-center hover:shadow-md transition-all group"
-                                    onClick={() => handleNavigate('tools')}
+                                    onClick={() => onNavigate('tools')}
                                 >
                                     <h4 className="text-lg font-bold mb-1 group-hover:text-[#0d9488] transition-colors">🛠️ Browse Tools</h4>
                                     <p className="text-sm text-slate-500">Document prep & planning</p>
                                 </button>
                                 <button 
                                     className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm text-center hover:shadow-md transition-all group"
-                                    onClick={() => handleNavigate('pricing')}
+                                    onClick={() => onNavigate('pricing')}
                                 >
                                     <h4 className="text-lg font-bold mb-1 group-hover:text-[#0d9488] transition-colors">⭐ View Premium</h4>
                                     <p className="text-sm text-slate-500">Unlock all features</p>
@@ -166,31 +144,5 @@ export default function DashboardPage() {
                 )}
             </div>
         </section>
-    );
-}
-
-function ToolCard({ title, description, icon, badge, onClick }: { title: string; description: string; icon: string; badge: 'free' | 'premium'; onClick?: () => void }) {
-    return (
-        <div 
-            onClick={onClick}
-            className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col items-start text-left group"
-        >
-            <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg transition-transform group-hover:scale-110 duration-200">{icon}</span>
-                <h4 className="font-bold text-slate-800 text-[15px] transition-colors group-hover:text-[#0d9488]">{title}</h4>
-            </div>
-            <p className="text-slate-500 text-[13px] mb-4 leading-normal">{description}</p>
-            <div className="mt-auto">
-                {badge === 'free' ? (
-                    <span className="px-3 py-1 rounded-full bg-[#ecfdf5] text-[#059669] text-[11px] font-bold">
-                        Free
-                    </span>
-                ) : (
-                    <span className="px-3 py-1 rounded-full bg-[var(--premium-bg)] text-[var(--premium-text)] text-[11px] font-bold">
-                        ⭐ Premium
-                    </span>
-                )}
-            </div>
-        </div>
     );
 }

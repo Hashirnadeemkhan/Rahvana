@@ -10,7 +10,7 @@ const SafeInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
     <input
       {...rest}
       value={value ?? ""}
-      className={`border border-gray-300 p-3 w-full mt-1 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-300 outline-none transition ${rest.className || ""}`}
+      className={`border border-gray-300 p-3 w-full mt-1 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary outline-none transition ${rest.className || ""}`}
     />
   )
 }
@@ -37,7 +37,7 @@ const RadioGroup = ({ name, options, value, onChange }: RadioGroupProps) => (
           value={opt.value}
           checked={value === opt.value}
           onChange={onChange}
-          className="mr-3 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+          className="mr-3 h-4 w-4 text-primary border-gray-300 focus:ring-primary"
         />
         {opt.label}
       </label>
@@ -59,7 +59,7 @@ const Checkbox = ({ name, label, checked, onChange }: CheckboxProps) => (
       name={name}
       checked={checked}
       onChange={onChange}
-      className="mr-3 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+      className="mr-3 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
     />
     {label}
   </label>
@@ -68,7 +68,7 @@ const Checkbox = ({ name, label, checked, onChange }: CheckboxProps) => (
 const Textarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
   <textarea
     {...props}
-    className={`border border-gray-300 p-3 w-full mt-1 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-300 outline-none transition resize-none ${props.className || ""}`}
+    className={`border border-gray-300 p-3 w-full mt-1 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary outline-none transition resize-none ${props.className || ""}`}
   />
 )
 

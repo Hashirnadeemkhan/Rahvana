@@ -5,7 +5,7 @@ import Form from '@/app/components/visa-checker/Form';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-blue-50 p-6">
+    <div className="min-h-screen bg-primary/10 p-6">
       <div className="max-w-2xl mx-auto text-center">
         <h1 className="text-4xl font-bold text-indigo-800 mb-2">
           Visa Progress Checker
