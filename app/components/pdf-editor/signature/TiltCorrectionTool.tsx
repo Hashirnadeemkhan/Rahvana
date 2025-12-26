@@ -62,7 +62,7 @@ export default function TiltCorrectionTool({
       // Use dom-to-image-more to capture the 3D transformed element
       if (captureContainerRef.current) {
         const dataUrl = await domtoimage.toPng(captureContainerRef.current, {
-          bgcolor: undefined,
+          bgcolor: 'transparent',
           quality: 1,
           scale: 2,
         })

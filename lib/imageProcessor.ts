@@ -19,7 +19,7 @@ export class SignatureImageProcessor {
 
   constructor() {
     this.canvas = document.createElement("canvas")
-    const context = this.canvas.getContext("2d", { willReadFrequently: true })
+    const context = this.canvas.getContext("2d", { willReadFrequently: true, alpha: true })
     if (!context) throw new Error("Failed to get canvas context")
     this.ctx = context
   }
@@ -162,8 +162,10 @@ export class SignatureImageProcessor {
     const temp = document.createElement("canvas")
     temp.width = this.canvas.width
     temp.height = this.canvas.height
-    const tctx = temp.getContext("2d")
+    const tctx = temp.getContext("2d", { alpha: true })
     if (tctx) {
+      // Ensure transparent background
+      tctx.clearRect(0, 0, temp.width, temp.height)
       tctx.drawImage(this.canvas, 0, 0)
       this.ctx.filter = "none"
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
