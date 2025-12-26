@@ -19,7 +19,7 @@ describe("PDF Merge Functionality", () => {
     try {
       await PDFDocument.load(fs.readFileSync("tests/encrypted.pdf"));
     } catch (err) {
-      expect(err.message).toContain("encrypted");
+      expect((err as Error).message).toContain("encrypted");
     }
   });
 });
