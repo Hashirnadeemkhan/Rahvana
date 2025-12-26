@@ -249,7 +249,7 @@ export default function CropTool({
       if (rotation !== 0) {
         // First rotate the entire image
         const tempCanvas = document.createElement("canvas")
-        const tempCtx = tempCanvas.getContext("2d")
+        const tempCtx = tempCanvas.getContext("2d", { alpha: true })
         if (!tempCtx) throw new Error("Canvas context unavailable")
 
         const radians = (rotation * Math.PI) / 180
@@ -261,6 +261,9 @@ export default function CropTool({
         tempCanvas.width = rotatedWidth
         tempCanvas.height = rotatedHeight
 
+        // Clear with transparent background
+        tempCtx.clearRect(0, 0, rotatedWidth, rotatedHeight)
+
         tempCtx.save()
         tempCtx.translate(rotatedWidth / 2, rotatedHeight / 2)
         tempCtx.rotate(radians)
@@ -269,11 +272,14 @@ export default function CropTool({
 
         // Then crop from the rotated image
         const finalCanvas = document.createElement("canvas")
-        const finalCtx = finalCanvas.getContext("2d")
+        const finalCtx = finalCanvas.getContext("2d", { alpha: true })
         if (!finalCtx) throw new Error("Final canvas context unavailable")
 
         finalCanvas.width = finalWidth
         finalCanvas.height = finalHeight
+
+        // Clear with transparent background
+        finalCtx.clearRect(0, 0, finalWidth, finalHeight)
 
         const offsetX = (rotatedWidth - img.naturalWidth) / 2
         const offsetY = (rotatedHeight - img.naturalHeight) / 2
@@ -293,11 +299,14 @@ export default function CropTool({
       } else {
         // Simple crop without rotation
         const canvas = document.createElement("canvas")
-        const ctx = canvas.getContext("2d")
+        const ctx = canvas.getContext("2d", { alpha: true })
         if (!ctx) throw new Error("Canvas context unavailable")
 
         canvas.width = finalWidth
         canvas.height = finalHeight
+
+        // Clear with transparent background
+        ctx.clearRect(0, 0, finalWidth, finalHeight)
 
         ctx.drawImage(
           img,
