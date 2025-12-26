@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
 
 
 
@@ -9,7 +9,7 @@ export function HomeSection({ onNavigate, isSignedIn }: { onNavigate: (section: 
                 {/* Hero */}
                 <div className="bg-gradient-to-br from-[#0d9488]/10 to-[#f59e0b]/10 py-20 px-6 text-center rounded-xl mb-[60px]">
                     <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 leading-tight">Your U.S. visa journey, guided step-by-step</h1>
-                    <p className="text-lg md:text-xl text-slate-500 mb-8 max-w-[700px] mx-auto">Navigate complex immigration processes with confidence. From petition to visa, we're with you every step of the way.</p>
+                    <p className="text-lg md:text-xl text-slate-500 mb-8 max-w-[700px] mx-auto">Navigate complex immigration processes with confidence. From petition to visa, we`re with you every step of the way.</p>
                     <div className="flex gap-4 justify-center flex-wrap">
                         <button 
                             className="px-8 py-4 rounded-lg cursor-pointer text-base font-semibold transition-all no-underline bg-[#0d9488] text-white hover:bg-[#0f766e] hover:-translate-y-px hover:shadow-md"
@@ -31,7 +31,7 @@ export function HomeSection({ onNavigate, isSignedIn }: { onNavigate: (section: 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
                         <h3 className="text-xl font-bold mb-3">1️⃣ Choose Your Journey</h3>
-                        <p className="text-slate-500 mb-4">Select your visa type (IR-1 spouse, IR-5 parents, K-1 fiancé, and more). We'll show you exactly what to expect.</p>
+                        <p className="text-slate-500 mb-4">Select your visa type (IR-1 spouse, IR-5 parents, K-1 fiancé, and more). We`ll show you exactly what to expect.</p>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
                         <h3 className="text-xl font-bold mb-3">2️⃣ Follow Step-by-Step</h3>
@@ -39,7 +39,7 @@ export function HomeSection({ onNavigate, isSignedIn }: { onNavigate: (section: 
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
                         <h3 className="text-xl font-bold mb-3">3️⃣ Track Your Progress</h3>
-                        <p className="text-slate-500 mb-4">Mark steps complete, use integrated tools, watch tutorials, and see your progress grow. You're never lost.</p>
+                        <p className="text-slate-500 mb-4">Mark steps complete, use integrated tools, watch tutorials, and see your progress grow. You`re never lost.</p>
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@ export function HomeSection({ onNavigate, isSignedIn }: { onNavigate: (section: 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 relative">
                         <h3 className="text-xl font-bold mb-3">📸 Passport Photo Tool</h3>
-                        <p className="text-slate-500 mb-4">Convert any photo to U.S. visa format (2"x2", white background, proper sizing).</p>
+                        <p className="text-slate-500 mb-4">Convert any photo to U.S. visa format (2x2, white background, proper sizing).</p>
                         <div className="inline-flex px-4 py-2 bg-primary/10 text-primary rounded-full text-xs font-semibold">Free</div>
                         
                     </div>
@@ -270,7 +270,7 @@ export function IR1JourneyDetail({ isSignedIn, onToggleAuth, children }: { isSig
                     <div className="bg-[#e0f2fe] border-l-4 border-l-[#0d9488] p-4 rounded-xl mb-8 flex gap-3 items-start">
                         {/* <div className="bg-blue-600 text-white rounded-md w-6 h-6 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">i</div> */}
                         <p className="text-base text-slate-800 leading-relaxed font-medium">
-                            <span className="font-bold">IR-1 vs CR-1:</span> If married less than 2 years at entry, you'll receive CR-1 (conditional, 2-year green card requiring I-751 filing). If married 2+ years, IR-1 (10-year green card).
+                            <span className="font-bold">IR-1 vs CR-1:</span> If married less than 2 years at entry, you`ll receive CR-1 (conditional, 2-year green card requiring I-751 filing). If married 2+ years, IR-1 (10-year green card).
                         </p>
                     </div>
 

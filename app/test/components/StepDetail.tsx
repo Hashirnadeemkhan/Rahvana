@@ -1,9 +1,17 @@
 import React from 'react';
 import { WizardState } from '../../(main)/dashboard/hooks/useWizard';
+import { roadmapData } from '../../(main)/dashboard/data/roadmap';
+
+type RoadmapStage =
+  (typeof roadmapData.stages)[number];
+
+type RoadmapStep =
+  RoadmapStage["steps"][number];
+
 
 interface StepDetailProps {
-    step: any;
-    stage: any;
+    step: RoadmapStep;
+    stage: RoadmapStage;
     state: WizardState;
     onToggleComplete: (id: string, e: React.MouseEvent) => void;
     onNext: () => void;
@@ -33,7 +41,7 @@ export function StepDetail({
                 <div className="flex justify-between items-center gap-4 mb-4">
                     <h2 className="text-3xl font-bold text-slate-900">{step.name}</h2>
                     <button 
-                        onClick={(e) => onToggleComplete(step.id, e as any)}
+                        onClick={(e) => onToggleComplete(step.id, e)}
                         className={`px-5 py-3 rounded-lg font-bold text-base transition-all whitespace-nowrap ${
                             isCompleted 
                                 ? 'bg-slate-100 text-slate-500 border border-slate-200' 
@@ -44,7 +52,7 @@ export function StepDetail({
                     </button>
                 </div>
                 <div className="text-slate-500 text-base leading-relaxed border-b border-slate-200 pb-6 mb-8">
-                    {step.description || `This step involves preparing and submitting the necessary ${step.name} documents.`}
+                    {step.notes || `This step involves preparing and submitting the necessary ${step.name} documents.`}
                 </div>
 
                 {/* Badges */}
@@ -118,7 +126,7 @@ export function StepDetail({
                 </button>
                 <div className="flex gap-4">
                     <button 
-                        onClick={(e) => onToggleComplete(step.id, e as any)}
+                        onClick={(e) => onToggleComplete(step.id, e)}
                         className={`px-8 py-3 rounded-lg font-bold transition-all ${
                             isCompleted 
                                 ? 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200' 

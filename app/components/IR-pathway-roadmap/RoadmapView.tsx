@@ -14,7 +14,7 @@ interface RoadmapViewProps {
   showTitle?: boolean;
 }
 
-export default function RoadmapView({ onClose, showTitle = true }: RoadmapViewProps) {
+export default function RoadmapView({ showTitle = true }: RoadmapViewProps) {
   const { completedSteps: completed, completeStep } = useStore();
   const [openStep, setOpenStep] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);

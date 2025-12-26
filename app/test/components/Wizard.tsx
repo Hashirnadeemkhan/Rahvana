@@ -4,10 +4,13 @@ import { roadmapData } from '../../(main)/dashboard/data/roadmap';
 import { ProgressTree } from './ProgressTree';
 import { StepDetail } from './StepDetail';
 import { DocumentVault } from './DocumentVault';
+import { useWizard } from '../../(main)/dashboard/hooks/useWizard';
+
+type WizardActions = ReturnType<typeof useWizard>["actions"];
 
 interface WizardProps {
     state: WizardState;
-    actions: any;
+    actions: WizardActions;
     isLoaded: boolean;
 }
 
