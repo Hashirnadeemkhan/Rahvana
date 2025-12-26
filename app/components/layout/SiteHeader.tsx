@@ -146,10 +146,10 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
 
             <a 
                 href="#" 
-                className="text-2xl font-bold text-[#0d9488] no-underline flex items-center gap-2"
+                className="text-2xl font-bold text-white bg-primary/90 px-4 py-2 rounded-md no-underline flex items-center gap-2"
                 onClick={(e) => { e.preventDefault(); handleNav('home'); }}
             >
-                <span role="img" aria-label="passport">🛂</span> Rahvana
+                Rahvana
             </a>
 
           <nav className="hidden md:flex items-center gap-3 ml-4">

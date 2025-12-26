@@ -30,87 +30,77 @@ export function StepDetail({
                 <div className="inline-block px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-[13px] font-semibold mb-3">
                     Stage {stage.id} • Step {step.id}
                 </div>
-                <h2 className="text-3xl font-bold text-slate-900 mb-4">{step.name}</h2>
+                <div className="flex justify-between items-center gap-4 mb-4">
+                    <h2 className="text-3xl font-bold text-slate-900">{step.name}</h2>
+                    <button 
+                        onClick={(e) => onToggleComplete(step.id, e as any)}
+                        className={`px-5 py-3 rounded-lg font-bold text-base transition-all whitespace-nowrap ${
+                            isCompleted 
+                                ? 'bg-slate-100 text-slate-500 border border-slate-200' 
+                                : 'bg-primary text-white hover:bg-primary/90 shadow-sm active:scale-95'
+                        }`}
+                    >
+                        {isCompleted ? '✓ Completed' : 'Mark Complete'}
+                    </button>
+                </div>
                 <div className="text-slate-500 text-base leading-relaxed border-b border-slate-200 pb-6 mb-8">
                     {step.description || `This step involves preparing and submitting the necessary ${step.name} documents.`}
                 </div>
 
+                {/* Badges */}
+                <div className="flex gap-2 mb-6">
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold">
+                        <span className="text-base">👤</span> Both
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-semibold">
+                        <span className="text-base">📍</span> Self-assessment
+                    </div>
+                </div>
+
                 {/* Checklist / Actions */}
                 <div className="mb-10">
-                    <h4 className="text-lg font-bold mb-5 flex items-center gap-2">
-                        <span>📋</span> Required Actions & Documents
+                    <h4 className="text-[13px] font-bold mb-4 text-slate-500 uppercase tracking-widest">
+                        Actions Required:
                     </h4>
-                    <div className="space-y-3">
+                    <ul className="space-y-3 list-none">
                         {step.actions?.map((action: string, idx: number) => (
-                            <label 
+                            <li 
                                 key={`action-${idx}`}
-                                className={`flex gap-4 items-start p-4 border rounded-lg cursor-pointer transition-all hover:border-[#0d9488] ${
-                                    isCompleted ? 'bg-slate-50 opacity-80' : 'bg-white border-slate-200'
-                                }`}
+                                className="flex gap-3 items-start text-[16px] text-slate-700 font-medium"
                             >
-                                <input 
-                                    type="checkbox" 
-                                    checked={isCompleted}
-                                    onChange={(e) => onToggleComplete(step.id, e as any)}
-                                    className="w-5 h-5 rounded border-2 border-slate-300 cursor-pointer accent-[#0d9488] mt-1"
-                                />
-                                <div className="flex-1">
-                                    <span className={`text-[15px] font-medium ${isCompleted ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
-                                        {action}
-                                    </span>
-                                </div>
-                            </label>
+                                <span className="text-slate-400 mt-0.5">•</span>
+                                <div>{action}</div>
+                            </li>
                         ))}
                         {step.documents?.map((doc: string, idx: number) => (
-                            <label 
+                            <li 
                                 key={`doc-${idx}`}
-                                className={`flex gap-4 items-start p-4 border rounded-lg cursor-pointer transition-all hover:border-[#0d9488] ${
-                                    isCompleted ? 'bg-slate-50 opacity-80' : 'bg-white border-slate-200'
-                                }`}
+                                className="flex gap-3 items-start text-[16px] text-slate-700 font-medium"
                             >
-                                <input 
-                                    type="checkbox" 
-                                    checked={isCompleted}
-                                    onChange={(e) => onToggleComplete(step.id, e as any)}
-                                    className="w-5 h-5 rounded border-2 border-slate-300 cursor-pointer accent-[#0d9488] mt-1"
-                                />
-                                <div className="flex-1">
-                                    <span className={`text-[15px] font-medium ${isCompleted ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
-                                        {doc} (Document)
-                                    </span>
-                                </div>
-                            </label>
+                                <span className="text-slate-400 mt-0.5">•</span>
+                                <div>{doc} (Document)</div>
+                            </li>
                         ))}
-                    </div>
+                    </ul>
                 </div>
 
                 {/* Succession Condition */}
                 {step.output && (
-                    <div className="bg-teal-50 border border-teal-100 rounded-lg p-5 mb-8">
-                        <h4 className="text-[12px] font-bold text-[#0d9488] uppercase tracking-wider mb-2 flex items-center gap-2">
-                            <span>✅</span> Success Condition
+                    <div className="mb-10">
+                        <h4 className="text-[13px] font-bold mb-4 text-slate-500 uppercase tracking-wider">
+                            Success Condition:
                         </h4>
-                        <p className="text-[#0f766e] text-[15px] font-medium">{step.output}</p>
+                        <p className="text-slate-800 text-[16px] font-medium">{step.output}</p>
                     </div>
                 )}
 
-                {/* Help/Notes */}
+                {/* Help/Notes (Info Box) */}
                 {step.notes && (
-                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 mb-4">
-                        <h4 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                            <span>💡</span> Pro Tip
-                        </h4>
-                        <p className="text-slate-600 text-sm leading-relaxed">{step.notes}</p>
-                    </div>
-                )}
-
-                {/* Pakistan Specific */}
-                {step.pakistanSpecific && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-5 border-l-4 border-l-amber-500">
-                        <h4 className="text-[12px] font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-2">
-                            <span>🇵🇰</span> Pakistan Specific Guidance
-                        </h4>
-                        <p className="text-amber-900 text-sm leading-relaxed font-medium">{step.pakistanSpecific}</p>
+                    <div className="bg-[#e0f2fe] border-l-4 border-l-primary p-4 rounded-xl flex gap-3 items-start">
+                        <div className="bg-primary text-white rounded-md w-6 h-6 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">i</div>
+                        <p className="text-[15px] text-slate-800 leading-relaxed font-medium">
+                            {step.notes}
+                        </p>
                     </div>
                 )}
             </div>

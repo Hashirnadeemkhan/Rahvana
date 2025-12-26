@@ -141,7 +141,7 @@ export function VisaCategorySection({ onNavigate }: { onNavigate: (section: stri
                         </div>
                         <p className="mt-3 text-slate-500">Step-by-step guidance for parent visa applications. Specialized help for older applicants and NADRA document verification.</p>
                         <button className="w-full mt-4 px-8 py-4 rounded-lg text-base font-semibold transition-all bg-white text-slate-800 border border-slate-200 cursor-not-allowed" disabled>
-                            Join Waitlist →
+                            Coming Soon
                         </button>
                     </div>
                 </div>
@@ -264,23 +264,80 @@ export function IR1JourneyDetail({ isSignedIn, onToggleAuth, children }: { isSig
     return (
         <section id="ir1-journey" className="block">
             <div className="max-w-[1400px] mx-auto px-6 py-[60px]">
-                <h1 className="text-3xl font-bold mb-2">🇺🇸 IR-1/CR-1 Spouse Visa Roadmap</h1>
-                <p className="text-slate-500 mb-8">Pakistan to USA • Islamabad Embassy • Version 2025.1</p>
+                <div className='max-w-5xl mx-auto mb-12'>
+                    <h1 className="text-5xl font-bold mb-4">IR-1/CR-1 Spouse Visa Journey</h1>
+                    <p className="text-slate-500 mb-8 text-lg">Comprehensive roadmap for bringing your spouse to the United States via consular processing at U.S. Embassy Islamabad, Pakistan.</p>
+                    <div className="bg-[#e0f2fe] border-l-4 border-l-[#0d9488] p-4 rounded-xl mb-8 flex gap-3 items-start">
+                        {/* <div className="bg-blue-600 text-white rounded-md w-6 h-6 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">i</div> */}
+                        <p className="text-base text-slate-800 leading-relaxed font-medium">
+                            <span className="font-bold">IR-1 vs CR-1:</span> If married less than 2 years at entry, you'll receive CR-1 (conditional, 2-year green card requiring I-751 filing). If married 2+ years, IR-1 (10-year green card).
+                        </p>
+                    </div>
+
+                    <h2 className="text-xl font-bold mb-6 text-slate-800">The 5 Stages</h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                            <h4 className="text-primary font-bold text-sm mb-1 uppercase tracking-wide">Stage I</h4>
+                            <p className="font-bold text-slate-800 text-lg mb-4">USCIS Petition</p>
+                            <p className="text-slate-500 text-sm">17-65 months</p>
+                        </div>
+                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage II</h4>
+                            <p className="font-bold text-slate-800 text-lg mb-4">NVC/CEAC Processing</p>
+                            <p className="text-slate-500 text-sm">4-9 months</p>
+                        </div>
+                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage III</h4>
+                            <p className="font-bold text-slate-800 text-lg mb-4">Medical + Interview</p>
+                            <p className="text-slate-500 text-sm">2-4 weeks</p>
+                        </div>
+                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage IV</h4>
+                            <p className="font-bold text-slate-800 text-lg mb-4">Post-Interview & Travel</p>
+                            <p className="text-slate-500 text-sm">1-2 weeks</p>
+                        </div>
+                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage V</h4>
+                            <p className="font-bold text-slate-800 text-lg mb-4">U.S. Arrival</p>
+                            <p className="text-slate-500 text-sm">90 days</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-secondary text-white rounded-xl p-10 mb-10">
+                            <h4 className="text-lg font-bold mb-3">📹 Getting Started with Rahvana (3 min)</h4>
+                            <ul className="space-y-2 mb-4">
+                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Goals:</strong> Understand the 5 stages, set realistic expectations, feel supported</li>
+                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Target:</strong> Both petitioner and beneficiary</li>
+                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Topics:</strong> Timeline overview, cost breakdown, common mistakes to avoid, emotional support for separated couples</li>
+                            </ul>
+                            <button className="px-6 py-3 rounded-lg border-2 border-white text-white font-bold cursor-not-allowed bg-[#ffffff33]">
+                                ▶ Play Video (Placeholder)
+                            </button>
+                        </div>
+
+
 
                 {!isSignedIn && (
-                    <div className="bg-[#f59e0b]/5 border-2 border-[#f59e0b]/20 p-6 rounded-xl mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div>
-                            <h4 className="font-bold text-[#92400e]">💡 Tip: Sign in to save your progress</h4>
-                            <p className="text-[#92400e]/80 text-sm">Your current progress is saved in this browser only. Sign in to access it from any device.</p>
+                    <div className="bg-[#faba20] text-[#7c2d12] rounded-2xl p-6 mb-8 text-center shadow-sm">
+                        <div className="flex items-center justify-center gap-2 mb-4">
+                            <span className="text-2xl" role="img" aria-label="lock">🔒</span>
+                            <h4 className="text-2xl font-bold">Full Wizard Access</h4>
                         </div>
+                        <p className="mb-4 text-lg opacity-90 mx-auto">
+                            Sign in free to save your progress, mark steps complete, and use the document vault.
+                        </p>
                         <button 
-                            className="px-6 py-3 rounded-lg bg-[#0d9488] text-white font-bold whitespace-nowrap hover:bg-[#0f766e] shadow-sm transition-colors"
+                            className="px-8 py-3 rounded-xl bg-primary/90 text-white font-bold text-lg hover:bg-[#0f766e] transition-all shadow-lg active:scale-95"
                             onClick={onToggleAuth}
                         >
-                            Sign In / Create Account
+                            Sign In Free
                         </button>
                     </div>
                 )}
+                </div>
+
+                
                 
                 {children}
             </div>
