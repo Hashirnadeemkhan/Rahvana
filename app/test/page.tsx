@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Header } from './components/Header';
 import { Wizard } from './components/Wizard';
 import { Dashboard } from './components/Dashboard';
-import { HomeSection, VisaCategorySection, ToolsSection, PricingSection, IR1JourneyDetail } from './components/StaticSections';
+import { VisaCategorySection, ToolsSection, PricingSection, IR1JourneyDetail } from './components/StaticSections';
 import { useWizard } from '../(main)/dashboard/hooks/useWizard';
 
 export default function Page() {

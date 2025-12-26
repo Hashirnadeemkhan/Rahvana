@@ -27,7 +27,7 @@ export default function IR1JourneyPage() {
                     <p className="text-slate-500 mb-8 text-lg">Comprehensive roadmap for bringing your spouse to the United States via consular processing at U.S. Embassy Islamabad, Pakistan.</p>
                     <div className="bg-[#e0f2fe] border-l-4 border-l-[#0d9488] p-4 rounded-xl mb-8 flex gap-3 items-start">
                         <p className="text-base text-slate-800 leading-relaxed font-medium">
-                            <span className="font-bold">IR-1 vs CR-1:</span> If married less than 2 years at entry, you'll receive CR-1 (conditional, 2-year green card requiring I-751 filing). If married 2+ years, IR-1 (10-year green card).
+                            <span className="font-bold">IR-1 vs CR-1:</span> If married less than 2 years at entry, you&apos;ll receive CR-1 (conditional, 2-year green card requiring I-751 filing). If married 2+ years, IR-1 (10-year green card).
                         </p>
                     </div>
 
@@ -98,9 +98,11 @@ export default function IR1JourneyPage() {
     );
 }
 
+type WizardActions = ReturnType<typeof useWizard>["actions"];
+
 interface WizardProps {
     state: WizardState;
-    actions: any;
+    actions: WizardActions;
     isLoaded: boolean;
 }
 

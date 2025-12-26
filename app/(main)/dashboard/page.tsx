@@ -7,7 +7,7 @@ import { roadmapData } from './data/roadmap';
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-    const { user, login } = useAuth();
+    const { user } = useAuth();
     const { state, isLoaded } = useWizard();
     const router = useRouter();
 
@@ -16,6 +16,9 @@ export default function DashboardPage() {
     const handleContinue = () => {
         router.push('/?section=ir1-journey');
     };
+// export default function DashboardPage() {
+//   const { user, signOut, isLoading } = useAuth();
+//   const router = useRouter();
 
     const handleNavigate = (section: string) => {
         router.push(`/?section=${section}`);

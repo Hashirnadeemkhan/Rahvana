@@ -1,9 +1,10 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { WizardState } from '../../(main)/dashboard/hooks/useWizard';
+import { RoadmapStep } from "@/types/roadmap";
 
 interface StepCardProps {
-    step: any; // Using any for roadmap step object for simplicity, ideally define proper type
+    step: RoadmapStep; // Using any for roadmap step object for simplicity, ideally define proper type
     idx: number;
     state: WizardState;
     onToggleComplete: (id: string, e: React.MouseEvent) => void;
@@ -11,7 +12,7 @@ interface StepCardProps {
     isActive: boolean;
 }
 
-export function StepCard({ step, idx, state, onToggleComplete, onToggleCollapse, isActive }: StepCardProps) {
+export function StepCard({ step, state, onToggleComplete, onToggleCollapse, isActive }: StepCardProps) {
     const isCompleted = state.completedSteps.has(step.id);
     const isCollapsed = state.collapsedSteps[step.id] && !isActive;
     

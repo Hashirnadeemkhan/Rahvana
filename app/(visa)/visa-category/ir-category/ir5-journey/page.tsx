@@ -99,9 +99,11 @@ export default function IR5JourneyPage() {
     );
 }
 
+type WizardActions = ReturnType<typeof useWizard>["actions"];
+
 interface WizardProps {
     state: WizardState;
-    actions: any;
+    actions: WizardActions;
     isLoaded: boolean;
 }
 

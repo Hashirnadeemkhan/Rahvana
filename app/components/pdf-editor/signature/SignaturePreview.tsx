@@ -16,7 +16,7 @@ interface SignaturePreviewProps {
 export default function SignaturePreview({
   originalImage,
   processedImage,
-  onDownload,
+  // onDownload,
   onReset,
 }: SignaturePreviewProps) {
   const [showCropMode, setShowCropMode] = useState(false)
