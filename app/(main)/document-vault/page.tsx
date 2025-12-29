@@ -10,6 +10,7 @@ import {
 } from '@/lib/document-vault/personalization-engine';
 import { ALL_DOCUMENTS } from '@/lib/document-vault/document-definitions';
 import { DocumentCard } from '@/app/components/document-vault/DocumentCard';
+import { DocumentPreviewModal } from '@/app/components/document-vault/DocumentPreviewModal';
 import { DocumentUploadModal } from '@/app/components/document-vault/DocumentUploadModal';
 import { DocumentWizard } from '@/app/components/document-vault/DocumentWizard';
 import { ConfigurationWizard } from '@/app/components/document-vault/ConfigurationWizard';
@@ -55,12 +56,20 @@ export default function DocumentVaultPage() {
   const [showConfigWizard, setShowConfigWizard] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<UploadedDocument | null>(null);
 
   // Calculate stats - must be before any conditional returns
   const stats = useMemo(() => {
-    const total = requiredDocuments.length;
-    const uploaded = uploadedDocuments.filter((d) => d.status === 'UPLOADED').length;
-    const missing = requiredDocuments.filter(
+    // Only count required documents, not optional ones
+    const requiredDocs = requiredDocuments.filter(doc => doc.required);
+    const total = requiredDocs.length;
+    const uploaded = requiredDocs.filter(
+      rd => uploadedDocuments.some(
+        (ud) => ud.documentDefId === rd.id && ud.status === 'UPLOADED'
+      )
+    ).length;
+    const missing = requiredDocs.filter(
       (rd) =>
         !uploadedDocuments.some(
           (ud) => ud.documentDefId === rd.id && ud.status !== 'MISSING'
@@ -80,7 +89,7 @@ export default function DocumentVaultPage() {
       percentComplete: total > 0 ? Math.round((uploaded / total) * 100) : 0,
     };
   }, [uploadedDocuments, requiredDocuments]);
-  const documentsByCategory = useMemo(() => config ? getDocumentsByCategory(config) : {}, [config]);
+  const documentsByCategory = useMemo(() => config ? getDocumentsByCategory(config, true) : {}, [config]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -222,6 +231,11 @@ export default function DocumentVaultPage() {
       console.error('Delete error:', error);
       toast.error('Failed to delete document');
     }
+  };
+
+  const handlePreview = (uploadedDoc: UploadedDocument) => {
+    setPreviewDoc(uploadedDoc);
+    setPreviewOpen(true);
   };
 
   const handleExport = async () => {
@@ -441,6 +455,9 @@ export default function DocumentVaultPage() {
                     documentDef={doc}
                     uploadedDoc={uploadedDoc}
                     onUpload={() => openUploadModal(doc.id)}
+                    onPreview={
+                      uploadedDoc ? () => handlePreview(uploadedDoc) : undefined
+                    }
                     onDownload={
                       uploadedDoc ? () => handleDownload(uploadedDoc.id) : undefined
                     }
@@ -487,6 +504,19 @@ export default function DocumentVaultPage() {
           {/* Testing Panel - only shows in development */}
           <NotificationTestPanel />
         </>
+      )}
+
+      {/* Preview Modal */}
+      {previewDoc && (
+        <DocumentPreviewModal
+          open={previewOpen}
+          onClose={() => {
+            setPreviewOpen(false);
+            setPreviewDoc(null);
+          }}
+          documentDef={selectedDoc || ALL_DOCUMENTS.find(d => d.id === previewDoc.documentDefId)!}
+          uploadedDoc={previewDoc}
+        />
       )}
     </div>
   );

@@ -12,7 +12,7 @@ export type VisaCategory =
   | 'F3'   // Family Third Preference - Married Sons/Daughters of U.S. Citizens
   | 'F4';  // Family Fourth Preference - Siblings of U.S. Citizens
 
-export type ProcessStage = 'USCIS' | 'NVC' | 'INTERVIEW';
+export type ProcessStage = 'USCIS' | 'NVC' | 'INTERVIEW' | 'DS260_SUBMISSION';
 
 export type DocumentRole =
   | 'PETITIONER'
@@ -21,6 +21,7 @@ export type DocumentRole =
   | 'HOUSEHOLD_MEMBER';
 
 export type DocumentCategory =
+  // Original categories
   | 'CIVIL'
   | 'FINANCIAL'
   | 'RELATIONSHIP'
@@ -28,7 +29,20 @@ export type DocumentCategory =
   | 'MEDICAL'
   | 'PHOTOS'
   | 'TRANSLATIONS'
-  | 'MISC';
+  | 'MISC'
+  // New comprehensive categories
+  | 'EDUCATION'        // Degrees, transcripts, certificates
+  | 'WORK'             // Employment letters, NOC, experience letters
+  | 'TRAVEL'           // Previous visas, travel history
+  | 'IDENTITY'         // ID cards, driving licenses, domicile
+  | 'PROPERTY'         // Property ownership, assets
+  | 'IMMIGRATION'      // Prior immigration documents, petitions
+  | 'TAX'              // Tax returns (Pakistan FBR)
+  | 'LEGAL'            // Legal documents, affidavits, notarized docs
+  | 'HEALTH_INSURANCE' // Health insurance documents
+  | 'SOCIAL_MEDIA'     // Social media handles history
+  | 'ADDRESS_PROOF'    // Utility bills, rent agreements
+  | 'OTHER';
 
 export type ValidityType =
   | 'none'           // Document doesn't expire

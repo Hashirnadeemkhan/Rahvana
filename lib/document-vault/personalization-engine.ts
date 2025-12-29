@@ -51,7 +51,8 @@ function isDocumentRequired(
  * Generates personalized document list based on configuration
  */
 export function generateRequiredDocuments(
-  config: DocumentVaultConfig
+  config: DocumentVaultConfig,
+  includeOptional: boolean = true
 ): DocumentDefinition[] {
   const { visaCategory, scenarioFlags } = config;
 
@@ -60,8 +61,48 @@ export function generateRequiredDocuments(
     isDocumentRequired(doc, visaCategory, scenarioFlags)
   );
 
+  // If includeOptional is true, also add documents that are optional but applicable
+  let finalDocs = requiredDocs;
+
+  if (includeOptional) {
+    const optionalDocs = ALL_DOCUMENTS.filter((doc) => {
+      // Skip if already in requiredDocs
+      if (requiredDocs.includes(doc)) return false;
+
+      // Include if the document passes the requiredWhen check (it's applicable)
+      // OR if it has no requiredWhen and is optional
+      if (!doc.requiredWhen) {
+        return true; // No restrictions, show all optional
+      }
+
+      // Check if document is applicable to this visa category/scenario
+      const { visaCategories, scenarioFlags: requiredFlags } = doc.requiredWhen;
+
+      // If visaCategories is set, only show if it matches
+      if (visaCategories && visaCategories.length > 0) {
+        if (!visaCategories.includes(visaCategory)) {
+          return false;
+        }
+      }
+
+      // If scenarioFlags are set, only show if they match
+      if (requiredFlags) {
+        const flagsMatch = Object.entries(requiredFlags).every(([flag, value]) => {
+          return scenarioFlags[flag as keyof ScenarioFlags] === value;
+        });
+        if (!flagsMatch) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    finalDocs = [...requiredDocs, ...optionalDocs];
+  }
+
   // Sort by category and then by name
-  return requiredDocs.sort((a, b) => {
+  return finalDocs.sort((a, b) => {
     if (a.category !== b.category) {
       return a.category.localeCompare(b.category);
     }
@@ -72,8 +113,11 @@ export function generateRequiredDocuments(
 /**
  * Gets documents by category for a specific configuration
  */
-export function getDocumentsByCategory(config: DocumentVaultConfig) {
-  const requiredDocs = generateRequiredDocuments(config);
+export function getDocumentsByCategory(
+  config: DocumentVaultConfig,
+  includeOptional: boolean = true
+) {
+  const requiredDocs = generateRequiredDocuments(config, includeOptional);
 
   const byCategory: Record<string, DocumentDefinition[]> = {};
 
@@ -143,6 +187,7 @@ export function validateScenarioFlags(
  */
 export function getCategoryDisplayName(category: string): string {
   const names: Record<string, string> = {
+    // Original categories
     CIVIL: 'Civil Documents',
     FINANCIAL: 'Financial / Sponsor Documents',
     RELATIONSHIP: 'Relationship Evidence',
@@ -151,6 +196,19 @@ export function getCategoryDisplayName(category: string): string {
     PHOTOS: 'Photographs',
     TRANSLATIONS: 'Translations / Certifications',
     MISC: 'Miscellaneous / Case Evidence',
+    // New comprehensive categories
+    EDUCATION: 'Education Documents',
+    WORK: 'Work / Employment Documents',
+    TRAVEL: 'Travel Documents',
+    IDENTITY: 'Identity Documents',
+    PROPERTY: 'Property & Assets',
+    IMMIGRATION: 'Immigration History',
+    TAX: 'Tax Documents (Pakistan)',
+    LEGAL: 'Legal Documents',
+    HEALTH_INSURANCE: 'Health Insurance',
+    SOCIAL_MEDIA: 'Social Media',
+    ADDRESS_PROOF: 'Address Proof',
+    OTHER: 'Other Documents',
   };
 
   return names[category] || category;

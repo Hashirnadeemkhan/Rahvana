@@ -21,6 +21,7 @@ import {
   Info,
   FileArchive,
   Package,
+  Eye,
 } from 'lucide-react';
 
 interface DocumentCardProps {
@@ -31,6 +32,7 @@ interface DocumentCardProps {
   onDelete?: () => void;
   onOpenWizard: () => void;
   onExport?: () => void;
+  onPreview?: () => void;
 }
 
 export function DocumentCard({
@@ -41,13 +43,15 @@ export function DocumentCard({
   onDelete,
   onOpenWizard,
   onExport,
+  onPreview,
 }: DocumentCardProps) {
   const getStatusBadge = () => {
     if (!uploadedDoc) {
+      // Show "Not Uploaded" for missing documents
       return (
-        <Badge variant="destructive" className="flex items-center gap-1">
+        <Badge variant={documentDef.required ? 'destructive' : 'secondary'} className="flex items-center gap-1">
           <AlertCircle className="w-3 h-3" />
-          Missing
+          Not Uploaded
         </Badge>
       );
     }
@@ -258,6 +262,14 @@ export function DocumentCard({
           </>
         ) : (
           <>
+            <Button
+              onClick={onPreview}
+              size="sm"
+              variant="outline"
+              title="Preview document"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
             <Button
               onClick={onDownload}
               size="sm"

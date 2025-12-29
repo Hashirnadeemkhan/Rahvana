@@ -134,11 +134,22 @@ export async function POST(request: NextRequest) {
     // Save file to local filesystem
     const fileManager = new DocumentFileManager();
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Check if file needs compression
+    const isPdf = file.type === 'application/pdf';
+    const needsCompression = file.size > NVC_FILE_SIZE_LIMIT && isPdf;
+
+    // Determine filename for original file
+    // If file > 4MB, add "_master" suffix to original, compressed will use standard name
+    const originalFilename = needsCompression
+      ? standardizedFilename.replace(/\.pdf$/i, '_master.pdf')
+      : standardizedFilename;
+
     const saveResult = await fileManager.saveFile(
       buffer,
       user.id,
       documentId,
-      standardizedFilename
+      originalFilename
     );
 
     if (!saveResult.success) {
@@ -154,9 +165,7 @@ export async function POST(request: NextRequest) {
     let compressedFileSize: number | undefined;
     let compressedStoragePath: string | undefined;
 
-    const isPdf = file.type === 'application/pdf';
-    const needsCompression = file.size > NVC_FILE_SIZE_LIMIT && isPdf;
-
+    // needsCompression is already defined above
     if (needsCompression) {
       console.log(`File ${file.name} is ${(file.size / 1024 / 1024).toFixed(2)}MB - auto-compressing for NVC/USCIS compliance...`);
       console.log(`Calling compression API at: ${COMPRESSION_API_URL}/api/v1/compress`);
@@ -168,8 +177,8 @@ export async function POST(request: NextRequest) {
         const compressedSize = compressionResult.buffer.length;
 
         if (compressedSize < file.size) {
-          // Generate compressed filename
-          compressedFilename = standardizedFilename.replace(/\.pdf$/i, '_COMPRESSED.pdf');
+          // Compressed file uses the standard filename (without _COMPRESSED suffix)
+          compressedFilename = standardizedFilename;
 
           // Save compressed file
           const compressedSaveResult = await fileManager.saveFile(
@@ -210,7 +219,7 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       documentDefId,
       originalFilename: file.name,
-      standardizedFilename,
+      standardizedFilename: originalFilename, // Use actual saved filename (may have _master suffix)
       fileSize: file.size,
       mimeType: file.type,
       storagePath: saveResult.storagePath!,

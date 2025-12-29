@@ -165,7 +165,7 @@ export const useDocumentVaultStore = create<DocumentVaultStore>()((set, get) => 
           const documents = docsData.documents || [];
 
           if (config) {
-            const requiredDocs = generateRequiredDocuments(config);
+            const requiredDocs = generateRequiredDocuments(config, true); // Include optional documents
 
             // Create document definitions map
             const defsMap = new Map(ALL_DOCUMENTS.map((d) => [d.id, d]));
@@ -195,7 +195,7 @@ export const useDocumentVaultStore = create<DocumentVaultStore>()((set, get) => 
       },
 
       setConfig: async (config: DocumentVaultConfig) => {
-        const requiredDocs = generateRequiredDocuments(config);
+        const requiredDocs = generateRequiredDocuments(config, true); // Include optional documents
 
         try {
           // Save to database via API
@@ -478,9 +478,15 @@ export const useDocumentVaultStore = create<DocumentVaultStore>()((set, get) => 
       getStats: () => {
         const { uploadedDocuments, requiredDocuments } = get();
 
-        const total = requiredDocuments.length;
-        const uploaded = uploadedDocuments.filter((d) => d.status === 'UPLOADED').length;
-        const missing = requiredDocuments.filter(
+        // Only count required documents, not optional ones
+        const requiredDocs = requiredDocuments.filter(doc => doc.required);
+        const total = requiredDocs.length;
+        const uploaded = requiredDocs.filter(
+          rd => uploadedDocuments.some(
+            (ud) => ud.documentDefId === rd.id && ud.status === 'UPLOADED'
+          )
+        ).length;
+        const missing = requiredDocs.filter(
           (rd) =>
             !uploadedDocuments.some(
               (ud) => ud.documentDefId === rd.id && ud.status !== 'MISSING'

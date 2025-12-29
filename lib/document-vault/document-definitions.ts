@@ -676,10 +676,922 @@ const MISC_DOCS: DocumentDefinition[] = [
 ];
 
 // ============================================================================
+// EDUCATION DOCUMENTS
+// ============================================================================
+
+const EDUCATION_DOCS: DocumentDefinition[] = [
+  {
+    id: 'matric-certificate',
+    key: 'MATRIC_CERT',
+    name: 'Matriculation Certificate',
+    description: 'SSC/Matriculation certificate from Pakistan',
+    category: 'EDUCATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Obtain Matric Certificate',
+        description: 'Get your original Matriculation certificate from respective board.',
+        tips: [
+          'Must be original or certified copy',
+          'Get English translation if in Urdu',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'intermediate-certificate',
+    key: 'INTER_CERT',
+    name: 'Intermediate Certificate',
+    description: 'HSSC/Intermediate certificate from Pakistan',
+    category: 'EDUCATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+  {
+    id: 'bachelor-degree',
+    key: 'BACHELOR_DEGREE',
+    name: 'Bachelor\'s Degree',
+    description: 'Bachelor\'s degree certificate and transcripts',
+    category: 'EDUCATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Collect Degree and Transcripts',
+        description: 'Get both the degree certificate and detailed transcripts.',
+        tips: [
+          'HEC attestation recommended for foreign use',
+          'English translation required if in Urdu',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'master-degree',
+    key: 'MASTER_DEGREE',
+    name: 'Master\'s Degree',
+    description: 'Master\'s degree certificate and transcripts',
+    category: 'EDUCATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'professional-certificate',
+    key: 'PROFESSIONAL_CERT',
+    name: 'Professional Certifications',
+    description: 'Professional certifications and licenses (e.g., ACCA, CA, PMP)',
+    category: 'EDUCATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'hec-attestation',
+    key: 'HEC_ATTESTATION',
+    name: 'HEC Attestation',
+    description: 'HEC attested educational documents',
+    category: 'EDUCATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Get HEC Attestation',
+        description: 'Apply for HEC attestation through HEC website or office.',
+        resources: [
+          {
+            name: 'HEC Attestation Portal',
+            url: 'https://hec.gov.pk/',
+            type: 'link',
+          },
+        ],
+        tips: [
+          'Required for foreign use of Pakistani degrees',
+          'Apply online first, then visit HEC office',
+        ],
+        estimatedTime: '1-2 weeks',
+        cost: 'PKR 2,000-5,000',
+      },
+    ],
+  },
+];
+
+// ============================================================================
+// WORK / EMPLOYMENT DOCUMENTS
+// ============================================================================
+
+const WORK_DOCS: DocumentDefinition[] = [
+  {
+    id: 'experience-letter-pakistan',
+    key: 'EXPERIENCE_LETTER_PK',
+    name: 'Work Experience Letter (Pakistan)',
+    description: 'Experience letter from Pakistani employers',
+    category: 'WORK',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Request Experience Letter',
+        description: 'Get a formal experience letter from each employer.',
+        tips: [
+          'Must be on company letterhead',
+          'Include job title, duration, responsibilities',
+          'Include salary information',
+          'English translation required if in Urdu',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'employment-contract-pakistan',
+    key: 'EMPLOYMENT_CONTRACT_PK',
+    name: 'Employment Contract (Pakistan)',
+    description: 'Employment contracts from Pakistani employers',
+    category: 'WORK',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'salary-slips-pakistan',
+    key: 'SALARY_SLIPS_PK',
+    name: 'Salary Slips (Pakistan)',
+    description: 'Recent salary slips from Pakistani employment',
+    category: 'WORK',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'noc-pakistan',
+    key: 'NOC_PK',
+    name: 'No Objection Certificate (NOC)',
+    description: 'NOC from current Pakistani employer',
+    category: 'WORK',
+    roles: ['BENEFICIARY'],
+    stages: ['INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'fixed_days',
+    validityDays: 180,
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Request NOC from Employer',
+        description: 'Get No Objection Certificate from current employer.',
+        tips: [
+          'Required for some government or sensitive positions',
+          'Should state no objection to visa issuance',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'eobi-certificate',
+    key: 'EOBI_CERT',
+    name: 'EOBI Certificate',
+    description: 'Employees\' Old-Age Benefits Institution certificate',
+    category: 'WORK',
+    roles: ['BENEFICIARY'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Get EOBI Certificate',
+        description: 'Obtain EOBI certificate if you have EOBI registration.',
+        resources: [
+          {
+            name: 'EOBI Official Website',
+            url: 'https://www.eobi.gov.pk/',
+            type: 'link',
+          },
+        ],
+        tips: [
+          'Shows employment history in Pakistan',
+          'Useful for proving work experience',
+        ],
+      },
+    ],
+  },
+];
+
+// ============================================================================
+// TRAVEL DOCUMENTS
+// ============================================================================
+
+const TRAVEL_DOCS: DocumentDefinition[] = [
+  {
+    id: 'previous-visa-stamps',
+    key: 'PREVIOUS_VISA_STAMPS',
+    name: 'Previous Visa Stamps',
+    description: 'Scans of previous visas in passport',
+    category: 'TRAVEL',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'travel-history',
+    key: 'TRAVEL_HISTORY',
+    name: 'Travel History Record',
+    description: 'List of previous international travel with dates',
+    category: 'TRAVEL',
+    roles: ['BENEFICIARY'],
+    stages: ['NVC'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+  {
+    id: 'old-passport-copies',
+    key: 'OLD_PASSPORT',
+    name: 'Old Passport Copies',
+    description: 'Copies of previous/old passports',
+    category: 'TRAVEL',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Collect Old Passports',
+        description: 'Gather all previous passports showing travel history.',
+        tips: [
+          'Scan biographical pages',
+          'Scan all visa stamps',
+          'Scan entry/exit stamps',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'travel-itinerary',
+    key: 'TRAVEL_ITINERARY',
+    name: 'Previous Travel Itineraries',
+    description: 'Previous flight itineraries or boarding passes',
+    category: 'TRAVEL',
+    roles: ['BENEFICIARY'],
+    stages: ['NVC'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+];
+
+// ============================================================================
+// IDENTITY DOCUMENTS
+// ============================================================================
+
+const IDENTITY_DOCS: DocumentDefinition[] = [
+  {
+    id: 'driving-license-pakistan',
+    key: 'DRIVING_LICENSE_PK',
+    name: 'Driving License (Pakistan)',
+    description: 'Pakistani driving license copy',
+    category: 'IDENTITY',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'user_set',
+    defaultWarnDays: 90,
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Scan Driving License',
+        description: 'Get clear scans of your Pakistani driving license.',
+        tips: [
+          'Both front and back',
+          'Ensure all text is readable',
+          'English translation if in Urdu',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'domicile-certificate',
+    key: 'DOMICILE_CERT',
+    name: 'Domicile Certificate',
+    description: 'District domicile certificate from Pakistan',
+    category: 'IDENTITY',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Obtain Domicile Certificate',
+        description: 'Get your domicile certificate from the district administration.',
+        resources: [
+          {
+            name: 'Punjab Domicile Guide',
+            url: 'https://punjab.gov.pk/',
+            type: 'link',
+          },
+        ],
+        tips: [
+          'Issued by District Commissioner',
+          'Shows permanent residence',
+          'English translation if in Urdu',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'prc-certificate',
+    key: 'PRC_CERT',
+    name: 'PRC (Permanent Residence Certificate)',
+    description: 'Permanent Residence Certificate from Pakistan',
+    category: 'IDENTITY',
+    roles: ['BENEFICIARY'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+  {
+    id: 'nicop-cnic',
+    key: 'NICOP_CNIC',
+    name: 'NICOP/CNIC with Photo',
+    description: 'NICOP or CNIC with clear photo',
+    category: 'IDENTITY',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'fixed_days',
+    validityDays: 1825, // 5 years validity
+    defaultWarnDays: 180,
+  },
+];
+
+// ============================================================================
+// PROPERTY / ASSETS DOCUMENTS
+// ============================================================================
+
+const PROPERTY_DOCS: DocumentDefinition[] = [
+  {
+    id: 'property-ownership-docs',
+    key: 'PROPERTY_OWNERSHIP',
+    name: 'Property Ownership Documents',
+    description: 'Property deeds, registry papers, fard documents',
+    category: 'PROPERTY',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Collect Property Documents',
+        description: 'Gather all property ownership documents.',
+        tips: [
+          'Fard/registry from Patwari office',
+          'Property deed/registry',
+          'English translation if in Urdu',
+          'Valuation certificate helpful',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'vehicle-registration',
+    key: 'VEHICLE_REGISTRATION',
+    name: 'Vehicle Registration Papers',
+    description: 'Vehicle registration documents in Pakistan',
+    category: 'PROPERTY',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['NVC'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'bank-assets-pakistan',
+    key: 'BANK_ASSETS_PK',
+    name: 'Bank Assets in Pakistan',
+    description: 'Bank account statements, fixed deposit certificates',
+    category: 'PROPERTY',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'fixed_days',
+    validityDays: 180,
+    defaultWarnDays: 60,
+  },
+  {
+    id: 'nra-certificate',
+    key: 'NRA_CERT',
+    name: 'NRA (Non-Resident Alien) Certificate',
+    description: 'NRA certificate from Pakistan',
+    category: 'PROPERTY',
+    roles: ['BENEFICIARY'],
+    stages: ['NVC'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+  {
+    id: 'investment-certificates',
+    key: 'INVESTMENT_CERT',
+    name: 'Investment Certificates',
+    description: 'Stocks, bonds, mutual fund certificates',
+    category: 'PROPERTY',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+];
+
+// ============================================================================
+// IMMIGRATION HISTORY DOCUMENTS
+// ============================================================================
+
+const IMMIGRATION_DOCS: DocumentDefinition[] = [
+  {
+    id: 'prior-visa-denials',
+    key: 'PRIOR_VISA_DENIALS',
+    name: 'Prior Visa Denial Letters',
+    description: 'Letters explaining prior visa denials (if any)',
+    category: 'IMMIGRATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    requiredWhen: {
+      scenarioFlags: { previous_immigration_violations: true },
+    },
+  },
+  {
+    id: 'immigration-court-docs',
+    key: 'IMMIGRATION_COURT',
+    name: 'Immigration Court Documents',
+    description: 'Any prior immigration court proceedings or removal orders',
+    category: 'IMMIGRATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    requiredWhen: {
+      scenarioFlags: { previous_immigration_violations: true },
+    },
+  },
+  {
+    id: 'reentry-permit',
+    key: 'REENTRY_PERMIT',
+    name: 'Re-entry Permit (if any)',
+    description: 'Re-entry permit documents',
+    category: 'IMMIGRATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+  {
+    id: 'prior-petition-docs',
+    key: 'PRIOR_PETITION',
+    name: 'Prior Immigration Petition Documents',
+    description: 'Documents from prior immigration petitions',
+    category: 'IMMIGRATION',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'arrival-departure-records',
+    key: 'ARRIVAL_DEPARTURE',
+    name: 'Arrival/Departure Records (I-94)',
+    description: 'I-94 records from previous US visits',
+    category: 'IMMIGRATION',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+];
+
+// ============================================================================
+// TAX DOCUMENTS (PAKISTAN)
+// ============================================================================
+
+const TAX_DOCS: DocumentDefinition[] = [
+  {
+    id: 'fbr-tax-returns',
+    key: 'FBR_TAX_RETURNS',
+    name: 'FBR Tax Returns (Pakistan)',
+    description: 'FBR tax returns from Pakistan',
+    category: 'TAX',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Get FBR Tax Returns',
+        description: 'Download your tax returns from FBR portal.',
+        resources: [
+          {
+            name: 'FBR Tax Portal',
+            url: 'https://iris.fbr.gov.pk/',
+            type: 'link',
+          },
+        ],
+        tips: [
+          'Last 3 years recommended',
+          'NTN certificate also helpful',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'ntn-certificate',
+    key: 'NTN_CERT',
+    name: 'NTN Certificate (National Tax Number)',
+    description: 'NTN certificate from FBR',
+    category: 'TAX',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+  {
+    id: 'tax-clearance-certificate',
+    key: 'TAX_CLEARANCE',
+    name: 'Tax Clearance Certificate',
+    description: 'Tax clearance certificate from FBR',
+    category: 'TAX',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'fixed_days',
+    validityDays: 365,
+  },
+];
+
+// ============================================================================
+// LEGAL DOCUMENTS
+// ============================================================================
+
+const LEGAL_DOCS: DocumentDefinition[] = [
+  {
+    id: 'affidavit-bona-fide',
+    key: 'AFFIDAVIT_BONA_FIDE',
+    name: 'Affidavit of Bona Fide Marriage',
+    description: 'Affidavit from friends/family regarding marriage',
+    category: 'LEGAL',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    requiredWhen: {
+      visaCategories: ['IR-1', 'CR-1'],
+    },
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Get Affidavits from Witnesses',
+        description: 'Request affidavits from friends/family who can attest to your marriage.',
+        tips: [
+          'Notarized by oath commissioner',
+          'Include witness contact details',
+          'Describe how they know the couple',
+          'Mention attending wedding',
+        ],
+        estimatedTime: '2-3 days',
+        cost: 'PKR 500-1,000 per affidavit',
+      },
+    ],
+  },
+  {
+    id: 'notarized-documents',
+    key: 'NOTARIZED_DOCS',
+    name: 'Notarized Documents',
+    description: 'Any documents requiring notarization',
+    category: 'LEGAL',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'name-change-docs',
+    key: 'NAME_CHANGE',
+    name: 'Name Change Documents',
+    description: 'Legal name change documents (if applicable)',
+    category: 'LEGAL',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+    requiredWhen: {
+      scenarioFlags: { name_change_any_party: true },
+    },
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Collect Name Change Documents',
+        description: 'Get all legal name change documentation.',
+        tips: [
+          'Court order for name change',
+          'Gazette notification',
+          'NADRA updated documents',
+          'English translation if in Urdu',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'guardianship-docs',
+    key: 'GUARDIANSHIP',
+    name: 'Guardianship/Custody Documents',
+    description: 'Legal custody or guardianship documents for minors',
+    category: 'LEGAL',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+];
+
+// ============================================================================
+// HEALTH INSURANCE DOCUMENTS
+// ============================================================================
+
+const HEALTH_INSURANCE_DOCS: DocumentDefinition[] = [
+  {
+    id: 'health-insurance-policy',
+    key: 'HEALTH_INSURANCE',
+    name: 'Health Insurance Policy',
+    description: 'Health insurance policy documents',
+    category: 'HEALTH_INSURANCE',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'fixed_days',
+    validityDays: 365,
+    defaultWarnDays: 60,
+  },
+  {
+    id: 'insurance-coverage-letter',
+    key: 'INSURANCE_COVERAGE',
+    name: 'Insurance Coverage Letter',
+    description: 'Letter confirming health insurance coverage',
+    category: 'HEALTH_INSURANCE',
+    roles: ['PETITIONER'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'fixed_days',
+    validityDays: 180,
+    defaultWarnDays: 30,
+  },
+];
+
+// ============================================================================
+// SOCIAL MEDIA DOCUMENTS
+// ============================================================================
+
+const SOCIAL_MEDIA_DOCS: DocumentDefinition[] = [
+  {
+    id: 'social-media-list',
+    key: 'SOCIAL_MEDIA_LIST',
+    name: 'Social Media Platforms List',
+    description: 'List of social media platforms used in last 5 years',
+    category: 'SOCIAL_MEDIA',
+    roles: ['BENEFICIARY'],
+    stages: ['DS260_SUBMISSION'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'List Social Media Accounts',
+        description: 'Create a list of all social media platforms you\'ve used.',
+        tips: [
+          'Include platforms: Facebook, Instagram, Twitter, LinkedIn, TikTok, etc.',
+          'Include all usernames/handles',
+          'Include accounts you\'ve deleted',
+          'Required for DS-260 form',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'social-media-screenshots',
+    key: 'SOCIAL_MEDIA_SS',
+    name: 'Social Media Profile Screenshots',
+    description: 'Screenshots of social media profiles (if requested)',
+    category: 'SOCIAL_MEDIA',
+    roles: ['BENEFICIARY'],
+    stages: ['INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+];
+
+// ============================================================================
+// ADDRESS PROOF DOCUMENTS
+// ============================================================================
+
+const ADDRESS_PROOF_DOCS: DocumentDefinition[] = [
+  {
+    id: 'utility-bills-pakistan',
+    key: 'UTILITY_BILLS_PK',
+    name: 'Utility Bills (Pakistan)',
+    description: 'Electricity, gas, water, telephone bills',
+    category: 'ADDRESS_PROOF',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'fixed_days',
+    validityDays: 180,
+    defaultWarnDays: 30,
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Collect Utility Bills',
+        description: 'Gather recent utility bills showing your address.',
+        tips: [
+          'Last 6 months recommended',
+          'Include name on bill',
+          'English translation if in Urdu',
+          'Shows proof of residence',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'rent-agreement-pakistan',
+    key: 'RENT_AGREEMENT_PK',
+    name: 'Rent Agreement',
+    description: 'Rental lease agreement',
+    category: 'ADDRESS_PROOF',
+    roles: ['BENEFICIARY'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'user_set',
+    defaultWarnDays: 90,
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Get Rent Agreement',
+        description: 'Ensure you have a valid rental agreement.',
+        tips: [
+          'Should be notarized',
+          'Include both parties\' details',
+          'English translation if in Urdu',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'property-tax-bills',
+    key: 'PROPERTY_TAX',
+    name: 'Property Tax Bills',
+    description: 'Property tax payment receipts',
+    category: 'ADDRESS_PROOF',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'post-office-box-proof',
+    key: 'PO_BOX_PROOF',
+    name: 'PO Box Address Proof',
+    description: 'PO Box rental receipt or ownership proof',
+    category: 'ADDRESS_PROOF',
+    roles: ['BENEFICIARY'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'fixed_days',
+    validityDays: 365,
+  },
+];
+
+// ============================================================================
+// OTHER / MISCELLANEOUS DOCUMENTS
+// ============================================================================
+
+const OTHER_DOCS: DocumentDefinition[] = [
+  {
+    id: 'cover-letter',
+    key: 'COVER_LETTER',
+    name: 'Cover Letter',
+    description: 'Cover letter explaining the case',
+    category: 'OTHER',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+  {
+    id: 'timeline-document',
+    key: 'TIMELINE',
+    name: 'Relationship Timeline',
+    description: 'Detailed timeline of relationship events',
+    category: 'OTHER',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+  {
+    id: 'correspondence-logs',
+    key: 'CORRESPONDENCE_LOGS',
+    name: 'Correspondence Logs',
+    description: 'Logs of all official correspondence',
+    category: 'OTHER',
+    roles: ['BENEFICIARY', 'PETITIONER'],
+    stages: ['USCIS', 'NVC', 'INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: true,
+    validityType: 'none',
+  },
+  {
+    id: 'consular-interview-notes',
+    key: 'INTERVIEW_NOTES',
+    name: 'Consular Interview Notes',
+    description: 'Preparation notes for consular interview',
+    category: 'OTHER',
+    roles: ['BENEFICIARY'],
+    stages: ['INTERVIEW'],
+    required: false,
+    multipleFilesAllowed: false,
+    validityType: 'none',
+  },
+];
+
+// ============================================================================
 // MASTER DOCUMENT DATABASE
 // ============================================================================
 
 export const ALL_DOCUMENTS: DocumentDefinition[] = [
+  // Original categories
   ...CIVIL_DOCS,
   ...FINANCIAL_DOCS,
   ...RELATIONSHIP_DOCS,
@@ -688,6 +1600,19 @@ export const ALL_DOCUMENTS: DocumentDefinition[] = [
   ...PHOTO_DOCS,
   ...TRANSLATION_DOCS,
   ...MISC_DOCS,
+  // New comprehensive categories
+  ...EDUCATION_DOCS,
+  ...WORK_DOCS,
+  ...TRAVEL_DOCS,
+  ...IDENTITY_DOCS,
+  ...PROPERTY_DOCS,
+  ...IMMIGRATION_DOCS,
+  ...TAX_DOCS,
+  ...LEGAL_DOCS,
+  ...HEALTH_INSURANCE_DOCS,
+  ...SOCIAL_MEDIA_DOCS,
+  ...ADDRESS_PROOF_DOCS,
+  ...OTHER_DOCS,
 ];
 
 // Index by key for quick lookup
