@@ -2,15 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import React, { useState, useRef, useEffect } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import React, { useState, useEffect, useRef } from "react";
 import { Search, ChevronDown, FileText, Briefcase, Zap, ArrowRight } from "lucide-react";
 
 interface HeaderProps {
@@ -55,24 +47,6 @@ const useExtensionCleanup = () => {
 };
 
 // --------------------------------------------------------------------------
-//  Hover-dropdown hook (unchanged)
-// --------------------------------------------------------------------------
-const useHoverDropdown = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setIsOpen(true);
-  };
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setIsOpen(false), 800);
-  };
-
-  return { isOpen, handleMouseEnter, handleMouseLeave };
-};
-
-// --------------------------------------------------------------------------
 //  SiteHeader component
 // --------------------------------------------------------------------------
 export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onToggleAuth }: HeaderProps = {}) {
@@ -84,9 +58,51 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
-  const visaMenu = useHoverDropdown();
-  const serviceMenu = useHoverDropdown();
-  const toolsMenu = useHoverDropdown();
+  // Dropdown menu states
+  const [visaMenuOpen, setVisaMenuOpen] = useState(false);
+  const [serviceMenuOpen, setServiceMenuOpen] = useState(false);
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+
+  // Timeout refs for delayed closing
+  const visaTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const serviceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const toolsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (visaTimeoutRef.current) clearTimeout(visaTimeoutRef.current);
+      if (serviceTimeoutRef.current) clearTimeout(serviceTimeoutRef.current);
+      if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+    };
+  }, []);
+
+  // Visa handlers
+  const handleVisaEnter = () => {
+    if (visaTimeoutRef.current) clearTimeout(visaTimeoutRef.current);
+    setVisaMenuOpen(true);
+  };
+  const handleVisaLeave = () => {
+    visaTimeoutRef.current = setTimeout(() => setVisaMenuOpen(false), 300);
+  };
+
+  // Services handlers
+  const handleServiceEnter = () => {
+    if (serviceTimeoutRef.current) clearTimeout(serviceTimeoutRef.current);
+    setServiceMenuOpen(true);
+  };
+  const handleServiceLeave = () => {
+    serviceTimeoutRef.current = setTimeout(() => setServiceMenuOpen(false), 300);
+  };
+
+  // Tools handlers
+  const handleToolsEnter = () => {
+    if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+    setToolsMenuOpen(true);
+  };
+  const handleToolsLeave = () => {
+    toolsTimeoutRef.current = setTimeout(() => setToolsMenuOpen(false), 300);
+  };
 
   const handleNav = (id: string, e?: React.MouseEvent) => {
     setIsMenuOpen(false);
@@ -166,175 +182,137 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
 
             {/* ---------- VISA CATEGORY ---------- */}
             <div
-              className="relative"
-              onMouseEnter={visaMenu.handleMouseEnter}
-              onMouseLeave={visaMenu.handleMouseLeave}
+              className="relative group"
+              onMouseEnter={handleVisaEnter}
+              onMouseLeave={handleVisaLeave}
             >
-              <DropdownMenu open={visaMenu.isOpen}>
-                <DropdownMenuTrigger asChild>
-                  <HydrationSafeButton
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => handleNav('journeys', e)}
-                    className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium bg-transparent hover:text-primary transition-all group hover:bg-primary/10 data-[state=open]:bg-primary data-[state=open]:text-white ${
-                      isActive('journeys') || isActive('ir1-journey') || pathname.startsWith('/visa-category') ? 'text-primary' : 'text-gray-700'
-                    }`}
-                  >
-                    Visa Category
-                    <ChevronDown className="h-3 w-3 group-data-[state=open]:rotate-180 transition-transform duration-200" />
-                  </HydrationSafeButton>
-                </DropdownMenuTrigger>
+              <button
+                className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium ${
+                  visaMenuOpen ? 'bg-primary text-white' : 'bg-transparent text-gray-700 hover:text-primary hover:bg-primary/10'
+                }`}
+              >
+                Visa Category
+                <ChevronDown className={`h-3 w-3 ${visaMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-                <DropdownMenuContent
-                  align="start"
-                  className="rounded-lg shadow-lg border border-gray-200 w-64 mt-2 bg-white p-2 animate-in fade-in slide-in-from-top-2 duration-200"
-                  sideOffset={8}
-                  onMouseEnter={visaMenu.handleMouseEnter}
-                  onMouseLeave={visaMenu.handleMouseLeave}
+              <div
+                className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${visaMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+              >
+                <div className="font-semibold text-primary px-3 py-1.5 text-sm">
+                  Explore Visas
+                </div>
+                <div className="my-0.5 border-t border-gray-100" />
+                <Link
+                  href="/visa-category/ir-category"
+                  onClick={(e) => handleNav('ir1-journey', e)}
+                  className={`flex items-center justify-between gap-3 w-full py-2 px-3 rounded-md hover:bg-primary/8 group ${
+                    isActive('ir1-journey', '/visa-category/ir-category') ? 'text-primary bg-primary/5' : 'text-gray-700'
+                  }`}
                 >
-                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
-                    Explore Visas
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="my-1" />
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/visa-category/ir-category"
-                      onClick={(e) => handleNav('ir1-journey', e)}
-                      className={`flex items-center justify-between gap-3 w-full p-3 rounded-md hover:bg-primary/8 transition-all group ${
-                        isActive('ir1-journey', '/visa-category/ir-category') ? 'text-primary bg-primary/5' : 'text-gray-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Briefcase className={`h-4 w-4 ${isActive('ir1-journey', '/visa-category/ir-category') ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
-                        <span className="text-sm font-medium">IR Category</span>
-                      </div>
-                      <ArrowRight className={`h-3.5 w-3.5 transition-all ${isActive('ir1-journey', '/visa-category/ir-category') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
-                    More coming soon...
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  <div className="flex items-center gap-3">
+                    <Briefcase className={`h-4 w-4 ${isActive('ir1-journey', '/visa-category/ir-category') ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
+                    <span className="text-sm font-medium">IR Category</span>
+                  </div>
+                  <ArrowRight className={`h-3.5 w-3.5 ${isActive('ir1-journey', '/visa-category/ir-category') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                </Link>
+                <div className="text-gray-400 cursor-not-allowed py-2 px-3 rounded-md text-sm">
+                  More coming soon...
+                </div>
+              </div>
             </div>
 
             {/* ---------- SERVICES ---------- */}
             <div
-              className="relative"
-              onMouseEnter={serviceMenu.handleMouseEnter}
-              onMouseLeave={serviceMenu.handleMouseLeave}
+              className="relative group"
+              onMouseEnter={handleServiceEnter}
+              onMouseLeave={handleServiceLeave}
             >
-              <DropdownMenu open={serviceMenu.isOpen}>
-                <DropdownMenuTrigger asChild>
-                  <HydrationSafeButton
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => handleNav('services', e)}
-                    className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium bg-transparent hover:text-primary transition-all group hover:bg-primary/10 border-gray-300 data-[state=open]:bg-primary data-[state=open]:text-white ${
-                      isActive('services', '/services') ? 'text-primary' : 'text-gray-700'
-                    }`}
-                  >
-                    Services
-                    <ChevronDown className="h-3 w-3 group-data-[state=open]:rotate-180 transition-transform duration-200" />
-                  </HydrationSafeButton>
-                </DropdownMenuTrigger>
+              <button
+                className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium ${
+                  serviceMenuOpen ? 'bg-primary text-white' : 'bg-transparent text-gray-700 hover:text-primary hover:bg-primary/10'
+                }`}
+              >
+                Services
+                <ChevronDown className={`h-3 w-3 ${serviceMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-                <DropdownMenuContent
-                  align="start"
-                  className="rounded-lg shadow-lg border border-gray-200 w-64 mt-2 bg-white p-2 animate-in fade-in slide-in-from-top-2 duration-200"
-                  sideOffset={8}
-                  onMouseEnter={serviceMenu.handleMouseEnter}
-                  onMouseLeave={serviceMenu.handleMouseLeave}
+              <div
+                className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${serviceMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+              >
+                <div className="font-semibold text-primary px-3 py-1.5 text-sm">
+                  Our Services
+                </div>
+                <div className="my-0.5 border-t border-gray-100" />
+                <Link
+                  href="/services"
+                  onClick={(e) => handleNav('services', e)}
+                  className={`flex items-center justify-between gap-3 w-full py-2 px-3 rounded-md hover:bg-primary/8 group ${
+                    isActive('services', '/services') ? 'text-primary bg-primary/5' : 'text-gray-700'
+                  }`}
                 >
-                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
-                    Our Services
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="my-1" />
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/services"
-                      onClick={(e) => handleNav('services', e)}
-                      className={`flex items-center justify-between gap-3 w-full p-3 rounded-md hover:bg-primary/8 transition-all group ${
-                        isActive('services', '/services') ? 'text-primary bg-primary/5' : 'text-gray-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Zap className={`h-4 w-4 ${isActive('services', '/services') ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
-                        <span className="text-sm font-medium">Consultancy</span>
-                      </div>
-                      <ArrowRight className={`h-3.5 w-3.5 transition-all ${isActive('services', '/services') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  <div className="flex items-center gap-3">
+                    <Zap className={`h-4 w-4 ${isActive('services', '/services') ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
+                    <span className="text-sm font-medium">Consultancy</span>
+                  </div>
+                  <ArrowRight className={`h-3.5 w-3.5 ${isActive('services', '/services') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                </Link>
+              </div>
             </div>
 
             {/* ---------- TOOLS ---------- */}
             <div
-              className="relative"
-              onMouseEnter={toolsMenu.handleMouseEnter}
-              onMouseLeave={toolsMenu.handleMouseLeave}
+              className="relative group"
+              onMouseEnter={handleToolsEnter}
+              onMouseLeave={handleToolsLeave}
             >
-              <DropdownMenu open={toolsMenu.isOpen}>
-                <DropdownMenuTrigger asChild>
-                  <HydrationSafeButton
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => handleNav('tools', e)}
-                    className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium bg-transparent hover:text-primary transition-all group hover:bg-primary/10 ${isActive('tools') ? 'border-primary' : 'border-transparent'} data-[state=open]:bg-primary data-[state=open]:text-white ${
-                      isActive('tools') || pathname.startsWith('/passport') || pathname.startsWith('/pdf') ? 'text-primary' : 'text-gray-700'
+              <button
+                className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium border ${
+                  toolsMenuOpen ? 'bg-primary text-white border-primary' : 'bg-transparent text-gray-700 border-transparent hover:text-primary hover:bg-primary/10'
+                }`}
+              >
+                Tools
+                <ChevronDown className={`h-3 w-3 ${toolsMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <div
+                className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${toolsMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+              >
+                <div className="font-semibold text-primary px-3 py-1.5 text-sm">
+                  Available Tools
+                </div>
+                <div className="my-0.5 border-t border-gray-100" />
+
+                {/* ---- Tool links (merged from both HEAD and main) ---- */}
+                {[
+                  { href: "/passport", label: "Passport Photo", id: 'passport' },
+                  { href: "/pdf-processing", label: "PDF Processing", id: 'pdf' },
+                  { href: "/signature-image-processing", label: "Create Signature", id: 'signature' },
+                  { href: "/iv-tool", label: "IV Tool", id: 'iv' },
+                  { href: "/visa-forms", label: "Auto Form Filling", id: 'forms' },
+                  { href: "/visa-checker", label: "Visa Bulletin Checker", id: 'checker' },
+                  { href: "/document-vault", label: "Document Vault", id: 'document-vault' },
+                  { href: "/affidavit-support-calculator", label: "Affidavit Support Calculator", id: 'affidavit-support-calculator' },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={(e) => handleNav(item.id, e)}
+                    className={`flex items-center justify-between gap-3 w-full py-2 px-3 rounded-md hover:bg-primary/8 group ${
+                      isActive(item.id, item.href) ? 'text-primary bg-primary/5' : 'text-gray-700'
                     }`}
                   >
-                    Tools
-                    <ChevronDown className="h-3 w-3 group-data-[state=open]:rotate-180 transition-transform duration-200" />
-                  </HydrationSafeButton>
-                </DropdownMenuTrigger>
+                    <div className="flex items-center gap-3">
+                      <FileText className={`h-4 w-4 ${isActive(item.id, item.href) ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </div>
+                    <ArrowRight className={`h-3.5 w-3.5 ${isActive(item.id, item.href) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                  </Link>
+                ))}
 
-                <DropdownMenuContent
-                  align="start"
-                  className="rounded-lg shadow-lg border border-gray-200 w-64 mt-2 bg-white p-2 animate-in fade-in slide-in-from-top-2 duration-200"
-                  sideOffset={8}
-                  onMouseEnter={toolsMenu.handleMouseEnter}
-                  onMouseLeave={toolsMenu.handleMouseLeave}
-                >
-                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
-                    Available Tools
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="my-1" />
-
-                  {/* ---- Tool links (merged from both HEAD and main) ---- */}
-                  {[
-                    { href: "/passport", label: "Passport Photo", id: 'passport' },
-                    { href: "/pdf-processing", label: "PDF Processing", id: 'pdf' },
-                    { href: "/signature-image-processing", label: "Create Signature", id: 'signature' },
-                    { href: "/iv-tool", label: "IV Tool", id: 'iv' },
-                    { href: "/visa-forms", label: "Auto Form Filling", id: 'forms' },
-                    { href: "/visa-checker", label: "Visa Bulletin Checker", id: 'checker' },
-                    { href: "/document-vault", label: "Document Vault", id: 'document-vault' },
-                    { href: "/affidavit-support-calculator", label: "Affidavit Support Calculator", id: 'affidavit-support-calculator' },
-                  ].map((item) => (
-                    <DropdownMenuItem key={item.href} asChild>
-                      <Link
-                        href={item.href}
-                        onClick={(e) => handleNav(item.id, e)}
-                        className={`flex items-center justify-between gap-3 w-full p-3 rounded-md hover:bg-primary/8 transition-all group ${
-                          isActive(item.id, item.href) ? 'text-primary bg-primary/5' : 'text-gray-700'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <FileText className={`h-4 w-4 ${isActive(item.id, item.href) ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
-                          <span className="text-sm font-medium">{item.label}</span>
-                        </div>
-                        <ArrowRight className={`h-3.5 w-3.5 transition-all ${isActive(item.id, item.href) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-
-                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
-                    More tools coming soon...
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                <div className="text-gray-400 cursor-not-allowed py-2 px-3 rounded-md text-sm">
+                  More tools coming soon...
+                </div>
+              </div>
             </div>
 
             <Link
