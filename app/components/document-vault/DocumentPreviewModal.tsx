@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Download, ZoomIn, ZoomOut, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface DocumentPreviewModalProps {
   open: boolean;
@@ -32,7 +33,8 @@ export function DocumentPreviewModal({
     if (open && uploadedDoc) {
       loadDocument();
     }
-  }, [open, uploadedDoc?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Reset when closed
   useEffect(() => {
@@ -113,15 +115,16 @@ export function DocumentPreviewModal({
               )}
 
               {isImage && (
-                <img
-                  src={previewUrl}
-                  alt={documentDef.name}
-                  className="max-w-full max-h-full object-contain shadow-lg"
-                  style={{
-                    transform: `scale(${zoom / 100})`,
-                    transformOrigin: 'center center',
-                  }}
-                />
+                <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'center center' }}>
+                  <Image
+                    src={previewUrl}
+                    alt={documentDef.name}
+                    width={800}
+                    height={600}
+                    className="max-w-full max-h-full object-contain shadow-lg"
+                    unoptimized
+                  />
+                </div>
               )}
 
               {!isPdf && !isImage && (

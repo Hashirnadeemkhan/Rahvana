@@ -9,6 +9,7 @@ import {
   getCategoryDisplayName,
 } from '@/lib/document-vault/personalization-engine';
 import { ALL_DOCUMENTS } from '@/lib/document-vault/document-definitions';
+import type { UploadedDocument } from '@/lib/document-vault/types';
 import { DocumentCard } from '@/app/components/document-vault/DocumentCard';
 import { DocumentPreviewModal } from '@/app/components/document-vault/DocumentPreviewModal';
 import { DocumentUploadModal } from '@/app/components/document-vault/DocumentUploadModal';

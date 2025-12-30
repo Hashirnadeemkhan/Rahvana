@@ -95,13 +95,17 @@ export function SiteHeader() {
   ];
 
   const toolItems: DropdownItem[] = [
+
     { href: "/passport", label: "Passport Photo", icon: <FileText className="h-4 w-4 text-primary/60 group-hover/item:text-primary" /> },
     { href: "/pdf-processing", label: "PDF Processing", icon: <FileText className="h-4 w-4 text-primary/60 group-hover/item:text-primary" /> },
     { href: "/signature-image-processing", label: "Create Signature", icon: <FileText className="h-4 w-4 text-primary/60 group-hover/item:text-primary" /> },
     { href: "/iv-tool", label: "IV Tool", icon: <FileText className="h-4 w-4 text-primary/60 group-hover/item:text-primary" /> },
     { href: "/visa-forms", label: "Auto Form Filling", icon: <FileText className="h-4 w-4 text-primary/60 group-hover/item:text-primary" /> },
     { href: "/visa-checker", label: "Visa Bulletin Checker", icon: <FileText className="h-4 w-4 text-primary/60 group-hover/item:text-primary" /> },
+    { href: "/document-vault", label: "Document Vault", icon: <FileText className="h-4 w-4 text-primary/60 group-hover/item:text-primary" /> },
+    { href: "/affidavit-support-calculator", label: "Affidavit Support Calculator", icon: <FileText className="h-4 w-4 text-primary/60 group-hover/item:text-primary" /> },
     { href: "#", label: "More tools coming soon...", icon: <></>, disabled: true },
+    
   ];
 
   return (
@@ -208,6 +212,8 @@ export function SiteHeader() {
                 { href: "/iv-tool", label: "IV Tool" },
                 { href: "/visa-forms", label: "Auto Form Filling" },
                 { href: "/visa-checker", label: "Visa Bulletin Checker" },
+                { href: "/document-vault", label: "Document Vault" },
+                { href: "/affidavit-support-calculator", label: "Affidavit Support Calculator" },
               ].map((item) => (
                 <Link
                   key={item.href}
