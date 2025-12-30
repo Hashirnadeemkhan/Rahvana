@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useAuth } from "@/app/context/AuthContext";
-import { useWizard } from './hooks/useWizard';
-import { roadmapData } from './data/roadmap';
+import { useWizard } from '../dashboard/hooks/useWizard';
+import { roadmapData } from '../dashboard/data/roadmap';
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
