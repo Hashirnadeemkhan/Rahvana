@@ -1,4 +1,3 @@
-// src/components/signature-tool/CropTool.tsx
 "use client"
 
 import React, { useState, useEffect, useRef, useCallback } from "react"
@@ -22,7 +21,7 @@ export default function CropTool({
   currentImage,
   onApplyCrop,
   onToggleTilt,
-  onExit,
+  // onExit,
 }: CropToolProps) {
   const [cropBox, setCropBox] = useState<CropBox>({ x: 0, y: 0, width: 100, height: 100 })
   const [isDragging, setIsDragging] = useState(false)

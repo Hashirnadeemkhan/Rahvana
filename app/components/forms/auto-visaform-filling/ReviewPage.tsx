@@ -39,7 +39,7 @@ export function ReviewPage({
               className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition"
             >
               <div
-                className="bg-blue-50 px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-blue-100 transition"
+                className="bg-primary/10 px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-primary/20 transition"
                 onClick={() => onEditStep(stepNum)}
               >
                 <div>
@@ -55,7 +55,7 @@ export function ReviewPage({
                     e.stopPropagation()
                     onEditStep(stepNum)
                   }}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition"
+                  className="px-4 py-2 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
                 >
                   Edit
                 </button>
@@ -90,14 +90,14 @@ export function ReviewPage({
 
         <button
           onClick={onPreviewPDF}
-          className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+          className="px-8 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
         >
           Preview PDF
         </button>
 
         <button
           onClick={onDownloadPDF}
-          className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition"
+          className="px-8 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg transition"
         >
           Download PDF
         </button>
