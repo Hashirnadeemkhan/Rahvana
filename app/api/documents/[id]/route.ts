@@ -2,11 +2,12 @@
 // GET /api/documents/[id] - Get document metadata
 // DELETE /api/documents/[id] - Delete document
 // PATCH /api/documents/[id] - Update document metadata
+// Uses Supabase Storage (works on BOTH local AND Vercel)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { DocumentFileManager } from '@/lib/document-vault/storage-server';
 import { DocumentDatabaseStorage } from '@/lib/document-vault/storage-database';
+import { createClient as createClientJs } from '@supabase/supabase-js';
 
 // GET - Get document metadata
 export async function GET(
@@ -43,7 +44,7 @@ export async function GET(
   }
 }
 
-// DELETE - Delete document
+// DELETE - Delete document (from Supabase Storage)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -68,14 +69,18 @@ export async function DELETE(
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
-    // Delete files from filesystem
-    const fileManager = new DocumentFileManager();
-    await fileManager.deleteFile(document.storagePath);
+    // Delete files from Supabase Storage (using service role)
+    const storageSupabase = createClientJs(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
-    // Also delete compressed file if exists
+    const filesToDelete = [document.storagePath];
     if (document.hasCompressedVersion && document.compressedStoragePath) {
-      await fileManager.deleteFile(document.compressedStoragePath);
+      filesToDelete.push(document.compressedStoragePath);
     }
+
+    await storageSupabase.storage.from('document-vault').remove(filesToDelete);
 
     // Delete metadata
     await dbStorage.deleteDocument(documentId, user.id);

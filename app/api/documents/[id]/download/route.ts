@@ -1,10 +1,11 @@
 // API Route: Download Document
 // GET /api/documents/[id]/download
+// Uses Supabase Storage (works on BOTH local AND Vercel)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { DocumentFileManager } from '@/lib/document-vault/storage-server';
 import { DocumentDatabaseStorage } from '@/lib/document-vault/storage-database';
+import { createClient as createClientJs } from '@supabase/supabase-js';
 
 export async function GET(
   request: NextRequest,
@@ -23,37 +24,32 @@ export async function GET(
     }
 
     const { id } = await params;
-    const documentId = id;
 
     // Get document metadata
     const dbStorage = new DocumentDatabaseStorage(supabase);
-    const document = await dbStorage.getDocument(documentId, user.id);
+    const document = await dbStorage.getDocument(id, user.id);
 
     if (!document) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
-    // Read file from filesystem
-    const fileManager = new DocumentFileManager();
-    const readResult = await fileManager.readFile(document.storagePath);
+    // Get signed URL from Supabase Storage (using service role)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const storageSupabase = createClientJs(supabaseUrl!, serviceRoleKey!);
 
-    if (!readResult.success || !readResult.buffer) {
-      return NextResponse.json(
-        { error: readResult.error || 'File not found' },
-        { status: 404 }
-      );
+    const { data, error } = await storageSupabase.storage
+      .from('document-vault')
+      .createSignedUrl(document.storagePath, 3600);
+
+    if (error || !data) {
+      // Fallback to public URL
+      const publicUrl = `${supabaseUrl}/storage/v1/object/public/document-vault/${document.storagePath}`;
+      return NextResponse.redirect(publicUrl);
     }
 
-    // Return file with appropriate headers
-    // Convert Buffer to Uint8Array for NextResponse compatibility
-    return new NextResponse(new Uint8Array(readResult.buffer), {
-      status: 200,
-      headers: {
-        'Content-Type': document.mimeType,
-        'Content-Disposition': `attachment; filename="${document.standardizedFilename}"`,
-        'Content-Length': document.fileSize.toString(),
-      },
-    });
+    // Redirect to signed URL
+    return NextResponse.redirect(data.signedUrl);
   } catch (error) {
     console.error('Download error:', error);
     return NextResponse.json(

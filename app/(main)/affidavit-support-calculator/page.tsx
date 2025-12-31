@@ -15,10 +15,6 @@ import {
   DollarSign,
   Shield,
   Flag,
-  Heart,
-  HelpCircle,
-  FileText,
-  UserPlus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -60,13 +56,6 @@ interface FormData {
   currentSponsoredSpouse: boolean;
   currentSponsoredChildren: number;
   annualIncome: number;
-  // Household member questions
-  hasHouseholdMember: boolean | null;
-  householdMemberIncome: number;
-  householdMemberRelationship: string;
-  // Joint sponsor questions
-  hasJointSponsor: boolean | null;
-  jointSponsorIncome: number;
 }
 
 interface CalculatorResult {
@@ -76,15 +65,6 @@ interface CalculatorResult {
   ruleApplied: string;
   isEligible: boolean;
   shortfall: number;
-}
-
-interface CaseScenario {
-  caseNumber: number;
-  title: string;
-  description: string;
-  forms: string[];
-  formsDescription: string;
-  eligible: boolean;
 }
 
 // ============================================================================
@@ -98,7 +78,9 @@ interface CurrencyInputProps {
   className?: string;
 }
 
+
 function formatCurrencyWithCommas(value: number): string {
+  // Split integer and decimal parts
   const parts = value.toFixed(2).split(".");
   const integerPart = parseInt(parts[0]).toLocaleString();
   return `${integerPart}.${parts[1]}`;
@@ -109,24 +91,31 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Initialize display value when value changes externally
   useEffect(() => {
+    // Excel Accounting format: always show 2 decimal places when not editing
     if (!isFocused) {
       setDisplayValue(formatCurrencyWithCommas(value));
     } else {
+      // When focused, show raw value (no commas)
       setDisplayValue(value === 0 ? "" : value.toString());
     }
   }, [value, isFocused]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
+
+    // Allow: numbers, decimal point, and empty
     const cleanValue = inputValue.replace(/[^0-9.]/g, "");
 
+    // Handle empty input
     if (cleanValue === "" || cleanValue === ".") {
       setDisplayValue("");
       onChange(0);
       return;
     }
 
+    // Handle multiple decimals - keep only the last one
     const parts = cleanValue.split(".");
     if (parts.length > 2) {
       const integerPart = parts.slice(0, -1).join("");
@@ -137,6 +126,7 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
       return;
     }
 
+    // Limit decimal places to 2
     if (parts.length === 2 && parts[1].length > 2) {
       parts[1] = parts[1].slice(0, 2);
     }
@@ -150,16 +140,19 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
 
   const handleBlur = () => {
     setIsFocused(false);
+    // Format the value with commas and 2 decimal places on blur
     setDisplayValue(formatCurrencyWithCommas(value));
   };
 
   const handleFocus = () => {
     setIsFocused(true);
+    // Show raw value (without commas) on focus
     setDisplayValue(value === 0 ? "" : value.toString());
   };
 
   return (
     <div className={`relative ${className}`}>
+      {/* Fixed $ symbol on the left */}
       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold text-2xl pointer-events-none">
         $
       </span>
@@ -197,24 +190,15 @@ export default function AffidavitSupportCalculator() {
     currentSponsoredSpouse: false,
     currentSponsoredChildren: 0,
     annualIncome: 0,
-    hasHouseholdMember: null,
-    householdMemberIncome: 0,
-    householdMemberRelationship: "",
-    hasJointSponsor: null,
-    jointSponsorIncome: 0,
   });
 
   const [result, setResult] = useState<CalculatorResult | null>(null);
-  const [caseScenario, setCaseScenario] = useState<CaseScenario | null>(null);
-  const [showHouseholdQuestions, setShowHouseholdQuestions] = useState(false);
-  const [showJointSponsorQuestions, setShowJointSponsorQuestions] = useState(false);
 
-  const totalSteps = 8; // Will dynamically adjust
+  const totalSteps = 7; // 6 steps + 1 result screen
 
   // Reset result when form data changes
   useEffect(() => {
     setResult(null);
-    setCaseScenario(null);
   }, [formData]);
 
   // ============================================================================
@@ -223,30 +207,34 @@ export default function AffidavitSupportCalculator() {
 
   const calculateHouseholdSize = (): number => {
     return (
-      1 +
-      (formData.isMarried ? 1 : 0) +
-      formData.numberOfChildren +
-      formData.taxDependents +
-      formData.previousSponsoredCount +
-      (formData.currentSponsoredApplicant ? 1 : 0) +
-      (formData.currentSponsoredSpouse ? 1 : 0) +
-      formData.currentSponsoredChildren
+      1 + // Sponsor
+      (formData.isMarried ? 1 : 0) + // Spouse
+      formData.numberOfChildren + // Sponsor's children
+      formData.taxDependents + // Tax dependents
+      formData.previousSponsoredCount + // Previously sponsored
+      (formData.currentSponsoredApplicant ? 1 : 0) + // Main applicant
+      (formData.currentSponsoredSpouse ? 1 : 0) + // Applicant's spouse
+      formData.currentSponsoredChildren // Applicant's children
     );
   };
 
   const calculateRequiredIncome = (householdSize: number): number => {
+    // Determine poverty level
     const isMilitarySpouseOrChild =
       formData.isMilitary && (formData.currentSponsoredApplicant || formData.currentSponsoredSpouse);
     const povertyLevel = isMilitarySpouseOrChild ? 100 : 125;
 
+    // Get base income
     let baseIncome = POVERTY_GUIDELINES[8]?.[`level${povertyLevel}`] || 0;
     const additionalCost = ADDITIONAL_MEMBER_COST[`level${povertyLevel}`];
 
+    // If household size is 8 or less, use exact value
     if (householdSize <= 8 && POVERTY_GUIDELINES[householdSize]) {
       baseIncome = POVERTY_GUIDELINES[householdSize][`level${povertyLevel}`];
       return baseIncome;
     }
 
+    // If household size > 8, add additional members
     const extraMembers = householdSize - 8;
     return baseIncome + extraMembers * additionalCost;
   };
@@ -274,170 +262,10 @@ export default function AffidavitSupportCalculator() {
     };
   };
 
-  // ============================================================================
-  // CASE DETERMINATION LOGIC
-  // ============================================================================
-
-  const determineCaseScenario = (): CaseScenario => {
-    const calculationResult = calculateResult();
-    const requiredIncome = calculationResult.requiredIncome;
-    const sponsorIncome = formData.annualIncome;
-
-    // Calculate combined incomes
-    const householdIncome = formData.hasHouseholdMember ? formData.householdMemberIncome : 0;
-    const jointSponsorIncome = formData.hasJointSponsor ? formData.jointSponsorIncome : 0;
-    const combinedWithHousehold = sponsorIncome + householdIncome;
-    const totalCombined = combinedWithHousehold + jointSponsorIncome;
-
-    // Case 1: Primary Sponsor is Eligible Alone
-    if (sponsorIncome >= requiredIncome) {
-      return {
-        caseNumber: 1,
-        title: "Case 1: Primary Sponsor is Eligible Alone",
-        description: "Your income meets the 125% poverty guideline requirement. You can sponsor without any additional support.",
-        forms: ["I-864"],
-        formsDescription: "Primary Sponsor: I-864 (Affidavit of Support)",
-        eligible: true,
-      };
-    }
-
-    // Case 2: Primary Sponsor + Household Member
-    if (formData.hasHouseholdMember === true && combinedWithHousehold >= requiredIncome) {
-      const relationshipText = {
-        spouse: "your spouse",
-        adult_child: "your adult child",
-        dependent: "your dependent relative",
-        other: "your household member",
-      }[formData.householdMemberRelationship] || "your household member";
-
-      return {
-        caseNumber: 2,
-        title: "Case 2: Primary Sponsor + Household Member",
-        description: `Your combined income ($${sponsorIncome.toLocaleString()} + $${householdIncome.toLocaleString()}) meets the requirement. ${relationshipText} can help you meet the income requirement.`,
-        forms: ["I-864", "I-864A"],
-        formsDescription: "Primary Sponsor: I-864 | Household Member: I-864A (Contract Between Sponsor and Household Member)",
-        eligible: true,
-      };
-    }
-
-    // Case 3: Primary Sponsor + Joint Sponsor (No household member)
-    if (formData.hasHouseholdMember === false && formData.hasJointSponsor === true && jointSponsorIncome >= requiredIncome) {
-      return {
-        caseNumber: 3,
-        title: "Case 3: Primary Sponsor + Joint Sponsor",
-        description: `Your income is insufficient, but your joint sponsor independently meets the 125% poverty guideline ($${jointSponsorIncome.toLocaleString()}). Note: You must still file I-864 even with zero income.`,
-        forms: ["I-864", "I-864"],
-        formsDescription: "Primary Sponsor: I-864 (must file even with zero income) | Joint Sponsor: I-864",
-        eligible: true,
-      };
-    }
-
-    // Case 4: Primary Sponsor + Household Member + Joint Sponsor (All three)
-    if (formData.hasHouseholdMember === true && formData.hasJointSponsor === true && totalCombined >= requiredIncome) {
-      return {
-        caseNumber: 4,
-        title: "Case 4: Primary Sponsor + Household Member + Joint Sponsor",
-        description: `Your combined income with household member and joint sponsor meets the requirement. This is common when multiple sources of income are needed.`,
-        forms: ["I-864", "I-864A", "I-864"],
-        formsDescription: "Primary Sponsor: I-864 | Household Member: I-864A | Joint Sponsor: I-864",
-        eligible: true,
-      };
-    }
-
-    // Case 5: Non-Working Sponsor with Working Spouse
-    if (formData.hasHouseholdMember === true && formData.householdMemberRelationship === "spouse" && combinedWithHousehold >= requiredIncome) {
-      return {
-        caseNumber: 5,
-        title: "Case 5: Non-Working Sponsor + Working Spouse (Household Member)",
-        description: `Your spouse's income ($${householdIncome.toLocaleString()}) combined with yours ($${sponsorIncome.toLocaleString()}) meets the requirement. Your spouse must sign I-864A as a household member.`,
-        forms: ["I-864", "I-864A"],
-        formsDescription: "Sponsor (non-working): I-864 | Spouse: I-864A (Contract Between Sponsor and Household Member)",
-        eligible: true,
-      };
-    }
-
-    // Case 6: Joint Sponsor + Their Household Member
-    if (formData.hasJointSponsor === true && jointSponsorIncome + householdIncome >= requiredIncome) {
-      return {
-        caseNumber: 6,
-        title: "Case 6: Joint Sponsor + Their Household Member",
-        description: `Your joint sponsor's income combined with their household member's income meets the requirement.`,
-        forms: ["I-864", "I-864", "I-864A"],
-        formsDescription: "Primary Sponsor: I-864 | Joint Sponsor: I-864 | Joint Sponsor's Household Member: I-864A",
-        eligible: true,
-      };
-    }
-
-    // Not eligible with current information
-    const currentTotal = totalCombined;
-    return {
-      caseNumber: -1,
-      title: "Additional Income or Assets Needed",
-      description: `Based on your current inputs, your combined income ($${currentTotal.toLocaleString()}) is below the required amount ($${requiredIncome.toLocaleString()}). You need an additional $${(requiredIncome - currentTotal).toLocaleString()}. Consider: 1) Adding a household member's income, 2) Finding a joint sponsor, or 3) Using assets.`,
-      forms: ["I-864", "I-864A", "I-864"],
-      formsDescription: "Depending on your situation, you may need: Primary Sponsor I-864, Household Member I-864A, and/or Joint Sponsor I-864",
-      eligible: false,
-    };
-  };
-
   const handleCalculate = () => {
     const calculationResult = calculateResult();
     setResult(calculationResult);
-
-    // If income is insufficient, show household member question
-    if (!calculationResult.isEligible) {
-      setCurrentStep(8); // Move to household member question
-    } else {
-      // Income is sufficient - show case 1 result
-      const scenario = determineCaseScenario();
-      setCaseScenario(scenario);
-      setCurrentStep(11); // Show final results
-    }
-  };
-
-  const handleHouseholdMemberAnswer = (hasMember: boolean) => {
-    setFormData({ ...formData, hasHouseholdMember: hasMember });
-
-    if (hasMember) {
-      setCurrentStep(9); // Ask for household member details
-    } else {
-      // No household member, check if joint sponsor might help
-      setCurrentStep(10); // Ask about joint sponsor
-    }
-  };
-
-  const handleHouseholdMemberSubmit = () => {
-    const calculationResult = calculateResult();
-    const combinedIncome = formData.annualIncome + formData.householdMemberIncome;
-
-    if (combinedIncome >= calculationResult.requiredIncome) {
-      // Household member's income is sufficient
-      const scenario = determineCaseScenario();
-      setCaseScenario(scenario);
-      setCurrentStep(11); // Show results
-    } else {
-      // Still need more, ask about joint sponsor
-      setCurrentStep(10);
-    }
-  };
-
-  const handleJointSponsorAnswer = (hasSponsor: boolean) => {
-    setFormData({ ...formData, hasJointSponsor: hasSponsor });
-
-    if (hasSponsor) {
-      setCurrentStep(12); // Ask for joint sponsor income
-    } else {
-      // No joint sponsor available - show final result
-      const scenario = determineCaseScenario();
-      setCaseScenario(scenario);
-      setCurrentStep(11); // Show results
-    }
-  };
-
-  const handleJointSponsorSubmit = () => {
-    const scenario = determineCaseScenario();
-    setCaseScenario(scenario);
-    setCurrentStep(11); // Show results
+    setCurrentStep(7);
   };
 
   const canProceed = (): boolean => {
@@ -455,18 +283,6 @@ export default function AffidavitSupportCalculator() {
         return Boolean(formData.hasPreviousSponsorship) && formData.previousSponsoredCount > 0;
       case 6:
         return true;
-      case 7:
-        return formData.annualIncome > 0;
-      case 8:
-        return formData.hasHouseholdMember !== null;
-      case 9:
-        return formData.householdMemberIncome > 0 && formData.householdMemberRelationship !== "";
-      case 10:
-        return formData.hasJointSponsor !== null;
-      case 11:
-        return true;
-      case 12:
-        return formData.jointSponsorIncome > 0;
       default:
         return false;
     }
@@ -474,14 +290,10 @@ export default function AffidavitSupportCalculator() {
 
   const handleNext = () => {
     if (canProceed()) {
-      if (currentStep === 7) {
+      if (currentStep === 6) {
         handleCalculate();
-      } else if (currentStep === 9) {
-        handleHouseholdMemberSubmit();
-      } else if (currentStep === 12) {
-        handleJointSponsorSubmit();
       } else {
-        setCurrentStep((prev) => prev + 1);
+        setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
       }
     }
   };
@@ -504,22 +316,11 @@ export default function AffidavitSupportCalculator() {
       currentSponsoredSpouse: false,
       currentSponsoredChildren: 0,
       annualIncome: 0,
-      hasHouseholdMember: null,
-      householdMemberIncome: 0,
-      householdMemberRelationship: "",
-      hasJointSponsor: null,
-      jointSponsorIncome: 0,
     });
     setResult(null);
-    setCaseScenario(null);
   };
 
-  const getProgressValue = (): number => {
-    const stepConfig: Record<number, number> = {
-      1: 12.5, 2: 25, 3: 37.5, 4: 50, 5: 62.5, 6: 75, 7: 87.5, 8: 90, 9: 93, 10: 95, 11: 100, 12: 98
-    };
-    return stepConfig[currentStep] || (currentStep / 11) * 100;
-  };
+  const progressPercentage = (currentStep / totalSteps) * 100;
 
   // ============================================================================
   // STEP RENDERERS
@@ -855,6 +656,7 @@ export default function AffidavitSupportCalculator() {
       </div>
 
       <div className="space-y-6">
+        {/* Main Applicant - always checked */}
         <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
           <div className="flex items-center gap-3">
             <CheckCircle className="w-6 h-6 text-indigo-600" />
@@ -865,6 +667,7 @@ export default function AffidavitSupportCalculator() {
           </div>
         </div>
 
+        {/* Applicant's Spouse */}
         <div>
           <label className="flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all hover:border-indigo-300">
             <input
@@ -880,6 +683,7 @@ export default function AffidavitSupportCalculator() {
           </label>
         </div>
 
+        {/* Applicant's Children */}
         <div>
           <label className="block text-sm font-semibold text-slate-900 mb-3">
             How many children of the applicant are you sponsoring?
@@ -915,458 +719,138 @@ export default function AffidavitSupportCalculator() {
 
   const renderStep7 = () => (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <DollarSign className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-2xl font-bold text-slate-900">Your Annual Income</h3>
-        <p className="text-slate-600 mt-2">Enter your total annual household income</p>
-      </div>
-
-      <CurrencyInput
-        value={formData.annualIncome}
-        onChange={(value) => setFormData({ ...formData, annualIncome: value })}
-        placeholder="0.00"
-      />
-      <p className="text-sm text-slate-500 mt-3 text-center">
-        Include salary, wages, bonuses, and other sources of income
-      </p>
-    </div>
-  );
-
-  // Step 8: Household Member Question (only shown if income is insufficient)
-  const renderStep8 = () => {
-    if (result && result.isEligible) {
-      return renderStep11(); // Show results directly if eligible
-    }
-
-    return (
-      <div className="space-y-6">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Heart className="w-8 h-8 text-white" />
+      {/* Income Input */}
+      <div className="mb-8">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <DollarSign className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900">Household Member</h3>
-          <p className="text-slate-600 mt-2">
-            Your income is below the required amount. Do you have a household member who can help?
-          </p>
+          <h3 className="text-2xl font-bold text-slate-900">Your Annual Income</h3>
+          <p className="text-slate-600 mt-2">Enter your total annual household income</p>
         </div>
 
-        <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 mb-6">
-          <p className="text-sm text-amber-900 mb-2">
-            <span className="font-semibold">Shortfall:</span> You need ${result?.shortfall.toLocaleString()} more.
-          </p>
-          <p className="text-sm text-amber-800">
-            A household member (spouse, adult child, or dependent relative) can combine their income with yours.
-          </p>
-        </div>
-
-        <div className="p-4 bg-blue-50 rounded-xl border border-blue-200 mb-6">
-          <p className="text-sm text-blue-900 mb-2">
-            <span className="font-semibold">Who can be a household member?</span>
-          </p>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Spouse (if living together)</li>
-            <li>• Adult children (18+, living with sponsor)</li>
-            <li>• Any relative claimed as dependent on tax return</li>
-          </ul>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => handleHouseholdMemberAnswer(true)}
-            className="p-6 rounded-xl border-2 border-emerald-500 bg-emerald-50 hover:bg-emerald-100 transition-all"
-          >
-            <div className="text-center">
-              <Users className="w-10 h-10 mx-auto mb-3 text-emerald-600" />
-              <p className="font-semibold text-slate-900">Yes</p>
-              <p className="text-sm text-slate-500 mt-1">I have someone</p>
-            </div>
-          </button>
-          <button
-            onClick={() => handleHouseholdMemberAnswer(false)}
-            className="p-6 rounded-xl border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
-          >
-            <div className="text-center">
-              <User className="w-10 h-10 mx-auto mb-3 text-slate-600" />
-              <p className="font-semibold text-slate-900">No</p>
-              <p className="text-sm text-slate-500 mt-1">Just me</p>
-            </div>
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // Step 9: Household Member Details
-  const renderStep9 = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <Users className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-2xl font-bold text-slate-900">Household Member Details</h3>
-        <p className="text-slate-600 mt-2">Tell us about your household member</p>
+        <CurrencyInput
+          value={formData.annualIncome}
+          onChange={(value) => setFormData({ ...formData, annualIncome: value })}
+          placeholder="0.00"
+        />
+        <p className="text-sm text-slate-500 mt-3 text-center">
+          Include salary, wages, bonuses, and other sources of income
+        </p>
       </div>
 
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-3">
-            Relationship to you
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setFormData({ ...formData, householdMemberRelationship: "spouse" })}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                formData.householdMemberRelationship === "spouse"
-                  ? "border-violet-500 bg-violet-50"
-                  : "border-slate-200 hover:border-violet-300 hover:bg-slate-50"
-              }`}
-            >
-              <div className="text-center">
-                <Heart className="w-8 h-8 mx-auto mb-2 text-violet-600" />
-                <p className="font-semibold text-slate-900">Spouse</p>
-              </div>
-            </button>
-            <button
-              onClick={() => setFormData({ ...formData, householdMemberRelationship: "adult_child" })}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                formData.householdMemberRelationship === "adult_child"
-                  ? "border-violet-500 bg-violet-50"
-                  : "border-slate-200 hover:border-violet-300 hover:bg-slate-50"
-              }`}
-            >
-              <div className="text-center">
-                <Users className="w-8 h-8 mx-auto mb-2 text-violet-600" />
-                <p className="font-semibold text-slate-900">Adult Child</p>
-              </div>
-            </button>
-            <button
-              onClick={() => setFormData({ ...formData, householdMemberRelationship: "dependent" })}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                formData.householdMemberRelationship === "dependent"
-                  ? "border-violet-500 bg-violet-50"
-                  : "border-slate-200 hover:border-violet-300 hover:bg-slate-50"
-              }`}
-            >
-              <div className="text-center">
-                <User className="w-8 h-8 mx-auto mb-2 text-violet-600" />
-                <p className="font-semibold text-slate-900">Dependent</p>
-              </div>
-            </button>
-            <button
-              onClick={() => setFormData({ ...formData, householdMemberRelationship: "other" })}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                formData.householdMemberRelationship === "other"
-                  ? "border-violet-500 bg-violet-50"
-                  : "border-slate-200 hover:border-violet-300 hover:bg-slate-50"
-              }`}
-            >
-              <div className="text-center">
-                <Users className="w-8 h-8 mx-auto mb-2 text-violet-600" />
-                <p className="font-semibold text-slate-900">Other Relative</p>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-slate-900 mb-3">
-            Their Annual Income
-          </label>
-          <CurrencyInput
-            value={formData.householdMemberIncome}
-            onChange={(value) => setFormData({ ...formData, householdMemberIncome: value })}
-            placeholder="0.00"
-          />
-          <p className="text-sm text-slate-500 mt-3 text-center">
-            Their individual annual income from all sources
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Step 10: Joint Sponsor Question
-  const renderStep10 = () => {
-    const calculationResult = calculateResult();
-    const combinedIncome = formData.annualIncome + formData.householdMemberIncome;
-    const remainingShortfall = Math.max(0, calculationResult.requiredIncome - combinedIncome);
-
-    return (
-      <div className="space-y-6">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <UserPlus className="w-8 h-8 text-white" />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900">Joint Sponsor</h3>
-          <p className="text-slate-600 mt-2">
-            Your combined income is still below the required amount. Do you have an outside joint sponsor?
-          </p>
-        </div>
-
-        <div className="p-4 bg-rose-50 rounded-xl border border-rose-200 mb-6">
-          <p className="text-sm text-rose-900 mb-2">
-            <span className="font-semibold">Remaining Shortfall:</span> You need ${remainingShortfall.toLocaleString()} more.
-          </p>
-          <p className="text-sm text-rose-800">
-            A joint sponsor (outside third person) can help meet the requirement.
-          </p>
-        </div>
-
-        <div className="p-4 bg-blue-50 rounded-xl border border-blue-200 mb-6">
-          <p className="text-sm text-blue-900 mb-2">
-            <span className="font-semibold">Joint Sponsor Requirements:</span>
-          </p>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Must be U.S. Citizen or Green Card holder</li>
-            <li>• Must independently meet 125% poverty line</li>
-            <li>• Does NOT need to be related to you or the immigrant</li>
-          </ul>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => handleJointSponsorAnswer(true)}
-            className="p-6 rounded-xl border-2 border-rose-500 bg-rose-50 hover:bg-rose-100 transition-all"
+      {/* Results */}
+      {result && (
+        <div className="space-y-6">
+          {/* Status Card */}
+          <Card
+            className={`border-2 ${
+              result.isEligible
+                ? "border-emerald-500 bg-gradient-to-br from-emerald-50 to-emerald-100"
+                : "border-red-500 bg-gradient-to-br from-red-50 to-red-100"
+            }`}
           >
-            <div className="text-center">
-              <UserPlus className="w-10 h-10 mx-auto mb-3 text-rose-600" />
-              <p className="font-semibold text-slate-900">Yes</p>
-              <p className="text-sm text-slate-500 mt-1">I have one</p>
-            </div>
-          </button>
-          <button
-            onClick={() => handleJointSponsorAnswer(false)}
-            className="p-6 rounded-xl border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
-          >
-            <div className="text-center">
-              <User className="w-10 h-10 mx-auto mb-3 text-slate-600" />
-              <p className="font-semibold text-slate-900">No</p>
-              <p className="text-sm text-slate-500 mt-1">None available</p>
-            </div>
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // Step 11: Final Results
-  const renderStep11 = () => {
-    const calculationResult = result || calculateResult();
-    const scenario = caseScenario || determineCaseScenario();
-
-    // Calculate combined income
-    let combinedIncome = formData.annualIncome;
-    if (formData.hasHouseholdMember) {
-      combinedIncome += formData.householdMemberIncome;
-    }
-    if (formData.hasJointSponsor) {
-      combinedIncome += formData.jointSponsorIncome;
-    }
-
-    return (
-      <div className="space-y-6">
-        {/* Case Scenario Card */}
-        <Card className={`border-2 ${
-          scenario.eligible
-            ? "border-emerald-500 bg-gradient-to-br from-emerald-50 to-emerald-100"
-            : "border-amber-300 bg-gradient-to-br from-amber-50 to-amber-100"
-        }`}>
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4 mb-4">
-              {scenario.eligible ? (
-                <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-6 h-6 text-white" />
-                </div>
-              ) : (
-                <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <HelpCircle className="w-6 h-6 text-white" />
-                </div>
-              )}
-              <div>
-                <h4 className="text-lg font-bold text-slate-900">{scenario.title}</h4>
-                <p className="text-sm text-slate-700 mt-1">{scenario.description}</p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-white/60 rounded-xl border border-slate-200">
-              <p className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                <FileText className="w-4 h-4" /> Forms Required:
-              </p>
-              <p className="text-sm text-slate-700">{scenario.formsDescription}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Income Summary Card */}
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-6">
-            <h4 className="text-lg font-semibold text-slate-900 mb-4">Income Summary</h4>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-600">Your Income:</span>
-                <span className="font-semibold">${formData.annualIncome.toLocaleString()}</span>
-              </div>
-              {formData.hasHouseholdMember && (
-                <div className="flex justify-between items-center text-emerald-600">
-                  <span className="flex items-center gap-2">
-                    <Users className="w-4 h-4" /> Household Member:
-                  </span>
-                  <span className="font-semibold">+${formData.householdMemberIncome.toLocaleString()}</span>
-                </div>
-              )}
-              {formData.hasJointSponsor && (
-                <div className="flex justify-between items-center text-rose-600">
-                  <span className="flex items-center gap-2">
-                    <UserPlus className="w-4 h-4" /> Joint Sponsor:
-                  </span>
-                  <span className="font-semibold">+${formData.jointSponsorIncome.toLocaleString()}</span>
-                </div>
-              )}
-              <div className="border-t border-slate-200 pt-3 flex justify-between items-center">
-                <span className="font-semibold text-slate-900">Combined Income:</span>
-                <span className="font-bold text-xl">${combinedIncome.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center text-slate-500">
-                <span>Required Income:</span>
-                <span>${calculationResult.requiredIncome.toLocaleString()}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Status Card */}
-        <Card
-          className={`border-2 ${
-            scenario.eligible
-              ? "border-emerald-500 bg-gradient-to-br from-emerald-50 to-emerald-100"
-              : "border-red-500 bg-gradient-to-br from-red-50 to-red-100"
-          }`}
-        >
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {scenario.eligible ? (
-                  <div className="w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
-                    <CheckCircle className="w-8 h-8 text-white" />
-                  </div>
-                ) : (
-                  <div className="w-14 h-14 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
-                    <XCircle className="w-8 h-8 text-white" />
-                  </div>
-                )}
-                <div>
-                  <h4 className="text-2xl font-bold text-slate-900">
-                    {scenario.eligible ? "Eligible!" : "Not Eligible"}
-                  </h4>
-                  <p className="text-sm text-slate-600">
-                    {scenario.eligible
-                      ? "Your combined income meets the requirement"
-                      : "Additional income or assets needed"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Household Size */}
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <Users className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Household Size</p>
-                  <p className="text-2xl font-bold text-slate-900">{calculationResult.householdSize} persons</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Required Income */}
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500">Required Income</p>
-                  <p className="text-2xl font-bold text-slate-900">
-                    ${calculationResult.requiredIncome.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Progress Bar */}
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-6">
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold text-slate-900">Income Progress</p>
-                <p className="text-sm text-slate-600">
-                  ${combinedIncome.toLocaleString()} / ${calculationResult.requiredIncome.toLocaleString()}
-                </p>
-              </div>
-              <Progress
-                value={Math.min((combinedIncome / calculationResult.requiredIncome) * 100, 100)}
-                className="h-4"
-              />
-            </div>
-            <p className="text-sm text-slate-600">{calculationResult.ruleApplied}</p>
-          </CardContent>
-        </Card>
-
-        {/* Shortfall Warning */}
-        {!scenario.eligible && calculationResult.shortfall > 0 && (
-          <Card className="border-2 border-amber-300 bg-amber-50">
             <CardContent className="p-6">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-amber-900 mb-1">Additional Support Needed</p>
-                  <p className="text-sm text-amber-800">
-                    You need an additional{" "}
-                    <span className="font-bold">${calculationResult.shortfall.toLocaleString()}</span> in annual income
-                    to meet the requirement.
-                  </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {result.isEligible ? (
+                    <div className="w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                      <CheckCircle className="w-8 h-8 text-white" />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-14 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+                      <XCircle className="w-8 h-8 text-white" />
+                    </div>
+                  )}
+                  <div>
+                    <h4 className="text-2xl font-bold text-slate-900">
+                      {result.isEligible ? "Eligible!" : "Not Eligible"}
+                    </h4>
+                    <p className="text-sm text-slate-600">
+                      {result.isEligible
+                        ? "Your income meets the requirement"
+                        : "Joint sponsor needed"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-        )}
-      </div>
-    );
-  };
 
-  // Step 12: Joint Sponsor Income
-  const renderStep12 = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <DollarSign className="w-8 h-8 text-white" />
+          {/* Household Size */}
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <Users className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Household Size</p>
+                    <p className="text-2xl font-bold text-slate-900">{result.householdSize} persons</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Required Income */}
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Required Income</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      ${result.requiredIncome.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Progress Bar */}
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-slate-900">Income Progress</p>
+                  <p className="text-sm text-slate-600">
+                    ${formData.annualIncome.toLocaleString()} / ${result.requiredIncome.toLocaleString()}
+                  </p>
+                </div>
+                <Progress
+                  value={Math.min((formData.annualIncome / result.requiredIncome) * 100, 100)}
+                  className="h-4"
+                />
+              </div>
+              <p className="text-sm text-slate-600">{result.ruleApplied}</p>
+            </CardContent>
+          </Card>
+
+          {!result.isEligible && result.shortfall > 0 && (
+            <Card className="border-2 border-amber-300 bg-amber-50">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-amber-900 mb-1">Joint Sponsor Needed</p>
+                    <p className="text-sm text-amber-800">
+                      You need an additional{" "}
+                      <span className="font-bold">${result.shortfall.toLocaleString()}</span> in annual income
+                      to meet the requirement.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
-        <h3 className="text-2xl font-bold text-slate-900">Joint Sponsor Income</h3>
-        <p className="text-slate-600 mt-2">Enter joint sponsor's annual income</p>
-      </div>
-
-      <CurrencyInput
-        value={formData.jointSponsorIncome}
-        onChange={(value) => setFormData({ ...formData, jointSponsorIncome: value })}
-        placeholder="0.00"
-      />
-      <p className="text-sm text-slate-500 mt-3 text-center">
-        Joint sponsor must independently meet the 125% poverty guideline
-      </p>
+      )}
     </div>
   );
 
@@ -1378,13 +862,7 @@ export default function AffidavitSupportCalculator() {
       case 4: return "Tax Dependents";
       case 5: return "Previous Sponsorships";
       case 6: return "Current Sponsorship";
-      case 7: return "Your Income";
-      case 8: return "Household Member";
-      case 9: return "Household Details";
-      case 10: return "Joint Sponsor";
-      case 11: return "Your Results";
-      case 12: return "Joint Sponsor Income";
-      default: return `Step ${currentStep}`;
+      case 7: return "Your Results";
     }
   };
 
@@ -1403,20 +881,20 @@ export default function AffidavitSupportCalculator() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Affidavit of Support Calculator</h1>
-            <p className="text-sm text-slate-600">Step {currentStep}: {getStepTitle()}</p>
+            <p className="text-sm text-slate-600">Step {currentStep} of {totalSteps}: {getStepTitle()}</p>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-6">
-          <Progress value={getProgressValue()} className="h-2" />
+          <Progress value={progressPercentage} className="h-2" />
         </div>
 
         {/* Main Card */}
         <Card className="border-0 shadow-xl">
           <CardHeader>
             <CardDescription className="text-base">
-              {currentStep === 11
+              {currentStep === 7
                 ? "Review your results and check your eligibility"
                 : "Complete all fields to proceed to the next step"}
             </CardDescription>
@@ -1430,11 +908,6 @@ export default function AffidavitSupportCalculator() {
               {currentStep === 5 && renderStep5()}
               {currentStep === 6 && renderStep6()}
               {currentStep === 7 && renderStep7()}
-              {currentStep === 8 && renderStep8()}
-              {currentStep === 9 && renderStep9()}
-              {currentStep === 10 && renderStep10()}
-              {currentStep === 11 && renderStep11()}
-              {currentStep === 12 && renderStep12()}
             </div>
 
             {/* Navigation Buttons */}
@@ -1450,7 +923,7 @@ export default function AffidavitSupportCalculator() {
                     Back
                   </Button>
                 )}
-                {currentStep === 11 && (
+                {currentStep === 7 && (
                   <Button
                     variant="outline"
                     onClick={handleReset}
@@ -1461,14 +934,25 @@ export default function AffidavitSupportCalculator() {
                 )}
               </div>
 
-              {currentStep <= 12 && (
+              {currentStep < 7 && (
                 <Button
                   onClick={handleNext}
                   disabled={!canProceed()}
                   className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
                 >
-                  {currentStep === 7 ? "Check Eligibility" : currentStep === 12 ? "See Results" : "Next"}
+                  {currentStep === 6 ? "Calculate" : "Next"}
                   <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
+
+              {currentStep === 7 && !result && (
+                <Button
+                  onClick={handleCalculate}
+                  disabled={formData.annualIncome <= 0}
+                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-lg"
+                >
+                  Calculate Results
+                  <DollarSign className="w-4 h-4 ml-2" />
                 </Button>
               )}
             </div>

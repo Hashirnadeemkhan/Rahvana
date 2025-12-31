@@ -62,9 +62,9 @@ export function ReviewPage({
               </div>
 
               <div className="px-6 py-4 space-y-3 bg-white">
-                {section.fields.map((field) => (
+                {section.fields.map((field, fieldIdx) => (
                   <div
-                    key={field.key}
+                    key={field.key || `field-${fieldIdx}`}
                     className="flex justify-between items-start pb-3 border-b border-gray-100 last:border-b-0"
                   >
                     <span className="font-semibold text-gray-700 flex-1">{field.label}:</span>

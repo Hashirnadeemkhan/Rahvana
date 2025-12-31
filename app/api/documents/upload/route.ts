@@ -1,5 +1,6 @@
 // API Route: Upload Document
 // POST /api/documents/upload
+// Uses Supabase Storage (works on BOTH local AND Vercel)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -9,7 +10,6 @@ import {
   isValidFileSize,
   getFileExtension,
 } from '@/lib/document-vault/file-utils';
-import { DocumentFileManager } from '@/lib/document-vault/storage-server';
 import {
   generateDocumentId,
   getNextVersionNumber,
@@ -18,11 +18,75 @@ import { DocumentDatabaseStorage } from '@/lib/document-vault/storage-database';
 import { calculateExpirationDate } from '@/lib/document-vault/expiration-tracker';
 import { ALL_DOCUMENTS } from '@/lib/document-vault/document-definitions';
 import { UploadedDocument, DocumentRole } from '@/lib/document-vault/types';
+import { createClient as createClientJs } from '@supabase/supabase-js';
 
 // NVC/USCIS file size limit (4MB)
 const NVC_FILE_SIZE_LIMIT = 4 * 1024 * 1024;
 // Python backend URL for PDF compression
 const COMPRESSION_API_URL = process.env.COMPRESSION_API_URL || 'http://localhost:8000';
+
+/**
+ * Get Supabase client with SERVICE ROLE key (bypasses RLS)
+ */
+function getStorageSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase credentials not configured');
+  }
+  // Service role key bypasses RLS
+  return createClientJs(supabaseUrl, serviceRoleKey);
+}
+
+/**
+ * Upload file to Supabase Storage
+ */
+async function uploadToStorage(
+  buffer: Buffer,
+  fileName: string,
+  mimeType: string,
+  userId: string,
+  documentId: string
+): Promise<{ success: boolean; storagePath?: string; error?: string }> {
+  try {
+    const supabase = getStorageSupabase();
+    const bucketName = 'document-vault';
+    const storagePath = `${userId}/${documentId}/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from(bucketName)
+      .upload(storagePath, buffer, {
+        contentType: mimeType,
+        upsert: false,
+      });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, storagePath };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Upload failed',
+    };
+  }
+}
+
+/**
+ * Delete file from Supabase Storage
+ */
+async function deleteFromStorage(storagePath: string): Promise<boolean> {
+  try {
+    const supabase = getStorageSupabase();
+    const { error } = await supabase.storage
+      .from('document-vault')
+      .remove([storagePath]);
+    return !error;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Compress PDF file using Python backend
@@ -130,9 +194,6 @@ export async function POST(request: NextRequest) {
 
     // Generate document ID
     const documentId = generateDocumentId();
-
-    // Save file to local filesystem
-    const fileManager = new DocumentFileManager();
     const buffer = Buffer.from(await file.arrayBuffer());
 
     // Check if file needs compression
@@ -140,21 +201,22 @@ export async function POST(request: NextRequest) {
     const needsCompression = file.size > NVC_FILE_SIZE_LIMIT && isPdf;
 
     // Determine filename for original file
-    // If file > 4MB, add "_master" suffix to original, compressed will use standard name
     const originalFilename = needsCompression
       ? standardizedFilename.replace(/\.pdf$/i, '_master.pdf')
       : standardizedFilename;
 
-    const saveResult = await fileManager.saveFile(
+    // Upload to Supabase Storage (works on both local AND Vercel!)
+    const uploadResult = await uploadToStorage(
       buffer,
+      originalFilename,
+      file.type,
       user.id,
-      documentId,
-      originalFilename
+      documentId
     );
 
-    if (!saveResult.success) {
+    if (!uploadResult.success) {
       return NextResponse.json(
-        { error: saveResult.error || 'Failed to save file' },
+        { error: uploadResult.error || 'Failed to upload file' },
         { status: 500 }
       );
     }
@@ -165,45 +227,34 @@ export async function POST(request: NextRequest) {
     let compressedFileSize: number | undefined;
     let compressedStoragePath: string | undefined;
 
-    // needsCompression is already defined above
     if (needsCompression) {
-      console.log(`File ${file.name} is ${(file.size / 1024 / 1024).toFixed(2)}MB - auto-compressing for NVC/USCIS compliance...`);
-      console.log(`Calling compression API at: ${COMPRESSION_API_URL}/api/v1/compress`);
+      console.log(`File ${file.name} is ${(file.size / 1024 / 1024).toFixed(2)}MB - auto-compressing...`);
 
       const compressionResult = await compressPdf(buffer, file.name);
 
       if (compressionResult.success && compressionResult.buffer) {
-        // Only save compressed version if it's actually smaller
         const compressedSize = compressionResult.buffer.length;
 
         if (compressedSize < file.size) {
-          // Compressed file uses the standard filename (without _COMPRESSED suffix)
           compressedFilename = standardizedFilename;
 
-          // Save compressed file
-          const compressedSaveResult = await fileManager.saveFile(
+          // Upload compressed file to Supabase Storage
+          const compressedUploadResult = await uploadToStorage(
             compressionResult.buffer,
+            compressedFilename,
+            file.type,
             user.id,
-            documentId,
-            compressedFilename
+            documentId
           );
 
-          if (compressedSaveResult.success) {
+          if (compressedUploadResult.success) {
             hasCompressedVersion = true;
             compressedFileSize = compressedSize;
-            compressedStoragePath = compressedSaveResult.storagePath;
+            compressedStoragePath = compressedUploadResult.storagePath;
 
-            console.log(`Compression successful: ${(file.size / 1024 / 1024).toFixed(2)}MB -> ${(compressedSize / 1024 / 1024).toFixed(2)}MB (${((1 - compressedSize / file.size) * 100).toFixed(1)}% reduction)`);
-          } else {
-            console.error('Failed to save compressed file:', compressedSaveResult.error);
+            console.log(`Compression successful: ${(file.size / 1024 / 1024).toFixed(2)}MB -> ${(compressedSize / 1024 / 1024).toFixed(2)}MB`);
           }
-        } else {
-          console.log('Compressed file is not smaller than original, skipping compressed version');
         }
-      } else {
-        console.error('PDF compression failed:', compressionResult.error);
-        console.error('Make sure Python backend is running at:', COMPRESSION_API_URL);
-        // Continue without compressed version - original will still be saved
       }
     }
 
@@ -219,16 +270,14 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       documentDefId,
       originalFilename: file.name,
-      standardizedFilename: originalFilename, // Use actual saved filename (may have _master suffix)
+      standardizedFilename: originalFilename,
       fileSize: file.size,
       mimeType: file.type,
-      storagePath: saveResult.storagePath!,
-      // Compressed file info
+      storagePath: uploadResult.storagePath!,
       hasCompressedVersion,
       compressedFilename,
       compressedFileSize,
       compressedStoragePath,
-      // Metadata
       uploadedAt: uploadDate,
       uploadedBy: role,
       version,
