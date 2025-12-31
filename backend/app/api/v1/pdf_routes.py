@@ -7,6 +7,7 @@ from typing import Dict, Any
 import fitz
 
 from app.services.pdf_filler import PDFFillerService
+from app.services.ds260_generator import DS260GeneratorService
 
 router = APIRouter()
 
@@ -17,8 +18,12 @@ class FillRequest(BaseModel):
 @router.post("/fill-pdf")
 async def fill_pdf(request: FillRequest):
     try:
-        pdf_service = PDFFillerService(form_id=request.formId)
-        output = pdf_service.fill_pdf(form_data=request.data)
+        if request.formId.lower() == "ds260":
+             generator = DS260GeneratorService()
+             output = generator.generate_pdf(form_data=request.data)
+        else:
+             pdf_service = PDFFillerService(form_id=request.formId)
+             output = pdf_service.fill_pdf(form_data=request.data)
         
         return StreamingResponse(
             output,

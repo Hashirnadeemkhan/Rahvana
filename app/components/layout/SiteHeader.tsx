@@ -46,9 +46,35 @@ const useExtensionCleanup = () => {
   }, []);
 };
 
+<<<<<<< Updated upstream
 // --------------------------------------------------------------------------
 //  SiteHeader component
 // --------------------------------------------------------------------------
+=======
+/* -------------------------------------------------------------------------- */
+/*  Hover-dropdown hook (unchanged)                                           */
+/* -------------------------------------------------------------------------- */
+const useHoverDropdown = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsOpen(true);
+  };
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setIsOpen(false), 1000);
+    // setIsOpen(false);
+  };
+
+  return { isOpen, handleMouseEnter, handleMouseLeave };
+};
+
+/* -------------------------------------------------------------------------- */
+/*  SiteHeader component                                                      */
+/* -------------------------------------------------------------------------- */
+>>>>>>> Stashed changes
 export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onToggleAuth }: HeaderProps = {}) {
   // Run cleanup once
   useExtensionCleanup();
@@ -143,7 +169,7 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-primary/20 bg-gradient-to-r from-primary/10 via-white to-primary/10 backdrop-blur-lg shadow-md">
+    <header className="sticky top-0 z-50 border-b border-primary/20 bg-linear-to-r from-primary/10 via-white to-primary/10 backdrop-blur-lg shadow-md">
       {/* ------------------------------------------------------------------ */}
       {/* Desktop navigation */}
       {/* ------------------------------------------------------------------ */}
@@ -195,6 +221,7 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
                 <ChevronDown className={`h-3 w-3 ${visaMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
+<<<<<<< Updated upstream
               <div
                 className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${visaMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
               >
@@ -219,6 +246,39 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
                   More coming soon...
                 </div>
               </div>
+=======
+                <DropdownMenuContent
+                  align="start"
+                  className="rounded-lg shadow-lg border border-gray-200 w-64 bg-white p-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                  sideOffset={0}
+                  onMouseEnter={visaMenu.handleMouseEnter}
+                  onMouseLeave={visaMenu.handleMouseLeave}
+                >
+                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
+                    Explore Visas
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/visa-category/ir-category"
+                      onClick={(e) => handleNav('ir1-journey', e)}
+                      className={`flex items-center justify-between gap-3 w-full p-3 rounded-md transition-all group ${
+                        isActive('ir1-journey', '/visa-category/ir-category') ? 'text-primary bg-primary/5' : 'text-gray-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Briefcase className={`h-4 w-4 ${isActive('ir1-journey', '/visa-category/ir-category') ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
+                        <span className="text-sm font-medium">IR Category</span>
+                      </div>
+                      <ArrowRight className={`h-3.5 w-3.5 transition-all ${isActive('ir1-journey', '/visa-category/ir-category') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
+                    More coming soon...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+>>>>>>> Stashed changes
             </div>
 
             {/* ---------- SERVICES ---------- */}
@@ -236,6 +296,7 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
                 <ChevronDown className={`h-3 w-3 ${serviceMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
+<<<<<<< Updated upstream
               <div
                 className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${serviceMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
               >
@@ -257,6 +318,36 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
                   <ArrowRight className={`h-3.5 w-3.5 ${isActive('services', '/services') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
                 </Link>
               </div>
+=======
+                <DropdownMenuContent
+                  align="start"
+                  className="rounded-lg shadow-lg border border-gray-200 w-64 bg-white p-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                  sideOffset={0}
+                  onMouseEnter={serviceMenu.handleMouseEnter}
+                  onMouseLeave={serviceMenu.handleMouseLeave}
+                >
+                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
+                    Our Services
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/services"
+                      onClick={(e) => handleNav('services', e)}
+                      className={`flex items-center justify-between gap-3 w-full p-3 rounded-md transition-all group ${
+                        isActive('services', '/services') ? 'text-primary bg-primary/5' : 'text-gray-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Zap className={`h-4 w-4 ${isActive('services', '/services') ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
+                        <span className="text-sm font-medium">Consultancy</span>
+                      </div>
+                      <ArrowRight className={`h-3.5 w-3.5 transition-all ${isActive('services', '/services') ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+>>>>>>> Stashed changes
             </div>
 
             {/* ---------- TOOLS ---------- */}
@@ -309,10 +400,56 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
                   </Link>
                 ))}
 
+<<<<<<< Updated upstream
                 <div className="text-gray-400 cursor-not-allowed py-2 px-3 rounded-md text-sm">
                   More tools coming soon...
                 </div>
               </div>
+=======
+                <DropdownMenuContent
+                  align="start"
+                  className="rounded-lg shadow-lg border border-gray-200 w-64 bg-white p-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                  sideOffset={0}
+                  onMouseEnter={toolsMenu.handleMouseEnter}
+                  onMouseLeave={toolsMenu.handleMouseLeave}
+                >
+                  <DropdownMenuLabel className="font-semibold text-primary px-3 py-2 text-sm">
+                    Available Tools
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="my-1" />
+
+                  {/* ---- Tool links (same as before) ---- */}
+                  {[
+                    { href: "/passport", label: "Passport Photo", id: 'passport' },
+                    { href: "/pdf-processing", label: "PDF Processing", id: 'pdf' },
+                    { href: "/signature-image-processing", label: "Create Signature", id: 'signature' },
+                    { href: "/iv-tool", label: "IV Tool", id: 'iv' },
+                    { href: "/visa-forms", label: "Auto Form Filling", id: 'forms' },
+                    { href: "/visa-checker", label: "Visa Bulletin Checker", id: 'checker' },
+                  ].map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link
+                        href={item.href}
+                        onClick={(e) => handleNav('tools', e)}
+                        className={`flex items-center justify-between gap-3 w-full p-3 rounded-md transition-all group ${
+                          isActive(item.id, item.href) ? 'text-primary bg-primary/5' : 'text-gray-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className={`h-4 w-4 ${isActive(item.id, item.href) ? 'text-primary' : 'text-primary/60'} group-hover:text-primary`} />
+                          <span className="text-sm font-medium">{item.label}</span>
+                        </div>
+                        <ArrowRight className={`h-3.5 w-3.5 transition-all ${isActive(item.id, item.href) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+
+                  <DropdownMenuItem disabled className="text-gray-400 cursor-not-allowed p-3 rounded-md text-sm">
+                    More tools coming soon...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+>>>>>>> Stashed changes
             </div>
 
             <Link
@@ -374,7 +511,7 @@ export function SiteHeader({ activeSection, onNavigate, isSignedIn = false, onTo
       {/* Mobile Sidebar Overlay */}
       {/* ------------------------------------------------------------------ */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-[100] h-screen md:hidden">
+        <div className="fixed inset-0 z-100 h-screen md:hidden">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"

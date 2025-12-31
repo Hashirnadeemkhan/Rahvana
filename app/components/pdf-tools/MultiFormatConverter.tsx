@@ -88,7 +88,7 @@ export default function PDFConverterApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -196,7 +196,7 @@ export default function PDFConverterApp() {
             <button
               onClick={handleConvert}
               disabled={!file || converting}
-              className="w-full bg-primary/90 hover:bg-primary/100 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-600/20 disabled:shadow-none"
+              className="w-full bg-primary/90 hover:bg-primary disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-600/20 disabled:shadow-none"
             >
               {converting ? (
                 <>

@@ -10,12 +10,14 @@ logger = logging.getLogger(__name__)
 from app.core.form_configs import i130_config 
 from app.core.form_configs import i864_config
 from app.core.form_configs import i130a_config
+# from app.core.form_configs import ds260_config
 
 # Master mapping: formId → FIELD_MAPPING
 FORM_CONFIGS = {
     "i130": i130_config.FIELD_MAPPING,
     "i864": i864_config.FIELD_MAPPING,
     "i130a": i130a_config.FIELD_MAPPING,
+    # "ds260": ds260_config.FIELD_MAPPING,
     # "i485": i485_config.FIELD_MAPPING,
     # "i765": i765_config.FIELD_MAPPING,
 }

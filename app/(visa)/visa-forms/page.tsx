@@ -83,7 +83,7 @@ export default function VisaFormSelector() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-primary/5">
+    <div className="min-h-screen bg-linear-to-br from-primary/10 via-white to-primary/5">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -105,26 +105,26 @@ export default function VisaFormSelector() {
         {/* Info Banner */}
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-10">
           <div className="flex items-start gap-3">
-            <Info className="w-6 h-6 text-primary/90 flex-shrink-0 mt-0.5" />
+            <Info className="w-6 h-6 text-primary/90 shrink-0 mt-0.5" />
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 How It Works
               </h3>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                   <span>Choose a form below to get started</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                   <span>Answer 2-3 questions at a time with helpful tips</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                   <span>Your progress is saved automatically</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                   <span>Review and edit before generating your filled PDF</span>
                 </li>
               </ul>
@@ -189,7 +189,7 @@ export default function VisaFormSelector() {
                   <div className="flex flex-col gap-3">
                     <button
                       onClick={() => handleStartForm(form.code)}
-                      className="w-full bg-primary/90 hover:bg-primary/100 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                      className="w-full bg-primary/90 hover:bg-primary text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow"
                     >
                       Start Filling Form
                       <ArrowRight className="w-4 h-4" />
@@ -221,19 +221,19 @@ export default function VisaFormSelector() {
               <p className="font-semibold text-gray-900">For Spouse Immigration:</p>
               <ol className="space-y-2 text-gray-700">
                 <li className="flex items-start gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary/90 text-sm font-semibold flex-shrink-0">1</span>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary/90 text-sm font-semibold shrink-0">1</span>
                   <span>Start with <strong>I-130</strong> (Petition for spouse)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary/90 text-sm font-semibold flex-shrink-0">2</span>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary/90 text-sm font-semibold shrink-0">2</span>
                   <span>Complete <strong>I-130A</strong> (Spouse information)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary/90 text-sm font-semibold flex-shrink-0">3</span>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary/90 text-sm font-semibold shrink-0">3</span>
                   <span>Then file <strong>I-864</strong> (Financial support proof)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary/90 text-sm font-semibold flex-shrink-0">4</span>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary/90 text-sm font-semibold shrink-0">4</span>
                   <span>Finally, <strong>DS-260</strong> (Main visa application)</span>
                 </li>
               </ol>
@@ -241,27 +241,27 @@ export default function VisaFormSelector() {
           </div>
 
           {/* Features */}
-          <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl shadow-sm border border-primary/20 p-6">
+          <div className="bg-linear-to-br from-primary/5 to-primary/10 rounded-xl shadow-sm border border-primary/20 p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                 <span className="text-gray-700">Automatic progress saving</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                 <span className="text-gray-700">Helpful tips for every question</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                 <span className="text-gray-700">Examples for guidance</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                 <span className="text-gray-700">Edit anytime before final PDF</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-primary/90 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-primary/90 shrink-0 mt-0.5" />
                 <span className="text-gray-700">Download filled official form</span>
               </li>
             </ul>

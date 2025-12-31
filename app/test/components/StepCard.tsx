@@ -68,7 +68,7 @@ export function StepCard({ step, state, onToggleComplete, onToggleCollapse, isAc
                     </div>
                 </div>
 
-                <div className="flex-shrink-0 pt-1">
+                <div className="shrink-0 pt-1">
                      <Button
                         variant={isCompleted ? "secondary" : "default"}
                         size="sm"

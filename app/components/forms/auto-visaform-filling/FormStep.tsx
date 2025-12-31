@@ -1,27 +1,30 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import type { Field as FormField } from "@/lib/formConfig/types"
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { Field as FormField } from "@/lib/formConfig/types";
+import { Info } from "lucide-react";
 
 const SafeInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
-  const { value, ...rest } = props
+  const { value, ...rest } = props;
   return (
     <input
       {...rest}
       value={value ?? ""}
-      className={`border border-gray-300 p-3 w-full mt-1 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary outline-none transition ${rest.className || ""}`}
+      className={`border border-gray-300 p-3 w-full mt-1 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary outline-none transition ${
+        rest.className || ""
+      }`}
     />
-  )
-}
+  );
+};
 
-type RadioOption = { label: string; value: string; pdfKey: string }
+type RadioOption = { label: string; value: string; pdfKey: string };
 
 interface RadioGroupProps {
-  name: string
-  options: RadioOption[]
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  name: string;
+  options: RadioOption[];
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const RadioGroup = ({ name, options, value, onChange }: RadioGroupProps) => (
@@ -43,13 +46,13 @@ const RadioGroup = ({ name, options, value, onChange }: RadioGroupProps) => (
       </label>
     ))}
   </div>
-)
+);
 
 interface CheckboxProps {
-  name: string
-  label: string
-  checked: boolean
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  name: string;
+  label: string;
+  checked: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Checkbox = ({ name, label, checked, onChange }: CheckboxProps) => (
@@ -63,29 +66,39 @@ const Checkbox = ({ name, label, checked, onChange }: CheckboxProps) => (
     />
     {label}
   </label>
-)
+);
 
 const Textarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
   <textarea
     {...props}
-    className={`border border-gray-300 p-3 w-full mt-1 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary outline-none transition resize-none ${props.className || ""}`}
+    className={`border border-gray-300 p-3 w-full mt-1 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary outline-none transition resize-none ${
+      props.className || ""
+    }`}
   />
-)
+);
 
 interface FormStepProps {
-  stepNumber: number
-  sectionTitle: string
-  fields: FormField[]
-  formData: Record<string, string>
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  stepNumber: number;
+  sectionTitle: string;
+  fields: FormField[];
+  formData: Record<string, string>;
+  onInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
 }
 
-export function FormStep({ stepNumber, sectionTitle, fields, formData, onInputChange }: FormStepProps) {
-  const [isClient, setIsClient] = useState(false)
+export function FormStep({
+  // stepNumber,
+  sectionTitle,
+  fields,
+  formData,
+  onInputChange,
+}: FormStepProps) {
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
+    setIsClient(true);
+  }, []);
 
   if (!isClient) {
     return (
@@ -101,20 +114,42 @@ export function FormStep({ stepNumber, sectionTitle, fields, formData, onInputCh
           </div>
         ))}
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Step {stepNumber}: {sectionTitle}</h2>
-        <p className="text-gray-600 mt-2">Please fill in the following information</p>
+        {/* Step {stepNumber}: */}
+        <h2 className="text-2xl font-bold text-gray-900"> {sectionTitle}</h2>
+        <p className="text-gray-600 mt-2">
+          Please fill in the following information
+        </p>
       </div>
 
       <div className="space-y-8">
         {fields.map((field) => (
           <div key={field.key} className="space-y-2">
-            <label className="block text-base font-semibold text-gray-800">{field.label}</label>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="block text-base font-semibold text-gray-800">
+                {field.label}
+              </label>
+              {field.tooltip && (
+                <div className="group relative">
+                  <Info className="h-4 w-4 text-gray-400" />
+                  <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+                    {/* go to next line from this '-' and point the '-' with arrow to understand that this is next tip*/}
+                    {field.tooltip
+                      .split("-")
+                      .filter((tip) => tip.trim() !== "")
+                      .map((tip, index) => (
+                        <div key={index}>• {tip.trim()}</div>
+                      ))}
+                    <div className="absolute left-1/2 top-full -translate-x-1/2 border-8 border-transparent border-t-gray-900" />
+                  </div>
+                </div>
+              )}
+            </div>
 
             {field.type === "text" || field.type === "date" ? (
               <SafeInput
@@ -152,5 +187,5 @@ export function FormStep({ stepNumber, sectionTitle, fields, formData, onInputCh
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -22,6 +22,8 @@ export type Field = {
   value?: string;
   repeatable?: boolean;
   groupId?: string;
+  tooltip?: string;
+  originalLabel?: string;
 };
 
 // ✅ Add this: FormConfig type
