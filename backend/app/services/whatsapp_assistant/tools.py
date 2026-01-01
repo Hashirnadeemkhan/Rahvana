@@ -1,14 +1,14 @@
-# WhatsApp Assistant Tools - Lazy loading for memory efficiency
+# C:\Users\HP\Desktop\arachnie\Arachnie\backend\app\services\whatsapp_assistant\tools.py
 import os
 import traceback
 from typing import List, Optional
-from functools import lru_cache
 
 from dotenv import load_dotenv
 
 # External libraries
 from agents import function_tool
 from qdrant_client import QdrantClient, models
+from sentence_transformers import SentenceTransformer
 
 # Load environment variables (safe to call multiple times)
 load_dotenv()
@@ -32,27 +32,10 @@ qdrant_client = QdrantClient(
     timeout=60,
 )
 
-# ==================== LAZY MODEL LOADING ====================
-# Model is loaded only when WhatsApp search is actually used
-# This saves ~500MB RAM on startup
-
-_encoder = None  # Cached model instance
-
-def _get_encoder():
-    """Lazy load the embedding model - only loads when needed."""
-    global _encoder
-    if _encoder is None:
-        print(f"Loading embedding model: {MODEL_NAME} ...")
-        from sentence_transformers import SentenceTransformer
-        _encoder = SentenceTransformer(MODEL_NAME)
-        print(f"Model loaded successfully! Embedding dim: {_encoder.get_sentence_embedding_dimension()}")
-    return _encoder
-
-
-def _get_vector_dim() -> int:
-    """Get vector dimension from model."""
-    return _get_encoder().get_sentence_embedding_dimension()
-
+# Embedding model (heavy — load once at startup)
+print(f"Loading embedding model: {MODEL_NAME} ...")
+encoder = SentenceTransformer(MODEL_NAME)
+print(f"Model loaded successfully! Embedding dim: {encoder.get_sentence_embedding_dimension()}")
 
 # ==================== ENSURE COLLECTION EXISTS ====================
 def _ensure_collection_exists() -> None:
@@ -62,32 +45,21 @@ def _ensure_collection_exists() -> None:
         existing_names = [c.name for c in collections.collections]
 
         if COLLECTION_NAME not in existing_names:
-            # Only try to get dimension if we have env configured
-            try:
-                dim = _get_vector_dim()
-                print(f"Creating collection '{COLLECTION_NAME}' with vector size {dim}...")
-                qdrant_client.create_collection(
-                    collection_name=COLLECTION_NAME,
-                    vectors_config=models.VectorParams(
-                        size=dim,
-                        distance=models.Distance.COSINE,
-                    ),
-                )
-                print(f"Collection '{COLLECTION_NAME}' created successfully.")
-            except Exception as dim_error:
-                print(f"Warning: Could not get model dimension: {dim_error}")
-                # Create with default MiniLM dimension
-                qdrant_client.create_collection(
-                    collection_name=COLLECTION_NAME,
-                    vectors_config=models.VectorParams(
-                        size=384,  # all-MiniLM-L6-v2 default
-                        distance=models.Distance.COSINE,
-                    ),
-                )
+            dim = encoder.get_sentence_embedding_dimension()
+            print(f"Creating collection '{COLLECTION_NAME}' with vector size {dim}...")
+            qdrant_client.create_collection(
+                collection_name=COLLECTION_NAME,
+                vectors_config=models.VectorParams(
+                    size=dim,
+                    distance=models.Distance.COSINE,
+                ),
+            )
+            print(f"Collection '{COLLECTION_NAME}' created successfully.")
     except Exception as e:
         print(f"Warning: Could not verify/create collection: {e}")
+        traceback.print_exc()
 
-# Run once on import (Qdrant check, not model load)
+# Run once on import
 _ensure_collection_exists()
 
 
@@ -96,7 +68,7 @@ _ensure_collection_exists()
 def search_chat_history(query: str) -> str:
     """
     Semantically searches past WhatsApp chat history using Qdrant + Sentence Transformers.
-
+    
     Returns:
         - Relevant conversation snippets (natural text blocks)
         - "NO_RELEVANT_DATA_FOUND" if nothing useful is found
@@ -105,9 +77,6 @@ def search_chat_history(query: str) -> str:
         return "NO_RELEVANT_DATA_FOUND"
 
     try:
-        # Lazy load model only when this function is called
-        encoder = _get_encoder()
-
         # Clean and encode query
         clean_query = query.strip()
         query_vector = encoder.encode(clean_query, normalize_embeddings=True).tolist()
@@ -116,8 +85,8 @@ def search_chat_history(query: str) -> str:
         search_results = qdrant_client.query_points(
             collection_name=COLLECTION_NAME,
             query=query_vector,
-            limit=10,
-            score_threshold=0.32,
+            limit=10,                   # Thoda zyada fetch karo for better context
+            score_threshold=0.32,       # Balanced threshold (0.3–0.35 recommended)
         ).points
 
         if not search_results:
@@ -161,7 +130,7 @@ def search_chat_history(query: str) -> str:
                     formatted_blocks.append("\n".join(block_lines))
 
             except Exception:
-                continue
+                continue  # Skip bad windows silently
 
         # Deduplicate blocks and join
         unique_blocks = []
@@ -174,9 +143,11 @@ def search_chat_history(query: str) -> str:
         if not unique_blocks:
             return "NO_RELEVANT_DATA_FOUND"
 
+        # Join with clear separators
         return "\n\n--- Conversation Snippet ---\n".join(unique_blocks)
 
     except Exception as e:
+        # In production, we don't want tool to crash agent
         print(f"[search_chat_history] Unexpected error: {e}")
         traceback.print_exc()
         return "NO_RELEVANT_DATA_FOUND"

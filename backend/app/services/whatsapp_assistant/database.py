@@ -1,32 +1,18 @@
-# WhatsApp Database Setup Script - Lazy loading for memory efficiency
-# This script is meant to run LOCALLY for uploading chat data to Qdrant
+# C:\Users\HP\Desktop\whatsappAI\database.py
 import re
 import pandas as pd
 import os
 from qdrant_client import QdrantClient, models
+from sentence_transformers import SentenceTransformer
+from config import QDRANT_URL, QDRANT_API_KEY, COLLECTION_NAME, MODEL_NAME, WHATSAPP_CHAT_FILE_PATH
 from qdrant_client.http.models import PointStruct
 
-# Try to import config - if not available, use environment variables
-try:
-    from config import QDRANT_URL, QDRANT_API_KEY, COLLECTION_NAME, MODEL_NAME, WHATSAPP_CHAT_FILE_PATH
-except ImportError:
-    from dotenv import load_dotenv
-    load_dotenv()
-    QDRANT_URL = os.getenv("QDRANT_URL")
-    QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-    COLLECTION_NAME = os.getenv("COLLECTION_NAME", "whatsapp_chat_history")
-    MODEL_NAME = os.getenv("MODEL_NAME", "sentence-transformers/all-MiniLM-L6-v2")
-    WHATSAPP_CHAT_FILE_PATH = os.getenv("WHATSAPP_CHAT_FILE_PATH", "chat_history.txt")
-
-# --- CONFIG ---
-# Default dimension for all-MiniLM-L6-v2
-VECTOR_DIMENSION = 384
-BATCH_SIZE = 20
+# --- CONFIG (Correct for BGE-M3) ---
+VECTOR_DIMENSION = 1024
+BATCH_SIZE = 20     # safe batch
 UPLOAD_TIMEOUT = 150
 
-
 def parse_whatsapp_chat(file_path):
-    """Parse WhatsApp chat export file."""
     if not os.path.exists(file_path):
         print(f"Error: File '{file_path}' not found.")
         return pd.DataFrame()
@@ -48,7 +34,6 @@ def parse_whatsapp_chat(file_path):
 
 
 def setup_qdrant():
-    """Setup Qdrant collection."""
     client = QdrantClient(
         url=QDRANT_URL,
         api_key=QDRANT_API_KEY,
@@ -68,50 +53,46 @@ def setup_qdrant():
         )
         print(f"Collection '{COLLECTION_NAME}' created.")
     else:
-        print(f"Collection '{COLLECTION_NAME}' already exists.")
+        print(f"Collection '{COLLECTION_NAME}' already exists. (NOT recreating, safe to continue)")
 
     return client
 
 
 def generate_and_upsert_embeddings(client, df):
-    """Generate embeddings and upload to Qdrant - LAZY loading."""
     if df.empty:
         return
 
-    # Check how many already uploaded
+    # CHECK HOW MANY ALREADY UPLOADED
     try:
         collection_info = client.get_collection(COLLECTION_NAME)
         existing_count = collection_info.points_count
-        print(f"Already uploaded: {existing_count} points")
+        print(f"✓ Already uploaded: {existing_count} points")
     except:
         existing_count = 0
-        print("Starting fresh upload")
-
-    # Skip already uploaded rows
+        print("✓ Starting fresh upload")
+    
+    # SKIP THOSE ROWS
     if existing_count > 0:
-        df = df.iloc[existing_count:]
-        print(f"Resuming from point {existing_count}")
-
+        df = df.iloc[existing_count:]  # Start from next row
+        print(f"⚡ Resuming from point {existing_count}")
+    
     if df.empty:
-        print("All data already uploaded!")
+        print("✓ All data already uploaded!")
         return
 
-    # LAZY LOAD - only import when needed
-    print(f"Loading embedding model: {MODEL_NAME} ...")
-    from sentence_transformers import SentenceTransformer
+    print("Loading embedding model... (BGE-M3 2.2GB)")
     model = SentenceTransformer(MODEL_NAME)
-    print("Model loaded!")
 
     total_remaining = len(df)
     batch = []
 
-    for idx, row in df.iterrows():
+    for idx, row in df.iterrows():  # idx will be the ORIGINAL index
         text = row["message"]
         embedding = model.encode(text, convert_to_tensor=False)
 
         batch.append(
             PointStruct(
-                id=idx,
+                id=idx,  # Uses original index (21691, 21692, etc.)
                 vector=embedding,
                 payload={
                     "message": text,
@@ -127,7 +108,7 @@ def generate_and_upsert_embeddings(client, df):
             except Exception as e:
                 print("Error during upload, retrying...", e)
                 client.upsert(collection_name=COLLECTION_NAME, points=batch)
-
+            
             print(f"Processed {idx+1} total points")
             batch = []
 
