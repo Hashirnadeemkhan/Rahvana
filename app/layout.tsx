@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { SiteHeader } from './components/layout/SiteHeader';
+import { ClientHeader } from './components/layout/ClientHeader';
 import { AuthProvider } from './context/AuthContext';
 import { ClientWidgets } from './components/layout/ClientWidgets';
 import Footer from './components/layout/Footer';
@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className='bg-background'>
         <AuthProvider>
-          <SiteHeader />
+          <ClientHeader />
           {children}
         <ClientWidgets />
 

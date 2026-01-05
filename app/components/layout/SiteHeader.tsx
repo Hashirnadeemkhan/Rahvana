@@ -165,7 +165,7 @@ export function SiteHeader({
         checker: "/visa-checker",
         "document-vault": "/document-vault",
         "affidavit-support-calculator": "/affidavit-support-calculator",
-        "visa-suggestion": "/visa-eligibility",
+        "visa-eligibility": "/visa-eligibility",
       };
 
       const targetRoute = routes[id] || "/";
@@ -420,8 +420,8 @@ export function SiteHeader({
                   },
                   {
                     href: "/visa-eligibility",
-                    label: "Visa Suggestion Tool",
-                    id: "visa-suggestion",
+                    label: "Visa Eligibility Checker",
+                    id: "visa-eligibility",
                   },
                 ].map((item) => (
                   <Link
@@ -690,6 +690,10 @@ export function SiteHeader({
                         { id: "forms", label: "Auto Form Filling" },
                         { id: "checker", label: "Visa Bulletin Checker" },
                         { id: "document-vault", label: "Document Vault" },
+                        {
+                          id: "visa-eligibility",
+                          label: "Visa Eligibility Checker",
+                        },
                         {
                           id: "affidavit-support-calculator",
                           label: "Affidavit Support Calculator",
