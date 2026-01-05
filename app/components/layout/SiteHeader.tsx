@@ -417,6 +417,7 @@ export function SiteHeader({
                     label: "Affidavit Support Calculator",
                     id: "affidavit-support-calculator",
                   },
+                  { href: "/visa-eligibility", label: "Visa Eligibility Checker", id: "visa-eligibility" },
                 ].map((item) => (
                   <Link
                     key={item.href}
@@ -684,6 +685,7 @@ export function SiteHeader({
                         { id: "forms", label: "Auto Form Filling" },
                         { id: "checker", label: "Visa Bulletin Checker" },
                         { id: "document-vault", label: "Document Vault" },
+                        { id: "visa-eligibility", label: "Visa Eligibility Checker" },
                         {
                           id: "affidavit-support-calculator",
                           label: "Affidavit Support Calculator",
