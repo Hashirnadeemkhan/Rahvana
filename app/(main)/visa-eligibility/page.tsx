@@ -382,11 +382,11 @@ export default function FutureQuestions() {
      DV LOTTERY
      ========================= */
 
-    v.push({
-      code: "DV",
-      title: "Diversity Visa Lottery",
-      description: "A lottery-based immigrant visa for eligible countries.",
-    });
+    // v.push({
+    //   code: "DV",
+    //   title: "Diversity Visa Lottery",
+    //   description: "A lottery-based immigrant visa for eligible countries.",
+    // });
 
     return v;
   };
