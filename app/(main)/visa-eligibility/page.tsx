@@ -944,7 +944,9 @@ export default function FutureQuestions() {
                     <CheckCircle size={40} />
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    Visa Categories You May Be Eligible For
+                    {getVisaSuggestions().length > 0
+                      ? "Visa Categories You May Be Eligible For"
+                      : "You are not eligible for any visa category"}
                   </h2>
                   <p className="text-gray-500 mt-2">
                     Based on the information you provided
