@@ -53,7 +53,7 @@ type FutureAnswers = {
   sponsorBase?: "FAMILY" | "EMPLOYMENT" | "INVESTMENT" | "HUMANITARIAN";
 };
 
-export default function FutureQuestions() {
+export default function VisaSuggestion() {
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState<FutureAnswers>({});
   const [selectedVisaCode, setSelectedVisaCode] = useState<string | null>(null);

@@ -12,7 +12,7 @@ import { useWizard } from './(main)/dashboard/hooks/useWizard';
 
 export default function HomePage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className='flex items-center justify-center h-screen'>Loading...</div>}>
             <HomePageContent />
         </Suspense>
     );
