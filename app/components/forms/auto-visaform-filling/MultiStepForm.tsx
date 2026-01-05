@@ -52,7 +52,11 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
   const currentSection = sections[currentStep - 1];
 
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
       const { name, value, type } = e.target;
       const checked = (e.target as HTMLInputElement).checked;
 
@@ -93,12 +97,19 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
       if (!value || (field.condition && !field.condition(formData))) return;
 
       if (field.type === "radio" && field.options) {
-        const selected = field.options.find((opt: { value: string; pdfKey: string }) => opt.value === value);
+        const selected = field.options.find(
+          (opt: { value: string; pdfKey: string }) => opt.value === value
+        );
         if (selected) {
           payload[selected.pdfKey] = "Yes";
           field.options
-            .filter((opt: { value: string; pdfKey: string }) => opt.value !== value)
-            .forEach((opt: { value: string; pdfKey: string }) => (payload[opt.pdfKey] = "Off"));
+            .filter(
+              (opt: { value: string; pdfKey: string }) => opt.value !== value
+            )
+            .forEach(
+              (opt: { value: string; pdfKey: string }) =>
+                (payload[opt.pdfKey] = "Off")
+            );
         }
       } else if (field.type === "checkbox") {
         payload[field.pdfKey] = value === "Yes" ? "Yes" : "Off";
@@ -112,7 +123,8 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
 
   const handlePreviewPDF = async () => {
     const payload = buildPdfPayload();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/fill-pdf`, {
@@ -128,14 +140,16 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (err: unknown) {
       console.error("Preview error:", err);
-      if (err instanceof Error) alert(`Preview failed: ${err.message}. Please check console.`);
+      if (err instanceof Error)
+        alert(`Preview failed: ${err.message}. Please check console.`);
       else alert("Preview failed. Please check console.");
     }
   };
 
   const handleDownloadPDF = async () => {
     const payload = buildPdfPayload();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
     try {
       const res = await fetch(`${apiUrl}/fill-pdf`, {
@@ -154,7 +168,8 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
       URL.revokeObjectURL(url);
     } catch (err: unknown) {
       console.error("Download error:", err);
-      if (err instanceof Error) alert(`Download failed: ${err.message}. Please check console.`);
+      if (err instanceof Error)
+        alert(`Download failed: ${err.message}. Please check console.`);
       else alert("Download failed. Please check console.");
     }
   };
@@ -163,9 +178,12 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-red-50 border border-red-200 rounded-xl p-10 text-center max-w-md">
-          <h2 className="text-2xl font-bold text-red-800 mb-3">Form Not Found</h2>
+          <h2 className="text-2xl font-bold text-red-800 mb-3">
+            Form Not Found
+          </h2>
           <p className="text-red-700">
-            Sorry, the form &quot;<strong>{formCode.toUpperCase()}</strong>&quot; is not available yet.
+            Sorry, the form &quot;<strong>{formCode.toUpperCase()}</strong>
+            &quot; is not available yet.
           </p>
           <p className="text-sm text-gray-600 mt-4">
             Available: I-130, I-130A, I-864, DS-260
@@ -176,7 +194,11 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
   }
 
   if (totalSteps === 0) {
-    return <div className="text-center py-20 text-gray-500">No questions in this form.</div>;
+    return (
+      <div className="text-center py-20 text-gray-500">
+        No questions in this form.
+      </div>
+    );
   }
 
   return (
@@ -194,12 +216,16 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
               <Menu className="w-6 h-6" />
             </button>
           )}
-          
+
           <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-bold">
               {config.formTitle || `USCIS Form ${formCode.toUpperCase()}`}
             </h1>
-            {config.formSubtitle && <p className="text-white/90 mt-1 text-sm md:text-base">{config.formSubtitle}</p>}
+            {config.formSubtitle && (
+              <p className="text-white/90 mt-1 text-sm md:text-base">
+                {config.formSubtitle}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -221,7 +247,9 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
         <div className="p-6 space-y-6 h-full overflow-y-auto">
           {/* Drawer Header */}
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Quick Navigation</h2>
+            <h2 className="text-xl font-bold text-gray-900">
+              Quick Navigation
+            </h2>
             <button
               onClick={() => setIsDrawerOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition"
@@ -234,7 +262,11 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
           {/* Progress Section */}
           <div className="bg-gray-50 rounded-xl p-4">
             <h3 className="font-semibold text-gray-900 mb-4">Progress</h3>
-            <ProgressBar current={currentStep} total={totalSteps} progress={progress} />
+            <ProgressBar
+              current={currentStep}
+              total={totalSteps}
+              progress={progress}
+            />
             <p className="text-sm text-gray-600 mt-3 text-center">
               Step {currentStep} of {totalSteps}
             </p>
@@ -245,7 +277,8 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
             <h3 className="font-semibold text-gray-900 mb-4">Sections</h3>
             <div className="space-y-2">
               {sections.map((section, idx) => {
-                const label = section.title.split(".").pop()?.trim() || section.title;
+                const label =
+                  section.title.split(".").pop()?.trim() || section.title;
                 return (
                   <button
                     key={idx}
@@ -260,9 +293,13 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                        currentStep === idx + 1 ? "bg-white/20" : "bg-gray-200"
-                      }`}>
+                      <span
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          currentStep === idx + 1
+                            ? "bg-white/20"
+                            : "bg-gray-200"
+                        }`}
+                      >
                         {idx + 1}
                       </span>
                       <span className="truncate">{label}</span>
@@ -284,7 +321,11 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
               {/* Progress Section */}
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Progress</h3>
-                <ProgressBar current={currentStep} total={totalSteps} progress={progress} />
+                <ProgressBar
+                  current={currentStep}
+                  total={totalSteps}
+                  progress={progress}
+                />
                 <p className="text-sm text-gray-600 mt-3 text-center">
                   Step {currentStep} of {totalSteps}
                 </p>
@@ -308,9 +349,13 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                            currentStep === idx + 1 ? "bg-white/20" : "bg-gray-200"
-                          }`}>
+                          <span
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                              currentStep === idx + 1
+                                ? "bg-white/20"
+                                : "bg-gray-200"
+                            }`}
+                          >
                             {idx + 1}
                           </span>
                           <span className="truncate">{label}</span>
