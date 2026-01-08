@@ -14,6 +14,25 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
+      // Get the current user to create/update their profile
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        // Create or update user profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+            role: 'user' // Default role is 'user'
+          });
+
+        if (profileError) {
+          console.error("Error creating/updating user profile:", profileError);
+        }
+      }
+
       const forwardedHost = request.headers.get('x-forwarded-host')
       const isLocalEnv = process.env.NODE_ENV === 'development'
 
