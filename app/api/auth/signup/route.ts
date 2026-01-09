@@ -85,6 +85,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create user profile in the profiles table
+    if (newUser?.user?.id) {
+      const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .insert([{
+          id: newUser.user.id,
+          email: email,
+          full_name: email.split('@')[0], // Use part of email as default name
+          role: 'user' // Default role is 'user'
+        }]);
+
+      if (profileError) {
+        console.error("Error creating user profile:", profileError);
+        // Note: We don't delete the user here as the signup was successful
+        // The profile can be created later
+      }
+    }
+
     // Build confirmation URL
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
