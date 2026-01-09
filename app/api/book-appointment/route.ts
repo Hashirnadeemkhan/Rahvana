@@ -1,21 +1,40 @@
 import { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@supabase/ssr';
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient();
-    
+    // Use the service role client to bypass RLS policies
+    // This requires the NEXT_SERVICE_ROLE_KEY environment variable to be set
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!, // Use service role key
+      {
+        cookies: {
+          getAll() {
+            return [];
+          },
+          setAll(cookiesToSet) {
+            // Do nothing for server-side operations
+          },
+        }
+      }
+    );
+
     // Get form data from request
     const formData = await req.json();
-    
+
     // Extract the full name from given name and surname
     const fullName = `${formData.givenName} ${formData.surname}`;
-    
+
     // Prepare appointment data for database insertion
-    const appointmentData = {
+    const appointmentData: any = {
       full_name: fullName,
       email: formData.email,
-      phone: formData.primaryContact,
+      phone_number: formData.primaryContact,
+      medical_website: formData.location === 'islamabad' ?
+        (formData.islamabadProvider === 'amc' ? 'AMC' : 'IOM') :
+        `${formData.location.charAt(0).toUpperCase() + formData.location.slice(1)} - Wilcare Medical`,
       location: formData.location,
       provider: formData.islamabadProvider || null,
       appointment_type: formData.appointmentType,
@@ -28,7 +47,6 @@ export async function POST(req: NextRequest) {
       passport_number: formData.passportNumber,
       passport_issue_date: formData.passportIssueDate ? new Date(formData.passportIssueDate).toISOString() : null,
       passport_expiry_date: formData.passportExpiryDate ? new Date(formData.passportExpiryDate).toISOString() : null,
-      case_number: formData.caseNumber,
       preferred_date: formData.preferredAppointmentDate ? new Date(formData.preferredAppointmentDate).toISOString() : null,
       preferred_time: formData.preferredTime,
       estimated_charges: formData.estimatedCharges,
@@ -38,8 +56,14 @@ export async function POST(req: NextRequest) {
       city: formData.city,
       case_ref: formData.caseRef,
       number_of_applicants: formData.numberOfApplicants ? parseInt(formData.numberOfApplicants) : null,
+      original_passport: formData.originalPassport,
       status: 'pending' // Default status
     };
+
+    // Only add case_number if it exists in the form data
+    if (formData.caseNumber && formData.caseNumber.trim() !== '') {
+      appointmentData.case_number = formData.caseNumber;
+    }
 
     // Insert appointment into database
     const { data, error } = await supabase
@@ -62,10 +86,10 @@ export async function POST(req: NextRequest) {
     //   status: 'in_progress'
     // });
 
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       id: data.id,
-      message: 'Appointment request submitted successfully' 
+      message: 'Appointment request submitted successfully'
     });
 
   } catch (error) {

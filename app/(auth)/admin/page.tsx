@@ -27,17 +27,39 @@ type AppointmentStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
 interface Appointment {
   id: string;
   created_at: string;
+  updated_at: string;
   full_name: string;
   email: string;
-  phone: string;
+  phone_number: string;
+  medical_website: string;
   location: string;
   provider: string;
   appointment_type: string;
-  status: AppointmentStatus;
+  visa_type?: string;
+  medical_type?: string;
+  surname?: string;
+  given_name?: string;
+  gender?: string;
+  date_of_birth?: string;
+  passport_number?: string;
+  passport_issue_date?: string;
+  passport_expiry_date?: string;
+  case_number?: string;
   preferred_date?: string;
   preferred_time?: string;
-  visa_type?: string;
-  passport_number?: string;
+  estimated_charges?: string;
+  interview_date?: string;
+  visa_category?: string;
+  had_medical_before?: string;
+  city?: string;
+  case_ref?: string;
+  number_of_applicants?: number;
+  original_passport?: string;
+  status: AppointmentStatus;
+  // Document URLs (these might not exist in your current schema)
+  scanned_passport_url?: string;
+  k_one_letter_url?: string;
+  appointment_confirmation_letter_url?: string;
 }
 
 export default function AdminPanel() {
@@ -46,21 +68,19 @@ export default function AdminPanel() {
   const [selectedStatus, setSelectedStatus] = useState<AppointmentStatus | 'all'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
 
   const fetchAppointments = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('appointments')
-        .select('*')
-        .order('created_at', { ascending: false });
 
-      if (error) {
-        throw new Error(error.message);
+      const response = await fetch('/api/admin/appointments');
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to fetch appointments');
       }
 
-      setAppointments(data || []);
+      setAppointments(result.data || []);
       // The useEffect hook will handle updating filteredAppointments
       setError(null);
     } catch (err: unknown) {
@@ -70,11 +90,20 @@ export default function AdminPanel() {
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, []);
 
   // Fetch appointments on component mount
   useEffect(() => {
     fetchAppointments();
+  }, [fetchAppointments]);
+
+  // Refresh appointments every 30 seconds to catch new submissions
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchAppointments();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
   }, [fetchAppointments]);
 
   // Filter appointments based on selected status
@@ -90,21 +119,22 @@ export default function AdminPanel() {
 
   const updateAppointmentStatus = async (id: string, newStatus: AppointmentStatus) => {
     try {
-      const { error } = await supabase
-        .from('appointments')
-        .update({ status: newStatus })
-        .eq('id', id);
+      const response = await fetch('/api/admin/appointments', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
 
-      if (error) {
-        throw new Error(error.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update appointment status');
       }
 
-      // Update local state
-      setAppointments(prev => 
-        prev.map(app => 
-          app.id === id ? { ...app, status: newStatus } : app
-        )
-      );
+      // Refresh the appointments list to get the latest data
+      fetchAppointments();
 
       console.log(`Appointment ${id} status updated to ${newStatus}`);
     } catch (err: unknown) {
@@ -137,6 +167,16 @@ export default function AdminPanel() {
   const formatTime = (timeString?: string) => {
     if (!timeString) return 'Not specified';
     return timeString;
+  };
+
+  // State to track expanded appointments
+  const [expandedAppointments, setExpandedAppointments] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (id: string) => {
+    setExpandedAppointments(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
   };
 
   if (error) {
@@ -203,58 +243,189 @@ export default function AdminPanel() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Appointment Type</TableHead>
-                      <TableHead>Preferred Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAppointments.map((appointment) => (
-                      <TableRow key={appointment.id}>
-                        <TableCell className="font-medium">
-                          {appointment.id.substring(0, 8)}...
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">{appointment.full_name}</div>
-                          <div className="text-sm text-gray-500">
-                            {appointment.passport_number ? `Passport: ${appointment.passport_number}` : ''}
+              <div className="space-y-4">
+                {filteredAppointments.map((appointment) => (
+                  <Card key={appointment.id} className="shadow-sm">
+                    <CardHeader
+                      className="cursor-pointer p-4 bg-gray-50 hover:bg-gray-100 rounded-t-lg"
+                      onClick={() => toggleExpand(appointment.id)}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-4">
+                          <div className="font-medium">
+                            <span className="font-bold">{appointment.full_name}</span>
+                            <span className="text-gray-500 ml-2 text-sm">({appointment.email})</span>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>{appointment.email}</div>
-                          <div className="text-sm text-gray-500">{appointment.phone}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div>{appointment.location}</div>
-                          {appointment.provider && (
-                            <div className="text-sm text-gray-500">{appointment.provider}</div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div>{appointment.appointment_type}</div>
-                          {appointment.visa_type && (
-                            <div className="text-sm text-gray-500">{appointment.visa_type}</div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {formatDate(appointment.preferred_date)}<br/>
-                          <span className="text-sm text-gray-500">{formatTime(appointment.preferred_time)}</span>
-                        </TableCell>
-                        <TableCell>
                           <Badge variant={getStatusBadgeVariant(appointment.status)}>
                             {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-sm text-gray-500">
+                            {formatDate(appointment.created_at)} • {appointment.medical_website}
+                          </div>
+                          <Button variant="outline" size="sm" onClick={(e) => {
+                            e.stopPropagation(); // Prevent card expansion when clicking refresh
+                            fetchAppointments();
+                          }}>
+                            Refresh
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={(e) => {
+                            e.stopPropagation(); // Prevent card expansion when clicking expand/collapse
+                            toggleExpand(appointment.id);
+                          }}>
+                            {expandedAppointments[appointment.id] ? 'Collapse' : 'Expand'}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+
+                    {expandedAppointments[appointment.id] && (
+                      <CardContent className="p-4 pt-0 mt-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                          <div>
+                            <h4 className="font-semibold text-gray-700">Personal Information</h4>
+                            <p><span className="text-gray-500">Name:</span> {appointment.full_name}</p>
+                            <p><span className="text-gray-500">Surname:</span> {appointment.surname || 'N/A'}</p>
+                            <p><span className="text-gray-500">Given Name:</span> {appointment.given_name || 'N/A'}</p>
+                            <p><span className="text-gray-500">Gender:</span> {appointment.gender || 'N/A'}</p>
+                            <p><span className="text-gray-500">Date of Birth:</span> {formatDate(appointment.date_of_birth)}</p>
+                          </div>
+
+                          <div>
+                            <h4 className="font-semibold text-gray-700">Contact Information</h4>
+                            <p><span className="text-gray-500">Email:</span> {appointment.email}</p>
+                            <p><span className="text-gray-500">Phone:</span> {appointment.phone_number}</p>
+                            <p><span className="text-gray-500">City:</span> {appointment.city || 'N/A'}</p>
+                          </div>
+
+                          <div>
+                            <h4 className="font-semibold text-gray-700">Appointment Details</h4>
+                            <p><span className="text-gray-500">Location:</span> {appointment.location}</p>
+                            <p><span className="text-gray-500">Provider:</span> {appointment.provider || 'N/A'}</p>
+                            <p><span className="text-gray-500">Website:</span> {appointment.medical_website}</p>
+                            <p><span className="text-gray-500">Type:</span> {appointment.appointment_type}</p>
+                            <p><span className="text-gray-500">Visa Type:</span> {appointment.visa_type || 'N/A'}</p>
+
+                            {/* Show AMC-specific fields if this is an AMC appointment */}
+                            {appointment.location === 'islamabad' && appointment.provider === 'amc' && (
+                              <>
+                                <p><span className="text-gray-500">Interview Date:</span> {formatDate(appointment.interview_date)}</p>
+                                <p><span className="text-gray-500">Visa Category:</span> {appointment.visa_category || 'N/A'}</p>
+                                <p><span className="text-gray-500">Had Medical Before:</span> {appointment.had_medical_before || 'N/A'}</p>
+                                <p><span className="text-gray-500">City:</span> {appointment.city || 'N/A'}</p>
+                                <p><span className="text-gray-500">Case Ref:</span> {appointment.case_ref || 'N/A'}</p>
+                                <p><span className="text-gray-500">No. of Applicants:</span> {appointment.number_of_applicants || 'N/A'}</p>
+                              </>
+                            )}
+
+                            {/* Show Wilcare-specific fields if this is a Wilcare appointment */}
+                            {(appointment.location === 'karachi' || appointment.location === 'lahore') && (
+                              <>
+                                <p><span className="text-gray-500">Appointment Type:</span> {appointment.appointment_type || 'N/A'}</p>
+                                <p><span className="text-gray-500">Visa Type:</span> {appointment.visa_type || 'N/A'}</p>
+                                <p><span className="text-gray-500">Original Passport:</span> {appointment.original_passport || 'N/A'}</p>
+                                <p><span className="text-gray-500">Medical Type:</span> {appointment.medical_type || 'N/A'}</p>
+                                <p><span className="text-gray-500">Case Number:</span> {appointment.case_number || 'N/A'}</p>
+                              </>
+                            )}
+
+                            {/* Show IOM-specific fields if this is an IOM appointment */}
+                            {appointment.location === 'islamabad' && appointment.provider === 'iom' && (
+                              <>
+                                <p><span className="text-gray-500">Original Passport:</span> {appointment.original_passport || 'N/A'}</p>
+                                <p><span className="text-gray-500">Medical Type:</span> {appointment.medical_type || 'N/A'}</p>
+                                <p><span className="text-gray-500">Case Number:</span> {appointment.case_number || 'N/A'}</p>
+                              </>
+                            )}
+                          </div>
+
+                          <div>
+                            <h4 className="font-semibold text-gray-700">Passport Information</h4>
+                            <p><span className="text-gray-500">Passport Number:</span> {appointment.passport_number || 'N/A'}</p>
+                            <p><span className="text-gray-500">Issue Date:</span> {formatDate(appointment.passport_issue_date)}</p>
+                            <p><span className="text-gray-500">Expiry Date:</span> {formatDate(appointment.passport_expiry_date)}</p>
+                            <p><span className="text-gray-500">Original Passport:</span> {appointment.original_passport || 'N/A'}</p>
+                          </div>
+
+                          {/* Show documents section for Wilcare appointments */}
+                          {(appointment.location === 'karachi' || appointment.location === 'lahore') && (
+                            <div>
+                              <h4 className="font-semibold text-gray-700">Uploaded Documents</h4>
+                              {appointment.scanned_passport_url ? (
+                                <p>
+                                  <span className="text-gray-500">Scanned Passport:</span>{' '}
+                                  <a
+                                    href={appointment.scanned_passport_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    Download
+                                  </a>
+                                </p>
+                              ) : (
+                                <p><span className="text-gray-500">Scanned Passport:</span> Not uploaded</p>
+                              )}
+
+                              {appointment.k_one_letter_url ? (
+                                <p>
+                                  <span className="text-gray-500">K-1 Letter:</span>{' '}
+                                  <a
+                                    href={appointment.k_one_letter_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    Download
+                                  </a>
+                                </p>
+                              ) : (
+                                <p><span className="text-gray-500">K-1 Letter:</span> Not uploaded</p>
+                              )}
+
+                              {appointment.appointment_confirmation_letter_url ? (
+                                <p>
+                                  <span className="text-gray-500">Appointment Confirmation:</span>{' '}
+                                  <a
+                                    href={appointment.appointment_confirmation_letter_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    Download
+                                  </a>
+                                </p>
+                              ) : (
+                                <p><span className="text-gray-500">Appointment Confirmation:</span> Not uploaded</p>
+                              )}
+                            </div>
+                          )}
+
+                          <div>
+                            <h4 className="font-semibold text-gray-700">Medical Details</h4>
+                            <p><span className="text-gray-500">Medical Type:</span> {appointment.medical_type || 'N/A'}</p>
+                            <p><span className="text-gray-500">Had Medical Before:</span> {appointment.had_medical_before || 'N/A'}</p>
+                            <p><span className="text-gray-500">Interview Date:</span> {formatDate(appointment.interview_date)}</p>
+                            <p><span className="text-gray-500">Visa Category:</span> {appointment.visa_category || 'N/A'}</p>
+                          </div>
+
+                          <div>
+                            <h4 className="font-semibold text-gray-700">Scheduling</h4>
+                            <p><span className="text-gray-500">Preferred Date:</span> {formatDate(appointment.preferred_date)}</p>
+                            <p><span className="text-gray-500">Preferred Time:</span> {formatTime(appointment.preferred_time)}</p>
+                            <p><span className="text-gray-500">Est. Charges:</span> {appointment.estimated_charges || 'N/A'}</p>
+                            <p><span className="text-gray-500">No. of Applicants:</span> {appointment.number_of_applicants || 'N/A'}</p>
+                          </div>
+
+                          <div>
+                            <h4 className="font-semibold text-gray-700">Case Information</h4>
+                            <p><span className="text-gray-500">Case Number:</span> {appointment.case_number || 'N/A'}</p>
+                            <p><span className="text-gray-500">Case Ref:</span> {appointment.case_ref || 'N/A'}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-4 border-t">
                           <div className="flex space-x-2">
                             <Select
                               value={appointment.status}
@@ -262,7 +433,7 @@ export default function AdminPanel() {
                                 updateAppointmentStatus(appointment.id, value)
                               }
                             >
-                              <SelectTrigger className="w-30">
+                              <SelectTrigger className="w-40">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -273,11 +444,15 @@ export default function AdminPanel() {
                               </SelectContent>
                             </Select>
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+
+                          <div className="text-sm text-gray-500">
+                            Created: {formatDate(appointment.created_at)} at {new Date(appointment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                ))}
               </div>
             )}
           </CardContent>

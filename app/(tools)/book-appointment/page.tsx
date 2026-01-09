@@ -1115,21 +1115,15 @@ export default function WilcareAppointmentForm() {
         return;
       }
       setError(null);
-      if (isAMC) {
-        setStep(5);
-      } else {
-        setStep(5);
-      }
+      // Go to document upload step for all providers
+      setStep(5);
       return;
     }
 
     if (step === 5) {
+      // Document upload step for all providers
       setError(null);
-      if (isAMC) {
-        setStep(7);
-      } else {
-        setStep(6);
-      }
+      setStep(6);
       return;
     }
 
@@ -1149,22 +1143,86 @@ export default function WilcareAppointmentForm() {
     setLoading(true);
     setError(null);
     try {
-      // Submit appointment data to API
-      const response = await fetch('/api/book-appointment', {
+      // First, submit appointment data to API to get the appointment ID
+      const appointmentResponse = await fetch('/api/book-appointment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          // Exclude file objects from the initial request
+          scannedPassport: undefined,
+          kOneLetter: undefined,
+          appointmentConfirmationLetter: undefined,
+        }),
       });
 
-      const result = await response.json();
+      const appointmentResult = await appointmentResponse.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to submit appointment');
+      if (!appointmentResponse.ok) {
+        throw new Error(appointmentResult.error || 'Failed to create appointment');
       }
 
-      console.log("Appointment submitted successfully:", result);
+      const appointmentId = appointmentResult.id;
+      console.log("Appointment created successfully:", appointmentResult);
+
+      // Then upload documents separately if they exist
+      const uploadPromises = [];
+
+      if (formData.scannedPassport) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('appointmentId', appointmentId);
+        formDataUpload.append('fileType', 'scannedPassport');
+        formDataUpload.append('file', formData.scannedPassport);
+
+        uploadPromises.push(
+          fetch('/api/upload', {
+            method: 'POST',
+            body: formDataUpload,
+          })
+        );
+      }
+
+      if (formData.kOneLetter) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('appointmentId', appointmentId);
+        formDataUpload.append('fileType', 'kOneLetter');
+        formDataUpload.append('file', formData.kOneLetter);
+
+        uploadPromises.push(
+          fetch('/api/upload', {
+            method: 'POST',
+            body: formDataUpload,
+          })
+        );
+      }
+
+      if (formData.appointmentConfirmationLetter) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('appointmentId', appointmentId);
+        formDataUpload.append('fileType', 'appointmentConfirmationLetter');
+        formDataUpload.append('file', formData.appointmentConfirmationLetter);
+
+        uploadPromises.push(
+          fetch('/api/upload', {
+            method: 'POST',
+            body: formDataUpload,
+          })
+        );
+      }
+
+      // Wait for all document uploads to complete
+      if (uploadPromises.length > 0) {
+        const uploadResults = await Promise.all(uploadPromises);
+        const uploadErrors = uploadResults.filter(res => !res.ok);
+
+        if (uploadErrors.length > 0) {
+          const errorText = await uploadErrors[0].text();
+          throw new Error(errorText || 'Failed to upload some documents');
+        }
+      }
+
       setStep(8);
     } catch (err: unknown) {
       console.error("Error submitting appointment:", err);
@@ -1179,9 +1237,12 @@ export default function WilcareAppointmentForm() {
     if (step === 9) {
       setStep(1);
     } else if (step > 1) {
-      if (step === 5 && isAMC) {
-        setStep(4);
-      } else if (step === 7 && isAMC) {
+      // Updated to reflect new step structure (document upload step restored)
+      if (step === 7) {
+        // Going back from review step to schedule step
+        setStep(6);
+      } else if (step === 6) {
+        // Going back from schedule step to document upload step
         setStep(5);
       } else {
         setStep(step - 1);
@@ -1273,19 +1334,6 @@ export default function WilcareAppointmentForm() {
           />
         );
       case 5:
-        if (isAMC) {
-          return (
-            <ScheduleStep
-              formData={formData}
-              error={error}
-              loading={loading}
-              onChange={handleInputChange}
-              onSelectChange={handleSelectChange}
-              onSubmit={handleNextStep}
-              onBack={handleGoBack}
-            />
-          );
-        }
         return (
           <DocumentsStep
             formData={formData}
@@ -1341,13 +1389,13 @@ export default function WilcareAppointmentForm() {
                 <span>{isAMC ? "AMC Info" : "HI"}</span>
                 <span>Info</span>
                 <span>Passport</span>
-                {!isAMC && <span>Docs</span>}
+                <span>Docs</span>
                 <span>When</span>
               </div>
               <div className="w-full h-2 bg-slate-200 rounded-full">
                 <div
                   className="h-full bg-teal-600 rounded-full transition-all duration-300"
-                  style={{ width: `${((step - 1) / (isAMC ? 5 : 6)) * 100}%` }}
+                  style={{ width: `${((step - 1) / 7) * 100}%` }}
                 ></div>
               </div>
             </div>
