@@ -16,6 +16,19 @@ import {
 
 type AppointmentStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
 
+interface Applicant {
+  id: string;
+  surname: string;
+  givenName: string;
+  gender: string;
+  dateOfBirth: string;
+  passportNumber: string;
+  passportIssueDate?: string;
+  passportExpiryDate?: string;
+  caseNumber?: string;
+  caseRef?: string;
+}
+
 interface Appointment {
   id: string;
   created_at: string;
@@ -51,6 +64,7 @@ interface Appointment {
   scanned_passport_url?: string;
   k_one_letter_url?: string;
   appointment_confirmation_letter_url?: string;
+  applicants?: Applicant[];
 }
 
 export default function AdminPanel() {
@@ -352,7 +366,7 @@ export default function AdminPanel() {
                             </h4>
                             <div className="space-y-2 text-sm">
                               <p><span className="text-gray-600">Email:</span> <span className="font-medium">{appointment.email}</span></p>
-                              <p><span className="text-gray-600">Phone:</span> <span className="font-medium">+92 {appointment.phone_number}</span></p>
+                              <p><span className="text-gray-600">Phone:</span> <span className="font-medium">+92 {appointment. phone_number}</span></p>
                               {appointment.city && <p><span className="text-gray-600">City:</span> <span className="font-medium">{appointment.city}</span></p>}
                             </div>
                           </div>
@@ -409,49 +423,97 @@ export default function AdminPanel() {
                             </div>
                           </div>
 
+                          {/* Additional Applicants */}
+                          {appointment.applicants && appointment.applicants.length > 0 && (
+                            <div className="bg-green-50 p-4 rounded-lg border border-green-200 col-span-3">
+                              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Additional Applicants ({appointment.applicants.length})
+                              </h4>
+                              <div className="space-y-4">
+                                {appointment.applicants.map((applicant, index) => (
+                                  <div key={applicant.id} className="border border-green-200 rounded-lg p-4 bg-white">
+                                    <h5 className="font-medium text-gray-900 mb-2">Applicant #{index + 1}</h5>
+                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                      <p><span className="text-gray-600">Surname:</span> <span className="font-medium">{applicant.surname}</span></p>
+                                      <p><span className="text-gray-600">Given Name:</span> <span className="font-medium">{applicant.givenName}</span></p>
+                                      <p><span className="text-gray-600">Gender:</span> <span className="font-medium">{applicant.gender}</span></p>
+                                      <p><span className="text-gray-600">DOB:</span> <span className="font-medium">{formatDate(applicant.dateOfBirth)}</span></p>
+                                      <p><span className="text-gray-600">Passport:</span> <span className="font-medium">{applicant.passportNumber}</span></p>
+                                      <p><span className="text-gray-600">Issue Date:</span> <span className="font-medium">{formatDate(applicant.passportIssueDate)}</span></p>
+                                      <p><span className="text-gray-600">Expiry Date:</span> <span className="font-medium">{formatDate(applicant.passportExpiryDate)}</span></p>
+                                      <p><span className="text-gray-600">Case Number:</span> <span className="font-medium">{applicant.caseNumber}</span></p>
+                                      {appointment.location === 'islamabad' && appointment.provider === 'amc' && (
+                                        <p><span className="text-gray-600">Case Ref:</span> <span className="font-medium">{applicant.caseRef}</span></p>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {/* Documents - For Wilcare only */}
                           {(appointment.location === 'karachi' || appointment.location === 'lahore') && (
-                            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 col-span-3">
                               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                 <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                 </svg>
                                 Uploaded Documents
                               </h4>
-                              <div className="space-y-2 text-sm">
-                                {appointment.scanned_passport_url ? (
-                                  <p>
-                                    <span className="text-gray-600">Scanned Passport:</span>{' '}
-                                    <a href={appointment.scanned_passport_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
-                                      View Document
-                                    </a>
-                                  </p>
-                                ) : (
-                                  <p><span className="text-gray-600">Scanned Passport:</span> <span className="text-red-500">Not uploaded</span></p>
-                                )}
 
-                                {appointment.k_one_letter_url ? (
-                                  <p>
-                                    <span className="text-gray-600">K-1 Letter:</span>{' '}
-                                    <a href={appointment.k_one_letter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
-                                      View Document
-                                    </a>
-                                  </p>
-                                ) : (
-                                  <p><span className="text-gray-600">K-1 Letter:</span> <span className="text-gray-400">Not uploaded</span></p>
-                                )}
+                              {/* Primary applicant documents */}
+                              <div className="mb-4">
+                                <h5 className="font-medium text-gray-800 mb-2">Primary Applicant Documents</h5>
+                                <div className="space-y-2 text-sm ml-4">
+                                  {appointment.scanned_passport_url ? (
+                                    <p>
+                                      <span className="text-gray-600">Scanned Passport:</span>{' '}
+                                      <a href={appointment.scanned_passport_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                        View Document
+                                      </a>
+                                    </p>
+                                  ) : (
+                                    <p><span className="text-gray-600">Scanned Passport:</span> <span className="text-red-500">Not uploaded</span></p>
+                                  )}
 
-                                {appointment.appointment_confirmation_letter_url ? (
-                                  <p>
-                                    <span className="text-gray-600">Confirmation Letter:</span>{' '}
-                                    <a href={appointment.appointment_confirmation_letter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
-                                      View Document
-                                    </a>
-                                  </p>
-                                ) : (
-                                  <p><span className="text-gray-600">Confirmation Letter:</span> <span className="text-gray-400">Not uploaded</span></p>
-                                )}
+                                  {appointment.k_one_letter_url ? (
+                                    <p>
+                                      <span className="text-gray-600">K-1 Letter:</span>{' '}
+                                      <a href={appointment.k_one_letter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                        View Document
+                                      </a>
+                                    </p>
+                                  ) : (
+                                    <p><span className="text-gray-600">K-1 Letter:</span> <span className="text-gray-400">Not uploaded</span></p>
+                                  )}
+
+                                  {appointment.appointment_confirmation_letter_url ? (
+                                    <p>
+                                      <span className="text-gray-600">Confirmation Letter:</span>{' '}
+                                      <a href={appointment.appointment_confirmation_letter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                        View Document
+                                      </a>
+                                    </p>
+                                  ) : (
+                                    <p><span className="text-gray-600">Confirmation Letter:</span> <span className="text-gray-400">Not uploaded</span></p>
+                                  )}
+                                </div>
                               </div>
+
+                              {/* Additional applicants documents - if we have a way to access them */}
+                              {appointment.applicants && appointment.applicants.length > 0 && (
+                                <div>
+                                  <h5 className="font-medium text-gray-800 mb-2">Additional Applicants Documents</h5>
+                                  <div className="text-sm text-gray-600 ml-4">
+                                    <p>Documents for additional applicants are stored separately in the database.</p>
+                                    <p>Contact support to access these documents if needed.</p>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           )}
 

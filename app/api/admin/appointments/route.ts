@@ -97,7 +97,8 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    const { data, error } = await supabase
+    // First, get all appointments
+    const { data: appointments, error: appointmentsError } = await supabase
       .from('appointments')
       .select(`
         id,
@@ -137,9 +138,50 @@ export async function GET(req: NextRequest) {
       `)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching appointments:', error);
-      return Response.json({ error: error.message }, { status: 500 });
+    if (appointmentsError) {
+      console.error('Error fetching appointments:', appointmentsError);
+      return Response.json({ error: appointmentsError.message }, { status: 500 });
+    }
+
+    // If there are appointments, fetch applicants for each appointment
+    let data = appointments;
+    if (appointments && appointments.length > 0) {
+      try {
+        // Get all appointment IDs
+        const appointmentIds = appointments.map(app => app.id);
+
+        // Fetch all applicants for these appointments
+        const { data: applicants, error: applicantsError } = await supabase
+          .from('applicants')
+          .select('*')
+          .in('appointment_id', appointmentIds);
+
+        if (applicantsError) {
+          console.error('Error fetching applicants:', applicantsError);
+          // Continue without applicants data if there's an error
+          // This could happen if the applicants table doesn't exist yet
+          data = appointments;
+        } else {
+          // Group applicants by appointment ID
+          const applicantsByAppointment = applicants.reduce((acc, applicant) => {
+            if (!acc[applicant.appointment_id]) {
+              acc[applicant.appointment_id] = [];
+            }
+            acc[applicant.appointment_id].push(applicant);
+            return acc;
+          }, {});
+
+          // Attach applicants to their respective appointments
+          data = appointments.map(app => ({
+            ...app,
+            applicants: applicantsByAppointment[app.id] || []
+          }));
+        }
+      } catch (error) {
+        console.error('Error processing applicants:', error);
+        // Continue without applicants data if there's an error
+        data = appointments;
+      }
     }
 
     return Response.json({ data });
