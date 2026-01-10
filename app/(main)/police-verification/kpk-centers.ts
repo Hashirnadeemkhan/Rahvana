@@ -1,4 +1,4 @@
-import { PKMCenter } from "./pkm-centers";
+import { PKMCenter } from "./punjab-pkm-centers";
 
 export const kpkCenters: PKMCenter[] = [
   { name: "PAL CPO Peshawar", address: "Central Police Office, Sahibzada Abdul Qayyum Road, Peshawar", district: "Peshawar", lat: 34.0125, lng: 71.5342 },

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+
 import {
   ShieldCheck,
   ChevronRight,
   ChevronLeft,
-  ExternalLink,
   MapPin,
   CheckCircle,
   AlertCircle,
@@ -31,15 +32,57 @@ import {
   Navigation,
   Loader2,
   X,
+  Eye,
+  Download,
 } from "lucide-react";
-import { PKMCenter, pkmCenters } from "./pkm-centers";
+import { PKMCenter, pkmCenters } from "./punjab-pkm-centers";
 import { balochistanCenters } from "./balochistan-pkm-centers";
 import { kpkCenters } from "./kpk-centers";
 import { findNearestCenters, geocodeAddress } from "./location-utils";
+import {
+  AuthorityLetterModal,
+  AuthorityLetterPreviewModal,
+} from "./AuthorityLetterComponents";
 
 export default function PoliceVerificationPage() {
+  const router = useRouter();
   const [province, setProvince] = useState<string>("");
   const [step, setStep] = useState(1);
+  const [isLetterModalOpen, setIsLetterModalOpen] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isAuthorityModalOpen, setIsAuthorityModalOpen] = useState(false);
+  const [isAuthorityPreviewModalOpen, setIsAuthorityPreviewModalOpen] =
+    useState(false);
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    relation: "S/O",
+    guardianName: "",
+    cnic: "",
+    address: "",
+    purpose: "Study",
+    email: "",
+    phone: "",
+    district: "",
+  });
+
+  const [authorityFormData, setAuthorityFormData] = useState({
+    fullName: "",
+    relationType: "S/O",
+    relationName: "",
+    cnic: "",
+    authFullName: "",
+    authRelationType: "S/O",
+    authRelationName: "",
+    authCnic: "",
+    authRelationship: "Father",
+    authAddress: "",
+    passportNo: "",
+    abroadAddress: "",
+    officeLocation: "",
+    stayFrom: "",
+    stayTo: "",
+  });
 
   const fadeIn = {
     initial: { opacity: 0, x: 20 },
@@ -149,13 +192,50 @@ export default function PoliceVerificationPage() {
             {step === 2 && (
               <motion.div key="step2" {...fadeIn} className="h-full">
                 {province === "Sindh" ? (
-                  <SindhInstructions />
+                  <SindhInstructions
+                    onGenerateLetter={() => setIsLetterModalOpen(true)}
+                    onApply={() =>
+                      router.push(
+                        `/police-verification/apply?province=${province}`
+                      )
+                    }
+                  />
                 ) : province === "Punjab" ? (
-                  <PunjabInstructions />
+                  <PunjabInstructions
+                    onGenerateLetter={() => setIsLetterModalOpen(true)}
+                    onGenerateAuthorityLetter={() =>
+                      setIsAuthorityModalOpen(true)
+                    }
+                    onApply={() =>
+                      router.push(
+                        `/police-verification/apply?province=${province}`
+                      )
+                    }
+                  />
                 ) : province === "Balochistan" ? (
-                  <BalochistanInstructions />
+                  <BalochistanInstructions
+                    onGenerateLetter={() => setIsLetterModalOpen(true)}
+                    onGenerateAuthorityLetter={() =>
+                      setIsAuthorityModalOpen(true)
+                    }
+                    onApply={() =>
+                      router.push(
+                        `/police-verification/apply?province=${province}`
+                      )
+                    }
+                  />
                 ) : province === "KPK" ? (
-                  <KPKInstructions />
+                  <KPKInstructions
+                    onGenerateLetter={() => setIsLetterModalOpen(true)}
+                    onGenerateAuthorityLetter={() =>
+                      setIsAuthorityModalOpen(true)
+                    }
+                    onApply={() =>
+                      router.push(
+                        `/police-verification/apply?province=${province}`
+                      )
+                    }
+                  />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
                     <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center">
@@ -183,11 +263,45 @@ export default function PoliceVerificationPage() {
           </AnimatePresence>
         </div>
       </div>
+      <LetterModal
+        isOpen={isLetterModalOpen}
+        onClose={() => setIsLetterModalOpen(false)}
+        onOpenPreview={() => setIsPreviewModalOpen(true)}
+        formData={formData}
+        setFormData={setFormData}
+        province={province}
+      />
+      <PreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        province={province}
+        formData={formData}
+      />
+      <AuthorityLetterModal
+        isOpen={isAuthorityModalOpen}
+        onClose={() => setIsAuthorityModalOpen(false)}
+        onOpenPreview={() => setIsAuthorityPreviewModalOpen(true)}
+        formData={authorityFormData}
+        setFormData={setAuthorityFormData}
+        province={province}
+      />
+      <AuthorityLetterPreviewModal
+        isOpen={isAuthorityPreviewModalOpen}
+        onClose={() => setIsAuthorityPreviewModalOpen(false)}
+        formData={authorityFormData}
+        province={province}
+      />
     </div>
   );
 }
 
-function SindhInstructions() {
+function SindhInstructions({
+  onGenerateLetter,
+  onApply,
+}: {
+  onGenerateLetter: () => void;
+  onApply: () => void;
+}) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   const instructionSets = [
@@ -432,15 +546,20 @@ function SindhInstructions() {
           )}
         </div>
 
-        <div className="w-1/3 flex justify-center">
-          <a
-            href="https://prvs.sindhpolice.gov.pk/site/apply"
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className="w-1/3 flex justify-center gap-3">
+          <button
+            onClick={onGenerateLetter}
+            className="px-6 py-3 rounded-xl bg-primary  mr-6 text-white font-semibold hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 whitespace-nowrap"
+          >
+            Generate Letter <FileText size={18} />
+          </button>
+          <button
+            onClick={onApply}
             className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 whitespace-nowrap"
           >
-            Apply Now <ExternalLink size={18} />
-          </a>
+            Apply Now
+            <ChevronRight size={18} />
+          </button>
         </div>
 
         <div className="w-1/3 flex justify-end">
@@ -460,7 +579,15 @@ function SindhInstructions() {
   );
 }
 
-function PunjabInstructions() {
+function PunjabInstructions({
+  onGenerateLetter,
+  onGenerateAuthorityLetter,
+  onApply,
+}: {
+  onGenerateLetter: () => void;
+  onGenerateAuthorityLetter: () => void;
+  onApply: () => void;
+}) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   const instructionSets = [
@@ -503,6 +630,7 @@ function PunjabInstructions() {
           description:
             "An Affidavit and (if applicant is abroad) an Authority Letter stamped by the relevant Embassy.",
           icon: ShieldCheck,
+          showButtonStyle: "authority",
         },
         {
           title: "Photograph",
@@ -611,6 +739,16 @@ function PunjabInstructions() {
                 <PKMLocator province="Punjab" />
               </div>
             )}
+            {step.showButtonStyle === "authority" && (
+              <div className="mt-4 px-4">
+                <button
+                  onClick={onGenerateAuthorityLetter}
+                  className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-all border border-primary/20"
+                >
+                  <FileText size={20} /> Generate Authority Letter
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -627,10 +765,20 @@ function PunjabInstructions() {
           </button>
         </div>
 
-        <div className="w-1/3 flex justify-center">
-          <div className="text-sm text-gray-400 font-medium italic">
-            Visit Any PKM Center
-          </div>
+        <div className="w-1/3 flex justify-center gap-3">
+          <button
+            onClick={onGenerateLetter}
+            className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 whitespace-nowrap"
+          >
+            Generate Letter <FileText size={18} />
+          </button>
+          <button
+            onClick={onApply}
+            className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 whitespace-nowrap"
+          >
+            Apply Now
+            <ChevronRight size={18} />
+          </button>
         </div>
 
         <div className="w-1/3 flex justify-end">
@@ -825,7 +973,15 @@ function PKMLocator({ province }: { province: string }) {
   );
 }
 
-function BalochistanInstructions() {
+function BalochistanInstructions({
+  onGenerateLetter,
+  onGenerateAuthorityLetter,
+  onApply,
+}: {
+  onGenerateLetter: () => void;
+  onGenerateAuthorityLetter: () => void;
+  onApply: () => void;
+}) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   const instructionSets = [
@@ -874,6 +1030,7 @@ function BalochistanInstructions() {
           description:
             "An Affidavit and (if abroad) an Embassy-stamped or attested Authority Letter.",
           icon: ShieldCheck,
+          showButtonStyle: "authority",
         },
         {
           title: "Photograph",
@@ -977,6 +1134,16 @@ function BalochistanInstructions() {
                 <PKMLocator province="Balochistan" />
               </div>
             )}
+            {step.showButtonStyle === "authority" && (
+              <div className="mt-4 px-4">
+                <button
+                  onClick={onGenerateAuthorityLetter}
+                  className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-all border border-primary/20"
+                >
+                  <FileText size={20} /> Generate Authority Letter
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -993,10 +1160,20 @@ function BalochistanInstructions() {
           </button>
         </div>
 
-        <div className="w-1/3 flex justify-center">
-          <div className="text-sm text-gray-400 font-medium italic">
-            Visit Mobile PKM Center
-          </div>
+        <div className="w-1/3 flex justify-center gap-3">
+          <button
+            onClick={onGenerateLetter}
+            className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 whitespace-nowrap"
+          >
+            Generate Letter <FileText size={18} />
+          </button>
+          <button
+            onClick={onApply}
+            className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 whitespace-nowrap"
+          >
+            Apply Now
+            <ChevronRight size={18} />
+          </button>
         </div>
 
         <div className="w-1/3 flex justify-end">
@@ -1021,7 +1198,15 @@ function BalochistanInstructions() {
   );
 }
 
-function KPKInstructions() {
+function KPKInstructions({
+  onGenerateLetter,
+  onGenerateAuthorityLetter,
+  onApply,
+}: {
+  onGenerateLetter: () => void;
+  onGenerateAuthorityLetter: () => void;
+  onApply: () => void;
+}) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   const instructionSets = [
@@ -1084,6 +1269,7 @@ function KPKInstructions() {
           description:
             "A blood relative can submit the stamp paper along with their own CNIC copy and your last exit date from Pakistan.",
           icon: Users,
+          showButtonStyle: "authority",
         },
         {
           title: "Afghan Citizens",
@@ -1169,6 +1355,16 @@ function KPKInstructions() {
                 <PKMLocator province="KPK" />
               </div>
             )}
+            {step.showButtonStyle === "authority" && (
+              <div className="mt-4 px-4">
+                <button
+                  onClick={onGenerateAuthorityLetter}
+                  className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-all border border-primary/20"
+                >
+                  <FileText size={20} /> Generate Authority Letter
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -1185,10 +1381,20 @@ function KPKInstructions() {
           </button>
         </div>
 
-        <div className="w-1/3 flex justify-center">
-          <div className="text-sm text-gray-400 font-medium italic">
-            Visit PAL Office
-          </div>
+        <div className="w-1/3 flex justify-center gap-3">
+          <button
+            onClick={onGenerateLetter}
+            className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 whitespace-nowrap"
+          >
+            Generate Letter <FileText size={18} />
+          </button>
+          <button
+            onClick={onApply}
+            className="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 whitespace-nowrap"
+          >
+            Apply Now
+            <ChevronRight size={18} />
+          </button>
         </div>
 
         <div className="w-1/3 flex justify-end">
@@ -1208,6 +1414,527 @@ function KPKInstructions() {
             </button>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+interface FormData {
+  fullName: string;
+  relation: string;
+  guardianName: string;
+  cnic: string;
+  address: string;
+  purpose: string;
+  email: string;
+  phone: string;
+  district: string;
+}
+
+interface LetterModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onOpenPreview: () => void;
+  formData: FormData;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
+  province: string;
+}
+
+function LetterModal({
+  isOpen,
+  onClose,
+  onOpenPreview,
+  formData,
+  setFormData,
+  province,
+}: LetterModalProps) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const formatCNIC = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    let formatted = cleaned;
+    if (cleaned.length > 5 && cleaned.length <= 12) {
+      formatted = `${cleaned.slice(0, 5)}-${cleaned.slice(5)}`;
+    } else if (cleaned.length > 12) {
+      formatted = `${cleaned.slice(0, 5)}-${cleaned.slice(
+        5,
+        12
+      )}-${cleaned.slice(12, 13)}`;
+    }
+    return formatted;
+  };
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    // Allows optional + only at start, followed by digits
+    return /^\+?[0-9]*$/.test(phone);
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    let newValue = value;
+    let error = "";
+
+    if (name === "cnic") {
+      newValue = formatCNIC(value);
+      if (newValue.replace(/-/g, "").length !== 13) {
+        error = "CNIC must be 13 digits";
+      }
+    } else if (name === "phone") {
+      if (!validatePhone(value)) return;
+      newValue = value;
+    } else if (name === "email") {
+      if (value && !validateEmail(value)) {
+        error = "Invalid email format";
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const downloadPDF = async () => {
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
+    try {
+      const res = await fetch(`${apiUrl}/fill-pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formId: "police_verification",
+          data: { ...formData, province },
+        }),
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Police_Verification_Letter_${
+        formData.fullName.replace(/\s+/g, "_") || "unnamed"
+      }.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      alert("Failed to generate PDF. Please try again.");
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm px-4 overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="bg-white w-full max-w-2xl my-auto rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+      >
+        <div className="p-6 md:p-8 overflow-y-auto bg-white">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Generate Letter
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-primary/30 rounded-full transition-colors bg-primary/10"
+            >
+              <X size={24} className="text-gray-500 " />
+            </button>
+          </div>
+
+          <form className="space-y-4 text-left">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-600">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="Enter full name"
+                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-600">
+                  Relation
+                </label>
+                <select
+                  name="relation"
+                  value={formData.relation}
+                  onChange={handleChange}
+                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                >
+                  <option value="S/O">S/O</option>
+                  <option value="D/O">D/O</option>
+                  <option value="W/O">W/O</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-600">
+                Father/Guardian/Husband Name
+              </label>
+              <input
+                type="text"
+                name="guardianName"
+                value={formData.guardianName}
+                onChange={handleChange}
+                placeholder="Enter guardian name"
+                className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-600">
+                CNIC Number
+                {errors.cnic && (
+                  <span className="text-red-500 text-xs ml-2">
+                    ({errors.cnic})
+                  </span>
+                )}
+              </label>
+              <input
+                type="text"
+                name="cnic"
+                value={formData.cnic}
+                onChange={handleChange}
+                placeholder="42101-1234567-1"
+                maxLength={15}
+                className={`w-full p-3 rounded-xl border outline-none transition-all ${
+                  errors.cnic
+                    ? "border-red-500 focus:ring-1 focus:ring-red-500"
+                    : "border-gray-200 focus:border-primary"
+                }`}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-600">
+                Full Residential Address
+              </label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="Enter your complete address"
+                className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all min-h-[100px]"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-600">
+                  Purpose
+                </label>
+                <select
+                  name="purpose"
+                  value={formData.purpose}
+                  onChange={handleChange}
+                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                >
+                  <option value="Study">Study</option>
+                  <option value="Immigration">Immigration</option>
+                  <option value="Foreign Employment">Foreign Employment</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-600">
+                  District/Region
+                </label>
+                <input
+                  type="text"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleChange}
+                  placeholder="e.g. Karachi Central"
+                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-600">
+                  Email Address
+                  {errors.email && (
+                    <span className="text-red-500 text-xs ml-2">
+                      (Invalid format)
+                    </span>
+                  )}
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter email"
+                  className={`w-full p-3 rounded-xl border outline-none transition-all ${
+                    errors.email
+                      ? "border-red-500 focus:ring-1 focus:ring-red-500"
+                      : "border-gray-200 focus:border-primary"
+                  }`}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-600">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="Enter phone number"
+                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="pt-6 flex flex-col sm:flex-row gap-4">
+              <button
+                type="button"
+                onClick={onOpenPreview}
+                disabled={
+                  Object.values(errors).some((e) => e !== "") ||
+                  !formData.fullName ||
+                  !formData.cnic
+                }
+                className="flex-1 py-4 bg-gray-100 text-gray-800 font-bold rounded-2xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Eye size={20} /> Preview
+              </button>
+              <button
+                type="button"
+                disabled={
+                  Object.values(errors).some((e) => e !== "") ||
+                  !formData.fullName ||
+                  !formData.cnic
+                }
+                onClick={downloadPDF}
+                className="flex-1 py-4 bg-primary text-white font-bold rounded-2xl shadow-lg hover:shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={20} /> Download PDF
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+interface PreviewModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  province: string;
+  formData: FormData;
+}
+
+function PreviewModal({
+  isOpen,
+  onClose,
+  province,
+  formData,
+}: PreviewModalProps) {
+  const previewRef = useRef<HTMLDivElement>(null);
+
+  const downloadPDF = async () => {
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
+    try {
+      const res = await fetch(`${apiUrl}/fill-pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formId: "police_verification",
+          data: { ...formData, province },
+        }),
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Police_Verification_Letter_${
+        formData.fullName.replace(/\s+/g, "_") || "unnamed"
+      }.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      alert("Failed to generate PDF. Please try again.");
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-110 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
+      >
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-bold text-gray-800">Letter Preview</h2>
+            <button
+              onClick={downloadPDF}
+              className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-sm"
+            >
+              <Download size={16} /> Download
+            </button>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X size={24} className="text-gray-500" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 flex justify-center">
+          <div
+            ref={previewRef}
+            className="shadow-lg w-full max-w-[210mm]"
+            style={{ backgroundColor: "#ffffff" }}
+          >
+            <LetterContent formData={formData} province={province} />
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function LetterContent({
+  formData,
+  province,
+}: {
+  formData: FormData;
+  province: string;
+}) {
+  return (
+    <div
+      style={{
+        fontFamily: "'Times New Roman', Times, serif",
+        lineHeight: "1.6",
+        textAlign: "left",
+        margin: "0 auto",
+        fontSize: "12pt",
+        width: "210mm",
+        minHeight: "297mm",
+        boxSizing: "border-box",
+        backgroundColor: "#ffffff",
+        color: "#000000",
+        padding: "20mm",
+      }}
+    >
+      <div
+        style={{
+          textAlign: "center",
+          fontWeight: "bold",
+          fontSize: "1.25rem",
+          textDecoration: "underline",
+          marginBottom: "2.5rem",
+        }}
+      >
+        Application for Issuance of Police Character Certificate
+      </div>
+
+      <div style={{ fontWeight: "bold", marginBottom: "0.25rem" }}>To,</div>
+      <div style={{ fontWeight: "bold" }}>
+        The Senior Superintendent of Police (SSP)
+      </div>
+      <div style={{ marginBottom: "2rem" }}>
+        {formData.district || "[District/Region]"}, {province}, Pakistan
+      </div>
+
+      <div style={{ fontWeight: "bold", marginBottom: "1rem" }}>
+        Subject:{" "}
+        <span style={{ textDecoration: "underline" }}>
+          Application for Issuance of Police Character Certificate
+        </span>
+      </div>
+
+      <div style={{ marginBottom: "1.5rem" }}>Respected Sir,</div>
+
+      <div style={{ marginBottom: "1.5rem", textAlign: "justify" }}>
+        I,{" "}
+        <span style={{ fontWeight: "bold", textDecoration: "underline" }}>
+          {formData.fullName || "[Full Name]"}
+        </span>
+        ,{" "}
+        <span style={{ fontWeight: "bold", textDecoration: "underline" }}>
+          {formData.relation}
+        </span>{" "}
+        <span style={{ fontWeight: "bold", textDecoration: "underline" }}>
+          {formData.guardianName || "[Guardian Name]"}
+        </span>
+        , CNIC No.{" "}
+        <span style={{ fontWeight: "bold", textDecoration: "underline" }}>
+          {formData.cnic || "[CNIC Number]"}
+        </span>
+        , resident of{" "}
+        <span style={{ fontWeight: "bold", textDecoration: "underline" }}>
+          {formData.address || "[Full Residential Address]"}
+        </span>
+        , respectfully request the issuance of a Police Character Certificate in
+        my favor.
+      </div>
+
+      <div style={{ marginBottom: "1.5rem", textAlign: "justify" }}>
+        The certificate is required for{" "}
+        <span style={{ fontWeight: "bold", textDecoration: "underline" }}>
+          {formData.purpose}
+        </span>{" "}
+        purposes. I affirm that I have no criminal record, and the certificate
+        is necessary for my overseas plans.
+      </div>
+
+      <div style={{ marginBottom: "2rem" }}>
+        Kindly process my request at your earliest convenience. For any further
+        information, you may contact me at:
+      </div>
+
+      <div style={{ marginBottom: "0.25rem" }}>
+        <span style={{ fontWeight: "bold" }}>Email:</span>{" "}
+        {formData.email || "[Email Address]"}
+      </div>
+      <div style={{ marginBottom: "2.5rem" }}>
+        <span style={{ fontWeight: "bold" }}>Phone:</span>{" "}
+        {formData.phone || "[Phone Number]"}
+      </div>
+
+      <div style={{ marginBottom: "2rem" }}>
+        I shall remain grateful for your cooperation.
+      </div>
+
+      <div style={{ marginTop: "3rem" }}>
+        <div style={{ fontWeight: "bold" }}>Sincerely,</div>
+        <div style={{ marginTop: "1rem" }}>
+          {formData.fullName || "[Full Name]"}
+        </div>
+        <div>CNIC: {formData.cnic || "[CNIC Number]"}</div>
+        <div>Date: {new Date().toLocaleDateString()}</div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { PKMCenter } from "./pkm-centers";
+import { PKMCenter } from "./punjab-pkm-centers";
 
 export const balochistanCenters: PKMCenter[] = [
   { name: "PKM Quetta City", address: "Police Station Quetta City, Quetta", district: "Quetta", lat: 30.1837, lng: 66.9961 },

@@ -8,6 +8,8 @@ import fitz
 
 from app.services.pdf_filler import PDFFillerService
 from app.services.ds260_generator import DS260GeneratorService
+from app.services.police_letter_generator import PoliceLetterGeneratorService
+from app.services.authority_letter_generator import AuthorityLetterGeneratorService
 
 router = APIRouter()
 
@@ -20,6 +22,13 @@ async def fill_pdf(request: FillRequest):
     try:
         if request.formId.lower() == "ds260":
              generator = DS260GeneratorService()
+             output = generator.generate_pdf(form_data=request.data)
+        elif request.formId.lower() == "police_verification":
+             generator = PoliceLetterGeneratorService()
+             province = request.data.get('province', '')
+             output = generator.generate_pdf(form_data=request.data, province=province)
+        elif request.formId.lower() == "authority_letter":
+             generator = AuthorityLetterGeneratorService()
              output = generator.generate_pdf(form_data=request.data)
         else:
              pdf_service = PDFFillerService(form_id=request.formId)
