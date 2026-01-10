@@ -46,6 +46,7 @@ export async function updateSession(request: NextRequest) {
     '/initial-questions',
     '/complete-profile',
     '/settings',
+    '/admin',
   ]
 
   // Define auth routes (should redirect to dashboard if logged in)
