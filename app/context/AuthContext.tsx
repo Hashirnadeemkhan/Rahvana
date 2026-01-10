@@ -6,8 +6,21 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { User, AuthError } from "@supabase/supabase-js";
 
+interface Profile {
+  id: string;
+  username?: string;
+  email?: string;
+  full_name?: string;
+  avatar_url?: string;
+  website?: string;
+  role?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 interface AuthContextType {
   user: User | null;
+  profile: Profile | null;
   isLoading: boolean;
   signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
@@ -24,12 +37,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const supabase = createClient();
 
+
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user);
+
+        // Skip profile fetching to prevent errors
+        // if (user) {
+        //   const userProfile = await fetchUserProfile(user.id);
+        //   setProfile(userProfile);
+        // }
       } catch (error) {
         console.error("Error getting initial session:", error);
       } finally {
@@ -42,7 +62,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setUser(session?.user ?? null);
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+
+        // Skip profile fetching to prevent errors
+        // if (currentUser) {
+        //   const userProfile = await fetchUserProfile(currentUser.id);
+        //   setProfile(userProfile);
+        // } else {
+        //   setProfile(null);
+        // }
+
         setIsLoading(false);
 
         if (event === "SIGNED_IN") {
@@ -162,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        profile: null, // Always return null for profile to prevent errors
         isLoading,
         signUp,
         signIn,

@@ -166,6 +166,7 @@ export function SiteHeader({
         "document-vault": "/document-vault",
         "affidavit-support-calculator": "/affidavit-support-calculator",
         "visa-eligibility": "/visa-eligibility",
+        "Book Appintment": "/book-appointment",
       };
 
       const targetRoute = routes[id] || "/";
@@ -422,6 +423,11 @@ export function SiteHeader({
                     href: "/visa-eligibility",
                     label: "Visa Eligibility Checker",
                     id: "visa-eligibility",
+                  },
+                  {
+                    href: "/book-appointment",
+                    label: "Book Appointment",
+                    id: "book-appointment",
                   },
                 ].map((item) => (
                   <Link
