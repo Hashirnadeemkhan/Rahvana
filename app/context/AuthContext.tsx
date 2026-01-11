@@ -3,16 +3,16 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { AuthError, User } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: AuthError | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,8 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const adminStatus = await fetchUserProfile(session.user.id);
           setIsAdmin(adminStatus);
         }
-      } catch (error) {
-        console.error('Error getting initial session:', error);
+      } catch (_error) {
+        console.error('Error getting initial session:', _error);
       } finally {
         setIsLoading(false);
       }
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -101,12 +101,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
 
       if (!response.ok) {
-        return { error: { message: data.error } };
+        return { error: { message: data.error, status: response.status, code: 'SIGNUP_ERROR', name: 'SignUpError' } as unknown as AuthError };
       }
 
       return { error: null };
-    } catch (error) {
-      return { error: { message: 'An unexpected error occurred' } };
+    } catch {
+      return { error: { message: 'An unexpected error occurred', status: 500, code: 'UNEXPECTED_ERROR', name: 'UnexpectedError' } as unknown as AuthError };
     }
   };
 

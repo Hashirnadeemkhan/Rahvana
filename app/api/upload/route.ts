@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll(cookiesToSet) {
+          setAll() {
             // Do nothing for server-side operations
           },
         }
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const fileName = `${appointmentId}/${fileType}/${Date.now()}_${file.name}`;
 
     // Upload file to Supabase Storage using the existing document-vault bucket
-    const { data, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('document-vault') // Using existing document-vault bucket
       .upload(fileName, buffer, {
         contentType: file.type,
