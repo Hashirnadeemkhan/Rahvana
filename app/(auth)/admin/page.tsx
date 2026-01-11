@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import TranslationQueueTable from './translation-queue/TranslationQueueTable';
 
 // Define types
 type AppointmentStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
@@ -156,6 +157,8 @@ export default function AdminPanel() {
       </div>
     );
   }
+
+  
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -328,6 +331,9 @@ export default function AdminPanel() {
           </Card>
         </div>
       </div>
+
+      {/* Translation Queue Section */}
+      <TranslationQueueTable />
     </div>
   );
 }

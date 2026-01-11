@@ -1,4 +1,4 @@
-// POST /api/translation/[id]/verify
+// POST /api/document-translation/[id]/verify
 // Admin verifies and certifies the translation (final step)
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";

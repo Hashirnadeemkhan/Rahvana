@@ -1,4 +1,4 @@
-// POST /api/translation/[id]/upload-translation
+// POST /api/document-translation/[id]/upload-translation
 // Admin uploads translated document
 
 import { NextRequest, NextResponse } from "next/server";

@@ -1,4 +1,4 @@
-// GET /api/translation/admin?status=PENDING&limit=50&offset=0
+// GET /api/document-translation/admin?status=PENDING&limit=50&offset=0
 // Admin lists documents (with filters)
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';

@@ -1,4 +1,4 @@
-// POST /api/translation/[id]/request-changes
+// POST /api/document-translation/[id]/request-changes
 // User rejects translation and requests changes
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';

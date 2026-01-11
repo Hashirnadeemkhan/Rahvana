@@ -1,0 +1,446 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
+import TranslationUploadModal from '@/app/components/document-translation/TranslationUploadModal';
+
+// Translation Queue Types
+type TranslationStatus = 'PENDING' | 'IN_REVIEW' | 'TRANSLATED' | 'USER_CONFIRMED' | 'CHANGES_REQUESTED' | 'VERIFIED';
+
+interface TranslationRequest {
+  id: string;
+  user_name: string;
+  user_email: string;
+  document_type: string;
+  created_at: string;
+  status: TranslationStatus;
+  original_filename: string;
+  translated_filename?: string;
+}
+
+interface UploadModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  requestId: string;
+  onSuccess: () => void;
+}
+
+export default function TranslationQueueTable() {
+  const [translationRequests, setTranslationRequests] = useState<TranslationRequest[]>([]);
+  const [filteredTranslationRequests, setFilteredTranslationRequests] = useState<TranslationRequest[]>([]);
+  const [selectedTranslationStatus, setSelectedTranslationStatus] = useState<TranslationStatus | 'all'>('all');
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+  const [currentRequestId, setCurrentRequestId] = useState<string>('');
+  const [verifyNotes, setVerifyNotes] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch translation requests from API
+  useEffect(() => {
+    const fetchTranslationRequests = async () => {
+      try {
+        const response = await fetch('/api/document-translation/admin');
+        const data = await response.json();
+        
+        if (response.ok) {
+          setTranslationRequests(data.documents);
+          setFilteredTranslationRequests(data.documents);
+        } else {
+          console.error('Error fetching translation requests:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching translation requests:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTranslationRequests();
+  }, []);
+
+  // Filter translation requests based on selected status
+  useEffect(() => {
+    if (selectedTranslationStatus === 'all') {
+      setFilteredTranslationRequests(translationRequests);
+    } else {
+      setFilteredTranslationRequests(
+        translationRequests.filter(req => req.status === selectedTranslationStatus)
+      );
+    }
+  }, [translationRequests, selectedTranslationStatus]);
+
+  const getTranslationStatusBadgeVariant = (status: TranslationStatus) => {
+    switch (status) {
+      case 'PENDING':
+        return 'secondary';
+      case 'IN_REVIEW':
+        return 'default';
+      case 'TRANSLATED':
+        return 'default';
+      case 'USER_CONFIRMED':
+        return 'default';
+      case 'CHANGES_REQUESTED':
+        return 'destructive';
+      case 'VERIFIED':
+        return 'default';
+      default:
+        return 'secondary';
+    }
+  };
+
+  const getStatusColor = (status: TranslationStatus) => {
+    switch (status) {
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'IN_REVIEW':
+        return 'bg-blue-100 text-blue-800';
+      case 'TRANSLATED':
+        return 'bg-purple-100 text-purple-800';
+      case 'USER_CONFIRMED':
+        return 'bg-green-100 text-green-800';
+      case 'CHANGES_REQUESTED':
+        return 'bg-orange-100 text-orange-800';
+      case 'VERIFIED':
+        return 'bg-green-600 text-white';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+
+
+  const handleUploadClick = (requestId: string) => {
+    setCurrentRequestId(requestId);
+    setUploadModalOpen(true);
+  };
+
+  const formatTranslationDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  return (
+    <>
+      <Card className='max-w-6xl mx-auto'>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Translation Queue Management</CardTitle>
+          <div className="flex items-center space-x-4">
+            <div className="text-sm text-gray-500">
+              Total: {translationRequests.length} requests
+            </div>
+            <Select value={selectedTranslationStatus} onValueChange={(value: TranslationStatus | 'all') => setSelectedTranslationStatus(value)}>
+              <SelectTrigger className="w-45">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="IN_REVIEW">In Review</SelectItem>
+                <SelectItem value="TRANSLATED">Translated</SelectItem>
+                <SelectItem value="USER_CONFIRMED">User Confirmed</SelectItem>
+                <SelectItem value="CHANGES_REQUESTED">Changes Requested</SelectItem>
+                <SelectItem value="VERIFIED">Verified</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Document Type</TableHead>
+                    <TableHead>Submitted Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredTranslationRequests.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell className="font-medium">{request.user_name}</TableCell>
+                      <TableCell>{request.user_email}</TableCell>
+                      <TableCell>{request.document_type.charAt(0).toUpperCase() + request.document_type.slice(1)}</TableCell>
+                      <TableCell>{formatTranslationDate(request.created_at)}</TableCell>
+                      <TableCell>
+                        <div className="relative inline-block">
+                          <Badge variant={getTranslationStatusBadgeVariant(request.status)} className={`${getStatusColor(request.status)} transition-all duration-200`}>
+                            {request.status.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                          className='cursor-pointer'
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(`/document-translation/request/${request.id}`, '_blank')}
+                          >
+                            View
+                          </Button>
+                          <Button
+                          className='cursor-pointer'
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                // Get the document details to get the file URL
+                                const response = await fetch(`/api/document-translation/${request.id}/status`);
+                                const data = await response.json();
+                                
+                                if (response.ok && data.originalFileUrl) {
+                                  // Open the original file URL in a new tab
+                                  window.open(data.originalFileUrl, '_blank');
+                                } else {
+                                  console.error('Error getting document URL:', data.error);
+                                  toast.error('Could not download the document', {
+                                    position: 'top-right',
+                                    duration: 3000,
+                                  });
+                                }
+                              } catch (error) {
+                                console.error('Error downloading document:', error);
+                                toast.error('Could not download the document', {
+                                  position: 'top-right',
+                                  duration: 3000,
+                                });
+                              }
+                            }}
+                          >
+                            Download
+                          </Button>
+                          <Button
+                          className='cursor-pointer'
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleUploadClick(request.id)}
+                          >
+                            Upload
+                          </Button>
+                          {request.status === 'USER_CONFIRMED' && (
+                            <Dialog open={verifyModalOpen} onOpenChange={setVerifyModalOpen}>
+                              <DialogTrigger asChild>
+                                <Button
+                                className='cursor-pointer'
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setCurrentRequestId(request.id);
+                                  }}
+                                >
+                                  Verify
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Verify Translation</DialogTitle>
+                                </DialogHeader>
+                                <div className="py-4">
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Verification Notes (Optional)
+                                  </label>
+                                  <textarea
+                                    value={verifyNotes}
+                                    onChange={(e) => setVerifyNotes(e.target.value)}
+                                    placeholder="Add any verification notes..."
+                                    className="w-full border border-gray-300 rounded-lg p-3 min-h-[80px] focus:ring-2 focus:ring-primary focus:border-transparent"
+                                    maxLength={500}
+                                  />
+                                </div>
+                                <div className="flex justify-end gap-3 pt-2">
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setVerifyModalOpen(false);
+                                      setVerifyNotes('');
+                                    }}
+                                    disabled={verifying}
+                                    className="px-4 cursor-pointer"
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    onClick={async () => {
+                                      if (!currentRequestId) return;
+                                      
+                                      setVerifying(true);
+                                      
+                                      try {
+                                        const response = await fetch(`/api/document-translation/${currentRequestId}/verify`, {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                          },
+                                          body: JSON.stringify({ verificationNotes: verifyNotes }),
+                                        });
+                                        
+                                        const data = await response.json();
+                                        
+                                        if (response.ok) {
+                                          setVerifyNotes('');
+                                          setVerifyModalOpen(false);
+                                          
+                                          // Refresh the list 
+                                          try {
+                                            const response = await fetch('/api/document-translation/admin');
+                                            const data = await response.json();
+                                            
+                                            if (response.ok) {
+                                              setTranslationRequests(data.documents);
+                                              setFilteredTranslationRequests(data.documents);
+                                            } else {
+                                              console.error('Error fetching translation requests:', data.error);
+                                            }
+                                          } catch (error) {
+                                            console.error('Error fetching translation requests:', error);
+                                          }
+                                          
+                                          toast.success('Translation verified and certified successfully!', {
+                                            position: 'top-right',
+                                            duration: 3000,
+                                          });
+                                        } else {
+                                          console.error('Error verifying translation:', data.error);
+                                          toast.error(`Error verifying translation: ${data.error || 'Unknown error'}`, {
+                                            position: 'top-right',
+                                            duration: 3000,
+                                          });
+                                        }
+                                      } catch (error) {
+                                        console.error('Error verifying translation:', error);
+                                        toast.error('Error verifying translation: Network error', {
+                                          position: 'top-right',
+                                          duration: 3000,
+                                        });
+                                      } finally {
+                                        setVerifying(false);
+                                      }
+                                    }}
+                                    disabled={verifying}
+                                    className="px-4 cursor-pointer bg-green-600 hover:bg-green-700"
+                                  >
+                                    {verifying ? 'Verifying...' : 'Verify'}
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 mt-8 max-w-6xl mx-auto">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">Total Requests</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{translationRequests.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">Pending</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">
+              {translationRequests.filter(r => r.status === 'PENDING').length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">In Review</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {translationRequests.filter(r => r.status === 'IN_REVIEW').length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">Completed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {translationRequests.filter(r => r.status === 'VERIFIED').length}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Upload Modal */}
+      <TranslationUploadModal
+        isOpen={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        requestId={currentRequestId}
+        onSuccess={async () => {
+          // Refresh the list 
+          try {
+            const response = await fetch('/api/document-translation/admin');
+            const data = await response.json();
+            
+            if (response.ok) {
+              setTranslationRequests(data.documents);
+              setFilteredTranslationRequests(data.documents);
+            } else {
+              console.error('Error fetching translation requests:', data.error);
+            }
+          } catch (error) {
+            console.error('Error fetching translation requests:', error);
+          }
+        }}
+      />
+      
+    </>
+  );
+}

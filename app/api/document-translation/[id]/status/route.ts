@@ -1,4 +1,4 @@
-// GET /api/translation/[id]/status
+// GET /api/document-translation/[id]/status
 // Get document details by ID
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';

@@ -46,24 +46,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file name format
-    const fileNameRegex = /^[a-zA-Z]+_Certificate_Urdu\.pdf$/;
-    if (!fileNameRegex.test(file.name)) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid file name format. Use format like: Marriage_Certificate_Urdu.pdf",
-        },
-        { status: 400 }
-      );
-    }
-
     // Extract document type from file name
     const fileName = file.name;
     const documentType = fileName.split("_")[0].toLowerCase();
 
     // Validate document type
-    const allowedTypes = ["marriage"];
+    const allowedTypes = ["marriage", "birth", "death", "divorce"];
     if (!allowedTypes.includes(documentType)) {
       return NextResponse.json(
         { error: "Invalid document type" },

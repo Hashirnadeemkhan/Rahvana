@@ -1,4 +1,4 @@
-// POST /api/translation/[id]/confirm
+// POST /api/document-translation/[id]/confirm
 // User accepts the translation
 
 import { NextRequest, NextResponse } from 'next/server';

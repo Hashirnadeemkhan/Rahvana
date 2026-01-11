@@ -1,4 +1,4 @@
-// GET /api/translation/list?userEmail=user@example.com&limit=50&offset=0
+// GET /api/document-translation/list?userEmail=user@example.com&limit=50&offset=0
 // User lists their own documents
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
