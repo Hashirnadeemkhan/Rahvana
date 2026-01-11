@@ -255,13 +255,20 @@ const BasicInfoStep = ({ formData, error, isAMC, isWilcare, onChange, onSelectCh
 
           <div className="space-y-2">
             <Label htmlFor="visaCategory">Visa Category *</Label>
-            <Input
-              id="visaCategory"
-              name="visaCategory"
-              value={formData.visaCategory}
-              onChange={onChange}
-              placeholder="Enter visa category"
-            />
+            <Select value={formData.visaCategory} onValueChange={onSelectChange("visaCategory")}>
+              <SelectTrigger id="visaCategory">
+                <SelectValue placeholder="Select visa category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Immigrant Visa">Immigrant Visa</SelectItem>
+                <SelectItem value="Non-immigrant Visa">Non-immigrant Visa</SelectItem>
+                <SelectItem value="K-1 Fiance Visa">K-1 Fiancé Visa</SelectItem>
+                <SelectItem value="Student Visa">Student Visa</SelectItem>
+                <SelectItem value="Work Visa">Work Visa</SelectItem>
+                <SelectItem value="Tourist Visa">Tourist Visa</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -366,13 +373,21 @@ const BasicInfoStep = ({ formData, error, isAMC, isWilcare, onChange, onSelectCh
 
           <div className="space-y-2">
             <Label htmlFor="visaType">Visa Type</Label>
-            <Input
-              id="visaType"
-              name="visaType"
-              value={formData.visaType}
-              onChange={onChange}
-              placeholder="Enter visa type (e.g., K-1)"
-            />
+            <Select value={formData.visaType} onValueChange={onSelectChange("visaType")}>
+              <SelectTrigger id="visaType">
+                <SelectValue placeholder="Select visa type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="B-2">B-2 (Medical / Tourist)</SelectItem>
+                <SelectItem value="B-1/B-2">B-1/B-2</SelectItem>
+                <SelectItem value="F-1">F-1 (Student)</SelectItem>
+                <SelectItem value="H-1B">H-1B (Work)</SelectItem>
+                <SelectItem value="K-1">K-1 (Fiancé)</SelectItem>
+                <SelectItem value="IR-1">IR-1 (Spouse)</SelectItem>
+                <SelectItem value="CR-1">CR-1 (Spouse)</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

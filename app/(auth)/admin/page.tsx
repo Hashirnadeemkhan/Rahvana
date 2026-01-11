@@ -114,16 +114,6 @@ export default function AdminPanel() {
     }
   }, [user, isAdmin, fetchAppointments]);
 
-  // Removed auto-refresh - admin can manually refresh using the Refresh button
-  // useEffect(() => {
-  //   if (user && isAdmin) {
-  //     const interval = setInterval(() => {
-  //       fetchAppointments();
-  //     }, 30000);
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [user, isAdmin, fetchAppointments]);
-
   useEffect(() => {
     if (selectedStatus === 'all') {
       setFilteredAppointments(appointments);
@@ -366,7 +356,7 @@ export default function AdminPanel() {
                             </h4>
                             <div className="space-y-2 text-sm">
                               <p><span className="text-gray-600">Email:</span> <span className="font-medium">{appointment.email}</span></p>
-                              <p><span className="text-gray-600">Phone:</span> <span className="font-medium">+92 {appointment. phone_number}</span></p>
+                              <p><span className="text-gray-600">Phone:</span> <span className="font-medium">+92 {appointment.phone_number}</span></p>
                               {appointment.city && <p><span className="text-gray-600">City:</span> <span className="font-medium">{appointment.city}</span></p>}
                             </div>
                           </div>
@@ -455,67 +445,78 @@ export default function AdminPanel() {
                             </div>
                           )}
 
-                          {/* Documents - For Wilcare only */}
-                          {(appointment.location === 'karachi' || appointment.location === 'lahore') && (
-                            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 col-span-3">
-                              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                </svg>
-                                Uploaded Documents
-                              </h4>
+                          {/* Documents Section - NOW SHOWS FOR ALL PROVIDERS */}
+                          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 col-span-3">
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                              </svg>
+                              Uploaded Documents
+                              {appointment.location === 'islamabad' && appointment.provider === 'amc' && (
+                                <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs ml-2">AMC</span>
+                              )}
+                              {(appointment.location === 'karachi' || appointment.location === 'lahore') && (
+                                <span className="bg-teal-600 text-white px-2 py-1 rounded text-xs ml-2">Wilcare</span>
+                              )}
+                            </h4>
 
-                              {/* Primary applicant documents */}
-                              <div className="mb-4">
-                                <h5 className="font-medium text-gray-800 mb-2">Primary Applicant Documents</h5>
-                                <div className="space-y-2 text-sm ml-4">
-                                  {appointment.scanned_passport_url ? (
-                                    <p>
-                                      <span className="text-gray-600">Scanned Passport:</span>{' '}
-                                      <a href={appointment.scanned_passport_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
-                                        View Document
-                                      </a>
-                                    </p>
-                                  ) : (
-                                    <p><span className="text-gray-600">Scanned Passport:</span> <span className="text-red-500">Not uploaded</span></p>
-                                  )}
+                            {/* Primary applicant documents */}
+                            <div className="mb-4">
+                              <h5 className="font-medium text-gray-800 mb-2">Primary Applicant Documents</h5>
+                              <div className="space-y-2 text-sm ml-4">
+                                {appointment.scanned_passport_url ? (
+                                  <p>
+                                    <span className="text-gray-600">Scanned Passport:</span>{' '}
+                                    <a href={appointment.scanned_passport_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                      View Document
+                                    </a>
+                                  </p>
+                                ) : (
+                                  <p><span className="text-gray-600">Scanned Passport:</span> <span className="text-red-500">Not uploaded</span></p>
+                                )}
 
-                                  {appointment.k_one_letter_url ? (
-                                    <p>
-                                      <span className="text-gray-600">K-1 Letter:</span>{' '}
-                                      <a href={appointment.k_one_letter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
-                                        View Document
-                                      </a>
-                                    </p>
-                                  ) : (
-                                    <p><span className="text-gray-600">K-1 Letter:</span> <span className="text-gray-400">Not uploaded</span></p>
-                                  )}
+                                {appointment.k_one_letter_url ? (
+                                  <p>
+                                    <span className="text-gray-600">K-1 Letter:</span>{' '}
+                                    <a href={appointment.k_one_letter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                      View Document
+                                    </a>
+                                  </p>
+                                ) : (
+                                  <p><span className="text-gray-600">K-1 Letter:</span> <span className="text-gray-400">Not uploaded</span></p>
+                                )}
 
-                                  {appointment.appointment_confirmation_letter_url ? (
-                                    <p>
-                                      <span className="text-gray-600">Confirmation Letter:</span>{' '}
-                                      <a href={appointment.appointment_confirmation_letter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
-                                        View Document
-                                      </a>
-                                    </p>
-                                  ) : (
-                                    <p><span className="text-gray-600">Confirmation Letter:</span> <span className="text-gray-400">Not uploaded</span></p>
-                                  )}
+                                {appointment.appointment_confirmation_letter_url ? (
+                                  <p>
+                                    <span className="text-gray-600">Confirmation Letter:</span>{' '}
+                                    <a href={appointment.appointment_confirmation_letter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">
+                                      View Document
+                                    </a>
+                                  </p>
+                                ) : (
+                                  <p><span className="text-gray-600">Confirmation Letter:</span> <span className="text-gray-400">Not uploaded</span></p>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Show message if no documents uploaded */}
+                            {!appointment.scanned_passport_url && !appointment.k_one_letter_url && !appointment.appointment_confirmation_letter_url && (
+                              <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mt-2">
+                                <p className="text-sm text-yellow-800">⚠️ No documents have been uploaded for this appointment yet.</p>
+                              </div>
+                            )}
+
+                            {/* Additional applicants documents note */}
+                            {appointment.applicants && appointment.applicants.length > 0 && (
+                              <div className="mt-4 pt-4 border-t border-purple-200">
+                                <h5 className="font-medium text-gray-800 mb-2">Additional Applicants Documents</h5>
+                                <div className="text-sm text-gray-600 ml-4">
+                                  <p>Documents for additional applicants are stored separately in the database.</p>
+                                  <p>Contact support to access these documents if needed.</p>
                                 </div>
                               </div>
-
-                              {/* Additional applicants documents - if we have a way to access them */}
-                              {appointment.applicants && appointment.applicants.length > 0 && (
-                                <div>
-                                  <h5 className="font-medium text-gray-800 mb-2">Additional Applicants Documents</h5>
-                                  <div className="text-sm text-gray-600 ml-4">
-                                    <p>Documents for additional applicants are stored separately in the database.</p>
-                                    <p>Contact support to access these documents if needed.</p>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                            )}
+                          </div>
 
                           {/* Scheduling */}
                           <div className="bg-slate-50 p-4 rounded-lg">
