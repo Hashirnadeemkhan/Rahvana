@@ -15,7 +15,7 @@ async function checkAdminRole(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll() {
           // Do nothing for server-side operations
         },
       }
@@ -46,7 +46,7 @@ async function checkAdminRole(request: NextRequest) {
         getAll() {
           return [];
         },
-        setAll(cookiesToSet) {
+        setAll() {
           // Do nothing
         },
       }
@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll(cookiesToSet) {
+          setAll() {
             // Do nothing for server-side operations
           },
         }
@@ -215,7 +215,7 @@ export async function PUT(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll(cookiesToSet) {
+          setAll() {
             // Do nothing for server-side operations
           },
         }
