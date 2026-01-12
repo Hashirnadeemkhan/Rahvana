@@ -1,0 +1,247 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { Upload, AlertCircle, CheckCircle, X, FileText } from "lucide-react";
+import SuccessState from '@/app/components/document-translation/SuccessState';
+
+export default function DocumentTranslationUpload() {
+  const [file, setFile] = useState<File | null>(null);
+  const [userNotes, setUserNotes] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    documentId: string;
+    status: string;
+    message: string;
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset form
+  const reset = () => {
+    setFile(null);
+    setUserNotes("");
+    setError(null);
+    setUploadSuccess(false);
+    setResult(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+
+    // Validate file type (PDF only)
+    if (!selected.type.includes("pdf")) {
+      setError("Please upload a valid PDF file.");
+      return;
+    }
+
+    // Validate file size (max 50MB)
+    if (selected.size > 50 * 1024 * 1024) {
+      setError("File size must be under 50 MB.");
+      return;
+    }
+
+    setFile(selected);
+    setError(null);
+  };
+
+  // Handle upload
+  const handleUpload = async () => {
+    if (!file) {
+      setError("Please select a file.");
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('userEmail', 'user@example.com'); // In a real app, get this from user context
+      formData.append('userName', 'Test User'); // In a real app, get this from user context
+      if (userNotes) {
+        formData.append('userNotes', userNotes);
+      }
+
+      const response = await fetch('/api/document-translation/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      setResult({
+        documentId: data.documentId,
+        status: data.status,
+        message: data.message,
+      });
+      setUploadSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during upload');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-gray-800 flex flex-col items-center py-12 px-4">
+      {/* Header */}
+      <header className="text-center mb-10">
+        <h1 className="text-4xl md:text-5xl font-bold text-primary/90">
+          Document Translation
+        </h1>
+        <p className="mt-2 text-lg text-gray-600">
+          Upload your Urdu document for true English translation
+        </p>
+      </header>
+
+      {!uploadSuccess ? (
+        <>
+          {/* Requirements Section */}
+          <section className="w-full max-w-4xl mb-12 bg-white rounded-xl shadow-lg p-6 md:p-8">
+            <h2 className="flex items-center gap-2 text-2xl font-semibold text-primary/90 mb-6">
+              <AlertCircle className="w-6 h-6" />
+              Document Requirements
+            </h2>
+
+            <ul className="grid md:grid-cols-2 gap-6 text-gray-700">
+              {[
+                "Submit clear, legible PDF files",
+                "Original documents in Urdu language",
+                "Maximum file size: 50 MB",
+                "Ensure all text is readable",
+                "Scanned documents should be high resolution",
+                "No password protected PDFs",
+              ].map((req, i) => (
+                <li key={i} className="flex items-start gap-3 md:col-span-1">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span>
+                    <strong>{i + 1}.</strong> {req}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Upload Section */}
+          <section className="w-full max-w-md">
+            <div className="bg-white rounded-xl shadow-md p-6">
+
+
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Upload Your Document
+              </label>
+
+              <div
+                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
+                  ${file ? "border-indigo-500 bg-indigo-50" : "border-gray-300 hover:border-gray-400"}`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                {file ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <FileText className="w-10 h-10 text-indigo-600" />
+                    <div className="text-left">
+                      <p className="font-medium truncate max-w-[200px]">{file.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center text-gray-500">
+                    <Upload className="w-10 h-10 mb-2" />
+                    <p className="text-sm">Click to upload or drag & drop</p>
+                    <p className="text-xs mt-1">PDF only, max 50MB</p>
+                  </div>
+                )}
+              </div>
+
+              {file && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    reset();
+                  }}
+                  className="mt-3 text-sm text-white flex items-center gap-1 mx-auto bg-red-500 rounded-md p-2 cursor-pointer hover:bg-red-600"
+                >
+                  <X className="w-4 h-4" /> Remove Document
+                </button>
+              )}
+
+              {/* Optional Notes */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Additional Notes (Optional)
+                </label>
+                <textarea
+                  value={userNotes}
+                  onChange={(e) => setUserNotes(e.target.value)}
+                  placeholder="Any specific instructions for translators..."
+                  className="w-full border rounded-md p-2 min-h-[80px]"
+                  maxLength={500}
+                />
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5" />
+                  {error}
+                </div>
+              )}
+
+              {/* Upload Button */}
+              <button
+                onClick={handleUpload}
+                disabled={!file || uploading}
+                className={`mt-6 w-full py-3 rounded-xl font-semibold transition-colors flex items-center justify-center cursor-pointer gap-2
+                  ${
+                    !file || uploading
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-primary/90 text-white hover:bg-primary/100"
+                  }`}
+              >
+                {uploading ? (
+                  <>Processing...</>
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5" />
+                    Upload Document
+                  </>
+                )}
+              </button>
+              
+              <div className="mt-4 text-center">
+                <button 
+                  onClick={() => window.location.href = '/document-translation/my-requests'} 
+                  className="text-primary hover:underline text-sm cursor-pointer"
+                >
+                  See your translation requests
+                </button>
+              </div>
+            </div>
+          </section>
+        </>
+      ) : (
+        <SuccessState 
+          onGoToRequests={() => window.location.href = '/document-translation/my-requests'} 
+        />
+      )}
+    </div>
+  );
+}

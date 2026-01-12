@@ -167,6 +167,7 @@ export function SiteHeader({
         "affidavit-support-calculator": "/affidavit-support-calculator",
         "visa-eligibility": "/visa-eligibility",
         "Book Appintment": "/book-appointment",
+        "document-translation": "/document-translation",
       };
 
       const targetRoute = routes[id] || "/";
@@ -428,6 +429,11 @@ export function SiteHeader({
                     href: "/book-appointment",
                     label: "Book Appointment",
                     id: "book-appointment",
+                  },
+                  {
+                    href: "/document-translation",
+                    label: "Document Translation",
+                    id: "document-translation",
                   },
                 ].map((item) => (
                   <Link
@@ -703,6 +709,10 @@ export function SiteHeader({
                         {
                           id: "affidavit-support-calculator",
                           label: "Affidavit Support Calculator",
+                        },
+                        {
+                          id: "document-translation",
+                          label: "Document Translation",
                         },
                       ].map((item) => (
                         <HydrationSafeButton
