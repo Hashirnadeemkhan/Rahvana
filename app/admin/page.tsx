@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import TranslationQueueTable from '../(auth)/admin/translation-queue/TranslationQueueTable';
+
 
 type AppointmentStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -593,6 +595,8 @@ export default function AdminPanel() {
           </Card>
         </div>
       </main>
+
+      <TranslationQueueTable />
     </div>
   );
 }
