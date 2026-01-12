@@ -596,7 +596,10 @@ export default function AdminPanel() {
         </div>
       </main>
 
-      <TranslationQueueTable />
+     
+      {/* <div className="max-w-7xl mx-auto px-6 pb-8"> */}
+        <TranslationQueueTable />
+      {/* </div> */}
     </div>
   );
 }
