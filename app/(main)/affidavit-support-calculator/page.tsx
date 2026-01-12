@@ -700,7 +700,7 @@ export default function AffidavitSupportCalculator() {
     };
   };
 
-  const _checkCase7 = (): CalculatorResult => {
+  const checkCase7 = (): CalculatorResult => {
     const householdSize = calculateHouseholdSize();
     const reqIncome = calculateRequiredIncome(householdSize);
 
@@ -717,7 +717,7 @@ export default function AffidavitSupportCalculator() {
     };
   };
 
-  const _checkCase8 = (): CalculatorResult => {
+  const checkCase8 = (): CalculatorResult => {
     const householdSize = calculateHouseholdSize();
     const reqIncome = calculateRequiredIncome(householdSize);
 
@@ -742,7 +742,7 @@ export default function AffidavitSupportCalculator() {
     };
   };
 
-  const _checkCase9 = (): CalculatorResult => {
+  const checkCase9 = (): CalculatorResult => {
     const householdSize = calculateHouseholdSize();
     const reqIncome = calculateRequiredIncome(householdSize);
     const assetAlternative = calculateAssetAlternative();
@@ -761,7 +761,7 @@ export default function AffidavitSupportCalculator() {
     };
   };
 
-  const _checkCase10 = (): CalculatorResult => {
+  const checkCase10 = (): CalculatorResult => {
     const isEligible = formData.isVAWA === true || formData.isWidow === true || formData.isSpecialImmigrant === true;
     const householdSize = 1;
 
@@ -814,6 +814,26 @@ export default function AffidavitSupportCalculator() {
       const case6 = checkCase6();
       if (case6.isEligible) return case6;
     }
+
+    // Try Case 7 for substitute sponsor
+    if (formData.sponsorDeceased === true) {
+      const case7 = checkCase7();
+      if (case7.isEligible) return case7;
+    }
+
+    // Try Case 8 for joint sponsor with their household
+    if (formData.jointSponsors.length > 0) {
+      const case8 = checkCase8();
+      if (case8.isEligible) return case8;
+    }
+
+    // Try Case 9 for asset-based alternative
+    const case9 = checkCase9();
+    if (case9.isEligible) return case9;
+
+    // Try Case 10 for self-petitioning
+    const case10 = checkCase10();
+    if (case10.isEligible) return case10;
 
     // Return Case 1 as fallback (not eligible)
     return case1;

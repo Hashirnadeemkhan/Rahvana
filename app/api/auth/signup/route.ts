@@ -85,21 +85,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user profile in the profiles table
-    if (newUser?.user?.id) {
-      const { error: profileError } = await supabaseAdmin
-        .from('profiles')
-        .insert([{
-          id: newUser.user.id,
-          email: email,
-          full_name: email.split('@')[0], // Use part of email as default name
-          role: 'user' // Default role is 'user'
-        }]);
+    // Wait a moment for the database trigger to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-      if (profileError) {
-        console.error("Error creating user profile:", profileError);
-        // Note: We don't delete the user here as the signup was successful
-        // The profile can be created later
+    // Check if profile exists (created by trigger), if not create it
+    if (newUser?.user?.id) {
+      const { data: existingProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('id', newUser.user.id)
+        .single();
+
+      if (!existingProfile) {
+        // Only create profile if trigger didn't create it
+        const { error: profileError } = await supabaseAdmin
+          .from('profiles')
+          .upsert([{
+            id: newUser.user.id,
+            email: email,
+            full_name: email.split('@')[0],
+            role: 'user'
+          }], {
+            onConflict: 'id'
+          });
+
+        if (profileError) {
+          console.error("Error creating user profile:", profileError);
+          // Continue anyway - profile can be created later
+        }
       }
     }
 

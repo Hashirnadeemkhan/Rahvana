@@ -1,82 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-// Define the type for appointment data
-interface AppointmentData {
-  full_name: string;
-  email: string;
-  phone_number: string;
-  medical_website: string;
-  location: string;
-  provider: string | null;
-  appointment_type: string | null;
-  visa_type: string | null;
-  medical_type: string | null;
-  surname: string;
-  given_name: string;
-  gender: string | null;
-  date_of_birth: string | null;
-  passport_number: string | null;
-  passport_issue_date: string | null;
-  passport_expiry_date: string | null;
-  preferred_date: string | null;
-  preferred_time: string | null;
-  estimated_charges: string | null;
-  interview_date: string | null;
-  visa_category: string | null;
-  had_medical_before: boolean | null;
-  city: string | null;
-  case_ref: string | null;
-  number_of_applicants: number | null;
-  original_passport: boolean | null;
-  status: string;
-  [key: string]: unknown; // Allow additional properties like case_number
-}
-
-// Define the type for applicant data
-interface ApplicantData {
-  surname: string;
-  given_name: string;
-  gender?: string;
-  date_of_birth?: string;
-  passport_number: string;
-  passport_issue_date?: string;
-  passport_expiry_date?: string;
-  case_number?: string;
-  case_ref?: string;
-}
-
-// Define the type for form data
-interface FormData {
-  location: string;
-  numberOfApplicants?: string;
-  applicants?: ApplicantData[];
-  givenName: string;
-  surname: string;
-  email: string;
-  primaryContact: string;
-  islamabadProvider?: string;
-  appointmentType?: string;
-  visaType?: string;
-  medicalType?: string;
-  gender?: string;
-  dateOfBirth?: string;
-  passportNumber?: string;
-  passportIssueDate?: string;
-  passportExpiryDate?: string;
-  preferredAppointmentDate?: string;
-  preferredTime?: string;
-  estimatedCharges?: string;
-  interviewDate?: string;
-  visaCategory?: string;
-  hadMedicalBefore?: boolean;
-  city?: string;
-  caseRef?: string;
-  caseNumber?: string;
-  originalPassport?: boolean;
-  [key: string]: unknown;
-}
-
 export async function POST(req: NextRequest) {
   console.log('=== Starting appointment submission ===');
   
@@ -90,7 +14,7 @@ export async function POST(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll() {
+          setAll(_cookiesToSet) {
             // Do nothing for server-side operations
           },
         }
@@ -98,7 +22,7 @@ export async function POST(req: NextRequest) {
     );
 
     // Get form data from request
-    const formData: FormData = await req.json();
+    const formData = await req.json();
     console.log('Received form data:', {
       location: formData.location,
       numberOfApplicants: formData.numberOfApplicants,
@@ -108,6 +32,38 @@ export async function POST(req: NextRequest) {
 
     // Extract the full name from given name and surname
     const fullName = `${formData.givenName} ${formData.surname}`;
+
+    // Define types for our data structures
+    interface AppointmentData {
+      full_name: string;
+      email: string;
+      phone_number: string;
+      medical_website: string;
+      location: string;
+      provider: string | null;
+      appointment_type: string | null;
+      visa_type: string | null;
+      medical_type: string | null;
+      surname: string;
+      given_name: string;
+      gender: string | null;
+      date_of_birth: string | null;
+      passport_number: string | null;
+      passport_issue_date: string | null;
+      passport_expiry_date: string | null;
+      preferred_date: string | null;
+      preferred_time: string | null;
+      estimated_charges: string | null;
+      interview_date: string | null;
+      visa_category: string | null;
+      had_medical_before: string | null;
+      city: string | null;
+      case_ref: string | null;
+      number_of_applicants: number | null;
+      original_passport: string | null;
+      status: string;
+      case_number?: string;
+    }
 
     // Prepare appointment data for database insertion
     const appointmentData: AppointmentData = {
@@ -186,23 +142,36 @@ export async function POST(req: NextRequest) {
       console.log(`Processing ${formData.applicants.length} additional applicants...`);
       
       try {
+        // Define type for applicant data
+        interface ApplicantData {
+          surname: string;
+          givenName: string;
+          gender?: string;
+          dateOfBirth?: string;
+          passportNumber: string;
+          passportIssueDate?: string;
+          passportExpiryDate?: string;
+          caseNumber?: string;
+          caseRef?: string;
+        }
+
         // Filter out any applicants without required data
         const validApplicants = formData.applicants.filter((applicant: ApplicantData) =>
-          applicant.surname && applicant.given_name && applicant.passport_number
+          applicant.surname && applicant.givenName && applicant.passportNumber
         );
 
         if (validApplicants.length > 0) {
           const applicantsData = validApplicants.map((applicant: ApplicantData) => ({
             appointment_id: appointment.id,
             surname: applicant.surname,
-            given_name: applicant.given_name,
+            given_name: applicant.givenName,
             gender: applicant.gender || null,
-            date_of_birth: applicant.date_of_birth ? new Date(applicant.date_of_birth).toISOString() : null,
-            passport_number: applicant.passport_number,
-            passport_issue_date: applicant.passport_issue_date ? new Date(applicant.passport_issue_date).toISOString() : null,
-            passport_expiry_date: applicant.passport_expiry_date ? new Date(applicant.passport_expiry_date).toISOString() : null,
-            case_number: applicant.case_number || null,
-            case_ref: applicant.case_ref || null
+            date_of_birth: applicant.dateOfBirth ? new Date(applicant.dateOfBirth).toISOString() : null,
+            passport_number: applicant.passportNumber,
+            passport_issue_date: applicant.passportIssueDate ? new Date(applicant.passportIssueDate).toISOString() : null,
+            passport_expiry_date: applicant.passportExpiryDate ? new Date(applicant.passportExpiryDate).toISOString() : null,
+            case_number: applicant.caseNumber || null,
+            case_ref: applicant.caseRef || null
           }));
 
           console.log('Inserting applicants data:', applicantsData);
