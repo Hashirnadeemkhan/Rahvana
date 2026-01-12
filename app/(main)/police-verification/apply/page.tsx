@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -24,7 +24,7 @@ import {
   Upload,
 } from "lucide-react";
 
-export default function PoliceApplyPage() {
+function PoliceApplyContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const province = searchParams.get("province") || "";
@@ -1382,8 +1382,6 @@ export default function PoliceApplyPage() {
                   </div>
                 </div>
 
-              
-
                 <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 space-y-6">
                   <h3 className="font-bold text-gray-900 border-b border-gray-200 pb-4">
                     Application Review
@@ -1476,5 +1474,13 @@ export default function PoliceApplyPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PoliceApplyPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PoliceApplyContent />
+    </Suspense>
   );
 }
