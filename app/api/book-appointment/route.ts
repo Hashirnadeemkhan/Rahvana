@@ -1,75 +1,255 @@
 import { NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@supabase/ssr';
+
+// Define the type for appointment data
+interface AppointmentData {
+  full_name: string;
+  email: string;
+  phone_number: string;
+  medical_website: string;
+  location: string;
+  provider: string | null;
+  appointment_type: string | null;
+  visa_type: string | null;
+  medical_type: string | null;
+  surname: string;
+  given_name: string;
+  gender: string | null;
+  date_of_birth: string | null;
+  passport_number: string | null;
+  passport_issue_date: string | null;
+  passport_expiry_date: string | null;
+  preferred_date: string | null;
+  preferred_time: string | null;
+  estimated_charges: string | null;
+  interview_date: string | null;
+  visa_category: string | null;
+  had_medical_before: boolean | null;
+  city: string | null;
+  case_ref: string | null;
+  number_of_applicants: number | null;
+  original_passport: boolean | null;
+  status: string;
+  [key: string]: unknown; // Allow additional properties like case_number
+}
+
+// Define the type for applicant data
+interface ApplicantData {
+  surname: string;
+  given_name: string;
+  gender?: string;
+  date_of_birth?: string;
+  passport_number: string;
+  passport_issue_date?: string;
+  passport_expiry_date?: string;
+  case_number?: string;
+  case_ref?: string;
+}
+
+// Define the type for form data
+interface FormData {
+  location: string;
+  numberOfApplicants?: string;
+  applicants?: ApplicantData[];
+  givenName: string;
+  surname: string;
+  email: string;
+  primaryContact: string;
+  islamabadProvider?: string;
+  appointmentType?: string;
+  visaType?: string;
+  medicalType?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  passportNumber?: string;
+  passportIssueDate?: string;
+  passportExpiryDate?: string;
+  preferredAppointmentDate?: string;
+  preferredTime?: string;
+  estimatedCharges?: string;
+  interviewDate?: string;
+  visaCategory?: string;
+  hadMedicalBefore?: boolean;
+  city?: string;
+  caseRef?: string;
+  caseNumber?: string;
+  originalPassport?: boolean;
+  [key: string]: unknown;
+}
 
 export async function POST(req: NextRequest) {
+  console.log('=== Starting appointment submission ===');
+  
   try {
-    const supabase = await createClient();
-    
+    // Use the service role client to bypass RLS policies
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return [];
+          },
+          setAll() {
+            // Do nothing for server-side operations
+          },
+        }
+      }
+    );
+
     // Get form data from request
-    const formData = await req.json();
-    
+    const formData: FormData = await req.json();
+    console.log('Received form data:', {
+      location: formData.location,
+      numberOfApplicants: formData.numberOfApplicants,
+      hasApplicants: !!formData.applicants,
+      applicantsLength: formData.applicants?.length
+    });
+
     // Extract the full name from given name and surname
     const fullName = `${formData.givenName} ${formData.surname}`;
-    
+
     // Prepare appointment data for database insertion
-    const appointmentData = {
+    const appointmentData: AppointmentData = {
       full_name: fullName,
       email: formData.email,
-      phone: formData.primaryContact,
+      phone_number: formData.primaryContact, // ✅ Correct column name
+      medical_website: formData.location === 'islamabad' ?
+        (formData.islamabadProvider === 'amc' ? 'AMC' : 'IOM') :
+        `${formData.location.charAt(0).toUpperCase() + formData.location.slice(1)} - Wilcare Medical`,
       location: formData.location,
       provider: formData.islamabadProvider || null,
-      appointment_type: formData.appointmentType,
-      visa_type: formData.visaType,
-      medical_type: formData.medicalType,
+      appointment_type: formData.appointmentType || null,
+      visa_type: formData.visaType || null,
+      medical_type: formData.medicalType || null,
       surname: formData.surname,
       given_name: formData.givenName,
-      gender: formData.gender,
+      gender: formData.gender || null,
       date_of_birth: formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString() : null,
-      passport_number: formData.passportNumber,
+      passport_number: formData.passportNumber || null,
       passport_issue_date: formData.passportIssueDate ? new Date(formData.passportIssueDate).toISOString() : null,
       passport_expiry_date: formData.passportExpiryDate ? new Date(formData.passportExpiryDate).toISOString() : null,
-      case_number: formData.caseNumber,
       preferred_date: formData.preferredAppointmentDate ? new Date(formData.preferredAppointmentDate).toISOString() : null,
-      preferred_time: formData.preferredTime,
-      estimated_charges: formData.estimatedCharges,
+      preferred_time: formData.preferredTime || null,
+      estimated_charges: formData.estimatedCharges || null,
       interview_date: formData.interviewDate ? new Date(formData.interviewDate).toISOString() : null,
-      visa_category: formData.visaCategory,
-      had_medical_before: formData.hadMedicalBefore,
-      city: formData.city,
-      case_ref: formData.caseRef,
+      visa_category: formData.visaCategory || null,
+      had_medical_before: formData.hadMedicalBefore || null,
+      city: formData.city || null,
+      case_ref: formData.caseRef || null,
       number_of_applicants: formData.numberOfApplicants ? parseInt(formData.numberOfApplicants) : null,
-      status: 'pending' // Default status
+      original_passport: formData.originalPassport || null,
+      status: 'pending'
     };
 
+    // Only add case_number if it exists
+    if (formData.caseNumber && formData.caseNumber.trim() !== '') {
+      appointmentData.case_number = formData.caseNumber;
+    }
+
+    console.log('Inserting appointment data...');
+
     // Insert appointment into database
-    const { data, error } = await supabase
+    const { data: appointment, error: appointmentError } = await supabase
       .from('appointments')
       .insert([appointmentData])
       .select()
       .single();
 
-    if (error) {
-      console.error('Error saving appointment:', error);
-      return Response.json({ error: 'Failed to save appointment' }, { status: 500 });
+    if (appointmentError) {
+      console.error('❌ Error saving appointment:', appointmentError);
+      console.error('Error details:', {
+        message: appointmentError.message,
+        details: appointmentError.details,
+        hint: appointmentError.hint,
+        code: appointmentError.code
+      });
+      return Response.json({
+        error: 'Failed to save appointment',
+        details: appointmentError.message,
+        code: appointmentError.code,
+        hint: appointmentError.hint
+      }, { status: 500 });
     }
 
-    // TODO: Send notification email
-    // await sendAppointmentNotification({
-    //   email: formData.email,
-    //   fullName: fullName,
-    //   medicalWebsite: 'Wilcare Medical Centre', // or appropriate provider
-    //   appointmentType: formData.appointmentType,
-    //   status: 'in_progress'
-    // });
+    if (!appointment) {
+      console.error('❌ No appointment data returned');
+      return Response.json({
+        error: 'Failed to create appointment - no data returned'
+      }, { status: 500 });
+    }
 
-    return Response.json({ 
-      success: true, 
-      id: data.id,
-      message: 'Appointment request submitted successfully' 
+    console.log('✅ Appointment created successfully:', appointment.id);
+
+    // If there are additional applicants, save them to the database
+    if (formData.applicants && Array.isArray(formData.applicants) && formData.applicants.length > 0) {
+      console.log(`Processing ${formData.applicants.length} additional applicants...`);
+      
+      try {
+        // Filter out any applicants without required data
+        const validApplicants = formData.applicants.filter((applicant: ApplicantData) =>
+          applicant.surname && applicant.given_name && applicant.passport_number
+        );
+
+        if (validApplicants.length > 0) {
+          const applicantsData = validApplicants.map((applicant: ApplicantData) => ({
+            appointment_id: appointment.id,
+            surname: applicant.surname,
+            given_name: applicant.given_name,
+            gender: applicant.gender || null,
+            date_of_birth: applicant.date_of_birth ? new Date(applicant.date_of_birth).toISOString() : null,
+            passport_number: applicant.passport_number,
+            passport_issue_date: applicant.passport_issue_date ? new Date(applicant.passport_issue_date).toISOString() : null,
+            passport_expiry_date: applicant.passport_expiry_date ? new Date(applicant.passport_expiry_date).toISOString() : null,
+            case_number: applicant.case_number || null,
+            case_ref: applicant.case_ref || null
+          }));
+
+          console.log('Inserting applicants data:', applicantsData);
+
+          const { data: insertedApplicants, error: applicantsError } = await supabase
+            .from('applicants')
+            .insert(applicantsData)
+            .select();
+
+          if (applicantsError) {
+            console.error('❌ Error saving applicants:', applicantsError);
+            console.error('Applicants error details:', {
+              message: applicantsError.message,
+              details: applicantsError.details,
+              hint: applicantsError.hint,
+              code: applicantsError.code
+            });
+            // Don't fail the entire request - appointment was saved successfully
+            console.warn('⚠️ Continuing despite applicants error');
+          } else {
+            console.log(`✅ Successfully saved ${insertedApplicants?.length || 0} applicants`);
+          }
+        } else {
+          console.warn('⚠️ No valid applicants to insert');
+        }
+      } catch (error) {
+        console.error('❌ Error processing applicants:', error);
+        // Continue without saving applicants if there's an error
+      }
+    } else {
+      console.log('No additional applicants to process');
+    }
+
+    console.log('=== Appointment submission completed successfully ===');
+
+    return Response.json({
+      success: true,
+      id: appointment.id,
+      message: 'Appointment request submitted successfully'
     });
 
   } catch (error) {
-    console.error('Unexpected error in appointment submission:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('❌ Unexpected error in appointment submission:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return Response.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

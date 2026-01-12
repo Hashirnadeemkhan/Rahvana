@@ -9,7 +9,7 @@ type Props = {
 export default function TextSignature({ onGenerate, closeModal }: Props) {
   const [name, setName] = useState("");
   const [selectedFont, setSelectedFont] = useState(0);
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [, setFontsLoaded] = useState(false);
 
   // Professional signature fonts - diverse styles
   const fonts = [
@@ -36,7 +36,7 @@ export default function TextSignature({ onGenerate, closeModal }: Props) {
     return () => {
       document.head.removeChild(link);
     };
-  }, []);
+  }, );
 
   const handleGenerate = () => {
     if (!name.trim()) {
