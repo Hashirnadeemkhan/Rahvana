@@ -11,6 +11,19 @@ type Location = "karachi" | "lahore" | "islamabad";
 type IslamabadProvider = "amc" | "iom";
 type Gender = "M" | "F" | "Other";
 
+interface Applicant {
+  id: string;
+  surname: string;
+  givenName: string;
+  gender: Gender | "";
+  dateOfBirth: string;
+  passportNumber: string;
+  passportIssueDate: string;
+  passportExpiryDate: string;
+  caseNumber: string;
+  caseRef: string;
+}
+
 interface FormData {
   location: Location | "";
   islamabadProvider: IslamabadProvider | "";
@@ -40,6 +53,7 @@ interface FormData {
   city: string;
   caseRef: string;
   numberOfApplicants: string;
+  applicants: Applicant[];
 }
 
 interface LocationStepProps {
@@ -241,13 +255,20 @@ const BasicInfoStep = ({ formData, error, isAMC, isWilcare, onChange, onSelectCh
 
           <div className="space-y-2">
             <Label htmlFor="visaCategory">Visa Category *</Label>
-            <Input
-              id="visaCategory"
-              name="visaCategory"
-              value={formData.visaCategory}
-              onChange={onChange}
-              placeholder="Enter visa category"
-            />
+            <Select value={formData.visaCategory} onValueChange={onSelectChange("visaCategory")}>
+              <SelectTrigger id="visaCategory">
+                <SelectValue placeholder="Select visa category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Immigrant Visa">Immigrant Visa</SelectItem>
+                <SelectItem value="Non-immigrant Visa">Non-immigrant Visa</SelectItem>
+                <SelectItem value="K-1 Fiance Visa">K-1 Fiancé Visa</SelectItem>
+                <SelectItem value="Student Visa">Student Visa</SelectItem>
+                <SelectItem value="Work Visa">Work Visa</SelectItem>
+                <SelectItem value="Tourist Visa">Tourist Visa</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -352,13 +373,21 @@ const BasicInfoStep = ({ formData, error, isAMC, isWilcare, onChange, onSelectCh
 
           <div className="space-y-2">
             <Label htmlFor="visaType">Visa Type</Label>
-            <Input
-              id="visaType"
-              name="visaType"
-              value={formData.visaType}
-              onChange={onChange}
-              placeholder="Enter visa type (e.g., K-1)"
-            />
+            <Select value={formData.visaType} onValueChange={onSelectChange("visaType")}>
+              <SelectTrigger id="visaType">
+                <SelectValue placeholder="Select visa type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="B-2">B-2 (Medical / Tourist)</SelectItem>
+                <SelectItem value="B-1/B-2">B-1/B-2</SelectItem>
+                <SelectItem value="F-1">F-1 (Student)</SelectItem>
+                <SelectItem value="H-1B">H-1B (Work)</SelectItem>
+                <SelectItem value="K-1">K-1 (Fiancé)</SelectItem>
+                <SelectItem value="IR-1">IR-1 (Spouse)</SelectItem>
+                <SelectItem value="CR-1">CR-1 (Spouse)</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -407,16 +436,75 @@ const BasicInfoStep = ({ formData, error, isAMC, isWilcare, onChange, onSelectCh
   </div>
 );
 
+interface ApplicantInfoProps {
+  applicant: Applicant;
+  index: number;
+  onChange: (index: number, field: keyof Applicant, value: string) => void;
+}
+
+const ApplicantInfo = ({ applicant, index, onChange }: ApplicantInfoProps) => (
+  <div className="border border-gray-200 rounded-lg p-6 mb-6 bg-gray-50">
+    <h3 className="text-lg font-semibold text-slate-900 mb-4">Applicant #{index + 1}</h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-2">
+        <Label htmlFor={`applicant-${index}-surname`}>Surname *</Label>
+        <Input
+          id={`applicant-${index}-surname`}
+          value={applicant.surname}
+          onChange={(e) => onChange(index, 'surname', e.target.value)}
+          placeholder="Enter surname"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`applicant-${index}-givenName`}>Given Name *</Label>
+        <Input
+          id={`applicant-${index}-givenName`}
+          value={applicant.givenName}
+          onChange={(e) => onChange(index, 'givenName', e.target.value)}
+          placeholder="Enter given name"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`applicant-${index}-gender`}>Gender *</Label>
+        <Select value={applicant.gender} onValueChange={(value) => onChange(index, 'gender', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="M">Male</SelectItem>
+            <SelectItem value="F">Female</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`applicant-${index}-dateOfBirth`}>Date of Birth *</Label>
+        <Input
+          id={`applicant-${index}-dateOfBirth`}
+          type="date"
+          value={applicant.dateOfBirth}
+          onChange={(e) => onChange(index, 'dateOfBirth', e.target.value)}
+        />
+      </div>
+    </div>
+  </div>
+);
+
 interface PersonalInfoStepProps {
   formData: FormData;
   error: string | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectChange: (name: keyof FormData) => (value: string) => void;
+  onApplicantChange: (index: number, field: keyof Applicant, value: string) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-const PersonalInfoStep = ({ formData, error, onChange, onSelectChange, onNext, onBack }: PersonalInfoStepProps) => (
+const PersonalInfoStep = ({ formData, error, onChange, onSelectChange, onApplicantChange, onNext, onBack }: PersonalInfoStepProps) => (
   <div className="space-y-6">
     <div className="flex items-center gap-2 mb-6">
       <div className="bg-teal-600 text-white px-3 py-1 rounded font-semibold">Info</div>
@@ -424,54 +512,74 @@ const PersonalInfoStep = ({ formData, error, onChange, onSelectChange, onNext, o
     </div>
 
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="surname">Surname *</Label>
-          <Input
-            id="surname"
-            name="surname"
-            value={formData.surname}
-            onChange={onChange}
-            placeholder="Enter surname"
-          />
-        </div>
+      {/* Primary applicant information */}
+      <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Primary Applicant</h3>
 
-        <div className="space-y-2">
-          <Label htmlFor="givenName">Given Name *</Label>
-          <Input
-            id="givenName"
-            name="givenName"
-            value={formData.givenName}
-            onChange={onChange}
-            placeholder="Enter given name"
-          />
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="surname">Surname *</Label>
+            <Input
+              id="surname"
+              name="surname"
+              value={formData.surname}
+              onChange={onChange}
+              placeholder="Enter surname"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="gender">Gender *</Label>
-          <Select value={formData.gender} onValueChange={onSelectChange("gender")}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="M">Male</SelectItem>
-              <SelectItem value="F">Female</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="givenName">Given Name *</Label>
+            <Input
+              id="givenName"
+              name="givenName"
+              value={formData.givenName}
+              onChange={onChange}
+              placeholder="Enter given name"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-          <Input
-            id="dateOfBirth"
-            name="dateOfBirth"
-            type="date"
-            value={formData.dateOfBirth}
-            onChange={onChange}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="gender">Gender *</Label>
+            <Select value={formData.gender} onValueChange={onSelectChange("gender")}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="M">Male</SelectItem>
+                <SelectItem value="F">Female</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+            <Input
+              id="dateOfBirth"
+              name="dateOfBirth"
+              type="date"
+              value={formData.dateOfBirth}
+              onChange={onChange}
+            />
+          </div>
         </div>
       </div>
+
+      {/* Additional applicants if any */}
+      {parseInt(formData.numberOfApplicants) > 1 && (
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Additional Applicants</h3>
+          {formData.applicants.map((applicant, index) => (
+            <ApplicantInfo
+              key={applicant.id}
+              applicant={applicant}
+              index={index}
+              onChange={onApplicantChange}
+            />
+          ))}
+        </div>
+      )}
 
       {error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -491,16 +599,86 @@ const PersonalInfoStep = ({ formData, error, onChange, onSelectChange, onNext, o
   </div>
 );
 
+interface ApplicantPassportInfoProps {
+  applicant: Applicant;
+  index: number;
+  isAMC: boolean;
+  onChange: (index: number, field: keyof Applicant, value: string) => void;
+}
+
+const ApplicantPassportInfo = ({ applicant, index, isAMC, onChange }: ApplicantPassportInfoProps) => (
+  <div className="border border-gray-200 rounded-lg p-6 mb-6 bg-gray-50">
+    <h3 className="text-lg font-semibold text-slate-900 mb-4">Applicant #{index + 1} Passport Details</h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-2">
+        <Label htmlFor={`applicant-${index}-passportNumber`}>Passport Number *</Label>
+        <Input
+          id={`applicant-${index}-passportNumber`}
+          value={applicant.passportNumber}
+          onChange={(e) => onChange(index, 'passportNumber', e.target.value)}
+          placeholder="Enter passport number"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`applicant-${index}-passportIssueDate`}>Passport Issue Date</Label>
+        <Input
+          id={`applicant-${index}-passportIssueDate`}
+          type="date"
+          value={applicant.passportIssueDate}
+          onChange={(e) => onChange(index, 'passportIssueDate', e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`applicant-${index}-passportExpiryDate`}>Passport Exp Date</Label>
+        <Input
+          id={`applicant-${index}-passportExpiryDate`}
+          type="date"
+          value={applicant.passportExpiryDate}
+          onChange={(e) => onChange(index, 'passportExpiryDate', e.target.value)}
+        />
+      </div>
+
+      {!isAMC && (
+        <div className="space-y-2">
+          <Label htmlFor={`applicant-${index}-caseNumber`}>Case No</Label>
+          <Input
+            id={`applicant-${index}-caseNumber`}
+            value={applicant.caseNumber}
+            onChange={(e) => onChange(index, 'caseNumber', e.target.value)}
+            placeholder="Enter case number (e.g., ISL)"
+          />
+        </div>
+      )}
+
+      {isAMC && (
+        <div className="space-y-2">
+          <Label htmlFor={`applicant-${index}-caseRef`}>Case Ref *</Label>
+          <Input
+            id={`applicant-${index}-caseRef`}
+            value={applicant.caseRef}
+            onChange={(e) => onChange(index, 'caseRef', e.target.value)}
+            placeholder="Enter case reference"
+          />
+        </div>
+      )}
+    </div>
+  </div>
+);
+
 interface PassportDetailsStepProps {
   formData: FormData;
   error: string | null;
   isAMC: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onApplicantChange: (index: number, field: keyof Applicant, value: string) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-const PassportDetailsStep = ({ formData, error, isAMC, onChange, onNext, onBack }: PassportDetailsStepProps) => (
+const PassportDetailsStep = ({ formData, error, isAMC, onChange, onApplicantChange, onNext, onBack }: PassportDetailsStepProps) => (
   <div className="space-y-6">
     <div className="flex items-center gap-2 mb-6">
       <div className="bg-teal-600 text-white px-3 py-1 rounded font-semibold">More info</div>
@@ -508,53 +686,87 @@ const PassportDetailsStep = ({ formData, error, isAMC, onChange, onNext, onBack 
     </div>
 
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="passportNumber">Passport Number *</Label>
-          <Input
-            id="passportNumber"
-            name="passportNumber"
-            value={formData.passportNumber}
-            onChange={onChange}
-            placeholder="Enter passport number"
-          />
-        </div>
+      {/* Primary applicant passport details */}
+      <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Primary Applicant Passport Details</h3>
 
-        <div className="space-y-2">
-          <Label htmlFor="passportIssueDate">Passport Issue Date</Label>
-          <Input
-            id="passportIssueDate"
-            name="passportIssueDate"
-            type="date"
-            value={formData.passportIssueDate}
-            onChange={onChange}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="passportExpiryDate">Passport Exp Date</Label>
-          <Input
-            id="passportExpiryDate"
-            name="passportExpiryDate"
-            type="date"
-            value={formData.passportExpiryDate}
-            onChange={onChange}
-          />
-        </div>
-
-        {!isAMC && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="caseNumber">Case No</Label>
+            <Label htmlFor="passportNumber">Passport Number *</Label>
             <Input
-              id="caseNumber"
-              name="caseNumber"
-              value={formData.caseNumber}
+              id="passportNumber"
+              name="passportNumber"
+              value={formData.passportNumber}
               onChange={onChange}
-              placeholder="Enter case number (e.g., ISL)"
+              placeholder="Enter passport number"
             />
           </div>
-        )}
+
+          <div className="space-y-2">
+            <Label htmlFor="passportIssueDate">Passport Issue Date</Label>
+            <Input
+              id="passportIssueDate"
+              name="passportIssueDate"
+              type="date"
+              value={formData.passportIssueDate}
+              onChange={onChange}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="passportExpiryDate">Passport Exp Date</Label>
+            <Input
+              id="passportExpiryDate"
+              name="passportExpiryDate"
+              type="date"
+              value={formData.passportExpiryDate}
+              onChange={onChange}
+            />
+          </div>
+
+          {!isAMC && (
+            <div className="space-y-2">
+              <Label htmlFor="caseNumber">Case No</Label>
+              <Input
+                id="caseNumber"
+                name="caseNumber"
+                value={formData.caseNumber}
+                onChange={onChange}
+                placeholder="Enter case number (e.g., ISL)"
+              />
+            </div>
+          )}
+
+          {isAMC && (
+            <div className="space-y-2">
+              <Label htmlFor="caseRef">Case Ref *</Label>
+              <Input
+                id="caseRef"
+                name="caseRef"
+                value={formData.caseRef}
+                onChange={onChange}
+                placeholder="Enter case reference"
+              />
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Additional applicants if any */}
+      {parseInt(formData.numberOfApplicants) > 1 && (
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Additional Applicants Passport Details</h3>
+          {formData.applicants.map((applicant, index) => (
+            <ApplicantPassportInfo
+              key={applicant.id}
+              applicant={applicant}
+              index={index}
+              isAMC={isAMC}
+              onChange={onApplicantChange}
+            />
+          ))}
+        </div>
+      )}
 
       {error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -770,12 +982,13 @@ interface ReviewStepProps {
   formData: FormData;
   error: string | null;
   loading: boolean;
+  isAMC: boolean;
   onSubmit: () => void;
   onBack: () => void;
   formatDate: (dateString: string) => string;
 }
 
-const ReviewStep = ({ formData, error, loading, onSubmit, onBack, formatDate }: ReviewStepProps) => (
+const ReviewStep = ({ formData, error, loading, isAMC, onSubmit, onBack, formatDate }: ReviewStepProps) => (
   <div className="space-y-6">
     <div className="flex items-center gap-2 mb-6">
       <div className="bg-teal-600 text-white px-3 py-1 rounded font-semibold">Preview</div>
@@ -854,23 +1067,59 @@ const ReviewStep = ({ formData, error, loading, onSubmit, onBack, formatDate }: 
           </svg>
           Personal Information
         </h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm text-slate-600">Surname</p>
-            <p className="font-medium">{formData.surname}</p>
+        <div className="space-y-6">
+          {/* Primary applicant */}
+          <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+            <h4 className="font-semibold text-slate-900 mb-3">Primary Applicant</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-slate-600">Surname</p>
+                <p className="font-medium">{formData.surname}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Given Name</p>
+                <p className="font-medium">{formData.givenName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Gender</p>
+                <p className="font-medium">{formData.gender}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Date of Birth</p>
+                <p className="font-medium">{formData.dateOfBirth ? formatDate(formData.dateOfBirth) : "Not specified"}</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-slate-600">Given Name</p>
-            <p className="font-medium">{formData.givenName}</p>
-          </div>
-          <div>
-            <p className="text-sm text-slate-600">Gender</p>
-            <p className="font-medium">{formData.gender}</p>
-          </div>
-          <div>
-            <p className="text-sm text-slate-600">Date of Birth</p>
-            <p className="font-medium">{formData.dateOfBirth ? formatDate(formData.dateOfBirth) : "Not specified"}</p>
-          </div>
+
+          {/* Additional applicants if any */}
+          {parseInt(formData.numberOfApplicants) > 1 && formData.applicants.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-3">Additional Applicants</h4>
+              {formData.applicants.map((applicant, index) => (
+                <div key={applicant.id} className="border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
+                  <h5 className="font-semibold text-slate-900 mb-2">Applicant #{index + 1}</h5>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-slate-600">Surname</p>
+                      <p className="font-medium">{applicant.surname}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Given Name</p>
+                      <p className="font-medium">{applicant.givenName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Gender</p>
+                      <p className="font-medium">{applicant.gender}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Date of Birth</p>
+                      <p className="font-medium">{applicant.dateOfBirth ? formatDate(applicant.dateOfBirth) : "Not specified"}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -881,23 +1130,71 @@ const ReviewStep = ({ formData, error, loading, onSubmit, onBack, formatDate }: 
           </svg>
           Passport Details
         </h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm text-slate-600">Passport Number</p>
-            <p className="font-medium">{formData.passportNumber}</p>
+        <div className="space-y-6">
+          {/* Primary applicant */}
+          <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+            <h4 className="font-semibold text-slate-900 mb-3">Primary Applicant</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-slate-600">Passport Number</p>
+                <p className="font-medium">{formData.passportNumber}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Issue Date</p>
+                <p className="font-medium">{formData.passportIssueDate ? formatDate(formData.passportIssueDate) : "Not specified"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Expiry Date</p>
+                <p className="font-medium">{formData.passportExpiryDate ? formatDate(formData.passportExpiryDate) : "Not specified"}</p>
+              </div>
+              {formData.caseNumber && (
+                <div>
+                  <p className="text-sm text-slate-600">Case Number</p>
+                  <p className="font-medium">{formData.caseNumber}</p>
+                </div>
+              )}
+              {isAMC && formData.caseRef && (
+                <div>
+                  <p className="text-sm text-slate-600">Case Reference</p>
+                  <p className="font-medium">{formData.caseRef}</p>
+                </div>
+              )}
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-slate-600">Issue Date</p>
-            <p className="font-medium">{formData.passportIssueDate ? formatDate(formData.passportIssueDate) : "Not specified"}</p>
-          </div>
-          <div>
-            <p className="text-sm text-slate-600">Expiry Date</p>
-            <p className="font-medium">{formData.passportExpiryDate ? formatDate(formData.passportExpiryDate) : "Not specified"}</p>
-          </div>
-          {formData.caseNumber && (
+
+          {/* Additional applicants if any */}
+          {parseInt(formData.numberOfApplicants) > 1 && formData.applicants.length > 0 && (
             <div>
-              <p className="text-sm text-slate-600">Case Number</p>
-              <p className="font-medium">{formData.caseNumber}</p>
+              <h4 className="font-semibold text-slate-900 mb-3">Additional Applicants</h4>
+              {formData.applicants.map((applicant, index) => (
+                <div key={applicant.id} className="border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
+                  <h5 className="font-semibold text-slate-900 mb-2">Applicant #{index + 1}</h5>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-slate-600">Passport Number</p>
+                      <p className="font-medium">{applicant.passportNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Issue Date</p>
+                      <p className="font-medium">{applicant.passportIssueDate ? formatDate(applicant.passportIssueDate) : "Not specified"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Expiry Date</p>
+                      <p className="font-medium">{applicant.passportExpiryDate ? formatDate(applicant.passportExpiryDate) : "Not specified"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Case Number</p>
+                      <p className="font-medium">{applicant.caseNumber}</p>
+                    </div>
+                    {isAMC && (
+                      <div>
+                        <p className="text-sm text-slate-600">Case Reference</p>
+                        <p className="font-medium">{applicant.caseRef}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -1030,6 +1327,7 @@ export default function WilcareAppointmentForm() {
     city: "",
     caseRef: "",
     numberOfApplicants: "",
+    applicants: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1044,12 +1342,60 @@ export default function WilcareAppointmentForm() {
   };
 
   const handleSelectChange = (name: keyof FormData) => (value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const updatedData = { ...prev, [name]: value };
+
+      // If the number of applicants changes, update the applicants array
+      if (name === 'numberOfApplicants') {
+        const numApplicants = parseInt(value) || 0;
+        const currentApplicants = prev.applicants || [];
+
+        // If increasing number of applicants, add new empty applicant objects
+        if (numApplicants > currentApplicants.length) {
+          const newApplicants = [...currentApplicants];
+          for (let i = currentApplicants.length; i < numApplicants; i++) {
+            newApplicants.push({
+              id: `applicant-${i + 1}`,
+              surname: '',
+              givenName: '',
+              gender: '',
+              dateOfBirth: '',
+              passportNumber: '',
+              passportIssueDate: '',
+              passportExpiryDate: '',
+              caseNumber: '',
+              caseRef: '',
+            });
+          }
+          updatedData.applicants = newApplicants;
+        }
+        // If decreasing number of applicants, remove the extra ones
+        else if (numApplicants < currentApplicants.length) {
+          updatedData.applicants = currentApplicants.slice(0, numApplicants);
+        }
+      }
+
+      return updatedData;
+    });
   };
 
   const handleFileChange = (name: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setFormData(prev => ({ ...prev, [name]: file }));
+  };
+
+  const handleApplicantChange = (index: number, field: keyof Applicant, value: string) => {
+    setFormData(prev => {
+      const updatedApplicants = [...prev.applicants];
+      updatedApplicants[index] = {
+        ...updatedApplicants[index],
+        [field]: value
+      };
+      return {
+        ...prev,
+        applicants: updatedApplicants
+      };
+    });
   };
 
   const handleLocationChange = (location: Location) => {
@@ -1100,20 +1446,52 @@ export default function WilcareAppointmentForm() {
     }
 
     if (step === 3) {
+      // Validate primary applicant
       if (!formData.surname || !formData.givenName || !formData.gender || !formData.dateOfBirth) {
-        setError("Please fill in all required fields");
+        setError("Please fill in all required fields for the primary applicant");
         return;
       }
+
+      // Validate additional applicants if any
+      if (parseInt(formData.numberOfApplicants) > 1) {
+        for (let i = 0; i < formData.applicants.length; i++) {
+          const applicant = formData.applicants[i];
+          if (!applicant.surname || !applicant.givenName || !applicant.gender || !applicant.dateOfBirth) {
+            setError(`Please fill in all required fields for applicant #${i + 1}`);
+            return;
+          }
+        }
+      }
+
       setError(null);
       setStep(4);
       return;
     }
 
     if (step === 4) {
+      // Validate primary applicant
       if (!formData.passportNumber) {
-        setError("Please fill in Passport Number");
+        setError("Please fill in Passport Number for the primary applicant");
         return;
       }
+
+      // Validate additional applicants if any
+      if (parseInt(formData.numberOfApplicants) > 1) {
+        for (let i = 0; i < formData.applicants.length; i++) {
+          const applicant = formData.applicants[i];
+          if (!applicant.passportNumber) {
+            setError(`Please fill in Passport Number for applicant #${i + 1}`);
+            return;
+          }
+
+          // For AMC, also validate caseRef
+          if (isAMC && !applicant.caseRef) {
+            setError(`Please fill in Case Ref for applicant #${i + 1}`);
+            return;
+          }
+        }
+      }
+
       setError(null);
       // Go to document upload step for all providers
       setStep(5);
@@ -1155,6 +1533,8 @@ export default function WilcareAppointmentForm() {
           scannedPassport: undefined,
           kOneLetter: undefined,
           appointmentConfirmationLetter: undefined,
+          // Send applicants data separately to prevent circular references
+          applicants: formData.applicants,
         }),
       });
 
@@ -1282,6 +1662,7 @@ export default function WilcareAppointmentForm() {
       city: "",
       caseRef: "",
       numberOfApplicants: "",
+      applicants: [],
     });
     setError(null);
   };
@@ -1318,6 +1699,7 @@ export default function WilcareAppointmentForm() {
             error={error}
             onChange={handleInputChange}
             onSelectChange={handleSelectChange}
+            onApplicantChange={handleApplicantChange}
             onNext={handleNextStep}
             onBack={handleGoBack}
           />
@@ -1329,6 +1711,7 @@ export default function WilcareAppointmentForm() {
             error={error}
             isAMC={isAMC}
             onChange={handleInputChange}
+            onApplicantChange={handleApplicantChange}
             onNext={handleNextStep}
             onBack={handleGoBack}
           />
@@ -1361,6 +1744,7 @@ export default function WilcareAppointmentForm() {
             formData={formData}
             error={error}
             loading={loading}
+            isAMC={isAMC}
             onSubmit={handleNextStep}
             onBack={handleGoBack}
             formatDate={formatDate}

@@ -1,8 +1,86 @@
+// app/api/admin/appointments/route.ts
 import { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
+// Specific admin email - ONLY this email can access admin panel
+const ADMIN_EMAIL = 'khashir657@gmail.com';
+
+async function checkAdminRole(request: NextRequest) {
+  // Create a Supabase client to check user session
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll() {
+          // Do nothing for server-side operations
+        },
+      }
+    }
+  );
+
+  // Get the current user
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { isAdmin: false, error: 'Authentication required' };
+  }
+
+  // Check if user email matches admin email
+  if (user.email !== ADMIN_EMAIL) {
+    return { isAdmin: false, error: 'Admin access required' };
+  }
+
+  // Use SERVICE ROLE client to verify admin role in database
+  const supabaseAdmin = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+        setAll() {
+          // Do nothing
+        },
+      }
+    }
+  );
+
+  // Double check in database that user has admin role
+  const { data: profile, error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError) {
+    console.error('Error fetching profile:', profileError);
+    return { isAdmin: false, error: 'Profile verification failed' };
+  }
+
+  if (!profile || profile.role !== 'admin') {
+    return { isAdmin: false, error: 'Admin role required' };
+  }
+
+  return { isAdmin: true, error: null };
+}
+
 export async function GET(req: NextRequest) {
   try {
+    // Check if user is admin
+    const { isAdmin, error: authError } = await checkAdminRole(req);
+
+    if (!isAdmin) {
+      return Response.json({ error: authError || 'Admin access required' }, { status: 403 });
+    }
+
     // Use service role client for admin access
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,14 +90,15 @@ export async function GET(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll(cookiesToSet) {
+          setAll() {
             // Do nothing for server-side operations
           },
         }
       }
     );
 
-    const { data, error } = await supabase
+    // First, get all appointments
+    const { data: appointments, error: appointmentsError } = await supabase
       .from('appointments')
       .select(`
         id,
@@ -59,9 +138,50 @@ export async function GET(req: NextRequest) {
       `)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching appointments:', error);
-      return Response.json({ error: error.message }, { status: 500 });
+    if (appointmentsError) {
+      console.error('Error fetching appointments:', appointmentsError);
+      return Response.json({ error: appointmentsError.message }, { status: 500 });
+    }
+
+    // If there are appointments, fetch applicants for each appointment
+    let data = appointments;
+    if (appointments && appointments.length > 0) {
+      try {
+        // Get all appointment IDs
+        const appointmentIds = appointments.map(app => app.id);
+
+        // Fetch all applicants for these appointments
+        const { data: applicants, error: applicantsError } = await supabase
+          .from('applicants')
+          .select('*')
+          .in('appointment_id', appointmentIds);
+
+        if (applicantsError) {
+          console.error('Error fetching applicants:', applicantsError);
+          // Continue without applicants data if there's an error
+          // This could happen if the applicants table doesn't exist yet
+          data = appointments;
+        } else {
+          // Group applicants by appointment ID
+          const applicantsByAppointment = applicants.reduce((acc, applicant) => {
+            if (!acc[applicant.appointment_id]) {
+              acc[applicant.appointment_id] = [];
+            }
+            acc[applicant.appointment_id].push(applicant);
+            return acc;
+          }, {});
+
+          // Attach applicants to their respective appointments
+          data = appointments.map(app => ({
+            ...app,
+            applicants: applicantsByAppointment[app.id] || []
+          }));
+        }
+      } catch (error) {
+        console.error('Error processing applicants:', error);
+        // Continue without applicants data if there's an error
+        data = appointments;
+      }
     }
 
     return Response.json({ data });
@@ -73,6 +193,13 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    // Check if user is admin
+    const { isAdmin, error: authError } = await checkAdminRole(req);
+
+    if (!isAdmin) {
+      return Response.json({ error: authError || 'Admin access required' }, { status: 403 });
+    }
+
     const { id, status } = await req.json();
 
     if (!id || !status) {
@@ -88,7 +215,7 @@ export async function PUT(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll(cookiesToSet) {
+          setAll() {
             // Do nothing for server-side operations
           },
         }

@@ -239,7 +239,6 @@ export function getVisaCategoryDisplayName(category: VisaCategory): string {
  */
 export function isPoliceCertificateRequired(
   beneficiaryAge: number,
-  _countriesLived: string[]
 ): boolean {
   // Police certificate required if:
   // 1. Beneficiary is 16+ years old
