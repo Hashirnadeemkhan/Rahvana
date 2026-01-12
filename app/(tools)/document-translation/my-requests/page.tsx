@@ -167,7 +167,7 @@ export default function MyTranslationRequests() {
               <div className="text-center py-12">
                 <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-1">No translation requests</h3>
-                <p className="text-gray-500">You haven't submitted any documents for translation yet.</p>
+                <p className="text-gray-500">You haven&apos;t submitted any documents for translation yet.</p>
                 <div className="mt-6">
                   <Button 
                     onClick={() => window.location.href = '/document-translation'}
