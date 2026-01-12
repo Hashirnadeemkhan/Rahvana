@@ -37,7 +37,8 @@ CREATE TABLE translation_documents (
   
   -- Status & Workflow
   status translation_status NOT NULL DEFAULT 'PENDING',
-  
+  version DECIMAL(3,1) DEFAULT 1.0,               -- Versioning for translations
+
   -- Additional Notes (Optional)
   user_notes TEXT,                        -- User's notes during upload
   admin_notes TEXT,                       -- Admin's notes during translation

@@ -49,7 +49,7 @@ export async function POST(
     // Check if document exists
     const { data: existing, error: checkError } = await supabase
       .from("translation_documents")
-      .select("status, translated_file_path")
+      .select("status, translated_file_path, version")
       .eq("id", id)
       .single();
 
@@ -99,6 +99,9 @@ export async function POST(
       );
     }
 
+    // Determine new version
+    const newVersion = existing.status === "CHANGES_REQUESTED" ? existing.version + 0.1 : 1.0;
+
     // Update database record
     const { data: updated, error: updateError } = await supabase
       .from("translation_documents")
@@ -111,6 +114,7 @@ export async function POST(
         admin_notes: adminNotes,
         status: "TRANSLATED",
         rejection_reason: null, // Clear rejection reason
+        version: newVersion,
       })
       .eq("id", id)
       .select()

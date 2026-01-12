@@ -1,14 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactElement, ElementType } from "react";
 import { FileText, Calendar, Clock, Download, CheckCircle, AlertTriangle, XCircle, CheckCheck, BadgeCheck, User, MessageSquare, Upload } from "lucide-react";
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
+type TranslationStatus = 'PENDING' | 'IN_REVIEW' | 'TRANSLATED' | 'USER_CONFIRMED' | 'CHANGES_REQUESTED' | 'VERIFIED';
+
+interface TranslationRequest {
+  id: string;
+  user_name: string;
+  user_email: string;
+  document_type: string;
+  created_at: string;
+  status: TranslationStatus;
+  version?: number;
+  original_filename?: string;
+  originalFilename?: string;
+  originalFileUrl?: string;
+  translated_filename?: string;
+  translatedFilename?: string;
+  translatedFileUrl?: string;
+  user_notes?: string;
+  admin_notes?: string;
+  translatedUploadedAt?: string;
+}
+
 // Status badge component
-const StatusBadge = ({ status }: { status: string }) => {
-  const statusConfig: Record<string, { color: string; icon: any; label: string }> = {
+const StatusBadge = ({ status, version = 1 }: { status: string, version?: number }) => {
+  const statusConfig: Record<TranslationStatus, { color: string; icon: ElementType; label: string }> = {
     PENDING: { color: "bg-yellow-100 text-yellow-800", icon: Clock, label: "Pending Review" },
     IN_REVIEW: { color: "bg-blue-100 text-blue-800", icon: FileText, label: "In Review" },
     TRANSLATED: { color: "bg-purple-100 text-purple-800", icon: CheckCircle, label: "Translated" },
@@ -17,19 +38,24 @@ const StatusBadge = ({ status }: { status: string }) => {
     VERIFIED: { color: "bg-green-600 text-white", icon: BadgeCheck, label: "Verified & Certified" },
   };
 
-  const config = statusConfig[status] || { color: "bg-gray-100 text-gray-800", icon: XCircle, label: status };
-  const Icon = config.icon;
+  const config = statusConfig[status as TranslationStatus] || { color: "bg-gray-100 text-gray-800", icon: XCircle, label: status };
+    const Icon = config.icon;
+  
+    // For TRANSLATED status, display version (e.g., Proof_V1, Proof_V1.1)
+    const displayLabel = status === "TRANSLATED" 
+      ? `Proof_V${version}` 
+      : config.label;
 
   return (
     <span className={`inline-flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium ${config.color}`}>
       <Icon className="w-4 h-4" />
-      {config.label}
+      {displayLabel}
     </span>
   );
 };
 
 export default function TranslationRequestDetails({ params }: { params: Promise<{ id: string }> }) {
-  const [request, setRequest] = useState<any>(null);
+  const [request, setRequest] = useState<TranslationRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [showChangeRequestModal, setShowChangeRequestModal] = useState(false);
   const [changeRequestReason, setChangeRequestReason] = useState("");
@@ -224,7 +250,7 @@ export default function TranslationRequestDetails({ params }: { params: Promise<
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Status & Actions</h3>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center">
-                  <StatusBadge status={request.status} />
+                  <StatusBadge status={request.status} version={request.version || 1} />
                 </div>
                 
                 {/* Download buttons */}

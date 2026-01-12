@@ -11,10 +11,21 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { ReactElement, ElementType } from 'react';
+
+type TranslationStatus = 'PENDING' | 'IN_REVIEW' | 'TRANSLATED' | 'USER_CONFIRMED' | 'CHANGES_REQUESTED' | 'VERIFIED';
+
+interface Requests {
+  id: string;
+  document_type: string;
+  created_at: string;
+  status: TranslationStatus;
+  version: number;
+}
 
 // Status badge component
-const StatusBadge = ({ status }: { status: string }) => {
-  const statusConfig: Record<string, { color: string; icon: any; label: string }> = {
+const StatusBadge = ({ status, version }: { status: string, version: number }) => {
+  const statusConfig: Record<TranslationStatus, { color: string; icon: ElementType; label: string }> = {
     PENDING: { color: "bg-yellow-100 text-yellow-800", icon: Clock, label: "Pending Review" },
     IN_REVIEW: { color: "bg-blue-100 text-blue-800", icon: FileText, label: "In Review" },
     TRANSLATED: { color: "bg-purple-100 text-purple-800", icon: CheckCircle, label: "Translated" },
@@ -23,25 +34,31 @@ const StatusBadge = ({ status }: { status: string }) => {
     VERIFIED: { color: "bg-green-600 text-white", icon: BadgeCheck, label: "Verified & Certified" },
   };
 
-  const config = statusConfig[status] || { color: "bg-gray-100 text-gray-800", icon: XCircle, label: status };
+  const config = statusConfig[status as TranslationStatus] || { color: "bg-gray-100 text-gray-800", icon: XCircle, label: status };
   const Icon = config.icon;
+
+  // For TRANSLATED status, display version (e.g., Proof_V1, Proof_V1.1)
+  const displayLabel = status === "TRANSLATED" 
+    ? `Proof_V${version}` 
+    : config.label;
 
   return (
     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${config.color}`}>
       <Icon className="w-3 h-3" />
-      {config.label}
+      {displayLabel}
     </span>
   );
 };
 
 export default function MyTranslationRequests() {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<Requests[]>([]);
+  type RequestWithStatus = Requests & { status: TranslationStatus };
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        // In a real app, get the user's email from user context
+        // In production, we will get the user's email from user context
         const userEmail = 'user@example.com'; 
         const response = await fetch(`/api/document-translation/list?userEmail=${encodeURIComponent(userEmail)}`);
         const data = await response.json();
@@ -127,7 +144,7 @@ export default function MyTranslationRequests() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <StatusBadge status={request.status} />
+                        <StatusBadge status={request.status} version={request.version} />
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
