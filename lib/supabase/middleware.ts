@@ -3,6 +3,19 @@
 
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+// Create admin client with service role for checking admin status
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  }
+)
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -42,15 +55,19 @@ export async function updateSession(request: NextRequest) {
 
   // Define protected routes (user must be logged in)
   const protectedRoutes = [
-    '/dashboard',
-    '/initial-questions',
-    '/complete-profile',
+   
+    '/profile',
     '/settings',
-    '/admin',
   ]
+
+  // Define admin routes (must be logged in as admin)
+  const adminRoutes = ['/admin']
 
   // Define auth routes (should redirect to dashboard if logged in)
   const authRoutes = ['/login', '/signup']
+
+  // Define admin auth routes (for admin login)
+  const adminAuthRoutes = ['/admin/login']
 
   const pathname = request.nextUrl.pathname
 
@@ -59,12 +76,51 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith(route)
   )
 
+  // Check if current path is an admin route
+  const isAdminRoute = adminRoutes.some(route =>
+    pathname.startsWith(route) && !adminAuthRoutes.includes(pathname)
+  )
+
   // Check if current path is an auth route
   const isAuthRoute = authRoutes.some(route =>
     pathname === route || pathname.startsWith(route)
   )
 
-  // If user is not authenticated and trying to access protected route
+  // Check if current path is an admin auth route
+  const isAdminAuthRoute = adminAuthRoutes.some(route =>
+    pathname === route || pathname.startsWith(route)
+  )
+
+  // Handle admin route protection
+  if (isAdminRoute) {
+    // For admin routes, check if user is logged in and is an admin
+    if (!user) {
+      // Redirect to admin login if not logged in
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin/login'
+      url.searchParams.set('redirectTo', pathname)
+      return NextResponse.redirect(url)
+    }
+
+    // Check if the user is actually an admin by checking their email
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com'
+
+    // Get user profile to verify admin status
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('email')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile || profile.email !== ADMIN_EMAIL) {
+      // Redirect to unauthorized page or home if not an admin
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // If user is not authenticated and trying to access protected route (non-admin)
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
@@ -77,6 +133,36 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
+  }
+
+  // If user is authenticated and trying to access admin auth routes
+  if (user && isAdminAuthRoute) {
+    // Check if the user is an admin to determine where to redirect
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com'
+
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('email')
+      .eq('id', user.id)
+      .single()
+
+    if (!profileError && profile && profile.email === ADMIN_EMAIL) {
+      // Admin user - redirect to admin panel
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin'
+      return NextResponse.redirect(url)
+    } else {
+      // Regular user - redirect to dashboard
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // If user is not authenticated and trying to access admin auth routes, allow access to login
+  if (!user && isAdminAuthRoute) {
+    // Allow access to admin login page for unauthenticated users
+    return supabaseResponse;
   }
 
   return supabaseResponse

@@ -37,7 +37,7 @@ export default function CompleteProfilePage() {
             </div>
           </div>
         </div>
-        <CompleteProfileForm />
+         <CompleteProfileForm />
       </div>
     </div>
   )
