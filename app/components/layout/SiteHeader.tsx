@@ -190,7 +190,7 @@ export function SiteHeader({
         {/* Left side */}
         <div className="flex items-center gap-4">
           {/* Mobile Menu Trigger */}
-          <button
+          <HydrationSafeButton
             className="md:hidden text-slate-800 p-1 hover:bg-slate-50 rounded-md transition-colors"
             onClick={() => setIsMenuOpen(true)}
             aria-label="Open menu"
@@ -208,7 +208,7 @@ export function SiteHeader({
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
-          </button>
+          </HydrationSafeButton>
 
           <a
             href="#"
@@ -238,7 +238,7 @@ export function SiteHeader({
               onMouseEnter={handleVisaEnter}
               onMouseLeave={handleVisaLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium ${
                   visaMenuOpen
                     ? "bg-primary text-white"
@@ -249,7 +249,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-3 w-3 ${visaMenuOpen ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
 
               <div
                 className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${
@@ -299,7 +299,7 @@ export function SiteHeader({
               onMouseEnter={handleServiceEnter}
               onMouseLeave={handleServiceLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium ${
                   serviceMenuOpen
                     ? "bg-primary text-white"
@@ -310,7 +310,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-3 w-3 ${serviceMenuOpen ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
 
               <div
                 className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${
@@ -359,7 +359,7 @@ export function SiteHeader({
               onMouseEnter={handleToolsEnter}
               onMouseLeave={handleToolsLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium border ${
                   toolsMenuOpen
                     ? "bg-primary text-white border-primary"
@@ -370,7 +370,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-3 w-3 ${toolsMenuOpen ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
 
               <div
                 className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${
@@ -524,12 +524,12 @@ export function SiteHeader({
           </HydrationSafeButton>
 
           {/* LOGIN / SIGN OUT toggle */}
-          <button
+          <HydrationSafeButton
             onClick={() => onToggleAuth?.()}
             className="font-semibold text-white bg-primary hover:bg-primary/90 shadow-md px-4 py-2 rounded-lg transition-all"
           >
             {isSignedIn ? "SIGN OUT" : "LOGIN"}
-          </button>
+          </HydrationSafeButton>
         </div>
       </div>
 
@@ -555,7 +555,7 @@ export function SiteHeader({
                   Rahvana
                 </span>
               </div>
-              <button
+              <HydrationSafeButton
                 className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
                 aria-label="Close menu"
@@ -573,12 +573,12 @@ export function SiteHeader({
                     d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
-              </button>
+              </HydrationSafeButton>
             </div>
 
             <div className="flex-1 overflow-y-auto py-4">
               <nav className="flex flex-col px-4 gap-1">
-                <button
+                <HydrationSafeButton
                   onClick={() => handleNav("home")}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                     isActive("home", "/")
@@ -587,11 +587,11 @@ export function SiteHeader({
                   }`}
                 >
                   <span className="font-bold">Home</span>
-                </button>
+                </HydrationSafeButton>
 
                 {/* Visa Category Section */}
                 <div className="mt-2">
-                  <button
+                  <HydrationSafeButton
                     onClick={() => {
                       const section = "visa";
                       setExpandedSections((prev) =>
@@ -611,10 +611,10 @@ export function SiteHeader({
                         expandedSections.includes("visa") ? "rotate-180" : ""
                       }`}
                     />
-                  </button>
+                  </HydrationSafeButton>
                   {expandedSections.includes("visa") && (
                     <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
-                      <button
+                      <HydrationSafeButton
                         onClick={() => handleNav("ir1-journey")}
                         className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
                           isActive("ir1-journey")
@@ -623,14 +623,14 @@ export function SiteHeader({
                         }`}
                       >
                         IR Category
-                      </button>
+                      </HydrationSafeButton>
                     </div>
                   )}
                 </div>
 
                 {/* Services Section */}
                 <div className="mt-2">
-                  <button
+                  <HydrationSafeButton
                     onClick={() => {
                       const section = "services";
                       setExpandedSections((prev) =>
@@ -652,10 +652,10 @@ export function SiteHeader({
                           : ""
                       }`}
                     />
-                  </button>
+                  </HydrationSafeButton>
                   {expandedSections.includes("services") && (
                     <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
-                      <button
+                      <HydrationSafeButton
                         onClick={() => handleNav("services")}
                         className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
                           isActive("services")
@@ -664,14 +664,14 @@ export function SiteHeader({
                         }`}
                       >
                         Consultancy
-                      </button>
+                      </HydrationSafeButton>
                     </div>
                   )}
                 </div>
 
                 {/* Tools Section */}
                 <div className="mt-2">
-                  <button
+                  <HydrationSafeButton
                     onClick={() => {
                       const section = "tools";
                       setExpandedSections((prev) =>
@@ -691,7 +691,7 @@ export function SiteHeader({
                         expandedSections.includes("tools") ? "rotate-180" : ""
                       }`}
                     />
-                  </button>
+                  </HydrationSafeButton>
                   {expandedSections.includes("tools") && (
                     <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
                       {[
@@ -715,7 +715,7 @@ export function SiteHeader({
                           label: "Document Translation",
                         },
                       ].map((item) => (
-                        <button
+                        <HydrationSafeButton
                           key={item.id}
                           onClick={() => handleNav(item.id)}
                           className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
@@ -725,14 +725,14 @@ export function SiteHeader({
                           }`}
                         >
                           {item.label}
-                        </button>
+                        </HydrationSafeButton>
                       ))}
                     </div>
                   )}
                 </div>
 
                 {/* <div className="mt-4 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">General</div> */}
-                <button
+                <HydrationSafeButton
                   onClick={() => handleNav("pricing")}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                     isActive("pricing")
@@ -741,9 +741,9 @@ export function SiteHeader({
                   }`}
                 >
                   <span className="font-bold">Pricing</span>
-                </button>
+                </HydrationSafeButton>
                 {isSignedIn && (
-                  <button
+                  <HydrationSafeButton
                     onClick={() => handleNav("dashboard")}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                       isActive("dashboard")
@@ -752,9 +752,9 @@ export function SiteHeader({
                     }`}
                   >
                     <span className="font-bold">Dashboard</span>
-                  </button>
+                  </HydrationSafeButton>
                 )}
-                <button
+                <HydrationSafeButton
                   onClick={() => handleNav("contact")}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                     isActive("contact")
@@ -763,12 +763,12 @@ export function SiteHeader({
                   }`}
                 >
                   <span className="font-bold">Contact</span>
-                </button>
+                </HydrationSafeButton>
               </nav>
             </div>
 
             <div className="p-6 border-t bg-slate-50">
-              <button
+              <HydrationSafeButton
                 onClick={() => {
                   onToggleAuth?.();
                   setIsMenuOpen(false);
@@ -776,7 +776,7 @@ export function SiteHeader({
                 className="w-full py-4 rounded-xl bg-[#0d9488] text-white font-bold shadow-lg hover:bg-[#0f766e] transition-all"
               >
                 {isSignedIn ? "Sign Out" : "Login"}
-              </button>
+              </HydrationSafeButton>
             </div>
           </div>
         </div>

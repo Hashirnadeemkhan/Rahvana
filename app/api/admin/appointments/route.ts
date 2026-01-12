@@ -3,10 +3,9 @@ import { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 // Specific admin email - ONLY this email can access admin panel
-const ADMIN_EMAIL = 'khashir657@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com';
 
 async function checkAdminRole(request: NextRequest) {
-  // Create a Supabase client to check user session
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -15,14 +14,11 @@ async function checkAdminRole(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll() {
-          // Do nothing for server-side operations
-        },
+        setAll() {}
       }
     }
   );
 
-  // Get the current user
   const {
     data: { user },
     error: userError
@@ -32,12 +28,10 @@ async function checkAdminRole(request: NextRequest) {
     return { isAdmin: false, error: 'Authentication required' };
   }
 
-  // Check if user email matches admin email
   if (user.email !== ADMIN_EMAIL) {
     return { isAdmin: false, error: 'Admin access required' };
   }
 
-  // Use SERVICE ROLE client to verify admin role in database
   const supabaseAdmin = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -46,14 +40,11 @@ async function checkAdminRole(request: NextRequest) {
         getAll() {
           return [];
         },
-        setAll() {
-          // Do nothing
-        },
+        setAll() {}
       }
     }
   );
 
-  // Double check in database that user has admin role
   const { data: profile, error: profileError } = await supabaseAdmin
     .from('profiles')
     .select('role')
@@ -74,14 +65,12 @@ async function checkAdminRole(request: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    // Check if user is admin
     const { isAdmin, error: authError } = await checkAdminRole(req);
 
     if (!isAdmin) {
       return Response.json({ error: authError || 'Admin access required' }, { status: 403 });
     }
 
-    // Use service role client for admin access
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -90,110 +79,76 @@ export async function GET(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll() {
-            // Do nothing for server-side operations
-          },
+          setAll() {}
         }
       }
     );
 
-    // First, get all appointments
+    console.log('📋 Fetching appointments...');
+
+    // Fetch appointments
     const { data: appointments, error: appointmentsError } = await supabase
       .from('appointments')
-      .select(`
-        id,
-        created_at,
-        updated_at,
-        full_name,
-        email,
-        phone_number,
-        medical_website,
-        location,
-        provider,
-        appointment_type,
-        visa_type,
-        medical_type,
-        surname,
-        given_name,
-        gender,
-        date_of_birth,
-        passport_number,
-        passport_issue_date,
-        passport_expiry_date,
-        case_number,
-        preferred_date,
-        preferred_time,
-        estimated_charges,
-        interview_date,
-        visa_category,
-        had_medical_before,
-        city,
-        case_ref,
-        number_of_applicants,
-        original_passport,
-        status,
-        scanned_passport_url,
-        k_one_letter_url,
-        appointment_confirmation_letter_url
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (appointmentsError) {
-      console.error('Error fetching appointments:', appointmentsError);
+      console.error('❌ Error fetching appointments:', appointmentsError);
       return Response.json({ error: appointmentsError.message }, { status: 500 });
     }
 
-    // If there are appointments, fetch applicants for each appointment
-    let data = appointments;
-    if (appointments && appointments.length > 0) {
-      try {
-        // Get all appointment IDs
-        const appointmentIds = appointments.map(app => app.id);
+    console.log(`✅ Found ${appointments?.length || 0} appointments`);
 
-        // Fetch all applicants for these appointments
-        const { data: applicants, error: applicantsError } = await supabase
-          .from('applicants')
-          .select('*')
-          .in('appointment_id', appointmentIds);
+    // Fetch all applicants
+    const { data: applicants, error: applicantsError } = await supabase
+      .from('applicants')
+      .select('*')
+      .order('created_at', { ascending: true });
 
-        if (applicantsError) {
-          console.error('Error fetching applicants:', applicantsError);
-          // Continue without applicants data if there's an error
-          // This could happen if the applicants table doesn't exist yet
-          data = appointments;
-        } else {
-          // Group applicants by appointment ID
-          const applicantsByAppointment = applicants.reduce((acc, applicant) => {
-            if (!acc[applicant.appointment_id]) {
-              acc[applicant.appointment_id] = [];
-            }
-            acc[applicant.appointment_id].push(applicant);
-            return acc;
-          }, {});
-
-          // Attach applicants to their respective appointments
-          data = appointments.map(app => ({
-            ...app,
-            applicants: applicantsByAppointment[app.id] || []
-          }));
-        }
-      } catch (error) {
-        console.error('Error processing applicants:', error);
-        // Continue without applicants data if there's an error
-        data = appointments;
-      }
+    if (applicantsError) {
+      console.error('⚠️ Error fetching applicants:', applicantsError);
+      // Continue without applicants if there's an error
+      return Response.json({ data: appointments || [] });
     }
 
+    console.log(`✅ Found ${applicants?.length || 0} total applicants`);
+
+    // Define type for applicants
+    type ApplicantData = typeof applicants extends (infer U)[] ? U : never;
+
+    // Group applicants by appointment_id
+    const applicantsByAppointment: Record<string, ApplicantData[]> = {};
+    if (applicants) {
+      applicants.forEach((applicant) => {
+        if (!applicantsByAppointment[applicant.appointment_id]) {
+          applicantsByAppointment[applicant.appointment_id] = [];
+        }
+        applicantsByAppointment[applicant.appointment_id].push(applicant);
+      });
+    }
+
+    // Attach applicants to their appointments
+    const data = (appointments || []).map((appointment) => {
+      const appointmentApplicants = applicantsByAppointment[appointment.id] || [];
+      console.log(`📎 Appointment ${appointment.id} has ${appointmentApplicants.length} applicants`);
+      
+      return {
+        ...appointment,
+        applicants: appointmentApplicants
+      };
+    });
+
+    console.log('✅ Successfully prepared appointments with applicants');
     return Response.json({ data });
+
   } catch (error) {
-    console.error('Unexpected error in fetching appointments:', error);
+    console.error('❌ Unexpected error:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PUT(req: NextRequest) {
   try {
-    // Check if user is admin
     const { isAdmin, error: authError } = await checkAdminRole(req);
 
     if (!isAdmin) {
@@ -206,7 +161,6 @@ export async function PUT(req: NextRequest) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Use service role client for admin access
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -215,9 +169,7 @@ export async function PUT(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll() {
-            // Do nothing for server-side operations
-          },
+          setAll() {}
         }
       }
     );
