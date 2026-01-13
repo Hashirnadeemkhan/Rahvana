@@ -111,7 +111,7 @@ export default function AdminPanel() {
     if (!authLoading) {
       if (!user) {
         // Redirect to admin login if not authenticated
-        router.push("/admin/login");
+        router.push("/admin-login");
       } else if (!isAdmin) {
         // Redirect to dashboard if user is not an admin
         router.push("/dashboard");
@@ -176,7 +176,7 @@ export default function AdminPanel() {
       // Sign out from the auth context
       await signOut();
       // Redirect to admin login
-      router.push("/admin/login?success=logged_out");
+      router.push("/admin-login?success=logged_out");
     }
   };
 
@@ -226,7 +226,7 @@ export default function AdminPanel() {
             <p className="text-gray-600 mb-4">
               You do not have permission to access the admin panel.
             </p>
-            <Button onClick={() => router.push("/admin/login")}>
+            <Button onClick={() => router.push("/admin-login")}>
               Go to Admin Login
             </Button>
           </CardContent>

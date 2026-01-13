@@ -67,7 +67,7 @@ export async function updateSession(request: NextRequest) {
   const authRoutes = ['/login', '/signup']
 
   // Define admin auth routes (for admin login)
-  const adminAuthRoutes = ['/admin/login']
+  const adminAuthRoutes = ['/admin-login']
 
   const pathname = request.nextUrl.pathname
 
@@ -97,7 +97,7 @@ export async function updateSession(request: NextRequest) {
     if (!user) {
       // Redirect to admin login if not logged in
       const url = request.nextUrl.clone()
-      url.pathname = '/admin/login'
+      url.pathname = '/admin-login'
       url.searchParams.set('redirectTo', pathname)
       return NextResponse.redirect(url)
     }
