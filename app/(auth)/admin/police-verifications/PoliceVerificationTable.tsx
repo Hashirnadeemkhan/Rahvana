@@ -11,7 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, Phone, CreditCard, Calendar, User, Upload } from "lucide-react";
+import {
+  Users,
+  Phone,
+  CreditCard,
+  Calendar,
+  User,
+  Upload,
+  Search,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface PoliceVerificationRequest {
   id: string;
@@ -79,6 +88,7 @@ export default function PoliceVerificationTable() {
   const [expandedRequests, setExpandedRequests] = useState<
     Record<string, boolean>
   >({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchPoliceVerifications = useCallback(async () => {
     try {
@@ -106,14 +116,28 @@ export default function PoliceVerificationTable() {
   }, [fetchPoliceVerifications]);
 
   useEffect(() => {
-    if (selectedStatus === "all") {
-      setFilteredPoliceVerifications(policeVerifications);
-    } else {
-      setFilteredPoliceVerifications(
-        policeVerifications.filter((pv) => pv.status === selectedStatus)
+    let filtered = [...policeVerifications];
+
+    // Filter by status
+    if (selectedStatus !== "all") {
+      filtered = filtered.filter((pv) => pv.status === selectedStatus);
+    }
+
+    // Filter by search term
+    if (searchTerm.trim() !== "") {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (pv) =>
+          pv.request_id.toLowerCase().includes(term) ||
+          pv.full_name.toLowerCase().includes(term) ||
+          pv.email.toLowerCase().includes(term) ||
+          pv.phone_number.toLowerCase().includes(term) ||
+          pv.cnic.toLowerCase().includes(term)
       );
     }
-  }, [policeVerifications, selectedStatus]);
+
+    setFilteredPoliceVerifications(filtered);
+  }, [policeVerifications, selectedStatus, searchTerm]);
 
   const updateStatus = async (id: string, newStatus: VerificationStatus) => {
     try {
@@ -240,6 +264,16 @@ export default function PoliceVerificationTable() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Police Verification Requests</CardTitle>
           <div className="flex items-center space-x-4">
+            <div className="relative w-72">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search by ID, name, email, CNIC..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-9"
+              />
+            </div>
+
             <div className="text-sm text-gray-500">
               Total: {policeVerifications.length}
             </div>
