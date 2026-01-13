@@ -42,12 +42,12 @@ const Pagination: React.FC<PaginationProps> = ({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
+    <div className="flex flex-col w-full sm:flex-row items-center justify-between mt-6 gap-4">
       {/* Previous Button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`flex items-center cursor-pointer gap-2 px-3 py-2 text-sm font-medium rounded-lg border order-1 sm:order-none ${
+        className={`flex items-center cursor-pointer gap-2 px-3 py-2 text-sm font-medium rounded-lg border order-1 sm:order-0 ${
           currentPage === 1
             ? "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
             : "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
@@ -66,7 +66,7 @@ const Pagination: React.FC<PaginationProps> = ({
       </button>
 
       {/* Page Numbers */}
-      <div className="flex items-center gap-1 order-2 sm:order-none">
+      <div className="flex items-center gap-1 order-2 sm:order-0">
         {pages.map((page, i) => (
           <button
             key={i}
@@ -89,7 +89,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`flex items-center cursor-pointer gap-2 px-3 py-2 text-sm font-medium rounded-lg border order-3 sm:order-none ${
+        className={`flex items-center cursor-pointer gap-2 px-3 py-2 text-sm font-medium rounded-lg border order-3 sm:order-0 ${
           currentPage === totalPages
             ? "text-gray-400 bg-gray-50 border-gray-200 cursor-not-allowed"
             : "text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
