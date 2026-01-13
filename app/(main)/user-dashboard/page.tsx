@@ -1,24 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useWizard } from "../dashboard/hooks/useWizard";
 import { roadmapData } from "../dashboard/data/roadmap";
 import { useRouter } from "next/navigation";
+
+interface PoliceRequest {
+  id: string;
+  request_id: string;
+  created_at: string;
+  status: "pending" | "in_progress" | "completed" | "rejected";
+  full_name: string;
+  province: string;
+  district: string;
+  purpose: string;
+  delivery_type: string;
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const { state, isLoaded } = useWizard();
   const router = useRouter();
 
+  const [policeRequests, setPoliceRequests] = useState<PoliceRequest[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loadingRequests, setLoadingRequests] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setLoadingRequests(true);
+      fetch("/api/police-verification/requests")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data) setPoliceRequests(data.data);
+        })
+        .catch((err) => console.error(err))
+        .finally(() => setLoadingRequests(false));
+    }
+  }, [user]);
+
   const isSignedIn = !!user;
 
   const handleContinue = () => {
     router.push("/?section=ir1-journey");
   };
-  // export default function DashboardPage() {
-  //   const { user, signOut, isLoading } = useAuth();
-  //   const router = useRouter();
 
   const handleNavigate = (section: string) => {
     router.push(`/?section=${section}`);
@@ -108,6 +134,70 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
               <div className="lg:col-span-2">
+                {/* Police Verification Requests Section */}
+                {policeRequests.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="text-xl font-bold mb-5">
+                      Police Verification Requests
+                    </h3>
+                    <div className="space-y-4">
+                      {policeRequests.map((req) => (
+                        <div
+                          key={req.id}
+                          className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm"
+                        >
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="font-bold text-lg mb-1">
+                                {req.request_id}
+                              </h4>
+                              <p className="text-slate-500 text-sm">
+                                Submitted on{" "}
+                                {new Date(req.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                req.status === "completed"
+                                  ? "bg-green-100 text-green-700"
+                                  : req.status === "rejected"
+                                  ? "bg-red-100 text-red-700"
+                                  : req.status === "in_progress"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                              }`}
+                            >
+                              {req.status?.toUpperCase().replace("_", " ")}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-slate-500">Applicant</p>
+                              <p className="font-medium">{req.full_name}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-500">
+                                Province/District
+                              </p>
+                              <p className="font-medium">
+                                {req.province}, {req.district}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-slate-500">Purpose</p>
+                              <p className="font-medium">{req.purpose}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-500">Delivery</p>
+                              <p className="font-medium">{req.delivery_type}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <h3 className="text-xl font-bold mb-5">Your Active Journeys</h3>
                 <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
                   <h4 className="text-lg font-bold mb-2">

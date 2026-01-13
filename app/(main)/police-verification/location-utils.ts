@@ -1,4 +1,4 @@
-import { PKMCenter } from "./punjab-pkm-centers";
+import { PKMCenter } from "./(data)/punjab-pkm-centers";
 
 /**
  * Calculates the distance between two points in kilometers using the Haversine formula.

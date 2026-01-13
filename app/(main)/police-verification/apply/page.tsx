@@ -14,21 +14,22 @@ import {
   Home,
   Globe,
   AlertCircle,
-  // FileText,
   Mail,
   Calendar,
-  // Building2,
-  // CheckCircle,
   Clock,
   Send,
   Upload,
+  Loader2,
 } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
 
 function PoliceApplyContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user } = useAuth();
   const province = searchParams.get("province") || "";
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     purpose: "Immigration",
@@ -277,11 +278,63 @@ function PoliceApplyContent() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateStep(3)) {
-      // Proceed with submission (API call placeholder)
-      console.log("Submitting:", formData, files);
-      alert("Application Submitted Successfully!");
+      setIsSubmitting(true);
+      try {
+        // 1. Submit text data
+        const payload = {
+          ...formData,
+          userId: user?.id,
+        };
+
+        const response = await fetch("/api/police-verification/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Submission failed");
+
+        const { id, requestId } = result;
+
+        // 2. Upload files
+        const fileUploadPromises = Object.entries(files).map(
+          async ([key, file]) => {
+            if (!file) return;
+
+            const uploadFormData = new FormData();
+            uploadFormData.append("file", file);
+            uploadFormData.append("requestId", id);
+            uploadFormData.append("fileType", key);
+
+            const uploadRes = await fetch("/api/police-verification/upload", {
+              method: "POST",
+              body: uploadFormData,
+            });
+
+            if (!uploadRes.ok) {
+              console.error(`Failed to upload ${key}`);
+            }
+          }
+        );
+
+        await Promise.all(fileUploadPromises);
+
+        alert(
+          `Application Submitted Successfully! Your Request ID is: ${requestId}`
+        );
+        router.push("/user-dashboard");
+      } catch (error) {
+        console.error(error);
+        alert(
+          "Failed to submit application: " +
+            (error instanceof Error ? error.message : "Unknown error")
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -1461,14 +1514,22 @@ function PoliceApplyContent() {
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={Object.keys(errors).length > 0}
+              disabled={Object.keys(errors).length > 0 || isSubmitting}
               className="px-10 py-4 rounded-2xl bg-primary text-white font-bold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 group shadow-xl shadow-green-600/25"
             >
-              Submit Application{" "}
-              <Send
-                size={20}
-                className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
-              />
+              {isSubmitting ? (
+                <>
+                  Running Checks <Loader2 className="animate-spin" size={20} />
+                </>
+              ) : (
+                <>
+                  Submit Application{" "}
+                  <Send
+                    size={20}
+                    className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                  />
+                </>
+              )}
             </button>
           )}
         </div>

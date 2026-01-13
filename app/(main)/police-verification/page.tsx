@@ -35,14 +35,14 @@ import {
   Eye,
   Download,
 } from "lucide-react";
-import { PKMCenter, pkmCenters } from "./punjab-pkm-centers";
-import { balochistanCenters } from "./balochistan-pkm-centers";
-import { kpkCenters } from "./kpk-centers";
+import { PKMCenter, pkmCenters } from "./(data)/punjab-pkm-centers";
+import { balochistanCenters } from "./(data)/balochistan-pkm-centers";
+import { kpkCenters } from "./(data)/kpk-centers";
 import { findNearestCenters, geocodeAddress } from "./location-utils";
 import {
   AuthorityLetterModal,
   AuthorityLetterPreviewModal,
-} from "./AuthorityLetterComponents";
+} from "./components/AuthorityLetterComponents";
 
 export default function PoliceVerificationPage() {
   const router = useRouter();

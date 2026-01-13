@@ -52,12 +52,12 @@ interface TranslationRequest {
   translated_filename?: string;
 }
 
-interface UploadModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  requestId: string;
-  onSuccess: () => void;
-}
+// interface UploadModalProps {
+//   isOpen: boolean;
+//   onClose: () => void;
+//   requestId: string;
+//   onSuccess: () => void;
+// }
 
 export default function TranslationQueueTable() {
   const [translationRequests, setTranslationRequests] = useState<
