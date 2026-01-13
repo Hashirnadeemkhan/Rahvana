@@ -339,7 +339,12 @@ export default function BookAppointmentTable() {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
+                          <Dialog open={viewModalOpen && currentAppointment?.id === appointment.id} onOpenChange={(open) => {
+                            if (!open) {
+                              setViewModalOpen(false);
+                              setCurrentAppointment(null);
+                            }
+                          }}>
                             <DialogTrigger asChild>
                               <Button
                                 className="cursor-pointer"
@@ -347,6 +352,7 @@ export default function BookAppointmentTable() {
                                 size="sm"
                                 onClick={() => {
                                   setCurrentAppointment(appointment);
+                                  setViewModalOpen(true);
                                 }}
                               >
                                 View
