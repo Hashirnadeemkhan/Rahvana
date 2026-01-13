@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
           getAll() {
             return [];
           },
-          setAll(_cookiesToSet) {
+          setAll() {
             // Do nothing for server-side operations
           },
         }

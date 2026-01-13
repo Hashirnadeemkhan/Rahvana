@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import IOMInfoStep from "./components/IOMInfoStep";
 
 type Location = "karachi" | "lahore" | "islamabad";
 type IslamabadProvider = "amc" | "iom";
@@ -28,6 +29,7 @@ interface FormData {
   location: Location | "";
   islamabadProvider: IslamabadProvider | "";
   primaryContact: string;
+  contactNumber: string;
   email: string;
   appointmentType: string;
   visaType: string;
@@ -35,12 +37,15 @@ interface FormData {
   medicalType: string;
   surname: string;
   givenName: string;
+  fullName: string;
   gender: Gender | "";
   dateOfBirth: string;
   passportNumber: string;
   passportIssueDate: string;
   passportExpiryDate: string;
   caseNumber: string;
+  preferredLocation: string;
+  destinationCountry: string;
   scannedPassport?: File | null;
   kOneLetter?: File | null;
   appointmentConfirmationLetter?: File | null;
@@ -145,76 +150,6 @@ const LocationStep = ({ formData, error, onLocationChange, onProviderChange, onN
           Next
         </Button>
       </div>
-    </div>
-  </div>
-);
-
-interface IOMContactStepProps {
-  onBack: () => void;
-}
-
-const IOMContactStep = ({ onBack }: IOMContactStepProps) => (
-  <div className="space-y-6">
-    <div className="flex items-center gap-2 mb-6">
-      <div className="bg-blue-600 text-white px-3 py-1 rounded font-semibold">IOM</div>
-      <h2 className="text-2xl font-bold text-slate-900">IOM Islamabad Contact Options</h2>
-    </div>
-
-    <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-8 space-y-6">
-      <p className="text-lg text-slate-700">
-        To book an appointment with IOM Islamabad, please use one of the following options:
-      </p>
-
-      <div className="space-y-4">
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-100">
-          <div className="flex items-start gap-4">
-            <div className="bg-blue-100 p-3 rounded-full">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg mb-2">1. Phone</h3>
-              <p className="text-slate-600 mb-2">Contact IOM Pakistan Call Center:</p>
-              <a href="tel:+92511114664772" className="text-blue-600 font-semibold text-xl hover:underline">
-                +92 51 111 466 472
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-blue-100">
-          <div className="flex items-start gap-4">
-            <div className="bg-blue-100 p-3 rounded-full">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg mb-2">2. Email</h3>
-              <p className="text-slate-600 mb-2">For Immigration Medical Examination for US Immigrant Visa Applicants:</p>
-              <a href="mailto:mhdislamabad@iom.int" className="text-blue-600 font-semibold text-lg hover:underline">
-                mhdislamabad@iom.int
-              </a>
-              <p className="text-sm text-slate-500 mt-3">
-                Please submit your completed application forms to this email address.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
-        <p className="text-sm text-yellow-800">
-          <strong>Note:</strong> Make sure to include all required documents when submitting your application via email.
-        </p>
-      </div>
-    </div>
-
-    <div className="flex justify-start pt-4">
-      <Button onClick={onBack} variant="outline" className="bg-teal-600 hover:bg-teal-700 text-white">
-        Back to Location Selection
-      </Button>
     </div>
   </div>
 );
@@ -983,12 +918,13 @@ interface ReviewStepProps {
   error: string | null;
   loading: boolean;
   isAMC: boolean;
+  isIOM: boolean;
   onSubmit: () => void;
   onBack: () => void;
   formatDate: (dateString: string) => string;
 }
 
-const ReviewStep = ({ formData, error, loading, isAMC, onSubmit, onBack, formatDate }: ReviewStepProps) => (
+const ReviewStep = ({ formData, error, loading, isAMC, isIOM, onSubmit, onBack, formatDate }: ReviewStepProps) => (
   <div className="space-y-6">
     <div className="flex items-center gap-2 mb-6">
       <div className="bg-teal-600 text-white px-3 py-1 rounded font-semibold">Preview</div>
@@ -1056,6 +992,27 @@ const ReviewStep = ({ formData, error, loading, isAMC, onSubmit, onBack, formatD
               <p className="text-sm text-slate-600">Visa Type</p>
               <p className="font-medium">{formData.visaType}</p>
             </div>
+          )}
+          {/* IOM specific fields */}
+          {isIOM && (
+            <>
+              <div>
+                <p className="text-sm text-slate-600">Full Name</p>
+                <p className="font-medium">{formData.fullName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Contact Number</p>
+                <p className="font-medium">+92 {formData.contactNumber}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Preferred Location</p>
+                <p className="font-medium">{formData.preferredLocation}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Destination Country</p>
+                <p className="font-medium">{formData.destinationCountry}</p>
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -1302,6 +1259,7 @@ export default function WilcareAppointmentForm() {
     location: "",
     islamabadProvider: "",
     primaryContact: "",
+    contactNumber: "",
     email: "",
     appointmentType: "",
     visaType: "",
@@ -1309,12 +1267,15 @@ export default function WilcareAppointmentForm() {
     medicalType: "",
     surname: "",
     givenName: "",
+    fullName: "",
     gender: "",
     dateOfBirth: "",
     passportNumber: "",
     passportIssueDate: "",
     passportExpiryDate: "",
     caseNumber: "",
+    preferredLocation: "",
+    destinationCountry: "",
     scannedPassport: null,
     kOneLetter: null,
     appointmentConfirmationLetter: null,
@@ -1515,6 +1476,18 @@ export default function WilcareAppointmentForm() {
       handleFinalSubmit();
       return;
     }
+
+    if (step === 9) { // IOM Info step
+      if (!formData.fullName || !formData.passportNumber || !formData.dateOfBirth ||
+          !formData.visaType || !formData.contactNumber || !formData.email ||
+          !formData.preferredLocation || !formData.destinationCountry) {
+        setError("Please fill in all required fields for IOM");
+        return;
+      }
+      setError(null);
+      setStep(7); // Go to review step
+      return;
+    }
   };
 
   const handleFinalSubmit = async () => {
@@ -1637,6 +1610,7 @@ export default function WilcareAppointmentForm() {
       location: "",
       islamabadProvider: "",
       primaryContact: "",
+      contactNumber: "",
       email: "",
       appointmentType: "",
       visaType: "",
@@ -1644,12 +1618,15 @@ export default function WilcareAppointmentForm() {
       medicalType: "",
       surname: "",
       givenName: "",
+      fullName: "",
       gender: "",
       dateOfBirth: "",
       passportNumber: "",
       passportIssueDate: "",
       passportExpiryDate: "",
       caseNumber: "",
+      preferredLocation: "",
+      destinationCountry: "",
       scannedPassport: null,
       kOneLetter: null,
       appointmentConfirmationLetter: null,
@@ -1745,6 +1722,7 @@ export default function WilcareAppointmentForm() {
             error={error}
             loading={loading}
             isAMC={isAMC}
+            isIOM={isIOM}
             onSubmit={handleNextStep}
             onBack={handleGoBack}
             formatDate={formatDate}
@@ -1753,7 +1731,18 @@ export default function WilcareAppointmentForm() {
       case 8:
         return <SuccessStep onReset={handleReset} />;
       case 9:
-        return <IOMContactStep onBack={handleGoBack} />;
+        return (
+          <IOMInfoStep
+            formData={formData}
+            error={error}
+            onChange={handleInputChange}
+            onSelectChange={(name) => (value) => {
+              setFormData(prev => ({ ...prev, [name]: value }));
+            }}
+            onNext={handleNextStep}
+            onBack={handleGoBack}
+          />
+        );
       default:
         return null;
     }
@@ -1766,7 +1755,7 @@ export default function WilcareAppointmentForm() {
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Medical Appointment Booking</h1>
           <p className="text-slate-600">Book your medical appointment</p>
           
-          {step > 1 && step < 8 && step !== 9 && (
+          {step > 1 && step < 8 && step !== 9 && !isIOM && (
             <div className="mt-6">
               <div className="flex justify-between text-xs text-slate-600 mb-2">
                 <span>Location</span>
@@ -1780,6 +1769,21 @@ export default function WilcareAppointmentForm() {
                 <div
                   className="h-full bg-teal-600 rounded-full transition-all duration-300"
                   style={{ width: `${((step - 1) / 7) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+          {isIOM && step === 9 && (
+            <div className="mt-6">
+              <div className="flex justify-between text-xs text-slate-600 mb-2">
+                <span>Location</span>
+                <span>IOM Info</span>
+                <span>Review</span>
+              </div>
+              <div className="w-full h-2 bg-slate-200 rounded-full">
+                <div
+                  className="h-full bg-teal-600 rounded-full transition-all duration-300"
+                  style={{ width: `${((step - 8) / 2) * 100}%` }}
                 ></div>
               </div>
             </div>

@@ -410,7 +410,7 @@ export default function TranslationQueueTable() {
                                       setVerifyNotes(e.target.value)
                                     }
                                     placeholder="Add any verification notes..."
-                                    className="w-full border border-gray-300 rounded-lg p-3 min-h-[80px] focus:ring-2 focus:ring-primary focus:border-transparent"
+                                    className="w-full border border-gray-300 rounded-lg p-3 min-h-20 focus:ring-2 focus:ring-primary focus:border-transparent"
                                     maxLength={500}
                                   />
                                 </div>
