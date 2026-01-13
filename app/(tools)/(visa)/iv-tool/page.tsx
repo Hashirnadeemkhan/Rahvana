@@ -143,7 +143,7 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-10 px-4">
+    <div className="min-h-screen bg-linear-to-b from-blue-50 to-white py-10 px-4">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-blue-900 mb-2">IV Scheduling Status Tool</h1>
         <p className="text-gray-600 mb-6">Check when your immigrant visa interview might be scheduled</p>
@@ -256,7 +256,7 @@ export default function Home() {
 
         {error && (
           <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-8 flex gap-3 items-start">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-red-900">Error</p>
               <p className="text-red-700 text-sm">{error}</p>
@@ -269,7 +269,7 @@ export default function Home() {
           <div className="space-y-4 mb-8">
             <div className="bg-amber-50 border border-amber-200 p-6 rounded-lg">
               <div className="flex items-start gap-3 mb-4">
-                <HelpCircle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                <HelpCircle className="h-6 w-6 text-amber-600 shrink-0 mt-0.5" />
                 <div>
                   <h3 className="text-lg font-semibold text-amber-900 mb-2">
                     We couldnt find {searchTerm}
@@ -358,7 +358,7 @@ export default function Home() {
             {results.map((result, idx) => (
               <div 
                 key={idx} 
-                className="bg-gradient-to-r from-green-50 to-white border border-green-200 p-6 rounded-lg hover:shadow-md transition-shadow"
+                className="bg-linear-to-r from-green-50 to-white border border-green-200 p-6 rounded-lg hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">

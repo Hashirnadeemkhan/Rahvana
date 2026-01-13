@@ -14,8 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import TranslationQueueTable from "../(auth)/admin/translation-queue/TranslationQueueTable";
-import PoliceVerificationTable from "../(auth)/admin/police-verifications/PoliceVerificationTable";
+import TranslationQueueTable from "./components/translation-queue/TranslationQueueTable";
+import PoliceVerificationTable from "./components/police-verifications/PoliceVerificationTable";
 
 type AppointmentStatus = "pending" | "in_progress" | "completed" | "cancelled";
 

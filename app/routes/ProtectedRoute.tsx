@@ -26,7 +26,7 @@ export default function ProtectedRoute({
   // Loading state with spinner
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full animate-spin" />
           <p className="text-slate-600 font-medium">Loading...</p>
@@ -38,7 +38,7 @@ export default function ProtectedRoute({
   // Not authenticated - show nothing while redirecting
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full animate-spin" />
           <p className="text-slate-600 font-medium">Redirecting to login...</p>

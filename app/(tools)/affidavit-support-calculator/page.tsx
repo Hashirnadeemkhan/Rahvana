@@ -972,7 +972,7 @@ export default function AffidavitSupportCalculator() {
   const renderStep1 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <User className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-slate-900">Sponsor Information</h3>
@@ -1047,7 +1047,7 @@ export default function AffidavitSupportCalculator() {
   const renderStep2 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <div className="w-16 h-16 bg-linear-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Users className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-slate-900">Marital Status</h3>
@@ -1088,7 +1088,7 @@ export default function AffidavitSupportCalculator() {
   const renderStep3 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <div className="w-16 h-16 bg-linear-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Users className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-slate-900">Your Children</h3>
@@ -1122,7 +1122,7 @@ export default function AffidavitSupportCalculator() {
   const renderStep4 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <div className="w-16 h-16 bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Users className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-slate-900">Tax Dependents</h3>
@@ -1156,7 +1156,7 @@ export default function AffidavitSupportCalculator() {
   const renderStep5 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <div className="w-16 h-16 bg-linear-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Users className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-slate-900">Previous Sponsorships</h3>
@@ -1224,7 +1224,7 @@ export default function AffidavitSupportCalculator() {
   const renderStep6 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <div className="w-16 h-16 bg-linear-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Users className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-slate-900">Who Are You Sponsoring?</h3>
@@ -1282,7 +1282,7 @@ export default function AffidavitSupportCalculator() {
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-16 h-16 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <DollarSign className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-2xl font-bold text-slate-900">Your Annual Income</h3>
@@ -1319,7 +1319,7 @@ export default function AffidavitSupportCalculator() {
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-16 h-16 bg-linear-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Heart className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-2xl font-bold text-slate-900">Add Income Support</h3>
@@ -1486,7 +1486,7 @@ export default function AffidavitSupportCalculator() {
 
         <Button
           onClick={handleNext}
-          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
+          className="w-full bg-linear-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
           size="lg"
         >
           <Calculator className="w-5 h-5 mr-2" />
@@ -1503,7 +1503,7 @@ export default function AffidavitSupportCalculator() {
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-16 h-16 bg-linear-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <AlertTriangle className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-2xl font-bold text-slate-900">Still Short: ${calcResult.shortfall.toLocaleString()}</h3>
@@ -1641,7 +1641,7 @@ export default function AffidavitSupportCalculator() {
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-16 h-16 bg-linear-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Briefcase className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-2xl font-bold text-slate-900">More Options</h3>
@@ -1797,7 +1797,7 @@ export default function AffidavitSupportCalculator() {
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <Button onClick={handleNext} className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700">
+          <Button onClick={handleNext} className="flex-1 bg-linear-to-r from-emerald-600 to-emerald-700">
             See Results
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -1968,14 +1968,14 @@ export default function AffidavitSupportCalculator() {
                     </div>
                     <div className="p-3 space-y-2">
                       <div className="flex items-start gap-2">
-                        <Globe className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <Globe className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
                         <div>
                           <p className="text-xs font-semibold text-slate-700">Where to File:</p>
                           <p className="text-sm text-slate-600">{form.whereToFile}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                         <div>
                           <p className="text-xs font-semibold text-slate-700">Important Notes:</p>
                           <ul className="text-sm text-slate-600 space-y-1 mt-1">
@@ -2066,7 +2066,7 @@ export default function AffidavitSupportCalculator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center gap-4">
