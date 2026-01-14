@@ -28,50 +28,157 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
   const requiredDocuments: DocumentItem[] = [];
 
   // Financial documents
-  if (selectedItems.some(item => item.includes('FINANCIAL') || item.includes('I864'))) {
+  if (selectedItems.some(item =>
+    item.includes('i864') ||
+    item.includes('tax') ||
+    item.includes('irs_transcript') ||
+    item.includes('w2') ||
+    item.includes('proof_citizenship')
+  )) {
+    // Check for specific sponsor types
+    const isPetitioner = selectedItems.includes('i864_petitioner');
+    const isJointSponsor = selectedItems.includes('i864_joint_sponsor');
+    const isI864A = selectedItems.includes('i864a');
+    const isI134 = selectedItems.includes('i134');
+    const isI864W = selectedItems.includes('i864w');
+    const isTax1040 = selectedItems.includes('tax_1040');
+    const isW2 = selectedItems.includes('w2');
+    const isIRSTranscript = selectedItems.includes('irs_transcript');
+    const isProofCitizenship = selectedItems.includes('proof_citizenship');
+    const isDomicile = selectedItems.includes('domicile');
+
     requiredDocuments.push(
       {
         id: 'i864',
         name: 'Affidavit of Support (Form I-864)',
-        description: 'Financial sponsorship form proving income requirements',
-        category: 'financial',
-        required: true,
-        status: 'missing'
-      },
-      {
-        id: 'tax-transcripts',
-        name: 'Federal Tax Transcripts',
-        description: 'IRS tax transcripts for the last 3 years',
-        category: 'financial',
-        required: true,
-        status: 'missing'
-      },
-      {
-        id: 'employment-letter',
-        name: 'Employment Verification Letter',
-        description: 'Letter from sponsor\'s employer verifying job and salary',
-        category: 'financial',
-        required: true,
-        status: 'missing'
-      },
-      {
-        id: 'pay-stubs',
-        name: 'Recent Pay Stubs',
-        description: 'Pay stubs for the last 6 months',
+        description: `Financial sponsorship form proving income requirements ${isPetitioner ? '(Petitioner)' : ''} ${isJointSponsor ? '(Joint Sponsor)' : ''}`,
         category: 'financial',
         required: true,
         status: 'missing'
       }
     );
+
+    // Add tax documents based on specific selections
+    if (isTax1040 || isIRSTranscript) {
+      requiredDocuments.push(
+        {
+          id: 'tax-transcripts',
+          name: 'Federal Tax Transcripts',
+          description: `IRS tax transcripts for the last 3 years ${isTax1040 ? '(Form 1040)' : ''} ${isIRSTranscript ? '(IRS Transcript)' : ''}`,
+          category: 'financial',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
+
+    if (isW2 || isIRSTranscript) {
+      requiredDocuments.push(
+        {
+          id: 'employment-letter',
+          name: 'Employment Verification Letter',
+          description: `Letter from sponsor's employer verifying job and salary ${isW2 ? '(W-2 related)' : ''} ${isIRSTranscript ? '(IRS Transcript related)' : ''}`,
+          category: 'financial',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
+
+    if (isW2) {
+      requiredDocuments.push(
+        {
+          id: 'pay-stubs',
+          name: 'Recent Pay Stubs',
+          description: `Pay stubs for the last 6 months ${isW2 ? '(W-2 related)' : ''}`,
+          category: 'financial',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
+
+    // Add specific financial forms if selected
+    if (isI864A) {
+      requiredDocuments.push(
+        {
+          id: 'i864a',
+          name: 'Contract Between Sponsor and Household Member (Form I-864A)',
+          description: 'Contract between sponsor and household member (if applicable)',
+          category: 'financial',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
+
+    if (isI134) {
+      requiredDocuments.push(
+        {
+          id: 'i134',
+          name: 'Affidavit of Support (Form I-134)',
+          description: 'Affidavit of support (if applicable)',
+          category: 'financial',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
+
+    if (isI864W) {
+      requiredDocuments.push(
+        {
+          id: 'i864w',
+          name: 'Request for Exemption of I-864 (Form I-864W)',
+          description: 'Request for exemption of I-864 (if applicable)',
+          category: 'financial',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
+
+    if (isProofCitizenship) {
+      requiredDocuments.push(
+        {
+          id: 'proof-citizenship',
+          name: 'Proof of U.S. Citizenship',
+          description: 'Proof of U.S. citizenship or LPR status',
+          category: 'financial',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
+
+    if (isDomicile) {
+      requiredDocuments.push(
+        {
+          id: 'domicile',
+          name: 'Domicile Evidence',
+          description: 'Evidence of domicile in the United States',
+          category: 'financial',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
   }
 
   // Civil documents
-  if (selectedItems.some(item => item.includes('CIVIL_DOCUMENTS') || item.includes('BIRTH_CERT'))) {
+  if (selectedItems.some(item =>
+    item.includes('nadra_birth_cert') ||
+    item.includes('nadra_birth_cert_petitioner') ||
+    item.includes('nadra_birth_cert_beneficiary')
+  )) {
+    const isPetitioner = selectedItems.includes('nadra_birth_cert_petitioner');
+    const isBeneficiary = selectedItems.includes('nadra_birth_cert_beneficiary');
+
     requiredDocuments.push(
       {
         id: 'birth-cert',
         name: 'Birth Certificate (NADRA)',
-        description: 'Certified copy of birth certificate',
+        description: `Certified copy of birth certificate ${isPetitioner ? '(Petitioner)' : ''} ${isBeneficiary ? '(Beneficiary)' : ''}`,
         category: 'civil',
         required: true,
         status: 'missing'
@@ -79,12 +186,18 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
     );
   }
 
-  if (selectedItems.some(item => item.includes('MARRIAGE_CERT') || item.includes('NIKAH_NAMA'))) {
+  if (selectedItems.some(item =>
+    item.includes('nadra_marriage_cert') ||
+    item.includes('nikah_nama')
+  )) {
+    const isPetitioner = selectedItems.includes('nadra_marriage_cert') && selectedItems.includes('nadra_birth_cert_petitioner');
+    const isBeneficiary = selectedItems.includes('nikah_nama');
+
     requiredDocuments.push(
       {
         id: 'marriage-cert',
         name: 'Marriage Certificate (Nikah Nama)',
-        description: 'Certified copy of marriage certificate',
+        description: `Certified copy of marriage certificate ${isPetitioner ? '(Petitioner)' : ''} ${isBeneficiary ? '(Beneficiary)' : ''}`,
         category: 'civil',
         required: true,
         status: 'missing'
@@ -92,13 +205,36 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
     );
   }
 
-  if (selectedItems.some(item => item.includes('POLICE_CERTIFICATE'))) {
+  if (selectedItems.some(item => item.includes('police_certificate'))) {
+    const country = selectedItems.find(item => item.includes('police_certificate_country')) || '';
     requiredDocuments.push(
       {
         id: 'police-cert',
         name: 'Police Certificate',
-        description: 'Police certificate from relevant jurisdiction',
+        description: `Police certificate from relevant jurisdiction ${country ? `for country: ${country}` : ''}`,
         category: 'civil',
+        required: true,
+        status: 'missing'
+      }
+    );
+  }
+
+  // Divorce documents
+  if (selectedItems.some(item =>
+    item.includes('us_divorce_decree') ||
+    item.includes('nadra_divorce_cert') ||
+    item.includes('nadra_divorce_cert_petitioner') ||
+    item.includes('nadra_divorce_cert_beneficiary')
+  )) {
+    const isPetitioner = selectedItems.includes('nadra_divorce_cert_petitioner');
+    const isBeneficiary = selectedItems.includes('nadra_divorce_cert_beneficiary');
+
+    requiredDocuments.push(
+      {
+        id: 'divorce-decree',
+        name: 'Divorce Decree',
+        description: `Certified copy of divorce decree ${isPetitioner ? '(Petitioner)' : ''} ${isBeneficiary ? '(Beneficiary)' : ''}`,
+        category: 'legal',
         required: true,
         status: 'missing'
       }
@@ -106,7 +242,12 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
   }
 
   // Legal documents
-  if (selectedItems.some(item => item.includes('LEGAL_DOCUMENTS') || item.includes('DIVORCE_CERT'))) {
+  if (selectedItems.some(item =>
+    item.includes('us_divorce_decree') ||
+    item.includes('nadra_divorce_cert') ||
+    item.includes('nadra_divorce_cert_petitioner') ||
+    item.includes('nadra_divorce_cert_beneficiary')
+  )) {
     requiredDocuments.push(
       {
         id: 'divorce-decree',
@@ -119,12 +260,13 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
     );
   }
 
-  if (selectedItems.some(item => item.includes('DEATH_CERTIFICATE'))) {
+  if (selectedItems.some(item => item.includes('death_certificate'))) {
+    const deathCertName = selectedItems.find(item => item.includes('death_certificate_name')) || '';
     requiredDocuments.push(
       {
         id: 'death-cert',
         name: 'Death Certificate',
-        description: 'Certified copy of death certificate',
+        description: `Certified copy of death certificate ${deathCertName ? `for: ${deathCertName}` : ''}`,
         category: 'legal',
         required: true,
         status: 'missing'
@@ -133,7 +275,7 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
   }
 
   // Passport
-  if (selectedItems.includes('PASSPORT_ISSUES')) {
+  if (selectedItems.includes('passport')) {
     requiredDocuments.push(
       {
         id: 'passport',
@@ -147,12 +289,13 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
   }
 
   // Medical
-  if (selectedItems.includes('MEDICAL_EXAMINATION_ISSUES')) {
+  if (selectedItems.includes('medical_examination')) {
+    const isMedicalIssue = selectedItems.includes('medical_examination');
     requiredDocuments.push(
       {
         id: 'medical-exam',
         name: 'Medical Examination',
-        description: 'Completed medical examination by panel physician',
+        description: `Completed medical examination by panel physician ${isMedicalIssue ? '(Addressing medical examination issues)' : ''}`,
         category: 'medical',
         required: true,
         status: 'missing'
@@ -160,13 +303,44 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
     );
   }
 
-  // Add any additional documents based on other selections
-  if (selectedItems.includes('TRANSLATION_REQUIREMENTS')) {
+  // Translations
+  if (selectedItems.includes('english_translation')) {
+    const translationDoc = selectedItems.find(item => item.includes('english_translation_document')) || 'specific document';
     requiredDocuments.push(
       {
         id: 'translations',
         name: 'Certified Translations',
-        description: 'Certified English translations of non-English documents',
+        description: `Certified English translations of non-English documents ${translationDoc ? `(for: ${translationDoc})` : ''}`,
+        category: 'supporting',
+        required: true,
+        status: 'missing'
+      }
+    );
+  }
+
+  // DNA Test
+  if (selectedItems.includes('dna_test')) {
+    const dnaTestName = selectedItems.find(item => item.includes('dna_test_name')) || 'specific individual';
+    requiredDocuments.push(
+      {
+        id: 'dna-test',
+        name: 'DNA Test Results',
+        description: `DNA test results ${dnaTestName ? `for: ${dnaTestName}` : ''}`,
+        category: 'supporting',
+        required: true,
+        status: 'missing'
+      }
+    );
+  }
+
+  // Other documents
+  if (selectedItems.includes('other')) {
+    const otherDetails = selectedItems.find(item => item.includes('other_details')) || 'additional requirements';
+    requiredDocuments.push(
+      {
+        id: 'other-docs',
+        name: 'Other Required Documents',
+        description: `Other required documents: ${otherDetails}`,
         category: 'supporting',
         required: true,
         status: 'missing'
@@ -176,17 +350,32 @@ export default function DocumentChecklist({ selectedItems, embassy, onStatusChan
 
   // Add recommended documents based on embassy
   if (embassy === 'islamabad') {
-    requiredDocuments.push(
-      {
-        id: 'nadra-family-reg',
-        name: 'NADRA Family Registration Certificate',
-        description: 'Family registration certificate from NADRA',
-        category: 'civil',
-        required: false,
-        recommended: true,
-        status: 'missing'
-      }
-    );
+    // Only add NADRA Family Registration if it's not already required based on user's selections
+    if (!selectedItems.includes('nadra_family_reg')) {
+      requiredDocuments.push(
+        {
+          id: 'nadra-family-reg',
+          name: 'NADRA Family Registration Certificate',
+          description: 'Family registration certificate from NADRA (recommended for Islamabad Embassy)',
+          category: 'civil',
+          required: false,
+          recommended: true,
+          status: 'missing'
+        }
+      );
+    } else {
+      // If user selected nadra_family_reg, add it as required
+      requiredDocuments.push(
+        {
+          id: 'nadra-family-reg',
+          name: 'NADRA Family Registration Certificate',
+          description: 'Family registration certificate from NADRA (required based on your 221(g) letter)',
+          category: 'civil',
+          required: true,
+          status: 'missing'
+        }
+      );
+    }
   }
 
   return (

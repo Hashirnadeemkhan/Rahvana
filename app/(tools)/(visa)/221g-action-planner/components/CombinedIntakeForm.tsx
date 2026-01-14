@@ -284,8 +284,8 @@ export default function CombinedIntakeForm({ onSubmit }: CombinedFormProps) {
 
           {/* Step 3: CEAC Status (was originally step 3, now step 4 if form checker was shown) */}
           {currentStep === (formData.letterReceived ? 3 : 2) && !showFormChecker && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">CEAC Status</h3>
+            <div className="space-y-6 mt-4">
+          
               
               <div>
                 <Label htmlFor="ceacStatus">Current CEAC Status</Label>
