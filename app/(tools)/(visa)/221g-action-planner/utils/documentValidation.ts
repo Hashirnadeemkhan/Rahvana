@@ -109,7 +109,7 @@ export const checkDocumentType = (text: string, type: DocumentType): { isValid: 
   if (foundMandatory.length === 0) {
     return { 
       isValid: false, 
-      reason: `Document does not contain required identifier for ${type.replace('_', ' ')}. Expected one of: ${keywords.mandatory.join(', ')}`,
+      reason: `Document is missing required identifier for ${type.replace('_', ' ')}. We looked for: ${keywords.mandatory.join(', ')}`,
       matchedKeywords: []
     };
   }
@@ -118,9 +118,10 @@ export const checkDocumentType = (text: string, type: DocumentType): { isValid: 
   const foundOptional = keywords.optional.filter(keyword => text.includes(keyword.toUpperCase()));
   
   if (foundOptional.length < 3) {
+    const missingCount = 3 - foundOptional.length;
     return { 
       isValid: false, 
-      reason: `Document has correct type identifier but lacks sufficient supporting keywords (found ${foundOptional.length}, need 3+)`,
+      reason: `Document looks like a ${type.replace('_', ' ')} but is missing ${missingCount} more supporting details. We found: ${foundOptional.join(', ') || 'none'}. We need at least 3 of: ${keywords.optional.join(', ')}`,
       matchedKeywords: [...foundMandatory, ...foundOptional]
     };
   }

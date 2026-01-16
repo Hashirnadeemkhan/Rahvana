@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { 
   CheckCircle2, 
   AlertTriangle, 
@@ -10,7 +13,8 @@ import {
   FileText, 
   Upload,
   ChevronRight,
-  Package
+  Package,
+  Eye
 } from 'lucide-react';
 import { FormSelections } from '../types/221g';
 import DocumentValidator from './DocumentValidator';
@@ -48,6 +52,15 @@ export default function DocumentChecklist({
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [activeDocument, setActiveDocument] = useState<string | null>(null);
   
+  // Manual Verification State
+  const [showManualVerify, setShowManualVerify] = useState(false);
+  const [manualVerifyDocId, setManualVerifyDocId] = useState<string | null>(null);
+  const [manualChecklist, setManualChecklist] = useState<Record<string, boolean>>({});
+  
+  // Validation Error State
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
   // Update documents when selectedItems change
   useEffect(() => {
     import('../utils/documentDefinitions').then(({ generateRequiredDocumentsList }) => {
@@ -83,6 +96,28 @@ export default function DocumentChecklist({
     }
   };
   
+  const openManualVerification = (docId: string) => {
+    setManualVerifyDocId(docId);
+    setManualChecklist({
+      'bride_name': false,
+      'groom_name': false,
+      'marriage_date': false,
+      'official_stamp': false,
+      'signatures': false
+    });
+    setShowManualVerify(true);
+  };
+
+  const handleManualVerifySubmit = () => {
+    const allChecked = Object.values(manualChecklist).every(v => v);
+    if (allChecked && manualVerifyDocId) {
+      onDocumentStatusChange(manualVerifyDocId, 'ready');
+      setShowManualVerify(false);
+    } else {
+      alert('Please verify all items in the checklist before proceeding.');
+    }
+  };
+
   // Calculate progress
   const completedCount = documents.filter(d => d.status === 'ready' || d.status === 'submitted').length;
   const totalCount = documents.length;
@@ -113,6 +148,7 @@ export default function DocumentChecklist({
               const docId = doc.id;
               const hasUploads = uploadedDocs[docId]?.length > 0;
               const qualityCheck = docQualityChecks[docId];
+              const isNikahNama = doc.type === 'nikah_nama' || doc.id === 'nikah_nama';
               
               return (
                 <div 
@@ -171,12 +207,14 @@ export default function DocumentChecklist({
                                 onDocumentStatusChange(docId, 'ready');
                               } else {
                                 // Show the validation issues to the user
-                                const issues = validationResult.issues.map(issue => `${issue.severity.toUpperCase()}: ${issue.message}`).join('\n');
-                                alert(`Validation Issues Found:\n${issues}`);
+                                const issues = validationResult.issues.map(issue => `${issue.message}`);
+                                setValidationErrors(issues);
+                                setShowErrorDialog(true);
                               }
                             } catch (error) {
                               console.error('Validation error:', error);
-                              alert(`Error validating document: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+                              setValidationErrors([`Error validating document: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`]);
+                              setShowErrorDialog(true);
                             }
                           };
 
@@ -189,6 +227,18 @@ export default function DocumentChecklist({
                       <Upload className="h-4 w-4 mr-1 " />
                       Validate
                     </Button>
+                    
+                    {isNikahNama && hasUploads && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => openManualVerification(docId)}
+                        title="Manually verify Urdu document"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Manual Verify
+                      </Button>
+                    )}
                   </div>
                   
                   {hasUploads && (
@@ -252,6 +302,89 @@ export default function DocumentChecklist({
           </ul>
         </div>
       </CardContent>
+
+      {/* Manual Verification Dialog */}
+      <Dialog open={showManualVerify} onOpenChange={setShowManualVerify}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Manual Verification: Nikah Nama</DialogTitle>
+            <DialogDescription>
+              Since Urdu OCR can be unreliable, please manually verify that your document contains the following required details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="bride_name" 
+                checked={manualChecklist['bride_name']}
+                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'bride_name': !!checked}))}
+              />
+              <Label htmlFor="bride_name">Bride's Full Name is clearly visible</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="groom_name" 
+                checked={manualChecklist['groom_name']}
+                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'groom_name': !!checked}))}
+              />
+              <Label htmlFor="groom_name">Groom's Full Name is clearly visible</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="marriage_date" 
+                checked={manualChecklist['marriage_date']}
+                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'marriage_date': !!checked}))}
+              />
+              <Label htmlFor="marriage_date">Date of Marriage is legible</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="official_stamp" 
+                checked={manualChecklist['official_stamp']}
+                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'official_stamp': !!checked}))}
+              />
+              <Label htmlFor="official_stamp">Official Union Council Stamp/Seal is present</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="signatures" 
+                checked={manualChecklist['signatures']}
+                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'signatures': !!checked}))}
+              />
+              <Label htmlFor="signatures">Signatures of Bride, Groom, and Witnesses are present</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowManualVerify(false)}>Cancel</Button>
+            <Button onClick={handleManualVerifySubmit}>Confirm & Mark Ready</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Validation Error Dialog */}
+      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Validation Issues Found
+            </DialogTitle>
+            <DialogDescription>
+              We found some issues with your document. Please review them below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-2">
+            {validationErrors.map((error, idx) => (
+              <div key={idx} className="p-3 bg-red-50 border border-red-100 rounded-md text-sm text-red-800">
+                • {error}
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowErrorDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
