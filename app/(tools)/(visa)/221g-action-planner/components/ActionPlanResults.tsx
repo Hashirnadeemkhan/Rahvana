@@ -28,11 +28,13 @@ import { AlertTriangle, FileCheck, Calendar } from 'lucide-react';
 import { ActionPlan } from '../utils/actionPlanGenerator';
 import { ClassificationResult } from '../utils/classifier';
 import { generatePDFPacket,generateCoverLetter } from '../utils/PdfGenerator';
+import DocumentChecklist from './DocumentChecklist';
 
 interface ActionPlanResultsProps {
   classification: ClassificationResult | null;
   actionPlan: ActionPlan | null;
   formData: import('../types/221g').FormData | null;
+  selectedItems: import('../types/221g').FormSelections | null;
   onBackToForm: () => void;
 }
 
@@ -46,6 +48,7 @@ export default function ActionPlanResults({
   classification,
   actionPlan,
   formData,
+  selectedItems,
   onBackToForm
 }: ActionPlanResultsProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -86,7 +89,7 @@ export default function ActionPlanResults({
         console.error('Error restoring progress:', error);
       }
     }
-  }, []); 
+  }, []);
 
   // Inquiry tracking
   const [inquiries, setInquiries] = useState<{
@@ -119,6 +122,12 @@ export default function ActionPlanResults({
 
   const handleRevertStep = (stepIndex: number) => {
     setCompletedSteps(prev => prev.filter(step => step !== stepIndex));
+  };
+
+  const handleDocumentStatusChange = (documentId: string, status: 'missing' | 'in-progress' | 'ready' | 'submitted') => {
+    // This function can be used to update document statuses in the future
+    // For now, we're just logging the change
+    console.log(`Document ${documentId} status changed to ${status}`);
   };
 
   // Save progress to localStorage before navigating back to form
@@ -171,7 +180,7 @@ export default function ActionPlanResults({
   const checkFileQuality = (file: File): 'excellent' | 'good' | 'needs-review' => {
     const sizeMB = file.size / (1024 * 1024);
     const isPDF = file.type === 'application/pdf';
-    
+
     if (isPDF && sizeMB < 10 && sizeMB > 0.1) return 'excellent';
     if (sizeMB > 20) return 'needs-review';
     return 'good';
@@ -179,7 +188,7 @@ export default function ActionPlanResults({
 
   const performQualityCheck = (docId: string, files: UploadedFile[]) => {
     const issues: string[] = [];
-    
+
     files.forEach(({ file, quality }) => {
       if (quality === 'needs-review') {
         if (file.size > 20 * 1024 * 1024) {
@@ -345,11 +354,11 @@ export default function ActionPlanResults({
                   </Badge>
                   <Badge variant="outline" className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    {currentStep.timeframe}
+                    {currentStep?.timeframe || 'Timeframe not specified'}
                   </Badge>
                 </div>
                 <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  {currentStep.title}
+                  {currentStep?.title || 'Untitled Step'}
                 </h1>
                 <p className="text-lg text-gray-600">
                   Complete these actions to move forward with your case
@@ -373,7 +382,7 @@ export default function ActionPlanResults({
                     </CardHeader>
                     <CardContent className="pt-6">
                       <div className="space-y-4">
-                        {currentStep.actions.map((action, idx) => (
+                        {currentStep?.actions?.map((action, idx) => (
                           <div key={idx} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                             <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
                               <span className="text-sm font-bold text-teal-600">{idx + 1}</span>
@@ -387,103 +396,24 @@ export default function ActionPlanResults({
                 </TabsContent>
 
                 <TabsContent value="documents" className="mt-6">
-                  {currentStep.documents && currentStep.documents.length > 0 ? (
-                    <Card>
-                      <CardHeader className="bg-amber-50">
-                        <CardTitle className="text-lg font-semibold text-amber-900 flex items-center">
-                          <FileTextIcon className="w-5 h-5 mr-2" />
-                          Required Documents ({currentStep.documents.filter(Boolean).length})
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-6">
-                        <div className="space-y-4">
-                          {currentStep.documents.filter(Boolean).map((doc, idx) => {
-                            const docId = `step-${currentStepIndex}-doc-${idx}`;
-                            const hasUploads = uploadedDocs[docId]?.length > 0;
-                            const qualityCheck = docQualityChecks[docId];
-
-                            return (
-                              <div
-                                key={idx}
-                                className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
-                                ref={el => documentSectionsRef.current[docId] = el}
-                              >
-                                <div className="flex items-center justify-between mb-3">
-                                  <p
-                                    className="font-medium text-gray-900 flex items-center cursor-pointer hover:text-blue-600 hover:underline"
-                                    onClick={() => scrollToDocumentSection(docId)}
-                                  >
-                                    <FileCheck className="w-4 h-4 mr-2 text-gray-400" />
-                                    {doc}
-                                  </p>
-                                  {hasUploads && (
-                                    <Badge variant={qualityCheck?.passed ? "default" : "destructive"} className="bg-green-500">
-                                      <CheckIcon className="w-3 h-3 mr-1" />
-                                      {uploadedDocs[docId].length} file(s)
-                                    </Badge>
-                                  )}
-                                </div>
-
-                                <div className="flex items-center space-x-2">
-                                  <Input
-                                    type="file"
-                                    multiple
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                    onChange={(e) => e.target.files && handleFileUpload(docId, e.target.files)}
-                                    className="flex-1"
-                                  />
-                                  <Button size="sm" variant="outline">
-                                    <UploadIcon className="w-4 h-4" />
-                                  </Button>
-                                </div>
-
-                                {hasUploads && (
-                                  <div className="mt-3 space-y-2">
-                                    {uploadedDocs[docId].map((upload, fileIdx) => (
-                                      <div key={fileIdx} className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
-                                        <span className="flex items-center gap-2">
-                                          📄 {upload.file.name}
-                                          <Badge variant="outline" className="text-xs">
-                                            {upload.quality}
-                                          </Badge>
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-gray-500">
-                                            {(upload.file.size / 1024).toFixed(1)} KB
-                                          </span>
-                                          <button
-                                            onClick={() => handleRemoveFile(docId, fileIdx)}
-                                            className="text-red-500 hover:text-red-700 cursor-pointer"
-                                            title="Remove file"
-                                          >
-                                            <Cross2Icon className="w-4 h-4" />
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-
-                                {qualityCheck && !qualityCheck.passed && (
-                                  <Alert variant="destructive" className="mt-3">
-                                    <AlertDescription>
-                                      {qualityCheck.issues.join(', ')}
-                                    </AlertDescription>
-                                  </Alert>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <Card>
-                      <CardContent className="pt-6 text-center text-gray-500">
-                        No specific documents required for this step
-                      </CardContent>
-                    </Card>
-                  )}
+                  <Card>
+                    <CardHeader className="bg-amber-50">
+                      <CardTitle className="text-lg font-semibold text-amber-900 flex items-center">
+                        <FileTextIcon className="w-5 h-5 mr-2" />
+                        Required Documents
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <DocumentChecklist
+                        selectedItems={selectedItems || {}}
+                        onDocumentStatusChange={handleDocumentStatusChange}
+                        onFileUpload={handleFileUpload}
+                        onFileRemove={handleRemoveFile}
+                        uploadedDocs={uploadedDocs}
+                        docQualityChecks={docQualityChecks}
+                      />
+                    </CardContent>
+                  </Card>
                 </TabsContent>
 
                 <TabsContent value="tips" className="mt-6">
@@ -496,7 +426,7 @@ export default function ActionPlanResults({
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-3">
-                        {currentStep.tips.map((tip, idx) => (
+                        {currentStep?.tips?.map((tip, idx) => (
                           <li key={idx} className="flex items-start space-x-3 p-3 bg-white rounded-lg">
                             <span className="text-blue-500 text-xl">💡</span>
                             <span className="text-blue-900 leading-relaxed">{tip}</span>
@@ -596,11 +526,12 @@ export default function ActionPlanResults({
                       <Input
                         value={coverLetterData.embassy}
                         onChange={(e) => setCoverLetterData({...coverLetterData, embassy: e.target.value})}
+                        placeholder="e.g., islamabad"
                         disabled
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <Label className="block text-sm font-medium mb-2">Additional Notes (Optional)</Label>
                     <Textarea

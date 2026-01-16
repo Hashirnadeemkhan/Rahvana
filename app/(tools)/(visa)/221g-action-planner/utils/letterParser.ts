@@ -2,13 +2,27 @@ import Tesseract from 'tesseract.js';
 
 export async function parse221gLetter(file: File): Promise<string[]> {
   try {
-    const { data: { text } } = await Tesseract.recognize(
-      file,
-      'eng',
-      {
-        logger: m => console.log(m), // For debugging
-      }
-    );
+    // Convert file to URL for Tesseract - it can't read File objects directly
+    const imageUrl = URL.createObjectURL(file);
+    
+    let text: string;
+    try {
+      const result = await Tesseract.recognize(
+        imageUrl,
+        'eng',
+        {
+          logger: m => console.log(m), // For debugging
+        }
+      );
+      text = result.data.text;
+      
+      // Clean up URL after OCR
+      URL.revokeObjectURL(imageUrl);
+    } catch (ocrError) {
+      // Clean up URL even if OCR fails
+      URL.revokeObjectURL(imageUrl);
+      throw ocrError;
+    }
 
     // Detect checkboxes and items (simple pattern matching)
     const lines = text.split('\n').map(line => line.trim());
