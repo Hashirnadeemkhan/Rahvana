@@ -170,74 +170,87 @@ export default function DocumentChecklist({
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center space-x-2 mb-3">
-                    <input
-                      type="file"
-                      multiple
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => e.target.files && onFileUpload(docId, e.target.files)}
-                      className="flex-1 text-sm"
-                    />
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        // Find the most recently uploaded file for this document
-                        if (hasUploads) {
-                          const latestFile = uploadedDocs[docId][uploadedDocs[docId].length - 1];
+                  <div className="space-y-3">
+                    {/* File Input Row */}
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="file"
+                          multiple
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => e.target.files && onFileUpload(docId, e.target.files)}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                      </div>
+                    </div>
 
-                          // Create a temporary validator to validate this specific file
-                          const validator = async () => {
-                            try {
-                              // Use the new OCR processor that handles both images and PDFs
-                              const { processDocumentOCR } = await import('../utils/ocrProcessor');
-                              
-                              const text = await processDocumentOCR(latestFile.file, (progressInfo) => {
-                                console.log(`OCR Progress: ${progressInfo.status} - ${progressInfo.current}%`);
-                              });
+                    {/* Action Buttons Row - Only show if files are uploaded */}
+                    {hasUploads && (
+                      <div className="flex flex-wrap items-center gap-2 justify-end pt-2 border-t border-gray-100">
+                        <Button 
+                          size="sm"
+                          variant="default"
+                          className="bg-teal-600 hover:bg-teal-700 text-white"
+                          onClick={() => {
+                            // Find the most recently uploaded file for this document
+                            if (hasUploads) {
+                              const latestFile = uploadedDocs[docId][uploadedDocs[docId].length - 1];
 
-                              // Import the validation function from the utility
-                              const { validateByDocumentType } = await import('../utils/documentValidation');
+                              // Create a temporary validator to validate this specific file
+                              const validator = async () => {
+                                try {
+                                  // Use the new OCR processor that handles both images and PDFs
+                                  const { processDocumentOCR } = await import('../utils/ocrProcessor');
+                                  
+                                  const text = await processDocumentOCR(latestFile.file, (progressInfo) => {
+                                    console.log(`OCR Progress: ${progressInfo.status} - ${progressInfo.current}%`);
+                                  });
 
-                              // Validate based on document type
-                              const validationResult = validateByDocumentType(text, doc.type as any);
+                                  // Import the validation function from the utility
+                                  const { validateByDocumentType } = await import('../utils/documentValidation');
 
-                              // Update the document status based on validation result
-                              if (validationResult.isValid) {
-                                onDocumentStatusChange(docId, 'ready');
-                              } else {
-                                // Show the validation issues to the user
-                                const issues = validationResult.issues.map(issue => `${issue.message}`);
-                                setValidationErrors(issues);
-                                setShowErrorDialog(true);
-                              }
-                            } catch (error) {
-                              console.error('Validation error:', error);
-                              setValidationErrors([`Error validating document: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`]);
-                              setShowErrorDialog(true);
+                                  // Validate based on document type
+                                  const validationResult = validateByDocumentType(text, doc.type as any);
+
+                                  // Update the document status based on validation result
+                                  if (validationResult.isValid) {
+                                    onDocumentStatusChange(docId, 'ready');
+                                  } else {
+                                    // Show the validation issues to the user
+                                    const issues = validationResult.issues.map(issue => `${issue.message}`);
+                                    setValidationErrors(issues);
+                                    setShowErrorDialog(true);
+                                  }
+                                } catch (error) {
+                                  console.error('Validation error:', error);
+                                  setValidationErrors([`Error validating document: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`]);
+                                  setShowErrorDialog(true);
+                                }
+                              };
+
+                              validator();
+                            } else {
+                              alert('Please upload a file first before validating.');
                             }
-                          };
-
-                          validator();
-                        } else {
-                          alert('Please upload a file first before validating.');
-                        }
-                      }}
-                    >
-                      <Upload className="h-4 w-4 mr-1 " />
-                      Validate
-                    </Button>
-                    
-                    {isNikahNama && hasUploads && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => openManualVerification(docId)}
-                        title="Manually verify Urdu document"
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Manual Verify
-                      </Button>
+                          }}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Validate Document
+                        </Button>
+                        
+                        {isNikahNama && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-teal-200 text-teal-700 hover:bg-teal-50"
+                            onClick={() => openManualVerification(docId)}
+                            title="Manually verify Urdu document"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Manual Verify
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                   

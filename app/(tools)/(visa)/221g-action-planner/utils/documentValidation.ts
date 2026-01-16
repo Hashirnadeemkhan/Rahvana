@@ -36,65 +36,89 @@ interface DocumentKeywords {
   optional: string[];  // Must match at least 3 of these
 }
 
+// Helper for fuzzy string matching (Levenshtein distance based)
+const fuzzyContains = (text: string, keyword: string, maxDistance: number = 1): boolean => {
+  // exact match check first for performance
+  if (text.includes(keyword)) return true;
+  
+  // If text is very short, don't fuzzy match
+  if (text.length < keyword.length) return false;
+
+  // Simple sliding window fuzzy match
+  const textLen = text.length;
+  const keyLen = keyword.length;
+  
+  for (let i = 0; i <= textLen - keyLen; i++) {
+    const sub = text.substr(i, keyLen);
+    let distance = 0;
+    for (let j = 0; j < keyLen; j++) {
+      if (sub[j] !== keyword[j]) distance++;
+      if (distance > maxDistance) break;
+    }
+    if (distance <= maxDistance) return true;
+  }
+  return false;
+};
+
 // Function to check if the document is of the correct type
 export const checkDocumentType = (text: string, type: DocumentType): { isValid: boolean; reason?: string; matchedKeywords?: string[] } => {
   // Define keywords for each document type with mandatory and optional
   const typeKeywords: Record<DocumentType, DocumentKeywords> = {
     passport: {
-      mandatory: ['PASSPORT'],
-      optional: ['PASSPORT NO', 'PASSPORT NUMBER', 'NATIONALITY', 'SURNAME', 'GIVEN NAME', 'DATE OF ISSUE', 'PLACE OF ISSUE', 'ISSUING AUTHORITY']
+      mandatory: ['PASSPORT', 'REPUBLIC', 'UNITED STATES', 'PAKISTAN', 'INDIA', 'BANGLADESH', 'TRAVEL DOCUMENT'],
+      optional: ['SURNAME', 'GIVEN NAME', 'NATIONALITY', 'DATE OF BIRTH', 'SEX', 'PLACE OF BIRTH', 'AUTHORITY', 'EXPIRY', 'ISSUED', 'P<']
     },
     nikah_nama: {
-      mandatory: ['NIKAH', 'NIKAH NAMA', 'MARRIAGE REGISTRATION'],
-      optional: ['BRIDE', 'GROOM', 'QAZI', 'WITNESS', 'NIKAH KHWAN', 'MAHR', 'WALIMA']
+      mandatory: ['NIKAH', 'MARRIAGE', 'UNION COUNCIL'],
+      optional: ['BRIDE', 'GROOM', 'QAZI', 'WITNESS', 'MAHR', 'WALIMA', 'HUSBAND', 'WIFE', 'REGISTRATION']
     },
     birth_certificate: {
-      mandatory: ['BIRTH CERTIFICATE', 'CERTIFICATE OF BIRTH', 'LIVE BIRTH'],
-      optional: ['PLACE OF BIRTH', 'FATHER', 'MOTHER', 'REGISTRATION', 'REGISTRAR', 'VITAL RECORDS', 'CERTIFIED COPY']
+      mandatory: ['BIRTH', 'CERTIFICATE', 'LIVE BIRTH'],
+      optional: ['FATHER', 'MOTHER', 'REGISTRATION', 'REGISTRAR', 'VITAL', 'BORN', 'SEX', 'DATE']
     },
     marriage_certificate: {
-      mandatory: ['MARRIAGE CERTIFICATE', 'CERTIFICATE OF MARRIAGE'],
-      optional: ['HUSBAND', 'WIFE', 'DATE OF MARRIAGE', 'OFFICIANT', 'MINISTER', 'PRIEST', 'WITNESS', 'VITAL RECORDS']
+      mandatory: ['MARRIAGE', 'CERTIFICATE', 'WEDDING'],
+      optional: ['HUSBAND', 'WIFE', 'OFFICIANT', 'MINISTER', 'WITNESS', 'VITAL', 'GROOM', 'BRIDE']
     },
     divorce_certificate: {
-      mandatory: ['DIVORCE', 'DECREE OF DIVORCE', 'DISSOLUTION', 'DIVORCE DECREE'],
-      optional: ['PETITIONER', 'RESPONDENT', 'PLAINTIFF', 'DEFENDANT', 'COURT', 'JUDGE', 'CASE NUMBER', 'FINAL JUDGMENT']
+      mandatory: ['DIVORCE', 'DECREE', 'DISSOLUTION'],
+      optional: ['PETITIONER', 'RESPONDENT', 'PLAINTIFF', 'DEFENDANT', 'COURT', 'JUDGE', 'FINAL']
     },
     death_certificate: {
-      mandatory: ['DEATH CERTIFICATE', 'CERTIFICATE OF DEATH'],
-      optional: ['DECEASED', 'DECEDENT', 'DATE OF DEATH', 'PLACE OF DEATH', 'CAUSE OF DEATH', 'REGISTRAR', 'VITAL RECORDS']
+      mandatory: ['DEATH', 'CERTIFICATE'],
+      optional: ['DECEASED', 'DECEDENT', 'CAUSE', 'REGISTRAR', 'VITAL', 'DIED']
     },
     police_certificate: {
-      mandatory: ['POLICE', 'POLICE CERTIFICATE', 'CLEARANCE CERTIFICATE', 'CHARACTER CERTIFICATE'],
-      optional: ['NO CRIMINAL RECORD', 'CRIMINAL BACKGROUND', 'GOOD CONDUCT', 'POLICE DEPARTMENT', 'LAW ENFORCEMENT', 'CRIMINAL HISTORY']
+      mandatory: ['POLICE', 'CLEARANCE', 'CHARACTER', 'CRIMINAL'],
+      optional: ['RECORD', 'CONDUCT', 'DEPARTMENT', 'HISTORY', 'CHECK', 'INSPECTOR']
     },
     medical_examination: {
-      mandatory: ['I-693', 'FORM I-693', 'MEDICAL EXAMINATION', 'PANEL PHYSICIAN'],
-      optional: ['VACCINATION', 'IMMUNIZATION', 'PHYSICIAN', 'CIVIL SURGEON', 'USCIS', 'CLASSIFICATION', 'INADMISSIBLE']
+      mandatory: ['MEDICAL', 'EXAMINATION', 'I-693', 'VACCINATION'],
+      optional: ['PHYSICIAN', 'SURGEON', 'USCIS', 'IMMUNIZATION', 'HEALTH', 'CLINIC']
     },
     i864_affidavit: {
-      mandatory: ['I-864', 'FORM I-864', 'AFFIDAVIT OF SUPPORT'],
-      optional: ['SPONSOR', 'PETITIONER', 'BENEFICIARY', 'IMMIGRANT', 'USCIS', 'HOUSEHOLD SIZE', 'POVERTY GUIDELINES']
+      mandatory: ['I-864', 'AFFIDAVIT', 'SUPPORT'],
+      optional: ['SPONSOR', 'PETITIONER', 'BENEFICIARY', 'INCOME', 'HOUSEHOLD', 'ASSETS']
     },
     translation: {
-      mandatory: ['TRANSLATION', 'CERTIFIED TRANSLATION', 'TRANSLATOR'],
-      optional: ['CERTIFY', 'SWORN', 'ACKNOWLEDGED', 'TRANSLATED FROM', 'TRANSLATED TO', 'CERTIFICATION', 'INTERPRETER']
+      mandatory: ['TRANSLATION', 'TRANSLATOR', 'CERTIFIED'],
+      optional: ['SWORN', 'ACCURATE', 'LANGUAGE', 'ENGLISH', 'URDU', 'ATTEST']
     },
     irs_transcript: {
-      mandatory: ['IRS', 'INTERNAL REVENUE SERVICE', 'TAX TRANSCRIPT', 'ACCOUNT TRANSCRIPT'],
-      optional: ['TAXPAYER', 'TAX YEAR', 'FORM 1040', 'SSN', 'SOCIAL SECURITY', 'ADJUSTED GROSS INCOME', 'TRANSCRIPT TYPE']
+      mandatory: ['IRS', 'REVENUE', 'TRANSCRIPT'],
+      optional: ['TAX', '1040', 'INCOME', 'FILING', 'RETURN', 'AGI']
     },
     form_1040: {
-      mandatory: ['FORM 1040', '1040', 'U.S. INDIVIDUAL INCOME TAX RETURN'],
-      optional: ['IRS', 'TAX YEAR', 'SSN', 'FILING STATUS', 'ADJUSTED GROSS INCOME', 'TOTAL INCOME', 'TAXABLE INCOME', 'REFUND']
+      mandatory: ['1040', 'TAX RETURN'],
+      optional: ['IRS', 'INCOME', 'DEDUCTION', 'REFUND', 'TAX', 'FILING']
     },
     w2: {
-      mandatory: ['W-2', 'FORM W-2', 'WAGE AND TAX STATEMENT'],
-      optional: ['EMPLOYER', 'EMPLOYEE', 'EIN', 'SSN', 'WAGES', 'FEDERAL INCOME TAX', 'SOCIAL SECURITY', 'MEDICARE']
+      mandatory: ['W-2', 'WAGE'],
+      optional: ['EMPLOYER', 'EMPLOYEE', 'TAX', 'SECURITY', 'MEDICARE', 'TIPS']
     },
     form_1099: {
-      mandatory: ['1099', 'FORM 1099'],
-      optional: ['PAYER', 'RECIPIENT', 'MISCELLANEOUS INCOME', 'NONEMPLOYEE COMPENSATION', 'TIN', 'SSN', 'INDEPENDENT CONTRACTOR']
+      mandatory: ['1099'],
+      optional: ['PAYER', 'RECIPIENT', 'INCOME', 'COMPENSATION', 'INTEREST']
     }
   };
 
@@ -103,8 +127,12 @@ export const checkDocumentType = (text: string, type: DocumentType): { isValid: 
     return { isValid: false, reason: 'Unknown document type' };
   }
 
-  // Check for mandatory keywords (at least 1 must match)
-  const foundMandatory = keywords.mandatory.filter(keyword => text.includes(keyword.toUpperCase()));
+  // Check for mandatory keywords (at least 1 must match) - using fuzzy match
+  // Allow 1 char error for short words (<5), 2 chars for longer
+  const foundMandatory = keywords.mandatory.filter(keyword => {
+    const tolerance = keyword.length > 5 ? 2 : 1;
+    return fuzzyContains(text, keyword, tolerance);
+  });
   
   if (foundMandatory.length === 0) {
     return { 
@@ -114,14 +142,20 @@ export const checkDocumentType = (text: string, type: DocumentType): { isValid: 
     };
   }
 
-  // Check for optional keywords (at least 3 must match)
-  const foundOptional = keywords.optional.filter(keyword => text.includes(keyword.toUpperCase()));
+  // Check for optional keywords (at least 2 must match) - using fuzzy match
+  const foundOptional = keywords.optional.filter(keyword => {
+    const tolerance = keyword.length > 5 ? 2 : 1;
+    return fuzzyContains(text, keyword, tolerance);
+  });
   
-  if (foundOptional.length < 3) {
-    const missingCount = 3 - foundOptional.length;
+  // Special case for passports: if we found "PASSPORT" and at least 1 other key field like "SURNAME" or "NATIONALITY", it's likely valid
+  const minOptional = type === 'passport' ? 1 : 2;
+  
+  if (foundOptional.length < minOptional) {
+    const missingCount = minOptional - foundOptional.length;
     return { 
       isValid: false, 
-      reason: `Document looks like a ${type.replace('_', ' ')} but is missing ${missingCount} more supporting details. We found: ${foundOptional.join(', ') || 'none'}. We need at least 3 of: ${keywords.optional.join(', ')}`,
+      reason: `Document looks like a ${type.replace('_', ' ')} but is missing ${missingCount} more supporting details. We found: ${foundOptional.join(', ') || 'none'}. We need at least ${minOptional} of: ${keywords.optional.join(', ')}`,
       matchedKeywords: [...foundMandatory, ...foundOptional]
     };
   }
