@@ -1,4 +1,6 @@
-import { PDFDocument, StandardFonts, rgb, PDFName } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, PDFName, PDFDict, PDFArray } from 'pdf-lib';
+import { generateRequiredDocumentsList, DocumentItem } from './documentDefinitions';
+import { FormSelections } from '../types/221g';
 
 interface PDFGeneratorOptions {
   coverLetterData: {
@@ -8,10 +10,7 @@ interface PDFGeneratorOptions {
     embassy: string;
     additionalNotes: string;
   };
-  actionPlanStages: Array<{
-    documents?: string[];
-    [key: string]: any;
-  }>;
+  selectedItems: FormSelections;
   uploadedDocs: Record<string, Array<{
     file: File;
     uploadDate: Date;
@@ -41,8 +40,8 @@ const drawWrappedText = (page: any, text: string, x: number, y: number, size: nu
   return currentY;
 };
 
-const generateCoverLetter = (coverLetterData: PDFGeneratorOptions['coverLetterData'], actionPlanStages: PDFGeneratorOptions['actionPlanStages']) => {
-  const docsList = actionPlanStages.flatMap(stage => stage.documents || []).filter(Boolean).map((doc, i) => `${i + 1}. ${doc.trim()}`).join('\n');
+const generateCoverLetter = (coverLetterData: PDFGeneratorOptions['coverLetterData'], documents: DocumentItem[]) => {
+  const docsList = documents.map((doc, i) => `${i + 1}. ${doc.name}`).join('\n');
 
   return `
 U.S. Embassy ${coverLetterData.embassy.charAt(0).toUpperCase() + coverLetterData.embassy.slice(1)}
@@ -78,15 +77,7 @@ Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long',
   `.trim();
 };
 
-const getDocsList = (actionPlanStages: PDFGeneratorOptions['actionPlanStages']) => {
-  return actionPlanStages
-    .flatMap((stage, stepIndex) => (stage.documents || []).filter(Boolean).map((doc, docIndex) => ({
-      name: doc.trim(),
-      docId: `step-${stepIndex}-doc-${docIndex}`
-    })));
-};
-
-const generateDocumentIndex = (docs: {name: string, docId: string}[], coverLetterData: PDFGeneratorOptions['coverLetterData']) => {
+const generateDocumentIndex = (docs: DocumentItem[], coverLetterData: PDFGeneratorOptions['coverLetterData']) => {
   let indexText = 'DOCUMENT INDEX\n\n';
   indexText += 'The following documents are included in this submission:\n\n';
 
@@ -101,7 +92,11 @@ const generateDocumentIndex = (docs: {name: string, docId: string}[], coverLette
 
 export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<void> => {
   try {
-    const { coverLetterData, actionPlanStages, uploadedDocs } = options;
+    const { coverLetterData, selectedItems, uploadedDocs } = options;
+    
+    // Generate the list of required documents using the shared utility
+    // This ensures IDs match what's in uploadedDocs
+    const docs = generateRequiredDocumentsList(selectedItems);
     
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -110,7 +105,7 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
     // Cover Letter Page
     let coverPage = pdfDoc.addPage([595, 842]); // A4 size
     let y = 780;
-    let coverText = generateCoverLetter(coverLetterData, actionPlanStages);
+    let coverText = generateCoverLetter(coverLetterData, docs);
     const paragraphs = coverText.split('\n\n'); // Split into paragraphs for better handling
     for (let para of paragraphs) {
       const lines = para.split('\n');
@@ -130,31 +125,41 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
     // Document Index Page
     const indexPage = pdfDoc.addPage([595, 842]);
     y = 780;
-    const docs = getDocsList(actionPlanStages);
     const indexText = generateDocumentIndex(docs, coverLetterData);
     const indexLines = indexText.split('\n');
     const docStartPages: number[] = []; // To store 0-indexed start pages for each doc
-    const lineHeights: {line: string, y: number}[] = []; // To track y positions for links
+    const lineHeights: {line: string, y: number, pageIndex: number}[] = []; // To track y positions for links
 
     indexPage.drawText('Document Index', { x: 50, y, size: 16, font: boldFont });
     y -= 30;
+    
+    let currentIndexPage = indexPage;
+    let currentIndexPageIndex = pdfDoc.getPageCount() - 1;
+
     for (const line of indexLines) {
       if (line.trim()) {
-        y = drawWrappedText(indexPage, line, 50, y, 12, font, 495, 15);
-        lineHeights.push({line, y: y + 15}); // Approximate for link rect
+        y = drawWrappedText(currentIndexPage, line, 50, y, 12, font, 495, 15);
+        lineHeights.push({line, y: y + 15, pageIndex: currentIndexPageIndex}); // Approximate for link rect
       }
       y -= 5;
       if (y < 50) {
-        const newPage = pdfDoc.addPage([595, 842]);
+        currentIndexPage = pdfDoc.addPage([595, 842]);
+        currentIndexPageIndex = pdfDoc.getPageCount() - 1;
         y = 780;
       }
     }
 
     // Merge uploaded documents and track start pages
     let docIndex = 0;
-    for (const {docId} of docs) {
-      if (uploadedDocs[docId]) {
+    for (const doc of docs) {
+      const docId = doc.id;
+      if (uploadedDocs[docId] && uploadedDocs[docId].length > 0) {
         docStartPages[docIndex] = pdfDoc.getPageCount();
+        
+        // Add a separator page for the document
+        const sepPage = pdfDoc.addPage([595, 842]);
+        sepPage.drawText(doc.name, { x: 50, y: 421, size: 24, font: boldFont });
+        
         for (const { file } of uploadedDocs[docId]) {
           try {
             const fileBuffer = await file.arrayBuffer();
@@ -165,7 +170,7 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
             } else { // Image
               const img = file.type.includes('png') ? await pdfDoc.embedPng(fileBuffer) : await pdfDoc.embedJpg(fileBuffer);
               const page = pdfDoc.addPage();
-              const scale = 0.5;
+              const scale = Math.min(page.getWidth() / img.width, page.getHeight() / img.height, 1);
               const { width, height } = img.scale(scale);
               page.drawImage(img, { x: (page.getWidth() - width) / 2, y: (page.getHeight() - height) / 2, width, height });
             }
@@ -175,48 +180,54 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
           }
         }
       } else {
-        // If no upload, still reserve a placeholder page or skip, but for link, set to index page or something
-        docStartPages[docIndex] = 1; // Default to cover if missing
+        // If no upload, point to index page (or maybe just don't link)
+        docStartPages[docIndex] = currentIndexPageIndex; 
       }
       docIndex++;
     }
 
     // Add clickable links to index page
     const pages = pdfDoc.getPages();
-    lineHeights.forEach(({line, y: lineY}, i) => {
+    lineHeights.forEach(({line, y: lineY, pageIndex}, i) => {
       if (/^\d+\./.test(line)) { // Only for numbered doc lines
         const docIdx = parseInt(line.split('.')[0]) - 1;
         const targetPageIdx = docStartPages[docIdx];
-        if (targetPageIdx !== undefined) {
+        
+        // Only create link if we have a valid target page (and it's not the index page itself, unless we want that)
+        if (targetPageIdx !== undefined && targetPageIdx !== pageIndex) {
+          const linkPage = pages[pageIndex];
           const targetPage = pages[targetPageIdx];
-          const annotRef = pdfDoc.context.obj({});
-          const annotDict = pdfDoc.context.obj({
-            Type: PDFName.of('Annot'),
-            Subtype: PDFName.of('Link'),
-            Rect: [50, lineY - 5, 545, lineY + 10], // Approximate rect over the line
-            Border: [0, 0, 0],
-            C: [0, 0, 1], // Blue border for debug, remove in prod
-            A: {
-              Type: PDFName.of('Action'),
-              S: PDFName.of('GoTo'),
-              D: [targetPage.node, PDFName.of('Fit')]
-            }
-          });
-          pdfDoc.context.register(annotRef, annotDict);
-          let annots = indexPage.node.Annots();
+          
+          const link = pdfDoc.context.register(
+            pdfDoc.context.obj({
+              Type: 'Annot',
+              Subtype: 'Link',
+              Rect: [50, lineY - 12, 500, lineY + 2],
+              Border: [0, 0, 0],
+              C: [0, 0, 1],
+              A: {
+                Type: 'Action',
+                S: 'GoTo',
+                D: [targetPage.ref, 'Fit'],
+              },
+            }),
+          );
+
+          let annots = linkPage.node.Annots();
           if (!annots) {
             annots = pdfDoc.context.obj([]);
-            indexPage.node.set(PDFName.of('Annots'), annots);
+            linkPage.node.set(PDFName.of('Annots'), annots);
           }
-          annots.push(annotRef);
+          annots.push(link);
         }
       }
     });
 
     // Footer on all pages
+    const pageCount = pdfDoc.getPageCount();
     pages.forEach((page, i) => {
       page.drawText(`Generated on: ${new Date().toLocaleDateString()}`, { x: 50, y: 30, size: 10, font, color: rgb(0.5, 0.5, 0.5) });
-      page.drawText(`Page ${i + 1} of ${pages.length}`, { x: 450, y: 30, size: 10, font, color: rgb(0.5, 0.5, 0.5) });
+      page.drawText(`Page ${i + 1} of ${pageCount}`, { x: 450, y: 30, size: 10, font, color: rgb(0.5, 0.5, 0.5) });
     });
 
     const pdfBytes = await pdfDoc.save();
@@ -235,4 +246,4 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
   }
 };
 
-export { generateCoverLetter, getDocsList, generateDocumentIndex };
+export { generateCoverLetter };

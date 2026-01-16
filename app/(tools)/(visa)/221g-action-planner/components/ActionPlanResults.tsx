@@ -213,7 +213,7 @@ export default function ActionPlanResults({
     try {
       await generatePDFPacket({
         coverLetterData,
-        actionPlanStages: actionPlan.stages,
+        selectedItems: selectedItems || {},
         uploadedDocs
       });
     } catch (error) {
@@ -566,8 +566,10 @@ export default function ActionPlanResults({
                   variant="outline"
                   size="lg"
                   className="text-lg px-8"
-                  onClick={() => {
-                    const coverLetter = generateCoverLetter(coverLetterData, actionPlan.stages);
+                  onClick={async () => {
+                    const { generateRequiredDocumentsList } = await import('../utils/documentDefinitions');
+                    const docs = generateRequiredDocumentsList(selectedItems || {});
+                    const coverLetter = generateCoverLetter(coverLetterData, docs);
                     const printWindow = window.open('', '_blank');
                     if (printWindow) {
                       printWindow.document.write(`
