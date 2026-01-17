@@ -189,6 +189,7 @@ export function SiteHeader({
         "document-translation": "/document-translation",
         "view-security-questions": "/view-security-questions",
         "courier-registration": "/courier-registration",
+        "custom-requirements": "/custom-requirements",
       };
 
       const targetRoute = routes[id] || "/";
@@ -465,6 +466,11 @@ export function SiteHeader({
                     href: "/courier-registration",
                     label: "Courier Registration",
                     id: "courier-registration",
+                  },
+                  {
+                    href: "/custom-requirements",
+                    label: "Custom Requirements",
+                    id: "custom-requirements",
                   },
                 ].map((item) => (
                   <Link
