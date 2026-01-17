@@ -169,6 +169,7 @@ export function SiteHeader({
         "Book Appintment": "/book-appointment",
         "Police Verification": "/police-verification",
         "document-translation": "/document-translation",
+        "221g-action-planner": "/221g-action-planner",
       };
 
       const targetRoute = routes[id] || "/";
@@ -440,6 +441,11 @@ export function SiteHeader({
                     href: "/document-translation",
                     label: "Document Translation",
                     id: "document-translation",
+                  },
+                  {
+                    href: "/221g-action-planner",
+                    label: "221G Action Planner",
+                    id: "221g-action-planner",
                   },
                 ].map((item) => (
                   <Link
