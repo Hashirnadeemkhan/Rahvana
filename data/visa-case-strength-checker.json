@@ -50,7 +50,7 @@
       "questions": [
         {
           "id": "highest_education_field",
-          "label": "What is your highest field of study?",
+          "label": "What is your highest level of study?",
           "type": "text"
         },
         {

@@ -31,7 +31,7 @@ export class ScoringRules {
     // Calculate poverty guideline threshold using configurable values
     const povertyThreshold =
       INCOME_THRESHOLDS.POVERTY_GUIDELINE_BASE +
-      INCOME_THRESHOLDS.ADDITIONAL_PER_PERSON * (householdSize - 1);
+      INCOME_THRESHOLDS.ADDITIONAL_PER_PERSON * Math.max(0, householdSize - 1);
     const incomeRatio = income / povertyThreshold;
 
     if (incomeRatio < INCOME_THRESHOLDS.CRITICAL_RATIO) {
@@ -492,11 +492,15 @@ export class ScoringRules {
 
   static calculateTotalScore(answers: Record<string, unknown>) {
     // Calculate individual component scores
+    const householdSize = Math.max(
+      1,
+      this.safeNumber(answers.household_size, 2)
+    );
+
+    const income = this.safeNumber(answers.sponsor_annual_income, 0);
+
     const { score: incomeScore, risks: incomeRisks } =
-      this.calculateIncomeScore(
-        Number(answers.sponsor_annual_income || 0),
-        Number(answers.household_size || 2)
-      );
+      this.calculateIncomeScore(income, householdSize);
 
     const { score: relationshipScore, risks: relationshipRisks } =
       this.calculateRelationshipScore(answers);
@@ -506,8 +510,12 @@ export class ScoringRules {
       this.calculateImmigrationHistoryScore(answers);
 
     // Calculate total score
-    const totalScore =
+    const rawTotalScore =
       incomeScore + relationshipScore + documentScore + immigrationScore;
+
+    const totalScore = Number.isFinite(rawTotalScore)
+      ? Math.min(MAX_TOTAL_SCORE, Math.max(MIN_TOTAL_SCORE, rawTotalScore))
+      : MIN_TOTAL_SCORE;
 
     // Determine risk level
     let riskLevel: "STRONG" | "MODERATE" | "WEAK";
@@ -561,6 +569,11 @@ export class ScoringRules {
       summaryReasons,
       improvementSuggestions,
     };
+  }
+
+  private static safeNumber(value: unknown, fallback: number): number {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
   }
 
   //   Calculate age from date of birth

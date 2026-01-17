@@ -1,10 +1,12 @@
+import { NextRequest } from "next/server";
 import { VisaCheckerSupabaseService } from "@/lib/visa-checker/supabase";
 
 export async function POST(
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const sessionId = params.id;
+    const { id: sessionId } = await params;
 
     const response = await VisaCheckerSupabaseService.submitForScoring(
       sessionId,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -199,14 +199,15 @@ interface QuestionStepProps {
     id: keyof FormData;
     label: string;
     type: "text" | "textarea" | "number" | "date" | "boolean" | "select";
-    options?: string[] | "US_STATES_LIST";
+    options?: string | string[] | "US_STATES_LIST";
     risk_tag?: string;
   }>;
   formData: FormData;
   error: string | null;
-  onChange: (id: keyof FormData, value: any) => void;
+  onChange: (id: keyof FormData, value: unknown) => void;
   onNext: () => void;
   onBack: () => void;
+  onSaveForLater?: () => void;
 }
 
 const QuestionStep = ({
@@ -218,12 +219,13 @@ const QuestionStep = ({
   onChange,
   onNext,
   onBack,
+  onSaveForLater,
 }: QuestionStepProps) => {
   const renderInput = (question: {
     id: keyof FormData;
     label: string;
     type: "text" | "textarea" | "number" | "date" | "boolean" | "select";
-    options?: string[] | "US_STATES_LIST";
+    options?: string | string[] | "US_STATES_LIST";
     risk_tag?: string;
   }) => {
     const value = formData[question.id] as string | number | boolean | undefined;
@@ -435,12 +437,22 @@ const QuestionStep = ({
           >
             Prev
           </Button>
-          <Button
-            onClick={onNext}
-            className="bg-teal-600 hover:bg-teal-700 text-white"
-          >
-            Next
-          </Button>
+          <div className="flex space-x-2">
+            <Button
+              onClick={() => onSaveForLater && onSaveForLater()}
+              variant="outline"
+              className="text-slate-600"
+              type="button"
+            >
+              Save for Later
+            </Button>
+            <Button
+              onClick={onNext}
+              className="bg-teal-600 hover:bg-teal-700 text-white"
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -453,6 +465,7 @@ interface ReviewStepProps {
   loading: boolean;
   onSubmit: () => void;
   onBack: () => void;
+  onSaveForLater?: () => void;
 }
 
 const ReviewStep = ({
@@ -461,6 +474,7 @@ const ReviewStep = ({
   loading,
   onSubmit,
   onBack,
+  onSaveForLater,
 }: ReviewStepProps) => {
   // Helper function to format boolean values
   const formatBoolean = (value: boolean | undefined) => {
@@ -573,7 +587,7 @@ const ReviewStep = ({
                 </div>
               )}
         </div>
-        <div className="bg-slate-50 rounded-lg p-6">
+        <div className="bg-slate-50 rounded-lg py-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <svg
                 className="w-5 h-5 text-teal-600"
@@ -1000,13 +1014,24 @@ const ReviewStep = ({
           >
             Prev
           </Button>
-          <Button
-            onClick={onSubmit}
-            disabled={loading}
-            className="bg-teal-600 hover:bg-teal-700 text-white"
-          >
-            {loading ? "Submitting..." : "Submit for Analysis"}
-          </Button>
+          <div className="flex space-x-2">
+            <Button
+              onClick={() => onSaveForLater && onSaveForLater()}
+              variant="outline"
+              className="text-slate-600"
+              type="button"
+              disabled={loading}
+            >
+              Save for Later
+            </Button>
+            <Button
+              onClick={onSubmit}
+              disabled={loading}
+              className="bg-teal-600 hover:bg-teal-700 text-white"
+            >
+              {loading ? "Submitting..." : "Submit for Analysis"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -1021,14 +1046,69 @@ export default function VisaCaseStrengthChecker() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Check for existing session on component mount
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      const savedSessionId = localStorage.getItem('visaCheckerSessionId');
+      
+      if (savedSessionId) {
+        try {
+          setLoading(true);
+          const response = await fetch(`/api/visa-checker/session/${savedSessionId}`);
+          const sessionData = await response.json();
+          
+          if (response.ok && sessionData.completed === false) {
+            // Found an incomplete session, restore it
+            setSessionId(savedSessionId);
+            setFormData(prev => ({
+              ...prev,
+              caseType: sessionData.caseType,
+              ...sessionData.answers
+            }));
+            
+            const answeredQuestions = Object.keys(sessionData.answers).filter(key => sessionData.answers[key] !== undefined && sessionData.answers[key] !== "").length;
+            
+            setStep(0); 
+          } else {
+            // Session doesn't exist or is already completed, remove from localStorage
+            localStorage.removeItem('visaCheckerSessionId');
+          }
+        } catch (err) {
+          console.error('Error restoring session:', err);
+          localStorage.removeItem('visaCheckerSessionId');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    
+    checkExistingSession();
+  }, []);
 
   // Load questions from the JSON file
-  const [questionnaireData, setQuestionnaireData] = useState<any>(null);
+  interface QuestionDefinition {
+    id: string;
+    label: string;
+    type: string;
+    options?: string | string[] | "US_STATES_LIST";
+    risk_tag?: string;
+  }
+
+  interface QuestionnaireData {
+    sections: Array<{
+      title: string;
+      questions: QuestionDefinition[];
+    }>;
+  }
+
+  const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null);
 
   useEffect(() => {
     if (!questionnaireData) {
       import("../../../data/visa-case-strength-checker.json")
-        .then((data) => setQuestionnaireData(data.default || data))
+        .then((data) => setQuestionnaireData(data.default || data as QuestionnaireData))
         .catch((err) => console.error("Error loading questionnaire data:", err));
     }
   }, [questionnaireData]);
@@ -1038,18 +1118,102 @@ export default function VisaCaseStrengthChecker() {
     setError(null);
   };
 
-  const handleInputChange = (id: keyof FormData, value: any) => {
+  const handleInputChange = (id: keyof FormData, value: unknown) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
     if (error) {
       setError(null);
     }
+    
+    // Debounce the save operation to prevent rapid API calls
+    if (sessionId) {
+      // Clear the existing timeout if there is one
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      
+      // Set a new timeout to save the answers after 500ms
+      saveTimeoutRef.current = setTimeout(async () => {
+        try {
+          // Create updated form data with the new value
+          const updatedFormData = { ...formData, [id]: value };
+          // Filter out non-question fields before saving
+          const { caseType, ...answers } = updatedFormData;
+          const answersResponse = await fetch(`/api/visa-checker/session/${sessionId}/answers`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              answers,
+            }),
+          });
+          
+          if (!answersResponse.ok) {
+            console.error('Failed to save answer:', await answersResponse.text());
+          }
+        } catch (err) {
+          console.error('Error saving answer:', err);
+        }
+      }, 500); // Wait 500ms before saving
+    }
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     // Validate current step if needed
     if (step === 0 && !formData.caseType) {
       setError("Please select a case type");
       return;
+    }
+    
+    // If we're on the first step (case type selection), create a session
+    if (step === 0 && formData.caseType) {
+      try {
+        setLoading(true);
+        const sessionResponse = await fetch('/api/visa-checker/session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            caseType: formData.caseType,
+            userEmail: typeof window !== 'undefined' ? localStorage.getItem('userEmail') || 'guest@example.com' : 'guest@example.com',
+            userName: typeof window !== 'undefined' ? localStorage.getItem('userName') || 'Guest User' : 'Guest User',
+          }),
+        });
+        
+        const sessionResult = await sessionResponse.json();
+        
+        if (sessionResponse.ok) {
+          setSessionId(sessionResult.sessionId);
+          // Save session ID to localStorage for resume later functionality
+          localStorage.setItem('visaCheckerSessionId', sessionResult.sessionId);
+          
+          // Save initial answers, excluding non-question fields
+          const { caseType, ...answers } = formData;
+          const answersResponse = await fetch(`/api/visa-checker/session/${sessionResult.sessionId}/answers`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              answers,
+            }),
+          });
+          
+          if (!answersResponse.ok) {
+            console.error('Failed to save initial answers:', await answersResponse.text());
+          }
+        } else {
+          throw new Error(sessionResult.error || 'Failed to create session');
+        }
+      } catch (err) {
+        console.error('Error creating session:', err);
+        setError(err instanceof Error ? err.message : 'Failed to create session. Please try again.');
+        setLoading(false);
+        return;
+      } finally {
+        setLoading(false);
+      }
     }
 
     if (step > 0 && questionnaireData) {
@@ -1073,6 +1237,15 @@ export default function VisaCaseStrengthChecker() {
 
           if (question.type === "boolean") {
             if (fieldValue === undefined || fieldValue === null) {
+              setError(`Please select an option for: ${question.label}`);
+              return;
+            }
+          } else if (question.type === "select") {
+            if (
+              fieldValue === undefined ||
+              fieldValue === null ||
+              fieldValue === ""
+            ) {
               setError(`Please select an option for: ${question.label}`);
               return;
             }
@@ -1104,6 +1277,36 @@ export default function VisaCaseStrengthChecker() {
             setError(`Please enter a valid date for ${question.label}`);
             return;
           }
+
+          if (
+            question.type === "number" &&
+            typeof fieldValue === "number" &&
+            fieldValue < 0
+          ) {
+            setError(`Please enter a valid positive number for ${question.label}`);
+            return;
+          }
+
+          // Additional validation for date type
+          if (
+            question.type === "date" &&
+            typeof fieldValue === "string" &&
+            fieldValue !== "" &&
+            !isNaN(Date.parse(fieldValue))
+          ) {
+            const dateValue = new Date(fieldValue);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // For DOB fields, ensure date is in the past
+            if (
+              question.id.includes('dob') &&
+              dateValue >= today
+            ) {
+              setError(`Date of birth must be in the past for ${question.label}`);
+              return;
+            }
+          }
         }
       }
     }
@@ -1114,70 +1317,102 @@ export default function VisaCaseStrengthChecker() {
     }
   };
 
-  const prevStep = () => {
+  const prevStep = async () => {
+    // Save answers before moving to previous step if we have a session ID
+    if (sessionId) {
+      try {
+        // Filter out non-question fields before saving
+        const { caseType, ...answers } = formData;
+        const answersResponse = await fetch(`/api/visa-checker/session/${sessionId}/answers`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            answers,
+          }),
+        });
+        
+        if (!answersResponse.ok) {
+          console.error('Failed to save answers on step change:', await answersResponse.text());
+        }
+      } catch (err) {
+        console.error('Error saving answers on step change:', err);
+      }
+    }
+    
     setStep((prev) => prev - 1);
     if (error) {
       setError(null);
     }
   };
 
+  const handleSaveForLater = async () => {
+    if (!sessionId) {
+      setError('No session found to save. Please start the assessment first.');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      // Force save all current answers
+      const { caseType, ...answers } = formData;
+      const answersResponse = await fetch(`/api/visa-checker/session/${sessionId}/answers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          answers,
+        }),
+      });
+      
+      if (answersResponse.ok) {
+        // Save session ID to localStorage
+        localStorage.setItem('visaCheckerSessionId', sessionId);
+        alert('Your progress has been saved. You can return later to continue.');
+      } else {
+        console.error('Failed to save answers:', await answersResponse.text());
+        setError('Failed to save your progress. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error saving progress:', err);
+      setError('Error saving progress. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
+    if (!sessionId) {
+      setError('No session found. Please restart the assessment.');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
 
     try {
-      // Create a new session if we don't have one
-      if (!sessionId) {
-        const sessionResponse = await fetch('/api/visa-checker/session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            caseType: formData.caseType,
-            userEmail: typeof window !== 'undefined' ? localStorage.getItem('userEmail') || 'guest@example.com' : 'guest@example.com',
-            userName: typeof window !== 'undefined' ? localStorage.getItem('userName') || 'Guest User' : 'Guest User',
-          }),
-        });
+      // Submit for scoring
+      const submitResponse = await fetch(`/api/visa-checker/session/${sessionId}/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      
+      if (submitResponse.ok) {
+        const responseData = await submitResponse.json();
+        // Remove the session from localStorage since it's now completed
+        localStorage.removeItem('visaCheckerSessionId');
         
-        const sessionResult = await sessionResponse.json();
-        
-        if (sessionResponse.ok) {
-          setSessionId(sessionResult.sessionId);
-          
-          // Save answers to the session
-          const answersResponse = await fetch(`/api/visa-checker/session/${sessionResult.sessionId}/answers`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              answers: formData,
-            }),
-          });
-          
-          if (!answersResponse.ok) {
-            console.error('Failed to save answers:', await answersResponse.text());
-          }
-          
-          // Submit for scoring
-          const submitResponse = await fetch(`/api/visa-checker/session/${sessionResult.sessionId}/submit`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({}),
-          });
-          
-          if (submitResponse.ok) {
-            // Move to results page
-            setStep(prev => prev + 1);
-          } else {
-            throw new Error('Failed to submit for scoring');
-          }
-        } else {
-          throw new Error(sessionResult.error || 'Failed to create session');
-        }
+        // Navigate to results page after successful submit
+        setStep(prev => prev + 1);
+      } else {
+        const errorData = await submitResponse.text();
+        console.error('Submit response error:', errorData);
+        throw new Error('Failed to submit for scoring');
       }
     } catch (err) {
       console.error('Error submitting analysis:', err);
@@ -1213,23 +1448,38 @@ export default function VisaCaseStrengthChecker() {
         <QuestionStep
           title={section.title}
           description={`Please answer the following questions for ${section.title}`}
-          questions={section.questions.map((q: any) => ({
-            id: q.id,
+          questions={section.questions.map((q: QuestionDefinition) => ({
+            id: q.id as keyof FormData,
             label: q.label,
-            type: q.type,
-            options: q.options,
+            type: q.type as "text" | "textarea" | "number" | "date" | "boolean" | "select",
+            options: q.options || undefined,
           }))}
           formData={formData}
           error={error}
           onChange={handleInputChange}
           onNext={nextStep}
           onBack={prevStep}
+          onSaveForLater={handleSaveForLater}
+        />
+      );
+    }
+
+    // Check if we're on the review page (after completing all questions)
+    if (step === questionnaireData.sections.length + 1) {
+      return (
+        <ReviewStep
+          formData={formData}
+          error={error}
+          loading={loading}
+          onSubmit={handleSubmit}
+          onBack={prevStep}
+          onSaveForLater={handleSaveForLater}
         />
       );
     }
 
     // Check if we're on the results page (after submitting)
-    if (step === questionnaireData.sections.length + 1) {
+    if (step === questionnaireData.sections.length + 2) {
       if (!sessionId) {
         return (
           <div className="text-center py-8">
@@ -1261,7 +1511,7 @@ export default function VisaCaseStrengthChecker() {
       <div className="mb-6">
         <div className="flex space-x-2 overflow-x-auto pb-2">
           <div className="flex w-full">
-            {sections.map((section: any, index: number) => {
+            {sections.map((section: { title: string; questions: QuestionDefinition[] }, index: number) => {
               const isActive = index === currentSectionIndex;
 
               return (

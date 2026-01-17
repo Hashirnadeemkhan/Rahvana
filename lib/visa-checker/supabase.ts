@@ -130,9 +130,9 @@ export class VisaCheckerSupabaseService {
       riskLevel,
       summaryReasons,
       improvementSuggestions,
-    } = await import("./scoring-rules").then((rules) =>
-      rules.ScoringRules.calculateTotalScore(sessionDetails.answers)
-    );
+    } = await import("./scoring-rules").then((rules) => {
+      return rules.ScoringRules.calculateTotalScore(sessionDetails.answers);
+    });
 
     // Update session with calculated score
     const { error: updateError } = await supabase
@@ -140,6 +140,8 @@ export class VisaCheckerSupabaseService {
       .update({
         overall_score: totalScore,
         risk_level: riskLevel,
+        summary_reasons: summaryReasons,
+        improvement_suggestions: improvementSuggestions,
         completed: true,
         updated_at: new Date().toISOString(),
       })
@@ -200,7 +202,7 @@ export class VisaCheckerSupabaseService {
     // Get session info
     const { data: sessionData, error: sessionError } = await supabase
       .from("user_case_sessions")
-      .select("id, overall_score, risk_level")
+      .select("id, overall_score, risk_level, summary_reasons, improvement_suggestions, updated_at")
       .eq("id", sessionId)
       .single();
 
@@ -227,6 +229,7 @@ export class VisaCheckerSupabaseService {
       sessionId: sessionData.id,
       overallScore: sessionData.overall_score,
       riskLevel: sessionData.risk_level as RiskLevel,
+      completedAt: sessionData.updated_at,
       riskFlags: riskFlagsData.map((flag) => ({
         flagCode: flag.flag_code,
         severity: flag.severity,
@@ -234,6 +237,8 @@ export class VisaCheckerSupabaseService {
         explanation: flag.explanation,
         improvementSuggestions: flag.improvement_suggestions,
       })),
+      summaryReasons: sessionData.summary_reasons || [],
+      improvementSuggestions: sessionData.improvement_suggestions || [],
     };
   }
 

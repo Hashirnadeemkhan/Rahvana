@@ -1,22 +1,21 @@
+import { NextRequest } from "next/server";
 import { VisaCheckerSupabaseService } from "@/lib/visa-checker/supabase";
 
-export async function GET({ params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ sessionId: string }> }
+) {
   try {
-    const sessionId = params.id;
+    const { sessionId } = await params;
 
-    const response = await VisaCheckerSupabaseService.getScoringResults(
-      sessionId
-    );
+    const response =
+      await VisaCheckerSupabaseService.getScoringResults(sessionId);
 
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json(response);
   } catch (error) {
     console.error("Error fetching scoring results:", error);
-    const message = error instanceof Error ? error.message : String(error);
-    return new Response(
-      JSON.stringify({ error: message || "Failed to fetch scoring results" }),
+    return Response.json(
+      { error: "Failed to fetch scoring results" },
       { status: 500 }
     );
   }

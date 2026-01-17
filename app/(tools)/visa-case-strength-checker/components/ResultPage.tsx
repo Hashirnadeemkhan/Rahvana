@@ -8,22 +8,24 @@ import { Progress } from '@/components/ui/progress';
 import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
 
 interface RiskFlag {
-  flag_code: string;
+  flagCode: string;
   severity: 'HIGH' | 'MEDIUM' | 'LOW';
-  points_deducted: number;
+  pointsDeducted: number;
   explanation: string;
-  improvement_suggestions: string;
-  improvement_priority: number;
+  improvementSuggestions: string;
+  improvementPriority?: number;
 }
 
 interface ResultData {
   sessionId: string;
   overallScore: number;
   riskLevel: 'STRONG' | 'MODERATE' | 'WEAK' | 'PENDING';
-  caseType: string;
-  completedAt: string;
   riskFlags: RiskFlag[];
-  summary: string;
+  summaryReasons: string[];
+  improvementSuggestions: string[];
+  completedAt?: string;
+  totalPossiblePoints?: number;
+  totalDeductedPoints?: number;
 }
 
 interface ResultPageProps {
@@ -132,11 +134,11 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
     }
   };
 
-  // Group risk flags by priority
+  // Group risk flags by priority (using severity as proxy if priority not available)
   const groupedFlags = {
-    high: resultData.riskFlags.filter(f => f.improvement_priority === 1),
-    medium: resultData.riskFlags.filter(f => f.improvement_priority === 2),
-    low: resultData.riskFlags.filter(f => f.improvement_priority === 3)
+    high: resultData.riskFlags.filter(f => f.severity === 'HIGH'),
+    medium: resultData.riskFlags.filter(f => f.severity === 'MEDIUM'),
+    low: resultData.riskFlags.filter(f => f.severity === 'LOW')
   };
 
   return (
@@ -145,7 +147,7 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
       <div className="text-center space-y-4">
         <h1 className="text-3xl font-bold text-slate-900">Case Strength Analysis Complete</h1>
         <p className="text-slate-600 max-w-2xl mx-auto">
-          Your {resultData.caseType} visa case has been analyzed. Here&apos;s your detailed assessment with actionable insights.
+          Your visa case has been analyzed. Here&apos;s your detailed assessment with actionable insights.
         </p>
       </div>
 
@@ -178,14 +180,36 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
           </div>
           
           <div className="p-4 bg-slate-50 rounded-lg">
-            <p className="text-slate-700">{resultData.summary}</p>
+            <ul className="list-disc pl-5 space-y-1">
+              {resultData.summaryReasons?.map((reason, idx) => (
+                <li key={idx} className="text-slate-700">{reason}</li>
+              ))}
+            </ul>
           </div>
           
           <div className="text-sm text-slate-500">
-            Completed on {new Date(resultData.completedAt).toLocaleDateString()}
+            Completed on {resultData.completedAt ? new Date(resultData.completedAt).toLocaleDateString() : new Date().toLocaleDateString()}
           </div>
         </CardContent>
       </Card>
+
+      {/* Improvement Suggestions Section */}
+      {resultData.improvementSuggestions && resultData.improvementSuggestions.length > 0 && (
+        <Card className="border-2">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Improvement Suggestions</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="list-disc pl-5 space-y-2">
+              {resultData.improvementSuggestions.map((suggestion, idx) => (
+                <li key={idx} className="text-slate-700">{suggestion}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Risk Flags by Priority */}
       <div className="space-y-6">
@@ -206,15 +230,12 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
                 {groupedFlags.high.map((flag, index) => (
                   <div key={index} className="bg-white p-4 rounded-lg border border-red-200">
                     <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flag_code)}</h4>
-                      <Badge className={`${getSeverityColor(flag.severity)} font-medium`}>
-                        -{flag.points_deducted} points
-                      </Badge>
+                      <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
                     </div>
                     <p className="text-slate-700 mb-2">{flag.explanation}</p>
                     <div className="flex items-center gap-2 text-sm text-red-700">
                       <Info className="h-4 w-4" />
-                      <span>Action needed: {flag.improvement_suggestions}</span>
+                      <span>Action needed: {flag.improvementSuggestions}</span>
                     </div>
                   </div>
                 ))}
@@ -240,15 +261,12 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
                 {groupedFlags.medium.map((flag, index) => (
                   <div key={index} className="bg-white p-4 rounded-lg border border-yellow-200">
                     <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flag_code)}</h4>
-                      <Badge className={`${getSeverityColor(flag.severity)} font-medium`}>
-                        -{flag.points_deducted} points
-                      </Badge>
+                      <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
                     </div>
                     <p className="text-slate-700 mb-2">{flag.explanation}</p>
                     <div className="flex items-center gap-2 text-sm text-yellow-700">
                       <Info className="h-4 w-4" />
-                      <span>Consider: {flag.improvement_suggestions}</span>
+                      <span>Consider: {flag.improvementSuggestions}</span>
                     </div>
                   </div>
                 ))}
@@ -274,15 +292,12 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
                 {groupedFlags.low.map((flag, index) => (
                   <div key={index} className="bg-white p-4 rounded-lg border border-blue-200">
                     <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flag_code)}</h4>
-                      <Badge className={`${getSeverityColor(flag.severity)} font-medium`}>
-                        -{flag.points_deducted} points
-                      </Badge>
-                    </div>
+                      <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
+                      </div>
                     <p className="text-slate-700 mb-2">{flag.explanation}</p>
                     <div className="flex items-center gap-2 text-sm text-blue-700">
                       <Info className="h-4 w-4" />
-                      <span>Suggestion: {flag.improvement_suggestions}</span>
+                      <span>Suggestion: {flag.improvementSuggestions}</span>
                     </div>
                   </div>
                 ))}
@@ -301,9 +316,9 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
         >
           Assess Another Case
         </Button>
-        <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+        {/* <Button className="bg-teal-600 hover:bg-teal-700 text-white">
           Save Results
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
