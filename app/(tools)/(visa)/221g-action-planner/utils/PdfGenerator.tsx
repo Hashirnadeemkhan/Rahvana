@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, PDFName, PDFDict, PDFArray } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, PDFName, PDFDict, PDFArray, PDFString } from 'pdf-lib';
 import { generateRequiredDocumentsList, DocumentItem } from './documentDefinitions';
 import { FormSelections } from '../types/221g';
 
@@ -78,7 +78,7 @@ Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long',
 };
 
 const generateDocumentIndex = (docs: DocumentItem[], coverLetterData: PDFGeneratorOptions['coverLetterData']) => {
-  let indexText = 'DOCUMENT INDEX\n\n';
+  let indexText = '';
   indexText += 'The following documents are included in this submission:\n\n';
 
   docs.forEach((doc, i) => {
@@ -156,15 +156,15 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
       if (uploadedDocs[docId] && uploadedDocs[docId].length > 0) {
         docStartPages[docIndex] = pdfDoc.getPageCount();
         
-        // Add a separator page for the document
-        const sepPage = pdfDoc.addPage([595, 842]);
-        sepPage.drawText(doc.name, { x: 50, y: 421, size: 24, font: boldFont });
+        // Separator page removed as per user request
+        // const sepPage = pdfDoc.addPage([595, 842]);
+        // sepPage.drawText(doc.name, { x: 50, y: 421, size: 24, font: boldFont });
         
         for (const { file } of uploadedDocs[docId]) {
           try {
             const fileBuffer = await file.arrayBuffer();
             if (file.type === 'application/pdf') {
-              const uploadedPdf = await PDFDocument.load(fileBuffer);
+              const uploadedPdf = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
               const copiedPages = await pdfDoc.copyPages(uploadedPdf, uploadedPdf.getPageIndices());
               copiedPages.forEach((page) => pdfDoc.addPage(page));
             } else { // Image
@@ -222,6 +222,93 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
         }
       }
     });
+
+    // --- Generate PDF Outlines (Bookmarks) ---
+    // This creates the sidebar table of contents
+    
+    // 1. Create the Outline Dictionary references
+    const outlinesDictRef = pdfDoc.context.nextRef();
+    const outlineItemRefs: any[] = [];
+    
+    // Filter docs that have actual pages (not just pointing to index)
+    // Or we can bookmark all of them. Let's bookmark all that have a distinct start page.
+    const validBookmarks: { title: string, pageIdx: number }[] = [];
+    
+    // Add Cover Letter bookmark
+    validBookmarks.push({ title: 'Cover Letter', pageIdx: 0 });
+    
+    // Add Document Index bookmark
+    // We know the index page is added right after the cover letter loop.
+    // We can capture its index when we create it, but since we are here, we can just look at the page structure.
+    // The cover letter starts at 0. The index page starts at 'currentIndexPageIndex' which was set when creating indexPage.
+    // Wait, 'currentIndexPageIndex' is updated in the loop.
+    // Let's find the index of the first index page.
+    // We can assume it's the page after the cover letter pages.
+    // But we don't track cover letter page count explicitly.
+    // However, we can just use the page index of the first page of the index section.
+    // We can capture it earlier.
+    // Let's modify the code above to capture it.
+    // Or, simpler: we know docStartPages[0] is the start of the first doc.
+    // The index page is before that.
+    // Actually, we can just find the page index of the 'indexPage' variable.
+    // But 'indexPage' is a PDFPage object, it doesn't know its index directly in pdf-lib without searching.
+    // Let's search for it in 'pages' array.
+    const indexPageIdx = pages.indexOf(indexPage);
+    if (indexPageIdx !== -1) {
+      validBookmarks.push({ title: 'Document Index', pageIdx: indexPageIdx });
+    }
+    
+    // Actually, let's just stick to the documents for now as requested, plus maybe Cover Letter.
+    
+    docs.forEach((doc, i) => {
+      const targetPageIdx = docStartPages[i];
+      // Only bookmark if it points to a page that is NOT the index page (meaning it has its own separator page)
+      // We stored 'currentIndexPageIndex' in docStartPages if it was missing.
+      // So if targetPageIdx > currentIndexPageIndex, it's a real doc.
+      // Or we can just check if uploadedDocs[doc.id] exists.
+      if (uploadedDocs[doc.id] && uploadedDocs[doc.id].length > 0) {
+        validBookmarks.push({ title: doc.name, pageIdx: targetPageIdx });
+      }
+    });
+
+    if (validBookmarks.length > 0) {
+      // Create refs for all items
+      validBookmarks.forEach(() => outlineItemRefs.push(pdfDoc.context.nextRef()));
+
+      // 2. Create the Outlines Dictionary
+      const outlinesDict = pdfDoc.context.obj({
+        Type: 'Outlines',
+        First: outlineItemRefs[0],
+        Last: outlineItemRefs[outlineItemRefs.length - 1],
+        Count: validBookmarks.length,
+      });
+      pdfDoc.context.assign(outlinesDictRef, outlinesDict);
+
+      // 3. Create each Outline Item
+      validBookmarks.forEach((bookmark, i) => {
+        const itemRef = outlineItemRefs[i];
+        const prevRef = i > 0 ? outlineItemRefs[i - 1] : null;
+        const nextRef = i < validBookmarks.length - 1 ? outlineItemRefs[i + 1] : null;
+        
+        const targetPage = pages[bookmark.pageIdx];
+
+        const item = pdfDoc.context.obj({
+          Title: PDFString.of(bookmark.title),
+          Parent: outlinesDictRef,
+          ...(prevRef ? { Prev: prevRef } : {}),
+          ...(nextRef ? { Next: nextRef } : {}),
+          Dest: [targetPage.ref, 'Fit'],
+        });
+        
+        pdfDoc.context.assign(itemRef, item);
+      });
+
+      // 4. Attach Outlines to Catalog
+      pdfDoc.catalog.set(PDFName.of('Outlines'), outlinesDictRef);
+      // Optional: Open outlines by default? No, usually better closed or user preference.
+      // To force open: pdfDoc.catalog.set(PDFName.of('PageMode'), PDFName.of('UseOutlines'));
+      pdfDoc.catalog.set(PDFName.of('PageMode'), PDFName.of('UseOutlines'));
+    }
 
     // Footer on all pages
     const pageCount = pdfDoc.getPageCount();

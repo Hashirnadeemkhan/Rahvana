@@ -286,12 +286,56 @@ export const validateByDocumentType = (text: string, type: DocumentType): Docume
   }
 };
 
+// Helper to extract all potential dates from text
+const extractAllDates = (text: string): Date[] => {
+  const dates: Date[] = [];
+  
+  // Regex patterns for various date formats - relaxed for OCR noise
+  const patterns = [
+    /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/g,       // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+    /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/g,       // YYYY/MM/DD
+    /(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})/g,            // DD MMM YYYY (e.g. 12 JAN 2025)
+    /([A-Za-z]{3,})\s+(\d{1,2}),?\s+(\d{4})/g,          // MMM DD, YYYY
+    /(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{2})/g,            // DD MMM YY (e.g. 12 JAN 25)
+    /(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{2})/g            // DD/MM/YY (Riskier, but needed)
+  ];
+
+  patterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      try {
+        // Try to parse the date
+        const dateStr = match[0].replace(/[\.\-]/g, '/'); // Normalize separators
+        const date = new Date(dateStr);
+        
+        // Check if valid date
+        if (!isNaN(date.getTime())) {
+          // Filter out unreasonable years (e.g. year 1900 or 2100+)
+          const year = date.getFullYear();
+          // Handle 2-digit years (00-99) -> 2000-2099 assumption for expiry
+          if (year < 100) {
+            date.setFullYear(2000 + year);
+          }
+          
+          if (date.getFullYear() >= 1950 && date.getFullYear() <= 2050) {
+             dates.push(date);
+          }
+        }
+      } catch (e) {
+        // Ignore parsing errors
+      }
+    }
+  });
+
+  return dates;
+};
+
 // Passport validation
 const validatePassport = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  // Check for essential elements
-  if (!text.includes('PASSPORT')) {
+  // Check for essential elements - using fuzzy matching
+  if (!fuzzyContains(text, 'PASSPORT', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Passport designation not found',
@@ -299,7 +343,13 @@ const validatePassport = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/PASSPORT\s+NO\.?|NUMBER|NO\.?\s+[A-Z0-9]+/)) {
+  // Passport Number Check
+  const hasPassportNum = 
+    fuzzyContains(text, 'PASSPORT NO', 2) || 
+    fuzzyContains(text, 'PASSPORT NUMBER', 2) ||
+    text.match(/[A-Z]{1,2}[0-9]{6,9}/); // Common passport number pattern
+
+  if (!hasPassportNum) {
     issues.push({
       severity: 'critical',
       message: 'Passport number not found',
@@ -307,7 +357,14 @@ const validatePassport = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/SURNAME|LAST NAME|NAME|GIVEN NAME/)) {
+  // Name Check
+  const hasName = 
+    fuzzyContains(text, 'SURNAME', 2) || 
+    fuzzyContains(text, 'GIVEN NAME', 2) || 
+    fuzzyContains(text, 'FULL NAME', 2) ||
+    text.includes('NAME');
+
+  if (!hasName) {
     issues.push({
       severity: 'critical',
       message: 'Name not found',
@@ -315,7 +372,13 @@ const validatePassport = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/NATIONALITY|CITIZENSHIP/)) {
+  // Nationality Check
+  const hasNationality = 
+    fuzzyContains(text, 'NATIONALITY', 2) || 
+    fuzzyContains(text, 'CITIZENSHIP', 2) ||
+    fuzzyContains(text, 'REPUBLIC', 2); // Often appears near nationality
+
+  if (!hasNationality) {
     issues.push({
       severity: 'warning',
       message: 'Nationality not found',
@@ -323,7 +386,14 @@ const validatePassport = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE OF BIRTH|DOB|BIRTH DATE/)) {
+  // DOB Check
+  const hasDOB = 
+    fuzzyContains(text, 'DATE OF BIRTH', 2) || 
+    fuzzyContains(text, 'BIRTH DATE', 2) || 
+    fuzzyContains(text, 'DOB', 1) ||
+    text.match(/\d{2}\s+[A-Z]{3}\s+\d{4}/); // Date pattern like 12 JAN 1990
+
+  if (!hasDOB) {
     issues.push({
       severity: 'critical',
       message: 'Date of birth not found',
@@ -331,24 +401,69 @@ const validatePassport = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/EXPIRY DATE|EXPIRES ON|VALID UNTIL/)) {
+  // Expiry Check
+  let hasExpiry = 
+    fuzzyContains(text, 'EXPIRY DATE', 2) || 
+    fuzzyContains(text, 'DATE OF EXPIRY', 2) || 
+    fuzzyContains(text, 'VALID UNTIL', 2) ||
+    fuzzyContains(text, 'EXPIRES', 2) ||
+    fuzzyContains(text, 'EXPIRATION', 2) ||
+    fuzzyContains(text, 'VALID TO', 2) ||
+    fuzzyContains(text, 'VALID THRU', 2);
+
+  const allDates = extractAllDates(text);
+  const currentDate = new Date();
+  
+  // Find any future date
+  const futureDate = allDates.find(date => date > currentDate);
+
+  // MRZ Parsing Strategy (Machine Readable Zone)
+  // Look for pattern: [DOB 6 digits][Check digit][Sex][Expiry 6 digits]
+  // Example: 8105299M2004275 -> DOB 810529, Sex M, Expiry 200427
+  // Note: We removed \b because often the country code (e.g. GHA) is immediately before the DOB without a space
+  const mrzMatch = text.match(/(\d{6})\d[MF<](\d{6})\d/);
+  if (mrzMatch) {
+    const expiryStr = mrzMatch[2]; // YYMMDD
+    const year = parseInt(expiryStr.substring(0, 2));
+    const month = parseInt(expiryStr.substring(2, 4)) - 1; // 0-indexed
+    const day = parseInt(expiryStr.substring(4, 6));
+    
+    // Assumption: MRZ years are 2000+ for now (or handle 1900s if needed, but passports expire so usually 2000+)
+    // Standard logic: if year > 50 assume 19xx, else 20xx. But for expiry, it's usually future or recent past.
+    // Let's assume 20xx for expiry to be safe for current passports.
+    const fullYear = 2000 + year;
+    
+    const mrzDate = new Date(fullYear, month, day);
+    if (!isNaN(mrzDate.getTime())) {
+      allDates.push(mrzDate);
+      hasExpiry = true; // We found the expiry field in the MRZ!
+    }
+  }
+
+  // Fallback: If no label found but we found a future date, assume valid
+  if (!hasExpiry && futureDate) {
+    hasExpiry = true;
+  }
+
+  if (!hasExpiry) {
     issues.push({
       severity: 'critical',
       message: 'Expiry date not found',
       suggestion: 'Verify that the expiry date is visible and legible'
     });
   } else {
-    // Check if passport is expired
-    const expiryMatch = text.match(/(\d{2}[\/\-]\d{2}[\/\-]\d{4})|(\d{4}[\/\-]\d{2}[\/\-]\d{2})|(\d{2}[\/\-]\d{2}[\/\-]\d{2})/);
-    if (expiryMatch) {
-      const expiryDateStr = expiryMatch[0];
-      const expiryDate = new Date(expiryDateStr.replace(/[\/\-]/g, '/'));
-      const currentDate = new Date();
-
-      if (currentDate > expiryDate) {
-        issues.push({
+    // Check if passport is expired (if we found specific dates)
+    // If we only found "hasExpiry" via label but couldn't parse date, we assume valid to avoid false positives
+    // But if we found explicit dates, we should check them
+    
+    // If we found a future date, we are good. 
+    // If ALL dates found are in the past, then it's expired.
+    if (allDates.length > 0) {
+      const hasFutureDate = allDates.some(date => date > currentDate);
+      if (!hasFutureDate) {
+         issues.push({
           severity: 'critical',
-          message: 'Passport is expired',
+          message: 'Passport appears to be expired',
           suggestion: 'You need a valid passport for your visa application'
         });
       }
@@ -414,7 +529,8 @@ const validateNikahNama = (text: string): DocumentValidationResult => {
 const validateBirthCertificate = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('BIRTH') && !text.includes('CERTIFICATE')) {
+  // Check for essential elements - using fuzzy matching
+  if (!fuzzyContains(text, 'BIRTH', 2) && !fuzzyContains(text, 'CERTIFICATE', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Birth certificate designation not found',
@@ -422,7 +538,7 @@ const validateBirthCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/NAME|FULL NAME/)) {
+  if (!fuzzyContains(text, 'NAME', 2) && !fuzzyContains(text, 'FULL NAME', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Name not found',
@@ -430,7 +546,7 @@ const validateBirthCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE OF BIRTH|DOB|BIRTH DATE/)) {
+  if (!fuzzyContains(text, 'DATE OF BIRTH', 2) && !fuzzyContains(text, 'DOB', 1) && !fuzzyContains(text, 'BIRTH DATE', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Date of birth not found',
@@ -438,7 +554,7 @@ const validateBirthCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/PLACE OF BIRTH|BIRTH PLACE|BORN IN/)) {
+  if (!fuzzyContains(text, 'PLACE OF BIRTH', 2) && !fuzzyContains(text, 'BIRTH PLACE', 2) && !fuzzyContains(text, 'BORN IN', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Place of birth not found',
@@ -446,7 +562,7 @@ const validateBirthCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/FATHER|FATHER'S NAME|PATERNAL/)) {
+  if (!fuzzyContains(text, 'FATHER', 2) && !fuzzyContains(text, 'PATERNAL', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Father\'s name not found',
@@ -454,7 +570,7 @@ const validateBirthCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/MOTHER|MOTHER'S NAME|MATERNAL/)) {
+  if (!fuzzyContains(text, 'MOTHER', 2) && !fuzzyContains(text, 'MATERNAL', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Mother\'s name not found',
@@ -462,7 +578,7 @@ const validateBirthCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/REGISTRATION|REGISTERED|CERTIFIED/)) {
+  if (!fuzzyContains(text, 'REGISTRATION', 2) && !fuzzyContains(text, 'REGISTERED', 2) && !fuzzyContains(text, 'CERTIFIED', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Registration status not found',
@@ -490,7 +606,7 @@ const validateBirthCertificate = (text: string): DocumentValidationResult => {
 const validateMarriageCertificate = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('MARRIAGE') && !text.includes('CERTIFICATE')) {
+  if (!fuzzyContains(text, 'MARRIAGE', 2) && !fuzzyContains(text, 'CERTIFICATE', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Marriage certificate designation not found',
@@ -498,7 +614,8 @@ const validateMarriageCertificate = (text: string): DocumentValidationResult => 
     });
   }
 
-  if (!text.match(/HUSBAND|SPOUSE|GROOM/) && !text.match(/WIFE|BRIDE/)) {
+  if (!fuzzyContains(text, 'HUSBAND', 2) && !fuzzyContains(text, 'SPOUSE', 2) && !fuzzyContains(text, 'GROOM', 2) && 
+      !fuzzyContains(text, 'WIFE', 2) && !fuzzyContains(text, 'BRIDE', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Names of spouses not found',
@@ -506,7 +623,7 @@ const validateMarriageCertificate = (text: string): DocumentValidationResult => 
     });
   }
 
-  if (!text.match(/DATE OF MARRIAGE|MARRIAGE DATE|WEDDING DATE/)) {
+  if (!fuzzyContains(text, 'DATE OF MARRIAGE', 2) && !fuzzyContains(text, 'MARRIAGE DATE', 2) && !fuzzyContains(text, 'WEDDING DATE', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Date of marriage not found',
@@ -514,7 +631,8 @@ const validateMarriageCertificate = (text: string): DocumentValidationResult => 
     });
   }
 
-  if (!text.match(/OFFICIANT|MINISTER|PRIEST|IMAM|NIKAH KHAWAN/)) {
+  if (!fuzzyContains(text, 'OFFICIANT', 2) && !fuzzyContains(text, 'MINISTER', 2) && !fuzzyContains(text, 'PRIEST', 2) && 
+      !fuzzyContains(text, 'IMAM', 2) && !fuzzyContains(text, 'NIKAH KHAWAN', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Officiant not found',
@@ -522,7 +640,7 @@ const validateMarriageCertificate = (text: string): DocumentValidationResult => 
     });
   }
 
-  if (!text.match(/WITNESS|ATTEST|SIGNATURE/)) {
+  if (!fuzzyContains(text, 'WITNESS', 2) && !fuzzyContains(text, 'ATTEST', 2) && !fuzzyContains(text, 'SIGNATURE', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Witness signatures not found',
@@ -550,7 +668,7 @@ const validateMarriageCertificate = (text: string): DocumentValidationResult => 
 const validateDivorceCertificate = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('DIVORCE') && !text.includes('DECREE') && !text.match(/DISSOLUTION/)) {
+  if (!fuzzyContains(text, 'DIVORCE', 2) && !fuzzyContains(text, 'DECREE', 2) && !fuzzyContains(text, 'DISSOLUTION', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Divorce designation not found',
@@ -558,7 +676,8 @@ const validateDivorceCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/PETITIONER|PLAINTIFF/) && !text.match(/RESPONDENT|DEFENDANT/)) {
+  if (!fuzzyContains(text, 'PETITIONER', 2) && !fuzzyContains(text, 'PLAINTIFF', 2) && 
+      !fuzzyContains(text, 'RESPONDENT', 2) && !fuzzyContains(text, 'DEFENDANT', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Parties to divorce not found',
@@ -566,7 +685,7 @@ const validateDivorceCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE OF DIVORCE|DIVORCE DATE|FINALIZED/)) {
+  if (!fuzzyContains(text, 'DATE OF DIVORCE', 2) && !fuzzyContains(text, 'DIVORCE DATE', 2) && !fuzzyContains(text, 'FINALIZED', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Date of divorce not found',
@@ -574,7 +693,7 @@ const validateDivorceCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/COURT|JUDGE|COMMISSIONER/)) {
+  if (!fuzzyContains(text, 'COURT', 2) && !fuzzyContains(text, 'JUDGE', 2) && !fuzzyContains(text, 'COMMISSIONER', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Court authorization not found',
@@ -582,7 +701,7 @@ const validateDivorceCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/CASE NUMBER|DOCKET|FILE NUMBER/)) {
+  if (!fuzzyContains(text, 'CASE NUMBER', 2) && !fuzzyContains(text, 'DOCKET', 2) && !fuzzyContains(text, 'FILE NUMBER', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Case number not found',
@@ -610,7 +729,7 @@ const validateDivorceCertificate = (text: string): DocumentValidationResult => {
 const validateDeathCertificate = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('DEATH') && !text.includes('CERTIFICATE')) {
+  if (!fuzzyContains(text, 'DEATH', 2) && !fuzzyContains(text, 'CERTIFICATE', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Death certificate designation not found',
@@ -618,7 +737,7 @@ const validateDeathCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DECEASED|DECEDENT|DEATH OF/)) {
+  if (!fuzzyContains(text, 'DECEASED', 2) && !fuzzyContains(text, 'DECEDENT', 2) && !fuzzyContains(text, 'DEATH OF', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Deceased person\'s name not found',
@@ -626,7 +745,7 @@ const validateDeathCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE OF DEATH|DEATH DATE|DIED ON/)) {
+  if (!fuzzyContains(text, 'DATE OF DEATH', 2) && !fuzzyContains(text, 'DEATH DATE', 2) && !fuzzyContains(text, 'DIED ON', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Date of death not found',
@@ -634,7 +753,7 @@ const validateDeathCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/PLACE OF DEATH|DEATH PLACE|DIED IN/)) {
+  if (!fuzzyContains(text, 'PLACE OF DEATH', 2) && !fuzzyContains(text, 'DEATH PLACE', 2) && !fuzzyContains(text, 'DIED IN', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Place of death not found',
@@ -642,7 +761,7 @@ const validateDeathCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/CAUSE OF DEATH|CAUSE|REASON FOR DEATH/)) {
+  if (!fuzzyContains(text, 'CAUSE OF DEATH', 2) && !fuzzyContains(text, 'CAUSE', 2) && !fuzzyContains(text, 'REASON FOR DEATH', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Cause of death not found',
@@ -650,7 +769,7 @@ const validateDeathCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/REGISTRAR|AUTHORITY|ISSUED BY/)) {
+  if (!fuzzyContains(text, 'REGISTRAR', 2) && !fuzzyContains(text, 'AUTHORITY', 2) && !fuzzyContains(text, 'ISSUED BY', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Issuing authority not found',
@@ -678,7 +797,7 @@ const validateDeathCertificate = (text: string): DocumentValidationResult => {
 const validatePoliceCertificate = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('POLICE') && !text.includes('CLEARANCE') && !text.includes('CERTIFICATE')) {
+  if (!fuzzyContains(text, 'POLICE', 2) && !fuzzyContains(text, 'CLEARANCE', 2) && !fuzzyContains(text, 'CERTIFICATE', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Police certificate designation not found',
@@ -686,7 +805,8 @@ const validatePoliceCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/NAME|FULL NAME/) && !text.match(/SUBJECT|APPLICANT/)) {
+  if (!fuzzyContains(text, 'NAME', 2) && !fuzzyContains(text, 'FULL NAME', 2) && 
+      !fuzzyContains(text, 'SUBJECT', 2) && !fuzzyContains(text, 'APPLICANT', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Applicant name not found',
@@ -694,7 +814,7 @@ const validatePoliceCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE|ISSUE DATE|ISSUED ON/)) {
+  if (!fuzzyContains(text, 'DATE', 2) && !fuzzyContains(text, 'ISSUE DATE', 2) && !fuzzyContains(text, 'ISSUED ON', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Issue date not found',
@@ -702,7 +822,8 @@ const validatePoliceCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/NO RECORD|CLEARED|GOOD STANDING|NO CRIMINAL RECORD/)) {
+  if (!fuzzyContains(text, 'NO RECORD', 2) && !fuzzyContains(text, 'CLEARED', 2) && 
+      !fuzzyContains(text, 'GOOD STANDING', 2) && !fuzzyContains(text, 'NO CRIMINAL RECORD', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Clearance status not found',
@@ -710,7 +831,8 @@ const validatePoliceCertificate = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/AUTHORITY|ISSUED BY|DEPARTMENT|AGENCY/)) {
+  if (!fuzzyContains(text, 'AUTHORITY', 2) && !fuzzyContains(text, 'ISSUED BY', 2) && 
+      !fuzzyContains(text, 'DEPARTMENT', 2) && !fuzzyContains(text, 'AGENCY', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Issuing authority not found',
@@ -758,7 +880,8 @@ const validatePoliceCertificate = (text: string): DocumentValidationResult => {
 const validateMedicalExamination = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('MEDICAL') && !text.includes('PHYSICIAN') && !text.match(/EXAMINATION|EXAM/)) {
+  if (!fuzzyContains(text, 'MEDICAL', 2) && !fuzzyContains(text, 'PHYSICIAN', 2) && 
+      !fuzzyContains(text, 'EXAMINATION', 2) && !fuzzyContains(text, 'EXAM', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Medical examination designation not found',
@@ -766,7 +889,7 @@ const validateMedicalExamination = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/FORM I-693|I-693|MEDICAL REPORT/)) {
+  if (!fuzzyContains(text, 'FORM I-693', 2) && !fuzzyContains(text, 'I-693', 2) && !fuzzyContains(text, 'MEDICAL REPORT', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Form I-693 designation not found',
@@ -774,7 +897,8 @@ const validateMedicalExamination = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/PHYSICIAN|DOCTOR|MEDICAL OFFICER|PANEL PHYSICIAN/)) {
+  if (!fuzzyContains(text, 'PHYSICIAN', 2) && !fuzzyContains(text, 'DOCTOR', 2) && 
+      !fuzzyContains(text, 'MEDICAL OFFICER', 2) && !fuzzyContains(text, 'PANEL PHYSICIAN', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Examining physician not found',
@@ -782,7 +906,7 @@ const validateMedicalExamination = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/VACCINATION|VACCINE|IMMUNIZATION/)) {
+  if (!fuzzyContains(text, 'VACCINATION', 2) && !fuzzyContains(text, 'VACCINE', 2) && !fuzzyContains(text, 'IMMUNIZATION', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Vaccination status not found',
@@ -790,7 +914,8 @@ const validateMedicalExamination = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/CLASSIFICATION|CLASS|INELIGIBLE|ELIGIBLE/)) {
+  if (!fuzzyContains(text, 'CLASSIFICATION', 2) && !fuzzyContains(text, 'CLASS', 2) && 
+      !fuzzyContains(text, 'INELIGIBLE', 2) && !fuzzyContains(text, 'ELIGIBLE', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Medical eligibility determination not found',
@@ -798,7 +923,7 @@ const validateMedicalExamination = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE|EXAM DATE|EXAMINED ON/)) {
+  if (!fuzzyContains(text, 'DATE', 2) && !fuzzyContains(text, 'EXAM DATE', 2) && !fuzzyContains(text, 'EXAMINED ON', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Examination date not found',
@@ -826,7 +951,7 @@ const validateMedicalExamination = (text: string): DocumentValidationResult => {
 const validateI864Affidavit = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('I-864') && !text.includes('AFFIDAVIT') && !text.includes('SUPPORT')) {
+  if (!fuzzyContains(text, 'I-864', 2) && !fuzzyContains(text, 'AFFIDAVIT', 2) && !fuzzyContains(text, 'SUPPORT', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Form I-864 designation not found',
@@ -834,7 +959,7 @@ const validateI864Affidavit = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/SPONSOR|PETITIONER/)) {
+  if (!fuzzyContains(text, 'SPONSOR', 2) && !fuzzyContains(text, 'PETITIONER', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Sponsor information not found',
@@ -842,7 +967,7 @@ const validateI864Affidavit = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/BENEFICIARY|IMMIGRANT|APPLICANT/)) {
+  if (!fuzzyContains(text, 'BENEFICIARY', 2) && !fuzzyContains(text, 'IMMIGRANT', 2) && !fuzzyContains(text, 'APPLICANT', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Beneficiary information not found',
@@ -850,7 +975,8 @@ const validateI864Affidavit = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/INCOME|TAX RETURN|W-2|1040/)) {
+  if (!fuzzyContains(text, 'INCOME', 2) && !fuzzyContains(text, 'TAX RETURN', 2) && 
+      !fuzzyContains(text, 'W-2', 2) && !fuzzyContains(text, '1040', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Income evidence not found',
@@ -858,7 +984,7 @@ const validateI864Affidavit = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/SIGNATURE|SIGNED|SUBSCRIBED/)) {
+  if (!fuzzyContains(text, 'SIGNATURE', 2) && !fuzzyContains(text, 'SIGNED', 2) && !fuzzyContains(text, 'SUBSCRIBED', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Signature not found',
@@ -866,7 +992,7 @@ const validateI864Affidavit = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE|SIGNED ON|DATED/)) {
+  if (!fuzzyContains(text, 'DATE', 2) && !fuzzyContains(text, 'SIGNED ON', 2) && !fuzzyContains(text, 'DATED', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Signature date not found',
@@ -894,7 +1020,7 @@ const validateI864Affidavit = (text: string): DocumentValidationResult => {
 const validateTranslation = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('TRANSLATION') && !text.match(/TRANSLATED FROM|TRANSLATED TO/)) {
+  if (!fuzzyContains(text, 'TRANSLATION', 2) && !fuzzyContains(text, 'TRANSLATED FROM', 2) && !fuzzyContains(text, 'TRANSLATED TO', 2)) {
     issues.push({
       severity: 'info',
       message: 'Translation designation not found',
@@ -902,7 +1028,7 @@ const validateTranslation = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/CERTIFIED|SWORN|ACKNOWLEDGED/)) {
+  if (!fuzzyContains(text, 'CERTIFIED', 2) && !fuzzyContains(text, 'SWORN', 2) && !fuzzyContains(text, 'ACKNOWLEDGED', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Certification not found',
@@ -910,7 +1036,7 @@ const validateTranslation = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/TRANSLATOR|INTERPRETER|CERTIFY/)) {
+  if (!fuzzyContains(text, 'TRANSLATOR', 2) && !fuzzyContains(text, 'INTERPRETER', 2) && !fuzzyContains(text, 'CERTIFY', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Translator identification not found',
@@ -918,7 +1044,7 @@ const validateTranslation = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/SIGNATURE|SIGNED|CERTIFIED CORRECT/)) {
+  if (!fuzzyContains(text, 'SIGNATURE', 2) && !fuzzyContains(text, 'SIGNED', 2) && !fuzzyContains(text, 'CERTIFIED CORRECT', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Translator signature not found',
@@ -926,7 +1052,7 @@ const validateTranslation = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE|TRANSLATED ON|CERTIFIED ON/)) {
+  if (!fuzzyContains(text, 'DATE', 2) && !fuzzyContains(text, 'TRANSLATED ON', 2) && !fuzzyContains(text, 'CERTIFIED ON', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Translation date not found',
@@ -954,7 +1080,7 @@ const validateTranslation = (text: string): DocumentValidationResult => {
 const validateIrsTranscript = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('IRS') && !text.includes('TRANSCRIPT') && !text.match(/INTERNAL REVENUE SERVICE/)) {
+  if (!fuzzyContains(text, 'IRS', 2) && !fuzzyContains(text, 'TRANSCRIPT', 2) && !fuzzyContains(text, 'INTERNAL REVENUE SERVICE', 2)) {
     issues.push({
       severity: 'critical',
       message: 'IRS Transcript designation not found',
@@ -962,7 +1088,8 @@ const validateIrsTranscript = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/SSN|SOCIAL SECURITY NUMBER|TAX YEAR|YEAR|FORM \d{4}/)) {
+  if (!fuzzyContains(text, 'SSN', 2) && !fuzzyContains(text, 'SOCIAL SECURITY NUMBER', 2) && 
+      !fuzzyContains(text, 'TAX YEAR', 2) && !fuzzyContains(text, 'YEAR', 2) && !text.match(/FORM \d{4}/)) {
     issues.push({
       severity: 'critical',
       message: 'Taxpayer identification not found',
@@ -970,7 +1097,7 @@ const validateIrsTranscript = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/FORM \d{4}|1040|1099|W-2/)) {
+  if (!text.match(/FORM \d{4}/) && !fuzzyContains(text, '1040', 2) && !fuzzyContains(text, '1099', 2) && !fuzzyContains(text, 'W-2', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Form type not clearly identified',
@@ -978,7 +1105,8 @@ const validateIrsTranscript = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/TOTAL INCOME|ADJUSTED GROSS|TAX|LIABILITY/)) {
+  if (!fuzzyContains(text, 'TOTAL INCOME', 2) && !fuzzyContains(text, 'ADJUSTED GROSS', 2) && 
+      !fuzzyContains(text, 'TAX', 2) && !fuzzyContains(text, 'LIABILITY', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Income information not found',
@@ -986,7 +1114,7 @@ const validateIrsTranscript = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE ISSUED|ISSUE DATE|REQUESTED ON/)) {
+  if (!fuzzyContains(text, 'DATE ISSUED', 2) && !fuzzyContains(text, 'ISSUE DATE', 2) && !fuzzyContains(text, 'REQUESTED ON', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Issue date not found',
@@ -1034,7 +1162,7 @@ const validateIrsTranscript = (text: string): DocumentValidationResult => {
 const validateForm1040 = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('1040') && !text.includes('INDIVIDUAL') && !text.includes('INCOME TAX')) {
+  if (!fuzzyContains(text, '1040', 2) && !fuzzyContains(text, 'INDIVIDUAL', 2) && !fuzzyContains(text, 'INCOME TAX', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Form 1040 designation not found',
@@ -1042,7 +1170,8 @@ const validateForm1040 = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/SSN|SOCIAL SECURITY NUMBER|TAX YEAR|YEAR|FORM 1040/)) {
+  if (!fuzzyContains(text, 'SSN', 2) && !fuzzyContains(text, 'SOCIAL SECURITY NUMBER', 2) && 
+      !fuzzyContains(text, 'TAX YEAR', 2) && !fuzzyContains(text, 'YEAR', 2) && !fuzzyContains(text, 'FORM 1040', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Taxpayer identification not found',
@@ -1050,7 +1179,9 @@ const validateForm1040 = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/TOTAL INCOME|ADJUSTED GROSS|TAX|LIABILITY|REFUND|OWING/)) {
+  if (!fuzzyContains(text, 'TOTAL INCOME', 2) && !fuzzyContains(text, 'ADJUSTED GROSS', 2) && 
+      !fuzzyContains(text, 'TAX', 2) && !fuzzyContains(text, 'LIABILITY', 2) && 
+      !fuzzyContains(text, 'REFUND', 2) && !fuzzyContains(text, 'OWING', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Income information not found',
@@ -1058,7 +1189,7 @@ const validateForm1040 = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/SIGNATURE|SIGNED|ELECTRONICALLY FILED/)) {
+  if (!fuzzyContains(text, 'SIGNATURE', 2) && !fuzzyContains(text, 'SIGNED', 2) && !fuzzyContains(text, 'ELECTRONICALLY FILED', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Signature not found',
@@ -1066,7 +1197,7 @@ const validateForm1040 = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/DATE|SIGNED ON|FILED ON/)) {
+  if (!fuzzyContains(text, 'DATE', 2) && !fuzzyContains(text, 'SIGNED ON', 2) && !fuzzyContains(text, 'FILED ON', 2)) {
     issues.push({
       severity: 'warning',
       message: 'Filing date not found',
@@ -1103,7 +1234,7 @@ const validateForm1040 = (text: string): DocumentValidationResult => {
 const validateW2 = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('W-2') && !text.includes('WAGE AND TAX STATEMENT')) {
+  if (!fuzzyContains(text, 'W-2', 2) && !fuzzyContains(text, 'WAGE AND TAX STATEMENT', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Form W-2 designation not found',
@@ -1111,7 +1242,9 @@ const validateW2 = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/EMPLOYEE|SSN|SOCIAL SECURITY NUMBER|EMPLOYER|EIN|EMPLOYER ID/)) {
+  if (!fuzzyContains(text, 'EMPLOYEE', 2) && !fuzzyContains(text, 'SSN', 2) && 
+      !fuzzyContains(text, 'SOCIAL SECURITY NUMBER', 2) && !fuzzyContains(text, 'EMPLOYER', 2) && 
+      !fuzzyContains(text, 'EIN', 2) && !fuzzyContains(text, 'EMPLOYER ID', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Employee/Employer identification not found',
@@ -1119,7 +1252,8 @@ const validateW2 = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/WAGES|TIPS|OTHER COMPENSATION|INCOME|SALARY/)) {
+  if (!fuzzyContains(text, 'WAGES', 2) && !fuzzyContains(text, 'TIPS', 2) && 
+      !fuzzyContains(text, 'OTHER COMPENSATION', 2) && !fuzzyContains(text, 'INCOME', 2) && !fuzzyContains(text, 'SALARY', 2)) {
     issues.push({
       severity: 'critical',
       message: 'Income information not found',
@@ -1127,7 +1261,9 @@ const validateW2 = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/BOX 1|BOX 2|BOX 16|BOX 17|FEDERAL|STATE/)) {
+  if (!fuzzyContains(text, 'BOX 1', 2) && !fuzzyContains(text, 'BOX 2', 2) && 
+      !fuzzyContains(text, 'BOX 16', 2) && !fuzzyContains(text, 'BOX 17', 2) && 
+      !fuzzyContains(text, 'FEDERAL', 2) && !fuzzyContains(text, 'STATE', 2)) {
     issues.push({
       severity: 'warning',
       message: 'W-2 boxes not clearly identified',
@@ -1135,7 +1271,7 @@ const validateW2 = (text: string): DocumentValidationResult => {
     });
   }
 
-  if (!text.match(/YEAR|TAX YEAR|\d{4}/)) {
+  if (!fuzzyContains(text, 'YEAR', 2) && !fuzzyContains(text, 'TAX YEAR', 2) && !text.match(/\d{4}/)) {
     issues.push({
       severity: 'critical',
       message: 'Tax year not found',
@@ -1163,31 +1299,33 @@ const validateW2 = (text: string): DocumentValidationResult => {
 const validate1099 = (text: string): DocumentValidationResult => {
   const issues: ValidationIssue[] = [];
 
-  if (!text.includes('1099') && !text.match(/INDEPENDENT CONTRACTOR|SELF-EMPLOYED/)) {
+  if (!fuzzyContains(text, '1099', 2) && !fuzzyContains(text, 'FORM 1099', 2)) {
     issues.push({
-      severity: 'warning',
+      severity: 'critical',
       message: 'Form 1099 designation not found',
-      suggestion: 'Verify this is Form 1099 for self-employed income'
+      suggestion: 'Verify this is a Form 1099 (MISC, NEC, INT, etc.)'
     });
   }
 
-  if (!text.match(/SSN|TIN|PAYER|RECIPIENT/)) {
+  if (!fuzzyContains(text, 'PAYER', 2) && !fuzzyContains(text, 'RECIPIENT', 2) && 
+      !fuzzyContains(text, 'TIN', 2) && !fuzzyContains(text, 'SSN', 2)) {
     issues.push({
       severity: 'critical',
-      message: 'Taxpayer identification not found',
-      suggestion: 'Verify that recipient SSN/TIN and payer information are visible'
+      message: 'Payer/Recipient identification not found',
+      suggestion: 'Verify that payer and recipient details are visible'
     });
   }
 
-  if (!text.match(/INCOME|AMOUNT|REPORTABLE|EARNINGS/)) {
+  if (!fuzzyContains(text, 'INCOME', 2) && !fuzzyContains(text, 'COMPENSATION', 2) && 
+      !fuzzyContains(text, 'INTEREST', 2) && !fuzzyContains(text, 'DIVIDENDS', 2) && !fuzzyContains(text, 'PAYMENT', 2)) {
     issues.push({
       severity: 'critical',
-      message: 'Income information not found',
-      suggestion: 'Verify that income figures are clearly shown'
+      message: 'Income/Payment information not found',
+      suggestion: 'Verify that payment amounts are clearly shown'
     });
   }
 
-  if (!text.match(/YEAR|TAX YEAR|\d{4}/)) {
+  if (!fuzzyContains(text, 'YEAR', 2) && !fuzzyContains(text, 'TAX YEAR', 2) && !text.match(/\d{4}/)) {
     issues.push({
       severity: 'critical',
       message: 'Tax year not found',

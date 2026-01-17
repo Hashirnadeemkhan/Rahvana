@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { FormSelections } from '../types/221g';
 import DocumentValidator from './DocumentValidator';
+import { manualChecklists, ChecklistItem } from '../utils/manualChecklists';
+import { DocumentType } from '../utils/documentValidation';
 
 type DocumentStatus = 'missing' | 'in-progress' | 'ready' | 'submitted';
 
@@ -55,7 +57,9 @@ export default function DocumentChecklist({
   // Manual Verification State
   const [showManualVerify, setShowManualVerify] = useState(false);
   const [manualVerifyDocId, setManualVerifyDocId] = useState<string | null>(null);
+  const [manualVerifyDocType, setManualVerifyDocType] = useState<DocumentType | null>(null);
   const [manualChecklist, setManualChecklist] = useState<Record<string, boolean>>({});
+  const [currentChecklistItems, setCurrentChecklistItems] = useState<ChecklistItem[]>([]);
   
   // Validation Error State
   const [showErrorDialog, setShowErrorDialog] = useState(false);
@@ -89,29 +93,47 @@ export default function DocumentChecklist({
     }
   };
   
+  const updateDocumentStatus = (docId: string, status: DocumentStatus) => {
+    onDocumentStatusChange(docId, status);
+    setDocuments(prev => prev.map(doc => 
+      doc.id === docId ? { ...doc, status } : doc
+    ));
+  };
+
   const handleDocumentValidation = (documentId: string, result: any) => {
     // On successful validation, update document status to 'ready'
     if (result.isValid) {
-      onDocumentStatusChange(documentId, 'ready');
+      updateDocumentStatus(documentId, 'ready');
     }
   };
   
-  const openManualVerification = (docId: string) => {
+  const openManualVerification = (docId: string, docType: string) => {
+    const type = docType as DocumentType;
+    const checklistItems = manualChecklists[type];
+    
+    if (!checklistItems) {
+      console.warn(`No manual checklist defined for ${type}`);
+      return;
+    }
+
     setManualVerifyDocId(docId);
-    setManualChecklist({
-      'bride_name': false,
-      'groom_name': false,
-      'marriage_date': false,
-      'official_stamp': false,
-      'signatures': false
+    setManualVerifyDocType(type);
+    setCurrentChecklistItems(checklistItems);
+    
+    // Initialize all items as unchecked
+    const initialChecklist: Record<string, boolean> = {};
+    checklistItems.forEach(item => {
+      initialChecklist[item.id] = false;
     });
+    setManualChecklist(initialChecklist);
+    
     setShowManualVerify(true);
   };
 
   const handleManualVerifySubmit = () => {
     const allChecked = Object.values(manualChecklist).every(v => v);
     if (allChecked && manualVerifyDocId) {
-      onDocumentStatusChange(manualVerifyDocId, 'ready');
+      updateDocumentStatus(manualVerifyDocId, 'ready');
       setShowManualVerify(false);
     } else {
       alert('Please verify all items in the checklist before proceeding.');
@@ -214,10 +236,21 @@ export default function DocumentChecklist({
 
                                   // Update the document status based on validation result
                                   if (validationResult.isValid) {
-                                    onDocumentStatusChange(docId, 'ready');
+                                    updateDocumentStatus(docId, 'ready');
                                   } else {
                                     // Show the validation issues to the user
                                     const issues = validationResult.issues.map(issue => `${issue.message}`);
+                                    
+                                    // Add hidden debug info
+                                    issues.push(`
+                                      <details class="mt-4 p-2 bg-gray-100 rounded text-xs font-mono">
+                                        <summary class="cursor-pointer font-bold text-gray-600">Show Debug Info (OCR Text)</summary>
+                                        <div class="mt-2 whitespace-pre-wrap break-all">
+                                          ${text.substring(0, 500)}...
+                                        </div>
+                                      </details>
+                                    `);
+                                    
                                     setValidationErrors(issues);
                                     setShowErrorDialog(true);
                                   }
@@ -238,13 +271,13 @@ export default function DocumentChecklist({
                           Validate Document
                         </Button>
                         
-                        {isNikahNama && (
-                          <Button
+                        {/* Show Manual Verify for all documents that have a checklist defined */}
+                        {manualChecklists[doc.type as DocumentType] && (
+                          <Button 
                             size="sm"
-                            variant="outline"
-                            className="border-teal-200 text-teal-700 hover:bg-teal-50"
-                            onClick={() => openManualVerification(docId)}
-                            title="Manually verify Urdu document"
+                            variant="default"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => openManualVerification(docId, doc.type)}
                           >
                             <Eye className="h-4 w-4 mr-2" />
                             Manual Verify
@@ -279,11 +312,15 @@ export default function DocumentChecklist({
                         </div>
                       ))}
                       
-                      {qualityCheck && (
+                      {doc.status === 'ready' ? (
+                        <div className="p-2 rounded text-xs bg-green-50 text-green-700">
+                          ✓ Document validated successfully
+                        </div>
+                      ) : qualityCheck && (
                         <div className={`p-2 rounded text-xs ${
-                          qualityCheck.passed ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                          qualityCheck.passed ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'
                         }`}>
-                          {qualityCheck.passed ? '✓ Document validated successfully' : 
+                          {qualityCheck.passed ? '✓ File uploaded. Please proceed to validation.' : 
                            `⚠ Issues found: ${qualityCheck.issues.join(', ')}`}
                         </div>
                       )}
@@ -320,52 +357,22 @@ export default function DocumentChecklist({
       <Dialog open={showManualVerify} onOpenChange={setShowManualVerify}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Manual Verification: Nikah Nama</DialogTitle>
+            <DialogTitle>Manual Verification: {manualVerifyDocType?.replace('_', ' ').toUpperCase()}</DialogTitle>
             <DialogDescription>
-              Since Urdu OCR can be unreliable, please manually verify that your document contains the following required details.
+              Please manually verify that your document contains the following required details.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="bride_name" 
-                checked={manualChecklist['bride_name']}
-                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'bride_name': !!checked}))}
-              />
-              <Label htmlFor="bride_name">Bride's Full Name is clearly visible</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="groom_name" 
-                checked={manualChecklist['groom_name']}
-                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'groom_name': !!checked}))}
-              />
-              <Label htmlFor="groom_name">Groom's Full Name is clearly visible</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="marriage_date" 
-                checked={manualChecklist['marriage_date']}
-                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'marriage_date': !!checked}))}
-              />
-              <Label htmlFor="marriage_date">Date of Marriage is legible</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="official_stamp" 
-                checked={manualChecklist['official_stamp']}
-                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'official_stamp': !!checked}))}
-              />
-              <Label htmlFor="official_stamp">Official Union Council Stamp/Seal is present</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="signatures" 
-                checked={manualChecklist['signatures']}
-                onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, 'signatures': !!checked}))}
-              />
-              <Label htmlFor="signatures">Signatures of Bride, Groom, and Witnesses are present</Label>
-            </div>
+            {currentChecklistItems.map((item) => (
+              <div key={item.id} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={item.id} 
+                  checked={manualChecklist[item.id] || false}
+                  onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, [item.id]: !!checked}))}
+                />
+                <Label htmlFor={item.id}>{item.label}</Label>
+              </div>
+            ))}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowManualVerify(false)}>Cancel</Button>
