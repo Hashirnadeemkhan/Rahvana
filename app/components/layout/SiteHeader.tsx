@@ -187,6 +187,7 @@ export function SiteHeader({
         "Book Appintment": "/book-appointment",
         "Police Verification": "/police-verification",
         "document-translation": "/document-translation",
+        "visa-case-strength-checker": "/visa-case-strength-checker",
         "view-security-questions": "/view-security-questions",
         "courier-registration": "/courier-registration",
         "custom-requirements": "/custom-requirements",
@@ -461,6 +462,11 @@ export function SiteHeader({
                     href: "/document-translation",
                     label: "Document Translation",
                     id: "document-translation",
+                  },
+                  {
+                    href: "/visa-case-strength-checker",
+                    label: "Visa Case Strength Checker",
+                    id: "visa-case-strength-checker",
                   },
                   {
                     href: "/courier-registration",
