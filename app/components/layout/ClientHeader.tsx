@@ -2,11 +2,20 @@
 
 import { useAuth } from "@/app/context/AuthContext";
 import { SiteHeader } from "./SiteHeader";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export function ClientHeader() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Hide header on admin pages and admin-login page
+  const isAdminPage =
+    pathname.startsWith("/admin") || pathname === "/admin-login";
+
+  if (isAdminPage) {
+    return null;
+  }
 
   const handleAuthToggle = async () => {
     if (user) {
@@ -18,10 +27,5 @@ export function ClientHeader() {
     }
   };
 
-  return (
-    <SiteHeader
-      isSignedIn={!!user}
-      onToggleAuth={handleAuthToggle}
-    />
-  );
+  return <SiteHeader isSignedIn={!!user} onToggleAuth={handleAuthToggle} />;
 }

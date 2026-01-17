@@ -10,6 +10,9 @@ import {
   Briefcase,
   Zap,
   ArrowRight,
+  User,
+  LogOut,
+  // Settings,
 } from "lucide-react";
 
 interface HeaderProps {
@@ -95,11 +98,13 @@ export function SiteHeader({
   const [visaMenuOpen, setVisaMenuOpen] = useState(false);
   const [serviceMenuOpen, setServiceMenuOpen] = useState(false);
   const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   // Timeout refs for delayed closing
   const visaTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const serviceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const toolsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const profileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -107,6 +112,7 @@ export function SiteHeader({
       if (visaTimeoutRef.current) clearTimeout(visaTimeoutRef.current);
       if (serviceTimeoutRef.current) clearTimeout(serviceTimeoutRef.current);
       if (toolsTimeoutRef.current) clearTimeout(toolsTimeoutRef.current);
+      if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
     };
   }, []);
 
@@ -140,6 +146,18 @@ export function SiteHeader({
     toolsTimeoutRef.current = setTimeout(() => setToolsMenuOpen(false), 300);
   };
 
+  // Profile handlers
+  const handleProfileEnter = () => {
+    if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+    setProfileMenuOpen(true);
+  };
+  const handleProfileLeave = () => {
+    profileTimeoutRef.current = setTimeout(
+      () => setProfileMenuOpen(false),
+      300
+    );
+  };
+
   const handleNav = (id: string, e?: React.MouseEvent) => {
     setIsMenuOpen(false);
 
@@ -170,6 +188,10 @@ export function SiteHeader({
         "Police Verification": "/police-verification",
         "document-translation": "/document-translation",
         "221g-action-planner": "/221g-action-planner",
+        "visa-case-strength-checker": "/visa-case-strength-checker",
+        "view-security-questions": "/view-security-questions",
+        "courier-registration": "/courier-registration",
+        "custom-requirements": "/custom-requirements",
       };
 
       const targetRoute = routes[id] || "/";
@@ -447,6 +469,21 @@ export function SiteHeader({
                     label: "221G Action Planner",
                     id: "221g-action-planner",
                   },
+                  {
+                    href: "/visa-case-strength-checker",
+                    label: "Visa Case Strength Checker",
+                    id: "visa-case-strength-checker",
+                  },
+                  {
+                    href: "/courier-registration",
+                    label: "Courier Registration",
+                    id: "courier-registration",
+                  },
+                  {
+                    href: "/custom-requirements",
+                    label: "Custom Requirements",
+                    id: "custom-requirements",
+                  },
                 ].map((item) => (
                   <Link
                     key={item.href}
@@ -535,13 +572,72 @@ export function SiteHeader({
             <Search className="h-5 w-5 text-gray-600" aria-hidden="true" />
           </HydrationSafeButton>
 
-          {/* LOGIN / SIGN OUT toggle */}
-          <HydrationSafeButton
-            onClick={() => onToggleAuth?.()}
-            className="font-semibold text-white bg-primary hover:bg-primary/90 shadow-md px-4 py-2 rounded-lg transition-all"
-          >
-            {isSignedIn ? "SIGN OUT" : "LOGIN"}
-          </HydrationSafeButton>
+          {/* LOGIN / PROFILE toggle */}
+          {isSignedIn ? (
+            <div
+              className="relative"
+              onMouseEnter={handleProfileEnter}
+              onMouseLeave={handleProfileLeave}
+            >
+              <HydrationSafeButton
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 text-primary hover:bg-primary/20 transition-all shadow-sm"
+                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              >
+                <User className="h-5 w-5" />
+              </HydrationSafeButton>
+
+              <div
+                className={`absolute right-0 top-full mt-2 w-60 rounded-xl shadow-xl border border-gray-100 bg-white p-2 z-50 transition-all transform origin-top-right ${
+                  profileMenuOpen
+                    ? "opacity-100 scale-100 visible"
+                    : "opacity-0 scale-95 invisible"
+                }`}
+              >
+                <div className="px-3 py-2 border-b border-gray-50 mb-1">
+                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                    Account
+                  </p>
+                </div>
+                {/* <button
+                  onClick={() => {
+                    handleNav("dashboard");
+                    setProfileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 w-full py-2.5 px-3 rounded-lg text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors text-sm font-bold"
+                >
+                  {/* <Briefcase size={16} /> Dashboard
+                </button> */}
+                <button
+                  onClick={() => {
+                    /* Handle settings */
+                    handleNav("view-security-questions");
+                  }}
+                  className="flex items-center gap-3 w-full py-2.5 px-3 rounded-lg text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors text-sm font-bold"
+                >
+                  {/* <Settings size={16} /> Settings */}
+                  Visa Portal Security Info
+                </button>
+                <div className="my-1 border-t border-gray-100" />
+                <button
+                  onClick={() => {
+                    onToggleAuth?.();
+                    setProfileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 w-full py-2.5 px-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-bold"
+                >
+                  <LogOut size={16} />
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          ) : (
+            <HydrationSafeButton
+              onClick={() => onToggleAuth?.()}
+              className="font-semibold text-white bg-primary hover:bg-primary/90 shadow-md px-6 py-2 rounded-lg transition-all"
+            >
+              LOGIN
+            </HydrationSafeButton>
+          )}
         </div>
       </div>
 

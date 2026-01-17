@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Pagination from "@/components/ui/pagination";
 import {
   Dialog,
   DialogContent,
@@ -78,8 +79,26 @@ export default function TranslationQueueTable() {
   const [verifyNotes, setVerifyNotes] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc'); // 'desc' for latest first, 'asc' for oldest first
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // 'desc' for latest first, 'asc' for oldest first
+
+  // pagination state
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 5;
+
+  // pagination calculations
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredTranslationRequests.length / ITEMS_PER_PAGE)
+  );
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  const currentTranslationRequests = filteredTranslationRequests.slice(
+    startIndex,
+    endIndex
+  );
 
   // Fetch translation requests from API
   useEffect(() => {
@@ -109,7 +128,7 @@ export default function TranslationQueueTable() {
     let filtered = [...translationRequests];
 
     // Apply status filter
-    if(selectedTranslationStatus !== "all") {
+    if (selectedTranslationStatus !== "all") {
       filtered = filtered.filter(
         (req) => req.status === selectedTranslationStatus
       );
@@ -126,8 +145,8 @@ export default function TranslationQueueTable() {
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        (req) => 
-          req.user_name.toLowerCase().includes(lowerSearchTerm) || 
+        (req) =>
+          req.user_name.toLowerCase().includes(lowerSearchTerm) ||
           req.user_email.toLowerCase().includes(lowerSearchTerm)
       );
     }
@@ -136,11 +155,17 @@ export default function TranslationQueueTable() {
     filtered.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
       const dateB = new Date(b.created_at).getTime();
-      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
     });
 
     setFilteredTranslationRequests(filtered);
-  }, [translationRequests, selectedTranslationStatus, selectedDocumentType, searchTerm, sortOrder]);
+  }, [
+    translationRequests,
+    selectedTranslationStatus,
+    selectedDocumentType,
+    searchTerm,
+    sortOrder,
+  ]);
 
   const getTranslationStatusBadgeVariant = (status: TranslationStatus) => {
     switch (status) {
@@ -207,7 +232,7 @@ export default function TranslationQueueTable() {
               className="pl-10 w-80"
             />
           </div>
-                  
+
           {/* Dropdowns - Right side */}
           <div className="flex space-x-3">
             <Select
@@ -248,13 +273,11 @@ export default function TranslationQueueTable() {
                 <SelectItem value="VERIFIED">Verified</SelectItem>
               </SelectContent>
             </Select>
-                    
+
             {/* Date Sorting */}
             <Select
               value={sortOrder}
-              onValueChange={(value: 'asc' | 'desc') =>
-                setSortOrder(value)
-              }
+              onValueChange={(value: "asc" | "desc") => setSortOrder(value)}
             >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Sort by date" />
@@ -285,7 +308,7 @@ export default function TranslationQueueTable() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTranslationRequests.map((request) => (
+                  {currentTranslationRequests.map((request) => (
                     <TableRow key={request.id}>
                       <TableCell className="font-medium">
                         {request.user_name}
@@ -532,6 +555,22 @@ export default function TranslationQueueTable() {
                     </TableRow>
                   ))}
                 </TableBody>
+
+                {/* Pagination - only show if there are requests and multiple pages */}
+                {filteredTranslationRequests.length > 0 && totalPages > 1 && (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <div className="w-full flex justify-center py-4">
+                        <Pagination
+                          currentPage={currentPage}
+                          totalItems={filteredTranslationRequests.length}
+                          itemsPerPage={ITEMS_PER_PAGE}
+                          onPageChange={setCurrentPage}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
               </Table>
             </div>
           )}

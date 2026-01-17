@@ -3,7 +3,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button as UIButton } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -14,13 +22,24 @@ import {
 import {
   Users,
   Phone,
-  CreditCard,
   Calendar,
   User,
   Upload,
   Search,
+  FileText,
+  ShieldCheck,
+  Globe,
+  AlertCircle,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import Pagination from "@/components/ui/pagination";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  // DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface PoliceVerificationRequest {
   id: string;
@@ -85,10 +104,15 @@ export default function PoliceVerificationTable() {
   >("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedRequests, setExpandedRequests] = useState<
-    Record<string, boolean>
-  >({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [selectedRequest, setSelectedRequest] =
+    useState<PoliceVerificationRequest | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 10;
 
   const fetchPoliceVerifications = useCallback(async () => {
     try {
@@ -136,8 +160,24 @@ export default function PoliceVerificationTable() {
       );
     }
 
+    // Sort by date
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+    });
+
     setFilteredPoliceVerifications(filtered);
-  }, [policeVerifications, selectedStatus, searchTerm]);
+    setCurrentPage(1); // Reset to first page on filter change
+  }, [policeVerifications, selectedStatus, searchTerm, sortOrder]);
+
+  const totalPages = Math.ceil(
+    filteredPoliceVerifications.length / ITEMS_PER_PAGE
+  );
+  const currentRequests = filteredPoliceVerifications.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const updateStatus = async (id: string, newStatus: VerificationStatus) => {
     try {
@@ -153,6 +193,11 @@ export default function PoliceVerificationTable() {
       }
 
       fetchPoliceVerifications();
+      if (selectedRequest?.id === id) {
+        setSelectedRequest((prev) =>
+          prev ? { ...prev, status: newStatus } : null
+        );
+      }
     } catch (err: unknown) {
       console.error("Error updating status:", err);
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
@@ -175,13 +220,33 @@ export default function PoliceVerificationTable() {
     }
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Not specified";
-    return new Date(dateString).toLocaleDateString();
+  const getStatusColor = (status: VerificationStatus) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "in_progress":
+        return "bg-blue-100 text-blue-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
 
-  const toggleExpand = (id: string) => {
-    setExpandedRequests((prev) => ({ ...prev, [id]: !prev[id] }));
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Not specified";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const handleViewDetails = (request: PoliceVerificationRequest) => {
+    setSelectedRequest(request);
+    setIsModalOpen(true);
   };
 
   if (error) {
@@ -192,9 +257,9 @@ export default function PoliceVerificationTable() {
         </CardHeader>
         <CardContent>
           <p className="text-red-500">{error}</p>
-          <UIButton onClick={fetchPoliceVerifications} className="mt-4">
+          <Button onClick={fetchPoliceVerifications} className="mt-4">
             Retry
-          </UIButton>
+          </Button>
         </CardContent>
       </Card>
     );
@@ -262,28 +327,23 @@ export default function PoliceVerificationTable() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Police Verification Requests</CardTitle>
-          <div className="flex items-center space-x-4">
-            <div className="relative w-72">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search by ID, name, email, CNIC..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-9"
-              />
-            </div>
-
-            <div className="text-sm text-gray-500">
-              Total: {policeVerifications.length}
-            </div>
+          <div className="relative border border-gray-300 rounded-lg p-2">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search by ID, name, email, CNIC..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-80 border-none shadow-none focus-visible:ring-0"
+            />
+          </div>
+          <div className="flex items-center space-x-3">
             <Select
               value={selectedStatus}
               onValueChange={(value: VerificationStatus | "all") =>
                 setSelectedStatus(value)
               }
             >
-              <SelectTrigger className="w-45">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -294,447 +354,600 @@ export default function PoliceVerificationTable() {
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
-            <UIButton onClick={fetchPoliceVerifications} variant="outline">
+
+            <Select
+              value={sortOrder}
+              onValueChange={(value: "asc" | "desc") => setSortOrder(value)}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Sort by date" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="desc">Latest First</SelectItem>
+                <SelectItem value="asc">Oldest First</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button
+              onClick={fetchPoliceVerifications}
+              variant="outline"
+              size="sm"
+            >
               Refresh
-            </UIButton>
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex justify-center items-center h-32">
-              <p>Loading requests...</p>
-            </div>
-          ) : filteredPoliceVerifications.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">
-                {selectedStatus === "all"
-                  ? "No records found."
-                  : `No ${selectedStatus} records found.`}
-              </p>
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredPoliceVerifications.map((pv) => (
-                <Card key={pv.id} className="shadow-sm">
-                  <CardHeader
-                    className="cursor-pointer p-4 bg-gray-50 hover:bg-gray-100 rounded-t-lg"
-                    onClick={() => toggleExpand(pv.id)}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-4">
-                        <div className="font-medium">
-                          <span className="font-bold">{pv.request_id}</span>
-                          <span className="text-gray-500 ml-2 text-sm">
-                            - {pv.full_name}
-                          </span>
-                        </div>
-                        <Badge variant={getStatusBadgeVariant(pv.status)}>
-                          {pv.status.charAt(0).toUpperCase() +
-                            pv.status.slice(1)}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-sm text-gray-500">
-                          {pv.province} • {formatDate(pv.created_at)}
-                        </div>
-                        <UIButton
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExpand(pv.id);
-                          }}
-                        >
-                          {expandedRequests[pv.id] ? "Collapse" : "Expand"}
-                        </UIButton>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  {expandedRequests[pv.id] && (
-                    <CardContent className="p-6 pt-4 mt-2">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                        {/* Applicant Details */}
-                        <div className="bg-slate-50 p-4 rounded-lg">
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <User className="w-5 h-5 text-teal-600" />
-                            Applicant Details
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            <p>
-                              <span className="text-gray-600">Name:</span>{" "}
-                              <span className="font-medium">
-                                {pv.full_name}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">
-                                Father Name:
-                              </span>{" "}
-                              <span className="font-medium">
-                                {pv.father_name}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">Gender:</span>{" "}
-                              <span className="font-medium">
-                                {pv.gender || "N/A"}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">DOB:</span>{" "}
-                              <span className="font-medium">
-                                {formatDate(pv.dob)}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">CNIC:</span>{" "}
-                              <span className="font-medium">{pv.cnic}</span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">CNIC Issue:</span>{" "}
-                              <span className="font-medium">
-                                {formatDate(pv.cnic_issue_date)}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">
-                                CNIC Expiry:
-                              </span>{" "}
-                              <span className="font-medium">
-                                {formatDate(pv.cnic_expiry_date)}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Contact & Request Info */}
-                        <div className="bg-slate-50 p-4 rounded-lg">
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <Phone className="w-5 h-5 text-teal-600" />
-                            Contact & Request Info
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            <p>
-                              <span className="text-gray-600">Contact:</span>{" "}
-                              <span className="font-medium">
-                                {pv.phone_number}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">Email:</span>{" "}
-                              <span className="font-medium">{pv.email}</span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">Province:</span>{" "}
-                              <span className="font-medium">{pv.province}</span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">District:</span>{" "}
-                              <span className="font-medium">{pv.district}</span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">Purpose:</span>{" "}
-                              <span className="font-medium">{pv.purpose}</span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">Delivery:</span>{" "}
-                              <span className="font-medium">
-                                {pv.delivery_type}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Stay & Passport */}
-                        <div className="bg-slate-50 p-4 rounded-lg">
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <CreditCard className="w-5 h-5 text-teal-600" />
-                            Stay & Passport
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            <p>
-                              <span className="text-gray-600">Passport:</span>{" "}
-                              <span className="font-medium">
-                                {pv.passport_number || "N/A"}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">Stay From:</span>{" "}
-                              <span className="font-medium">
-                                {formatDate(pv.stay_from)}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">Stay To:</span>{" "}
-                              <span className="font-medium">
-                                {formatDate(pv.stay_to)}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="text-gray-600">Residing:</span>{" "}
-                              <span className="font-medium">
-                                {pv.residing_in}
-                              </span>
-                            </p>
-                            {pv.residing_country && (
-                              <p>
-                                <span className="text-gray-600">
-                                  Residing Country:
-                                </span>{" "}
-                                <span className="font-medium">
-                                  {pv.residing_country}
-                                </span>
-                              </p>
-                            )}
-                            <p>
-                              <span className="text-gray-600">Target:</span>{" "}
-                              <span className="font-medium">
-                                {pv.target_country}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Current Address */}
-                        <div className="bg-slate-50 p-4 rounded-lg col-span-1 md:col-span-2">
-                          <h4 className="font-semibold text-gray-900 mb-3">
-                            Current Address
-                          </h4>
-                          <p className="text-sm">{pv.current_address}</p>
-                        </div>
-
-                        {/* Arrest History */}
-                        <div className="bg-red-50 p-4 rounded-lg border border-red-100">
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <Calendar className="w-5 h-5 text-red-600" />
-                            Arrest History
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            <p>
-                              <span className="text-gray-600">Arrested:</span>{" "}
-                              <span className="font-medium text-red-600">
-                                {pv.was_arrested ? "YES" : "No"}
-                              </span>
-                            </p>
-                            {pv.was_arrested && (
-                              <>
-                                <p>
-                                  <span className="text-gray-600">FIR No:</span>{" "}
-                                  <span className="font-medium">
-                                    {pv.fir_no}
-                                  </span>
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">Year:</span>{" "}
-                                  <span className="font-medium">
-                                    {pv.fir_year}
-                                  </span>
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">
-                                    Station:
-                                  </span>{" "}
-                                  <span className="font-medium">
-                                    {pv.police_station}
-                                  </span>
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">Status:</span>{" "}
-                                  <span className="font-medium">
-                                    {pv.arrest_status}
-                                  </span>
-                                </p>
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Witness Details */}
-                        <div className="bg-green-50 p-4 rounded-lg border border-green-100 col-span-1 md:col-span-3">
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <Users className="w-5 h-5 text-green-600" />
-                            Witness Details
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="border border-green-200 rounded p-3 bg-white">
-                              <h5 className="font-medium mb-2 border-b pb-1">
-                                Witness 1
-                              </h5>
-                              <div className="space-y-1 text-sm">
-                                <p>
-                                  <span className="text-gray-600">Name:</span>{" "}
-                                  {pv.witness1_name}
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">Father:</span>{" "}
-                                  {pv.witness1_father}
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">CNIC:</span>{" "}
-                                  {pv.witness1_cnic}
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">
-                                    Contact:
-                                  </span>{" "}
-                                  {pv.witness1_contact}
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">
-                                    Address:
-                                  </span>{" "}
-                                  {pv.witness1_address}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="border border-green-200 rounded p-3 bg-white">
-                              <h5 className="font-medium mb-2 border-b pb-1">
-                                Witness 2
-                              </h5>
-                              <div className="space-y-1 text-sm">
-                                <p>
-                                  <span className="text-gray-600">Name:</span>{" "}
-                                  {pv.witness2_name}
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">Father:</span>{" "}
-                                  {pv.witness2_father}
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">CNIC:</span>{" "}
-                                  {pv.witness2_cnic}
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">
-                                    Contact:
-                                  </span>{" "}
-                                  {pv.witness2_contact}
-                                </p>
-                                <p>
-                                  <span className="text-gray-600">
-                                    Address:
-                                  </span>{" "}
-                                  {pv.witness2_address}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Uploaded Documents */}
-                        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <Upload className="w-5 h-5 text-purple-600" />
-                            Uploaded Documents
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            {pv.photograph_url && (
-                              <a
-                                href={pv.photograph_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block text-blue-600 hover:underline font-medium"
-                              >
-                                Photograph
-                              </a>
-                            )}
-                            {pv.passport_copy_url && (
-                              <a
-                                href={pv.passport_copy_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block text-blue-600 hover:underline font-medium"
-                              >
-                                Passport Copy
-                              </a>
-                            )}
-                            {pv.utility_bill_url && (
-                              <a
-                                href={pv.utility_bill_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block text-blue-600 hover:underline font-medium"
-                              >
-                                Utility Bill
-                              </a>
-                            )}
-                            {pv.police_letter_url && (
-                              <a
-                                href={pv.police_letter_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block text-blue-600 hover:underline font-medium"
-                              >
-                                Police Letter
-                              </a>
-                            )}
-                            {pv.judgment_copy_url && (
-                              <a
-                                href={pv.judgment_copy_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block text-blue-600 hover:underline font-medium"
-                              >
-                                Judgment Copy
-                              </a>
-                            )}
-                            {!pv.photograph_url &&
-                              !pv.passport_copy_url &&
-                              !pv.utility_bill_url &&
-                              !pv.police_letter_url &&
-                              !pv.judgment_copy_url && (
-                                <p className="text-gray-400">
-                                  No documents uploaded
-                                </p>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Status Update Footer */}
-                      <div className="flex justify-between items-center pt-4 border-t">
-                        <div className="flex items-center space-x-4">
-                          <label className="text-sm font-medium text-gray-700">
-                            Update Status:
-                          </label>
-                          <Select
-                            value={pv.status}
-                            onValueChange={(value: VerificationStatus) =>
-                              updateStatus(pv.id, value)
-                            }
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Request ID</TableHead>
+                    <TableHead>Submitted Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {currentRequests.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-8 text-gray-500"
+                      >
+                        No records found.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    currentRequests.map((pv) => (
+                      <TableRow key={pv.id}>
+                        <TableCell className="font-medium">
+                          {pv.full_name}
+                        </TableCell>
+                        <TableCell>{pv.email}</TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {pv.request_id}
+                        </TableCell>
+                        <TableCell>{formatDate(pv.created_at)}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={getStatusBadgeVariant(pv.status)}
+                            className={getStatusColor(pv.status)}
                           >
-                            <SelectTrigger className="w-40">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="in_progress">
-                                In Progress
-                              </SelectItem>
-                              <SelectItem value="completed">
-                                Completed
-                              </SelectItem>
-                              <SelectItem value="cancelled">
-                                Cancelled
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          <p>Created: {formatDate(pv.created_at)}</p>
-                          {pv.updated_at !== pv.created_at && (
-                            <p>Updated: {formatDate(pv.updated_at)}</p>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
+                            {pv.status.replace("_", " ").toUpperCase()}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleViewDetails(pv)}
+                              className="h-8 text-xs flex items-center gap-1"
+                            >
+                              {/* <Eye className="w-3 h-3" /> */}
+                              View
+                            </Button>
+                            <Select
+                              value={pv.status}
+                              onValueChange={(value: VerificationStatus) =>
+                                updateStatus(pv.id, value)
+                              }
+                            >
+                              <SelectTrigger className="w-32 h-8 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="in_progress">
+                                  In Progress
+                                </SelectItem>
+                                <SelectItem value="completed">
+                                  Completed
+                                </SelectItem>
+                                <SelectItem value="cancelled">
+                                  Cancelled
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
                   )}
-                </Card>
-              ))}
+                </TableBody>
+              </Table>
             </div>
           )}
+
+          {/* Pagination */}
+          {!loading &&
+            filteredPoliceVerifications.length > 0 &&
+            totalPages > 0 && (
+              <div className="mt-6 flex justify-center">
+                <Pagination
+                  currentPage={currentPage}
+                  totalItems={filteredPoliceVerifications.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
         </CardContent>
       </Card>
+
+      {/* Detail Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center justify-between">
+              <span>Request Details: {selectedRequest?.request_id}</span>
+              <Badge
+                variant={
+                  selectedRequest
+                    ? getStatusBadgeVariant(selectedRequest.status)
+                    : "secondary"
+                }
+                className={
+                  selectedRequest ? getStatusColor(selectedRequest.status) : ""
+                }
+              >
+                {selectedRequest?.status.replace("_", " ").toUpperCase()}
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedRequest && (
+            <div className="space-y-12 py-6">
+              {/* Step 1: Personal Info */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 border-b pb-2">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <User className="text-primary w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Step 1: Personal Info
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      Purpose
+                    </p>
+                    <p className="font-medium">{selectedRequest.purpose}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      Delivery Type
+                    </p>
+                    <p className="font-medium">
+                      {selectedRequest.delivery_type}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      Email Address
+                    </p>
+                    <p className="font-medium">{selectedRequest.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      Full Name
+                    </p>
+                    <p className="font-medium">{selectedRequest.full_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      Father / Husband Name
+                    </p>
+                    <p className="font-medium">{selectedRequest.father_name}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+                      <Calendar size={12} /> Date Of Birth
+                    </p>
+                    <p className="font-medium">
+                      {formatDate(selectedRequest.dob)}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+                      <Phone size={12} /> Mobile Number
+                    </p>
+                    <p className="font-medium">
+                      {selectedRequest.phone_number}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      District
+                    </p>
+                    <p className="font-medium">{selectedRequest.district}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      Presently Residing
+                    </p>
+                    <p className="font-medium">
+                      {selectedRequest.residing_in}
+                      {selectedRequest.residing_in === "Abroad" &&
+                        ` (${selectedRequest.residing_country})`}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      Target Country
+                    </p>
+                    <p className="font-medium">
+                      {selectedRequest.target_country}
+                    </p>
+                  </div>
+                </div>
+
+                {/* CNIC Details */}
+                <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 space-y-4">
+                  <h4 className="font-bold text-gray-800 flex items-center gap-2 text-sm">
+                    <ShieldCheck size={16} className="text-primary" /> CNIC
+                    Details
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 uppercase">
+                        CNIC Number
+                      </p>
+                      <p className="font-medium">{selectedRequest.cnic}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 uppercase">
+                        Issue Date
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(selectedRequest.cnic_issue_date)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 uppercase">
+                        Expiry Date
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(selectedRequest.cnic_expiry_date)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Passport Details */}
+                <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 space-y-4">
+                  <h4 className="font-bold text-gray-800 flex items-center gap-2 text-sm">
+                    <Globe size={16} className="text-primary" /> Passport
+                    Details
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 uppercase">
+                        Passport No
+                      </p>
+                      <p className="font-medium">
+                        {selectedRequest.passport_number || "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 uppercase">
+                        Issue Date
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(selectedRequest.passport_issue_date)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 uppercase">
+                        Expiry Date
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(selectedRequest.passport_expiry_date)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Address Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase">
+                      Current Address
+                    </p>
+                    <p className="font-medium">
+                      {selectedRequest.current_address}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+                        <Calendar size={12} /> Stay From
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(selectedRequest.stay_from)}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+                        <Calendar size={12} /> Stay To
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(selectedRequest.stay_to)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrest History */}
+                <div className="bg-orange-50 border border-orange-100 p-6 rounded-2xl space-y-4">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="text-orange-600 w-5 h-5" />
+                    <h4 className="font-bold text-gray-900 text-sm">
+                      Arrest History
+                    </h4>
+                  </div>
+                  <p className="text-sm">
+                    Was Arrested:{" "}
+                    <span
+                      className={`font-bold ${
+                        selectedRequest.was_arrested
+                          ? "text-red-600"
+                          : "text-green-600"
+                      }`}
+                    >
+                      {selectedRequest.was_arrested ? "Yes" : "No"}
+                    </span>
+                  </p>
+                  {selectedRequest.was_arrested && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          FIR No
+                        </p>
+                        <p className="font-medium">{selectedRequest.fir_no}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          FIR Year
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.fir_year}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Police Station
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.police_station}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Status
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.arrest_status}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Step 2: Details of Deponents/Guarantor */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 border-b pb-2">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Users className="text-primary w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Step 2: Details of Deponents/Guarantor
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Witness 1 */}
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                    <h4 className="font-bold text-gray-800 border-b pb-2 text-sm">
+                      Witness 1
+                    </h4>
+                    <div className="space-y-3 text-sm">
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Name
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness1_name}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Father Name
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness1_father}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          CNIC
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness1_cnic}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Contact No
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness1_contact}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Address
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness1_address}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Witness 2 */}
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                    <h4 className="font-bold text-gray-800 border-b pb-2 text-sm">
+                      Witness 2
+                    </h4>
+                    <div className="space-y-3 text-sm">
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Name
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness2_name}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Father Name
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness2_father}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          CNIC
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness2_cnic}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Contact No
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness2_contact}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase">
+                          Address
+                        </p>
+                        <p className="font-medium">
+                          {selectedRequest.witness2_address}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3: Documents Required */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 border-b pb-2">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Upload className="text-primary w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Step 3: Documents Required
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {[
+                    {
+                      label: "Photograph",
+                      url: selectedRequest.photograph_url,
+                    },
+                    {
+                      label: "Passport Copy",
+                      url: selectedRequest.passport_copy_url,
+                    },
+                    {
+                      label: "Utility Bill",
+                      url: selectedRequest.utility_bill_url,
+                    },
+                    {
+                      label: "Police Letter",
+                      url: selectedRequest.police_letter_url,
+                    },
+                    {
+                      label: "Judgment Copy",
+                      url: selectedRequest.judgment_copy_url,
+                    },
+                  ].map(
+                    (doc, idx) =>
+                      doc.url && (
+                        <a
+                          key={idx}
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-100 rounded-2xl hover:bg-primary/5 hover:border-primary transition-all text-center gap-2 group"
+                        >
+                          <FileText className="w-8 h-8 text-gray-400 group-hover:text-primary" />
+                          <span className="text-xs font-bold text-gray-600 group-hover:text-primary">
+                            {doc.label}
+                          </span>
+                        </a>
+                      )
+                  )}
+                </div>
+              </div>
+
+              {/* Status Update */}
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t">
+                <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                  <span className="text-sm font-bold text-gray-700">
+                    Current Status:
+                  </span>
+                  <Select
+                    value={selectedRequest.status}
+                    onValueChange={(value: VerificationStatus) =>
+                      updateStatus(selectedRequest.id, value)
+                    }
+                  >
+                    <SelectTrigger className="w-48 bg-white border-gray-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="text-[10px] text-gray-400 font-mono text-right space-y-1">
+                  <p>
+                    SUBMITTED:{" "}
+                    {new Date(selectedRequest.created_at).toLocaleString()}
+                  </p>
+                  <p>
+                    LAST UPDATE:{" "}
+                    {new Date(selectedRequest.updated_at).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
