@@ -1,4 +1,3 @@
-import Tesseract from 'tesseract.js';
 
 // Define document types and their validation requirements
 export type DocumentType = 
@@ -21,7 +20,7 @@ export interface DocumentValidationResult {
   isValid: boolean;
   issues: ValidationIssue[];
   score: number; // 0-100
-  extractedData?: Record<string, any>;
+  extractedData?: Record<string, string | number | boolean | string[] | number[] | boolean[] | Date | Date[] | null | undefined>;
 }
 
 export interface ValidationIssue {
@@ -199,7 +198,7 @@ const detectConflictingDocumentType = (
   // If any other document type has a strong match (score >= 8), consider it conflicting
   const maxScore = Math.max(...Object.values(scores));
   if (maxScore >= 8) {
-    const conflictingType = Object.entries(scores).find(([_, score]) => score === maxScore)?.[0];
+    const conflictingType = Object.entries(scores).find(([, score]) => score === maxScore)?.[0];
     return conflictingType as DocumentType;
   }
   
@@ -321,7 +320,7 @@ const extractAllDates = (text: string): Date[] => {
              dates.push(date);
           }
         }
-      } catch (e) {
+      } catch {
         // Ignore parsing errors
       }
     }
@@ -1127,7 +1126,6 @@ const validateIrsTranscript = (text: string): DocumentValidationResult => {
   if (issueMatch) {
     const issueDateStr = issueMatch[0];
     const issueDate = new Date(issueDateStr.replace(/[\/\-]/g, '/'));
-    const currentDate = new Date();
 
     // Tax transcripts are typically valid for 1 year
     const oneYearAgo = new Date();

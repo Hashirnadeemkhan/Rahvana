@@ -40,7 +40,7 @@ export async function parse221gLetter(file: File): Promise<string[]> {
     }
 
     return items;
-  } catch (error) {
+  } catch {
     throw new Error('Parsing failed - blurry or invalid file');
   }
 }
