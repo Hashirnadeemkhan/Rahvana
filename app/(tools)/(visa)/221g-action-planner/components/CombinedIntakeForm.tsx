@@ -77,7 +77,7 @@ export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps
     { id: 5, title: "Additional Info", description: "Any other relevant details" },
   ]
 
-  const handleInputChange = (field: keyof FormData, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: string | boolean | string[] | null) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -397,7 +397,7 @@ export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps
                 <h4 className="font-semibold text-blue-800 mb-3 text-base">Review Your Information</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex">
-                    <span className="font-medium min-w-[140px]">Visa Type:</span>
+                    <span className="font-medium min-w-40">Visa Type:</span>
                     <span className="text-gray-700">
                       {formData.visaType === "Other" && formData.visaTypeOther
                         ? formData.visaTypeOther
@@ -405,7 +405,7 @@ export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps
                     </span>
                   </div>
                   <div className="flex">
-                    <span className="font-medium min-w-[140px]">Embassy:</span>
+                    <span className="font-medium min-w-40">Embassy:</span>
                     <span className="text-gray-700">
                       {formData.embassy === "other" && formData.embassyOther
                         ? formData.embassyOther
@@ -413,21 +413,21 @@ export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps
                     </span>
                   </div>
                   <div className="flex">
-                    <span className="font-medium min-w-[140px]">Interview Date:</span>
+                    <span className="font-medium min-w-40">Interview Date:</span>
                     <span className="text-gray-700">{formData.interviewDate || "Not provided"}</span>
                   </div>
                   <div className="flex">
-                    <span className="font-medium min-w-[140px]">Letter Received:</span>
+                    <span className="font-medium min-w-40">Letter Received:</span>
                     <span className="text-gray-700">
                       {formData.letterReceived === null ? "Not answered" : formData.letterReceived ? "Yes" : "No"}
                     </span>
                   </div>
                   <div className="flex">
-                    <span className="font-medium min-w-[140px]">CEAC Status:</span>
+                    <span className="font-medium min-w-40">CEAC Status:</span>
                     <span className="text-gray-700">{formData.ceacStatus || "Not provided"}</span>
                   </div>
                   <div className="flex">
-                    <span className="font-medium min-w-[140px]">221(g) Items:</span>
+                    <span className="font-medium min-w-40">221(g) Items:</span>
                     <span className="text-gray-700">
                       {Object.values(selected221gItems).filter((value) => Boolean(value)).length} items checked
                     </span>

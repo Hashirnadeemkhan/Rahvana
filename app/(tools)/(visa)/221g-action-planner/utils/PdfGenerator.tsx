@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, PDFName, PDFDict, PDFArray, PDFString } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, PDFName, PDFString, PDFPage, PDFFont, PDFRef } from 'pdf-lib';
 import { generateRequiredDocumentsList, DocumentItem } from './documentDefinitions';
 import { FormSelections } from '../types/221g';
 
@@ -18,7 +18,7 @@ interface PDFGeneratorOptions {
   }>>;
 }
 
-const drawWrappedText = (page: any, text: string, x: number, y: number, size: number, font: any, maxWidth: number, lineHeight: number) => {
+const drawWrappedText = (page: PDFPage, text: string, x: number, y: number, size: number, font: PDFFont, maxWidth: number, lineHeight: number) => {
   const words = text.split(' ');
   let line = '';
   let currentY = y;
@@ -105,11 +105,11 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
     // Cover Letter Page
     let coverPage = pdfDoc.addPage([595, 842]); // A4 size
     let y = 780;
-    let coverText = generateCoverLetter(coverLetterData, docs);
+    const coverText = generateCoverLetter(coverLetterData, docs);
     const paragraphs = coverText.split('\n\n'); // Split into paragraphs for better handling
-    for (let para of paragraphs) {
+    for (const para of paragraphs) {
       const lines = para.split('\n');
-      for (let line of lines) {
+      for (const line of lines) {
         const isBold = line.startsWith('U.S. Embassy') || line.startsWith('RE:') || line.startsWith('Dear') || line.startsWith('Respectfully') || line.startsWith('DOCUMENTS SUBMITTED:') || line.startsWith('ADDITIONAL INFORMATION:');
         const f = isBold ? boldFont : font;
         const size = isBold ? 12 : 11;
@@ -188,7 +188,7 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
 
     // Add clickable links to index page
     const pages = pdfDoc.getPages();
-    lineHeights.forEach(({line, y: lineY, pageIndex}, i) => {
+    lineHeights.forEach(({line, y: lineY, pageIndex}) => {
       if (/^\d+\./.test(line)) { // Only for numbered doc lines
         const docIdx = parseInt(line.split('.')[0]) - 1;
         const targetPageIdx = docStartPages[docIdx];
@@ -228,7 +228,7 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
     
     // 1. Create the Outline Dictionary references
     const outlinesDictRef = pdfDoc.context.nextRef();
-    const outlineItemRefs: any[] = [];
+    const outlineItemRefs: PDFRef[] = [];
     
     // Filter docs that have actual pages (not just pointing to index)
     // Or we can bookmark all of them. Let's bookmark all that have a distinct start page.
@@ -318,7 +318,8 @@ export const generatePDFPacket = async (options: PDFGeneratorOptions): Promise<v
     });
 
     const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
+    const uint8Array = new Uint8Array(pdfBytes);
+    const blob = new Blob([uint8Array], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,6 @@ import {
   ArrowLeftIcon,
   ChevronRightIcon,
   FileTextIcon,
-  UploadIcon,
   DownloadIcon,
   CheckIcon,
   Cross2Icon,
@@ -71,6 +70,7 @@ export default function ActionPlanResults({
     additionalNotes: ''
   });
 
+
   // Restore progress from localStorage on mount
   useEffect(() => {
     const savedProgress = localStorage.getItem('221gActionPlanProgress');
@@ -91,12 +91,6 @@ export default function ActionPlanResults({
     }
   }, []);
 
-  // Inquiry tracking
-  const [inquiries, setInquiries] = useState<{
-    date: Date;
-    type: string;
-    status: 'sent' | 'pending' | 'responded';
-  }[]>([]);
 
   if (!actionPlan || !classification) {
     return (
@@ -225,17 +219,6 @@ export default function ActionPlanResults({
   const isStepCompleted = (index: number) => completedSteps.includes(index);
   const isStepAccessible = (index: number) => index === 0 || completedSteps.includes(index - 1);
 
-  // Ref for tracking document scrolling (for UI)
-  const documentSectionsRef = useRef<Record<string, HTMLElement | null>>({});
-
-  // Function to scroll to a specific document section in UI
-  const scrollToDocumentSection = (sectionId: string) => {
-    const element = documentSectionsRef.current[sectionId];
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -301,7 +284,7 @@ export default function ActionPlanResults({
                 >
                   {!sidebarCollapsed && (
                     <div className="flex items-start space-x-3">
-                      <div className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                      <div className={`mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
                         isCompleted ? 'bg-green-500' : isCurrent ? 'bg-teal-500' : 'bg-gray-300'
                       }`}>
                         {isCompleted ? (
@@ -384,7 +367,7 @@ export default function ActionPlanResults({
                       <div className="space-y-4">
                         {currentStep?.actions?.map((action, idx) => (
                           <div key={idx} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
                               <span className="text-sm font-bold text-teal-600">{idx + 1}</span>
                             </div>
                             <p className="text-gray-800 leading-relaxed flex-1">{action}</p>
@@ -490,7 +473,7 @@ export default function ActionPlanResults({
 
               {/* Packet Builder */}
               <Card className="max-w-4xl mx-auto mb-8 text-left">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50">
+                <CardHeader className="bg-linear-to-r from-blue-50 to-teal-50">
                   <CardTitle className="text-2xl font-bold text-gray-900">
                     Submission Packet Builder
                   </CardTitle>
@@ -610,23 +593,23 @@ export default function ActionPlanResults({
                 <CardContent>
                   <ul className="text-left space-y-2 text-yellow-900">
                     <li className="flex items-start">
-                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />
                       Review the complete packet for accuracy and completeness
                     </li>
                     <li className="flex items-start">
-                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />
                       Submit via your embassy&apos;s specified method (courier/email/in-person)
                     </li>
                     <li className="flex items-start">
-                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />
                       Keep proof of submission (tracking number, receipt, confirmation email)
                     </li>
                     <li className="flex items-start">
-                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />
                       Monitor your CEAC status regularly (every 2-3 days)
                     </li>
                     <li className="flex items-start">
-                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+                      <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />
                       Wait 4-6 weeks before sending a status inquiry
                     </li>
                   </ul>

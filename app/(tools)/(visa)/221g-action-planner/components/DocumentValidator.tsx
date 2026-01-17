@@ -6,18 +6,17 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { 
-  Upload, 
-  CheckCircle, 
-  AlertTriangle, 
-  XCircle, 
-  FileText, 
+import {
+  Upload,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  FileText,
   Eye,
-  Camera,
   Scan
 } from 'lucide-react';
-import Tesseract from 'tesseract.js';
-import { DocumentType, DocumentValidationResult, ValidationIssue, validateByDocumentType } from '../utils/documentValidation';
+import Image from 'next/image';
+import { DocumentType, DocumentValidationResult, validateByDocumentType } from '../utils/documentValidation';
 
 interface DocumentValidatorProps {
   documentType: DocumentType;
@@ -104,9 +103,9 @@ const DocumentValidator = ({
       setValidationResult(result);
       onValidationComplete(result);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('OCR processing failed:', error);
-      const errorMessage = error?.message || 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
       // Check if it's a file format issue
       let suggestion = 'Try uploading a clearer image or PDF file';
@@ -137,14 +136,6 @@ const DocumentValidator = ({
     }
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'destructive';
-      case 'warning': return 'secondary';
-      case 'info': return 'default';
-      default: return 'default';
-    }
-  };
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
@@ -206,10 +197,14 @@ const DocumentValidator = ({
             <div className="border rounded-lg p-4">
               <h4 className="font-medium mb-2">Document Preview</h4>
               {file.type.startsWith('image/') ? (
-                <img 
-                  src={previewUrl} 
-                  alt="Document preview" 
-                  className="max-w-full h-auto rounded border"
+                <Image
+                  src={previewUrl!}
+                  alt="Document preview"
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  style={{ width: '100%', height: 'auto' }}
+                  className="max-w-full rounded border"
                 />
               ) : (
                 <div className="flex items-center justify-center p-8 bg-gray-50 rounded border">
@@ -310,43 +305,43 @@ const DocumentValidator = ({
               {documentType === 'nikah_nama' && (
                 <>
                   <li>• Verify names match other documents exactly</li>
-                  <li>• Check that the Nikah Khwan's signature and seal are present</li>
-                  <li>• Ensure witnesses' names and signatures are visible</li>
+                  <li>• Check that the Nikah Khwan&apos;s signature and seal are present</li>
+                  <li>• Ensure witnesses&apos; names and signatures are visible</li>
                   <li>• For Urdu documents, manual verification is recommended</li>
                 </>
               )}
               {documentType === 'birth_certificate' && (
                 <>
-                  <li>• Ensure it's a certified copy from the vital records office</li>
+                  <li>• Ensure it&apos;s a certified copy from the vital records office</li>
                   <li>• Verify all names and dates match other documents</li>
                   <li>• Check that official seal and signature are present</li>
                 </>
               )}
               {documentType === 'marriage_certificate' && (
                 <>
-                  <li>• Ensure it's a certified copy from the vital records office</li>
-                  <li>• Verify both spouses' names are correct</li>
+                  <li>• Ensure it&apos;s a certified copy from the vital records office</li>
+                  <li>• Verify both spouses&apos; names are correct</li>
                   <li>• Check that officiant and witness signatures are present</li>
                 </>
               )}
               {documentType === 'police_certificate' && (
                 <>
                   <li>• Ensure it covers all required periods of residence</li>
-                  <li>• Verify it's not older than 1 year from submission date</li>
-                  <li>• Check that it's from the appropriate authority</li>
+                  <li>• Verify it&apos;s not older than 1 year from submission date</li>
+                  <li>• Check that it&apos;s from the appropriate authority</li>
                 </>
               )}
               {documentType === 'medical_examination' && (
                 <>
-                  <li>• Ensure it's Form I-693 completed by a panel physician</li>
+                  <li>• Ensure it&apos;s Form I-693 completed by a panel physician</li>
                   <li>• Verify all required vaccinations are documented</li>
-                  <li>• Check that the medical officer's determination is clear</li>
+                  <li>• Check that the medical officer&apos;s determination is clear</li>
                 </>
               )}
               {documentType === 'translation' && (
                 <>
-                  <li>• Ensure it's a certified translation by a qualified translator</li>
-                  <li>• Verify the translator's signature and credentials are present</li>
+                  <li>• Ensure it&apos;s a certified translation by a qualified translator</li>
+                  <li>• Verify the translator&apos;s signature and credentials are present</li>
                   <li>• Check that the original document is also submitted</li>
                 </>
               )}

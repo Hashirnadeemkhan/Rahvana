@@ -1,23 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { 
-  CheckCircle2, 
-  AlertTriangle, 
-  XCircle, 
-  FileText, 
+import {
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  FileText,
   Upload,
-  ChevronRight,
   Package,
   Eye
 } from 'lucide-react';
 import { FormSelections } from '../types/221g';
-import DocumentValidator from './DocumentValidator';
 import { manualChecklists, ChecklistItem } from '../utils/manualChecklists';
 import { DocumentType } from '../utils/documentValidation';
 import { DocumentItem, DocumentStatus } from '../utils/documentDefinitions';
@@ -43,7 +41,6 @@ export default function DocumentChecklist({
 }: DocumentChecklistProps) {
   // Map selected form items to document checklist
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
-  const [activeDocument, setActiveDocument] = useState<string | null>(null);
   
   // Manual Verification State
   const [showManualVerify, setShowManualVerify] = useState(false);
@@ -91,12 +88,6 @@ export default function DocumentChecklist({
     ));
   };
 
-  const handleDocumentValidation = (documentId: string, result: any) => {
-    // On successful validation, update document status to 'ready'
-    if (result.isValid) {
-      updateDocumentStatus(documentId, 'ready');
-    }
-  };
   
   const openManualVerification = (docId: string, docType: string) => {
     const type = docType as DocumentType;
@@ -161,7 +152,6 @@ export default function DocumentChecklist({
               const docId = doc.id;
               const hasUploads = uploadedDocs[docId]?.length > 0;
               const qualityCheck = docQualityChecks[docId];
-              const isNikahNama = doc.type === 'nikah_nama' || doc.id === 'nikah_nama';
               
               return (
                 <div 
@@ -223,7 +213,7 @@ export default function DocumentChecklist({
                                   const { validateByDocumentType } = await import('../utils/documentValidation');
 
                                   // Validate based on document type
-                                  const validationResult = validateByDocumentType(text, doc.type as any);
+                                  const validationResult = validateByDocumentType(text, doc.type as DocumentType);
 
                                   // Update the document status based on validation result
                                   if (validationResult.isValid) {
