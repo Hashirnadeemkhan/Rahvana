@@ -11,6 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import Actual221GFormChecker from "./Actual221GFormChecker"
+import { FormData, FormSelections } from "../types/221g"
+
+interface CombinedIntakeFormProps {
+  onSubmit: (data: FormData, selectedItems: FormSelections) => void;
+}
 
 const VISA_TYPES = [
   { value: "IR1", label: "IR1 - Spouse of U.S. Citizen" },
@@ -43,16 +48,16 @@ const OFFICER_REQUESTS = [
   { value: "other", label: "Other (please specify)" },
 ]
 
-export default function CombinedIntakeForm({ onSubmit }) {
+export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps) {
   const [currentStep, setCurrentStep] = useState(0)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     visaType: "",
     visaTypeOther: "",
     interviewDate: "",
     embassy: "islamabad",
     embassyOther: "",
     letterReceived: null,
-    officerRequests: [],
+    officerRequests: [] as string[],
     officerRequestOther: "",
     passportKept: null,
     ceacStatus: "",
@@ -60,7 +65,7 @@ export default function CombinedIntakeForm({ onSubmit }) {
     caseNumber: "",
     additionalNotes: "",
   })
-  const [selected221gItems, setSelected221gItems] = useState({})
+  const [selected221gItems, setSelected221gItems] = useState<FormSelections>({})
   const [showFormChecker, setShowFormChecker] = useState(false)
 
   const steps = [
@@ -72,11 +77,11 @@ export default function CombinedIntakeForm({ onSubmit }) {
     { id: 5, title: "Additional Info", description: "Any other relevant details" },
   ]
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleCheckboxChange = (request) => {
+  const handleCheckboxChange = (request: string) => {
     setFormData((prev) => {
       const requests = [...prev.officerRequests]
       if (requests.includes(request)) {
@@ -223,7 +228,7 @@ export default function CombinedIntakeForm({ onSubmit }) {
               <div>
                 <Label>Did the officer keep your passport?</Label>
                 <RadioGroup
-                  value={formData.passportKept?.toString()}
+                  value={formData.passportKept === null ? "" : formData.passportKept.toString()}
                   onValueChange={(value) => handleInputChange("passportKept", value === "true")}
                   className="flex space-x-4 mt-2"
                 >
@@ -285,7 +290,7 @@ export default function CombinedIntakeForm({ onSubmit }) {
               <div>
                 <Label>Did you receive a 221(g) letter?</Label>
                 <RadioGroup
-                  value={formData.letterReceived?.toString()}
+                  value={formData.letterReceived === null ? "" : formData.letterReceived.toString()}
                   onValueChange={(value) => handleInputChange("letterReceived", value === "true")}
                   className="flex space-x-4 mt-2"
                 >
@@ -328,19 +333,17 @@ export default function CombinedIntakeForm({ onSubmit }) {
             <div className="space-y-6">
               <h3 className="text-xl font-semibold">221(g) Letter Items Checker</h3>
               <p className="text-sm text-gray-600">Check all items that appear on your 221(g) letter</p>
-              <Actual221GFormChecker selectedItems={selected221gItems} onSelectionChange={setSelected221gItems} />
+              <Actual221GFormChecker 
+                selectedItems={selected221gItems} 
+                onSelectionChange={setSelected221gItems} 
+                onNext={() => {
+                  setCurrentStep(3)
+                  setShowFormChecker(false)
+                }}
+              />
               <div className="flex gap-4 mt-8">
                 <Button variant="outline" onClick={prevStep} className="flex-1 bg-transparent">
                   Back
-                </Button>
-                <Button
-                  onClick={() => {
-                    setCurrentStep(3)
-                    setShowFormChecker(false)
-                  }}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700"
-                >
-                  Continue to CEAC Status
                 </Button>
               </div>
             </div>

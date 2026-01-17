@@ -42,10 +42,13 @@ export interface FormSelections {
 
 export interface FormData {
   visaType: string;
+  visaTypeOther: string;
   interviewDate: string;
   embassy: string;
+  embassyOther: string;
   letterReceived: boolean | null;
   officerRequests: string[];
+  officerRequestOther: string;
   passportKept: boolean | null;
   ceacStatus: string;
   ceacUpdateDate: string;

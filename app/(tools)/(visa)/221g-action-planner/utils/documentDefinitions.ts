@@ -1,11 +1,12 @@
 import { FormSelections } from '../types/221g';
+import { DocumentType } from './documentValidation';
 
 export type DocumentStatus = 'missing' | 'in-progress' | 'ready' | 'submitted';
 
 export interface DocumentItem {
   id: string;
   name: string;
-  type: keyof FormSelections;
+  type: DocumentType;
   required: boolean;
   status: DocumentStatus;
   filePath?: string;

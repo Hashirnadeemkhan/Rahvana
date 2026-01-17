@@ -20,18 +20,9 @@ import { FormSelections } from '../types/221g';
 import DocumentValidator from './DocumentValidator';
 import { manualChecklists, ChecklistItem } from '../utils/manualChecklists';
 import { DocumentType } from '../utils/documentValidation';
+import { DocumentItem, DocumentStatus } from '../utils/documentDefinitions';
 
-type DocumentStatus = 'missing' | 'in-progress' | 'ready' | 'submitted';
-
-interface DocumentItem {
-  id: string;
-  name: string;
-  type: keyof FormSelections;
-  required: boolean;
-  status: DocumentStatus;
-  filePath?: string;
-  notes?: string;
-}
+// Local definitions removed in favor of imports from documentDefinitions.ts
 
 interface DocumentChecklistProps {
   selectedItems: FormSelections;
