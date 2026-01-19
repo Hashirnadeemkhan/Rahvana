@@ -10,9 +10,13 @@ CREATE TYPE question_key AS ENUM (
   'intended_us_state_of_residence',
 
   -- education & employment
+  'highest_education_level',
   'highest_education_field',
   'current_occupation_role',
   'industry_sector',
+  'prior_military_service',
+  'specialized_weapons_training',
+  'unofficial_armed_groups',
   'employer_type',
 
   -- relationship strength

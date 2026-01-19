@@ -233,8 +233,8 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
                       <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
                     </div>
                     <p className="text-slate-700 mb-2">{flag.explanation}</p>
-                    <div className="flex items-center gap-2 text-sm text-red-700">
-                      <Info className="h-4 w-4" />
+                    <div className="flex gap-2 text-sm text-red-700">
+                      <Info className="h-4 w-4 mt-1" />
                       <span>Action needed: {flag.improvementSuggestions}</span>
                     </div>
                   </div>
@@ -264,8 +264,8 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
                       <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
                     </div>
                     <p className="text-slate-700 mb-2">{flag.explanation}</p>
-                    <div className="flex items-center gap-2 text-sm text-yellow-700">
-                      <Info className="h-4 w-4" />
+                    <div className="flex gap-2 text-sm text-yellow-700">
+                      <Info className="h-4 w-4 mt-1" />
                       <span>Consider: {flag.improvementSuggestions}</span>
                     </div>
                   </div>
@@ -295,8 +295,8 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
                       <h4 className="font-semibold text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
                       </div>
                     <p className="text-slate-700 mb-2">{flag.explanation}</p>
-                    <div className="flex items-center gap-2 text-sm text-blue-700">
-                      <Info className="h-4 w-4" />
+                    <div className="flex gap-2 text-sm text-blue-700">
+                      <Info className="h-4 w-4 mt-1" />
                       <span>Suggestion: {flag.improvementSuggestions}</span>
                     </div>
                   </div>

@@ -21,9 +21,13 @@ interface FormData {
   spousal_relationship_type?: string;
   intended_us_state_of_residence?: string;
   // Education & Employment Background
+  highest_education_level?: string;
   highest_education_field?: string;
   current_occupation_role?: string;
   industry_sector?: string;
+  prior_military_service?: boolean;
+  specialized_weapons_training?: boolean;
+  unofficial_armed_groups?: boolean;
   employer_type?: string;
   // Relationship Strength
   how_did_you_meet?: string;
@@ -199,7 +203,7 @@ interface QuestionStepProps {
     id: keyof FormData;
     label: string;
     type: "text" | "textarea" | "number" | "date" | "boolean" | "select";
-    options?: string | string[] | "US_STATES_LIST";
+    options?: string | string[];
     risk_tag?: string;
   }>;
   formData: FormData;
@@ -225,7 +229,7 @@ const QuestionStep = ({
     id: keyof FormData;
     label: string;
     type: "text" | "textarea" | "number" | "date" | "boolean" | "select";
-    options?: string | string[] | "US_STATES_LIST";
+    options?: string | string[];
     risk_tag?: string;
   }) => {
     const value = formData[question.id] as string | number | boolean | undefined;
@@ -294,75 +298,7 @@ const QuestionStep = ({
           </div>
         );
       case "select":
-        if (question.options === "US_STATES_LIST") {
-          const US_STATES = [
-            "Alabama",
-            "Alaska",
-            "Arizona",
-            "Arkansas",
-            "California",
-            "Colorado",
-            "Connecticut",
-            "Delaware",
-            "Florida",
-            "Georgia",
-            "Hawaii",
-            "Idaho",
-            "Illinois",
-            "Indiana",
-            "Iowa",
-            "Kansas",
-            "Kentucky",
-            "Louisiana",
-            "Maine",
-            "Maryland",
-            "Massachusetts",
-            "Michigan",
-            "Minnesota",
-            "Mississippi",
-            "Missouri",
-            "Montana",
-            "Nebraska",
-            "Nevada",
-            "New Hampshire",
-            "New Jersey",
-            "New Mexico",
-            "New York",
-            "North Carolina",
-            "North Dakota",
-            "Ohio",
-            "Oklahoma",
-            "Oregon",
-            "Pennsylvania",
-            "Rhode Island",
-            "South Carolina",
-            "South Dakota",
-            "Tennessee",
-            "Texas",
-            "Utah",
-            "Vermont",
-            "Virginia",
-            "Washington",
-            "West Virginia",
-            "Wisconsin",
-            "Wyoming",
-          ];
-
-          return (
-            <select
-              value={typeof value === "string" ? value : ""}
-              onChange={(e) => onChange(question.id, e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Select a state</option>
-              {US_STATES.map((state) => (
-                <option key={state} value={state}>
-                  {state}
-                </option>
-              ))}
-            </select>
-          );
-        } else if (Array.isArray(question.options)) {
+        if (Array.isArray(question.options)) {
           return (
             <select
               value={typeof value === "string" ? value : ""}
@@ -397,6 +333,7 @@ const QuestionStep = ({
 
       <div className="space-y-6">
         {questions.map((question) => {
+          // Hide US state question based on relationship type
           if (question.id === "intended_us_state_of_residence") {
             const relationshipType = formData.spousal_relationship_type;
             if (
@@ -404,6 +341,32 @@ const QuestionStep = ({
               relationshipType === "Select" ||
               relationshipType === "No biological relation"
             ) {
+              return null;
+            }
+          }
+
+          // Hide field of study question unless education level qualifies
+          if (question.id === "highest_education_field") {
+            const educationLevel = formData.highest_education_level;
+            const qualifyingLevels = [
+              "Bachelor's degree",
+              "Master's degree", 
+              "Doctorate (PhD)"
+            ];
+            
+            if (!educationLevel || !qualifyingLevels.includes(educationLevel)) {
+              return null;
+            }
+          }
+
+          // Hide military / defense additional questions unless industry sector meets criteria
+          if (question.id === "prior_military_service" || question.id === "specialized_weapons_training" || question.id === "unofficial_armed_groups") {
+            const industrySector = formData.industry_sector;
+            const qualifyingSectors = [
+              "Military/Defense",
+            ];
+            
+            if (!industrySector || !qualifyingSectors.includes(industrySector)) {
               return null;
             }
           }
@@ -611,6 +574,12 @@ const ReviewStep = ({
               Education & Employment Background
             </h3>
             <div className="grid grid-cols-2 gap-4">
+            {formData.highest_education_level && (
+                <div>
+                  <p className="text-sm text-slate-600">Highest Education Level</p>
+                  <p className="font-medium">{formData.highest_education_level}</p>
+                </div>
+              )}
               {formData.highest_education_field && (
                 <div>
                   <p className="text-sm text-slate-600">Highest Education Field</p>
@@ -627,6 +596,24 @@ const ReviewStep = ({
                 <div>
                   <p className="text-sm text-slate-600">Industry Sector</p>
                   <p className="font-medium">{formData.industry_sector}</p>
+                </div>
+              )}
+              {formData.prior_military_service !== undefined && (
+                <div>
+                  <p className="text-sm text-slate-600">Prior Military Service</p>
+                  <p className="font-medium">{formatBoolean(formData.prior_military_service)}</p>
+                </div>
+              )}
+              {formData.specialized_weapons_training !== undefined && (
+                <div>
+                  <p className="text-sm text-slate-600">Specialized Weapons Training</p>
+                  <p className="font-medium">{formatBoolean(formData.specialized_weapons_training)}</p>
+                </div>
+              )}
+              {formData.unofficial_armed_groups !== undefined && (
+                <div>
+                  <p className="text-sm text-slate-600">Unofficial Armed Groups</p>
+                  <p className="font-medium">{formatBoolean(formData.unofficial_armed_groups)}</p>
                 </div>
               )}
               {formData.employer_type && (
@@ -1092,7 +1079,7 @@ export default function VisaCaseStrengthChecker() {
     id: string;
     label: string;
     type: string;
-    options?: string | string[] | "US_STATES_LIST";
+    options?: string | string[];
     risk_tag?: string;
   }
 
@@ -1225,7 +1212,7 @@ export default function VisaCaseStrengthChecker() {
           id: keyof FormData;
           label: string;
           type: "text" | "textarea" | "number" | "date" | "boolean" | "select";
-          options?: string[] | "US_STATES_LIST";
+          options?: string[];
           risk_tag?: string;
         }>) {
           const fieldValue = formData[question.id];
