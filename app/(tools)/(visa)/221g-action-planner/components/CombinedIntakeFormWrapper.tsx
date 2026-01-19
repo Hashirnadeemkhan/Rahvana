@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
 // Dynamically import the CombinedIntakeForm to avoid hydration issues

@@ -1,296 +1,391 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle2, Circle, FileText } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import {
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  FileText,
+  Upload,
+  Package,
+  Eye
+} from 'lucide-react';
+import { FormSelections } from '../types/221g';
+import { manualChecklists, ChecklistItem } from '../utils/manualChecklists';
+import { DocumentType } from '../utils/documentValidation';
+import { DocumentItem, DocumentStatus } from '../utils/documentDefinitions';
+
+// Local definitions removed in favor of imports from documentDefinitions.ts
 
 interface DocumentChecklistProps {
-  selectedItems: string[]; // Array of selected 221(g) form items
-  embassy: string; // Selected embassy
-  onStatusChange: (docId: string, status: 'missing' | 'in-progress' | 'ready' | 'submitted') => void;
+  selectedItems: FormSelections;
+  onDocumentStatusChange: (documentId: string, status: DocumentStatus) => void;
+  onFileUpload: (docId: string, files: FileList) => void;
+  onFileRemove: (docId: string, fileIndex: number) => void;
+  uploadedDocs: Record<string, { file: File; uploadDate: Date; quality: 'excellent' | 'good' | 'needs-review' }[]>;
+  docQualityChecks: Record<string, { passed: boolean; issues: string[] }>;
 }
 
-interface DocumentItem {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  required: boolean;
-  recommended?: boolean;
-  submissionMethod?: string;
-  status: 'missing' | 'in-progress' | 'ready' | 'submitted';
-}
+export default function DocumentChecklist({ 
+  selectedItems, 
+  onDocumentStatusChange, 
+  onFileUpload,
+  onFileRemove,
+  uploadedDocs,
+  docQualityChecks
+}: DocumentChecklistProps) {
+  // Map selected form items to document checklist
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  
+  // Manual Verification State
+  const [showManualVerify, setShowManualVerify] = useState(false);
+  const [manualVerifyDocId, setManualVerifyDocId] = useState<string | null>(null);
+  const [manualVerifyDocType, setManualVerifyDocType] = useState<DocumentType | null>(null);
+  const [manualChecklist, setManualChecklist] = useState<Record<string, boolean>>({});
+  const [currentChecklistItems, setCurrentChecklistItems] = useState<ChecklistItem[]>([]);
+  
+  // Validation Error State
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-export default function DocumentChecklist({ selectedItems, embassy, onStatusChange }: DocumentChecklistProps) {
-  // Map selected 221(g) items to required documents
-  const requiredDocuments: DocumentItem[] = [];
+  // Update documents when selectedItems change
+  useEffect(() => {
+    import('../utils/documentDefinitions').then(({ generateRequiredDocumentsList }) => {
+      const newDocuments = generateRequiredDocumentsList(selectedItems);
+      setDocuments(newDocuments);
+    });
+  }, [selectedItems]);
+  
+  const getStatusColor = (status: DocumentStatus) => {
+    switch (status) {
+      case 'missing': return 'secondary';
+      case 'in-progress': return 'default';
+      case 'ready': return 'success';
+      case 'submitted': return 'outline';
+      default: return 'secondary';
+    }
+  };
+  
+  const getStatusIcon = (status: DocumentStatus) => {
+    switch (status) {
+      case 'missing': return <XCircle className="h-4 w-4 text-destructive" />;
+      case 'in-progress': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'ready': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'submitted': return <Package className="h-4 w-4 text-blue-500" />;
+      default: return <XCircle className="h-4 w-4 text-destructive" />;
+    }
+  };
+  
+  const updateDocumentStatus = (docId: string, status: DocumentStatus) => {
+    onDocumentStatusChange(docId, status);
+    setDocuments(prev => prev.map(doc => 
+      doc.id === docId ? { ...doc, status } : doc
+    ));
+  };
 
-  // Financial documents
-  if (selectedItems.some(item => item.includes('FINANCIAL') || item.includes('I864'))) {
-    requiredDocuments.push(
-      {
-        id: 'i864',
-        name: 'Affidavit of Support (Form I-864)',
-        description: 'Financial sponsorship form proving income requirements',
-        category: 'financial',
-        required: true,
-        status: 'missing'
-      },
-      {
-        id: 'tax-transcripts',
-        name: 'Federal Tax Transcripts',
-        description: 'IRS tax transcripts for the last 3 years',
-        category: 'financial',
-        required: true,
-        status: 'missing'
-      },
-      {
-        id: 'employment-letter',
-        name: 'Employment Verification Letter',
-        description: 'Letter from sponsor\'s employer verifying job and salary',
-        category: 'financial',
-        required: true,
-        status: 'missing'
-      },
-      {
-        id: 'pay-stubs',
-        name: 'Recent Pay Stubs',
-        description: 'Pay stubs for the last 6 months',
-        category: 'financial',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
+  
+  const openManualVerification = (docId: string, docType: string) => {
+    const type = docType as DocumentType;
+    const checklistItems = manualChecklists[type];
+    
+    if (!checklistItems) {
+      console.warn(`No manual checklist defined for ${type}`);
+      return;
+    }
 
-  // Civil documents
-  if (selectedItems.some(item => item.includes('CIVIL_DOCUMENTS') || item.includes('BIRTH_CERT'))) {
-    requiredDocuments.push(
-      {
-        id: 'birth-cert',
-        name: 'Birth Certificate (NADRA)',
-        description: 'Certified copy of birth certificate',
-        category: 'civil',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
+    setManualVerifyDocId(docId);
+    setManualVerifyDocType(type);
+    setCurrentChecklistItems(checklistItems);
+    
+    // Initialize all items as unchecked
+    const initialChecklist: Record<string, boolean> = {};
+    checklistItems.forEach(item => {
+      initialChecklist[item.id] = false;
+    });
+    setManualChecklist(initialChecklist);
+    
+    setShowManualVerify(true);
+  };
 
-  if (selectedItems.some(item => item.includes('MARRIAGE_CERT') || item.includes('NIKAH_NAMA'))) {
-    requiredDocuments.push(
-      {
-        id: 'marriage-cert',
-        name: 'Marriage Certificate (Nikah Nama)',
-        description: 'Certified copy of marriage certificate',
-        category: 'civil',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
+  const handleManualVerifySubmit = () => {
+    const allChecked = Object.values(manualChecklist).every(v => v);
+    if (allChecked && manualVerifyDocId) {
+      updateDocumentStatus(manualVerifyDocId, 'ready');
+      setShowManualVerify(false);
+    } else {
+      alert('Please verify all items in the checklist before proceeding.');
+    }
+  };
 
-  if (selectedItems.some(item => item.includes('POLICE_CERTIFICATE'))) {
-    requiredDocuments.push(
-      {
-        id: 'police-cert',
-        name: 'Police Certificate',
-        description: 'Police certificate from relevant jurisdiction',
-        category: 'civil',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
-
-  // Legal documents
-  if (selectedItems.some(item => item.includes('LEGAL_DOCUMENTS') || item.includes('DIVORCE_CERT'))) {
-    requiredDocuments.push(
-      {
-        id: 'divorce-decree',
-        name: 'Divorce Decree',
-        description: 'Certified copy of divorce decree',
-        category: 'legal',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
-
-  if (selectedItems.some(item => item.includes('DEATH_CERTIFICATE'))) {
-    requiredDocuments.push(
-      {
-        id: 'death-cert',
-        name: 'Death Certificate',
-        description: 'Certified copy of death certificate',
-        category: 'legal',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
-
-  // Passport
-  if (selectedItems.includes('PASSPORT_ISSUES')) {
-    requiredDocuments.push(
-      {
-        id: 'passport',
-        name: 'Passport',
-        description: 'Valid passport with at least 6 months validity',
-        category: 'travel',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
-
-  // Medical
-  if (selectedItems.includes('MEDICAL_EXAMINATION_ISSUES')) {
-    requiredDocuments.push(
-      {
-        id: 'medical-exam',
-        name: 'Medical Examination',
-        description: 'Completed medical examination by panel physician',
-        category: 'medical',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
-
-  // Add any additional documents based on other selections
-  if (selectedItems.includes('TRANSLATION_REQUIREMENTS')) {
-    requiredDocuments.push(
-      {
-        id: 'translations',
-        name: 'Certified Translations',
-        description: 'Certified English translations of non-English documents',
-        category: 'supporting',
-        required: true,
-        status: 'missing'
-      }
-    );
-  }
-
-  // Add recommended documents based on embassy
-  if (embassy === 'islamabad') {
-    requiredDocuments.push(
-      {
-        id: 'nadra-family-reg',
-        name: 'NADRA Family Registration Certificate',
-        description: 'Family registration certificate from NADRA',
-        category: 'civil',
-        required: false,
-        recommended: true,
-        status: 'missing'
-      }
-    );
-  }
-
+  // Calculate progress
+  const completedCount = documents.filter(d => d.status === 'ready' || d.status === 'submitted').length;
+  const totalCount = documents.length;
+  const progressPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  
   return (
     <Card className="w-full">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold text-blue-700">Document Checklist</CardTitle>
-          <Badge variant="secondary">{requiredDocuments.length} items</Badge>
+        <div className="flex items-center justify-end">
+          <Badge variant="outline">{completedCount}/{totalCount} completed</Badge>
         </div>
-        <p className="text-sm text-gray-600">
-          Track the status of required documents based on your 221(g) requirements
-        </p>
+        <CardDescription>
+          Upload and validate your required documents
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[500px] pr-4">
-          <div className="space-y-4">
-            {requiredDocuments.map((doc) => (
-              <div 
-                key={doc.id} 
-                className={`flex items-start space-x-4 p-4 rounded-lg border ${
-                  doc.status === 'missing' ? 'border-red-200 bg-red-50' :
-                  doc.status === 'in-progress' ? 'border-yellow-200 bg-yellow-50' :
-                  doc.status === 'ready' ? 'border-green-200 bg-green-50' :
-                  'border-blue-200 bg-blue-50'
-                }`}
-              >
-                <div className="pt-1">
-                  <FileText className="h-5 w-5 text-gray-500" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium">{doc.name}</h3>
-                    <Badge 
-                      variant={
-                        doc.status === 'missing' ? 'destructive' :
-                        doc.status === 'in-progress' ? 'secondary' :
-                        doc.status === 'ready' ? 'default' :
-                        'outline'
-                      }
-                    >
+        <div className="mb-6">
+          <div className="flex justify-between text-sm mb-1">
+            <span>Overall Progress</span>
+            <span>{progressPercentage}%</span>
+          </div>
+          <Progress value={progressPercentage} className="h-2" />
+        </div>
+        
+        <div className="space-y-4">
+          {documents.length > 0 ? (
+            documents.map((doc) => {
+              const docId = doc.id;
+              const hasUploads = uploadedDocs[docId]?.length > 0;
+              const qualityCheck = docQualityChecks[docId];
+              
+              return (
+                <div 
+                  key={doc.id} 
+                  className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      {getStatusIcon(doc.status)}
+                      <div>
+                        <h3 className="font-medium">{doc.name}</h3>
+                        <p className="text-xs text-gray-500">
+                          {doc.required ? 'Required' : 'Recommended'}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant={getStatusColor(doc.status)}>
                       {doc.status.replace('-', ' ')}
                     </Badge>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <Badge variant="outline">{doc.category}</Badge>
-                    {doc.required ? (
-                      <Badge variant="destructive">Required</Badge>
-                    ) : doc.recommended ? (
-                      <Badge variant="secondary">Recommended</Badge>
-                    ) : null}
+                  
+                  <div className="space-y-3">
+                    {/* File Input Row */}
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="file"
+                          multiple
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => e.target.files && onFileUpload(docId, e.target.files)}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Action Buttons Row - Only show if files are uploaded */}
+                    {hasUploads && (
+                      <div className="flex flex-wrap items-center gap-2 justify-end pt-2 border-t border-gray-100">
+                        <Button 
+                          size="sm"
+                          variant="default"
+                          className="bg-teal-600 hover:bg-teal-700 text-white"
+                          onClick={() => {
+                            // Find the most recently uploaded file for this document
+                            if (hasUploads) {
+                              const latestFile = uploadedDocs[docId][uploadedDocs[docId].length - 1];
+
+                              // Create a temporary validator to validate this specific file
+                              const validator = async () => {
+                                try {
+                                  // Use the new OCR processor that handles both images and PDFs
+                                  const { processDocumentOCR } = await import('../utils/ocrProcessor');
+                                  
+                                  const text = await processDocumentOCR(latestFile.file, (progressInfo) => {
+                                    console.log(`OCR Progress: ${progressInfo.status} - ${progressInfo.current}%`);
+                                  });
+
+                                  // Import the validation function from the utility
+                                  const { validateByDocumentType } = await import('../utils/documentValidation');
+
+                                  // Validate based on document type
+                                  const validationResult = validateByDocumentType(text, doc.type as DocumentType);
+
+                                  // Update the document status based on validation result
+                                  if (validationResult.isValid) {
+                                    updateDocumentStatus(docId, 'ready');
+                                  } else {
+                                    // Show the validation issues to the user
+                                    const issues = validationResult.issues.map(issue => `${issue.message}`);
+                                    
+                                    // Add hidden debug info
+                                    issues.push(`
+                                      <details class="mt-4 p-2 bg-gray-100 rounded text-xs font-mono">
+                                        <summary class="cursor-pointer font-bold text-gray-600">Show Debug Info (OCR Text)</summary>
+                                        <div class="mt-2 whitespace-pre-wrap break-all">
+                                          ${text.substring(0, 500)}...
+                                        </div>
+                                      </details>
+                                    `);
+                                    
+                                    setValidationErrors(issues);
+                                    setShowErrorDialog(true);
+                                  }
+                                } catch (error) {
+                                  console.error('Validation error:', error);
+                                  setValidationErrors([`Error validating document: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`]);
+                                  setShowErrorDialog(true);
+                                }
+                              };
+
+                              validator();
+                            } else {
+                              alert('Please upload a file first before validating.');
+                            }
+                          }}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Validate Document
+                        </Button>
+                        
+                        {/* Show Manual Verify for all documents that have a checklist defined */}
+                        {manualChecklists[doc.type as DocumentType] && (
+                          <Button 
+                            size="sm"
+                            variant="default"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => openManualVerification(docId, doc.type)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Manual Verify
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
+                  
+                  {hasUploads && (
+                    <div className="mt-3 space-y-2">
+                      {uploadedDocs[docId].map((upload, fileIdx) => (
+                        <div key={fileIdx} className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                          <span className="flex items-center gap-2">
+                            📄 {upload.file.name}
+                            <Badge variant="outline" className="text-xs">
+                              {upload.quality}
+                            </Badge>
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-500">
+                              {(upload.file.size / 1024).toFixed(1)} KB
+                            </span>
+                            <button
+                              onClick={() => onFileRemove(docId, fileIdx)}
+                              className="text-red-500 hover:text-red-700 cursor-pointer"
+                              title="Remove file"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {doc.status === 'ready' ? (
+                        <div className="p-2 rounded text-xs bg-green-50 text-green-700">
+                          ✓ Document validated successfully
+                        </div>
+                      ) : qualityCheck && (
+                        <div className={`p-2 rounded text-xs ${
+                          qualityCheck.passed ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'
+                        }`}>
+                          {qualityCheck.passed ? '✓ File uploaded. Please proceed to validation.' : 
+                           `⚠ Issues found: ${qualityCheck.issues.join(', ')}`}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="flex flex-col space-y-2">
-                  <Button
-                    variant={doc.status === 'missing' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => onStatusChange(doc.id, 'missing')}
-                    className="text-xs"
-                  >
-                    {doc.status === 'missing' ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <Circle className="h-3 w-3 mr-1" />}
-                    Missing
-                  </Button>
-                  <Button
-                    variant={doc.status === 'in-progress' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => onStatusChange(doc.id, 'in-progress')}
-                    className="text-xs"
-                  >
-                    {doc.status === 'in-progress' ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <Circle className="h-3 w-3 mr-1" />}
-                    In Progress
-                  </Button>
-                  <Button
-                    variant={doc.status === 'ready' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => onStatusChange(doc.id, 'ready')}
-                    className="text-xs"
-                  >
-                    {doc.status === 'ready' ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <Circle className="h-3 w-3 mr-1" />}
-                    Ready
-                  </Button>
-                  <Button
-                    variant={doc.status === 'submitted' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => onStatusChange(doc.id, 'submitted')}
-                    className="text-xs"
-                  >
-                    {doc.status === 'submitted' ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <Circle className="h-3 w-3 mr-1" />}
-                    Submitted
-                  </Button>
-                </div>
+              );
+            })
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <FileText className="h-12 w-12 mx-auto text-gray-300" />
+              <p>No documents required based on your 221(g) form selections</p>
+              <p className="text-sm mt-1">Go back to the 221(g) form checker to select required documents</p>
+            </div>
+          )}
+        </div>
+        
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h4 className="font-medium text-blue-800 flex items-center">
+            <AlertTriangle className="mr-2 h-4 w-4" />
+            Document Preparation Tips
+          </h4>
+          <ul className="mt-2 space-y-1 text-sm text-blue-700">
+            <li>• Make sure all documents are clear and readable</li>
+            <li>• Check that names match across all documents</li>
+            <li>• Ensure documents are not expired</li>
+            <li>• For translations, use certified translators</li>
+            <li>• Keep copies of all submitted documents</li>
+          </ul>
+        </div>
+      </CardContent>
+
+      {/* Manual Verification Dialog */}
+      <Dialog open={showManualVerify} onOpenChange={setShowManualVerify}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Manual Verification: {manualVerifyDocType?.replace('_', ' ').toUpperCase()}</DialogTitle>
+            <DialogDescription>
+              Please manually verify that your document contains the following required details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {currentChecklistItems.map((item) => (
+              <div key={item.id} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={item.id} 
+                  checked={manualChecklist[item.id] || false}
+                  onCheckedChange={(checked) => setManualChecklist(prev => ({...prev, [item.id]: !!checked}))}
+                />
+                <Label htmlFor={item.id}>{item.label}</Label>
               </div>
             ))}
-            
-            {requiredDocuments.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <FileText className="h-12 w-12 mx-auto text-gray-300" />
-                <p>No specific documents required based on your selections</p>
-                <p className="text-sm mt-1">Select items from your 221(g) form to see required documents</p>
-              </div>
-            )}
           </div>
-        </ScrollArea>
-      </CardContent>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowManualVerify(false)}>Cancel</Button>
+            <Button onClick={handleManualVerifySubmit}>Confirm & Mark Ready</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Validation Error Dialog */}
+      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Validation Issues Found
+            </DialogTitle>
+            <DialogDescription>
+              We found some issues with your document. Please review them below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-2">
+            {validationErrors.map((error, idx) => (
+              <div key={idx} className="p-3 bg-red-50 border border-red-100 rounded-md text-sm text-red-800">
+                • {error}
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowErrorDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

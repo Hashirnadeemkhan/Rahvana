@@ -3,8 +3,45 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { FormSelections } from '../types/221g';
+
+interface FormSelections {
+  admin_processing?: boolean;
+  passport?: boolean;
+  medical_examination?: boolean;
+  nadra_family_reg?: boolean;
+  nadra_birth_cert?: boolean;
+  nadra_birth_cert_petitioner?: boolean;
+  nadra_birth_cert_beneficiary?: boolean;
+  nadra_marriage_cert?: boolean;
+  nikah_nama?: boolean;
+  nadra_divorce_cert?: boolean;
+  nadra_divorce_cert_petitioner?: boolean;
+  nadra_divorce_cert_beneficiary?: boolean;
+  us_divorce_decree?: boolean;
+  death_certificate?: boolean;
+  death_certificate_name?: string;
+  police_certificate?: boolean;
+  police_certificate_country?: string;
+  english_translation?: boolean;
+  english_translation_document?: string;
+  i864_affidavit?: boolean;
+  i864_courier?: boolean;
+  i864_online?: boolean;
+  i864_petitioner?: boolean;
+  i864_joint_sponsor?: boolean;
+  i864a?: boolean;
+  i134?: boolean;
+  i864w?: boolean;
+  tax_1040?: boolean;
+  w2?: boolean;
+  irs_transcript?: boolean;
+  proof_citizenship?: boolean;
+  domicile?: boolean;
+  dna_test?: boolean;
+  dna_test_name?: string;
+  other?: boolean;
+  other_details?: string;
+}
 
 interface Actual221GFormCheckerProps {
   selectedItems: FormSelections;
@@ -28,7 +65,7 @@ export default function Actual221GFormChecker({
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-blue-700">221(g) Form Checker</CardTitle>
         <CardDescription>
@@ -39,393 +76,390 @@ export default function Actual221GFormChecker({
         <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h3 className="font-semibold text-blue-800 text-center text-lg">U.S. Embassy Islamabad, Pakistan</h3>
           <h4 className="font-medium text-blue-700 text-center">Immigrant Visa Unit</h4>
-          <div className="mt-2 flex justify-between">
-            <span><strong>Case ID(s):</strong> {selectedItems.caseId || '[CASE NUMBER]'}</span>
-            <span><strong>Date:</strong> {new Date().toLocaleDateString()}</span>
-          </div>
         </div>
 
-        <div className="space-y-4 max-h-150 overflow-y-auto pr-2">
-          <div className="p-4 bg-gray-100 rounded-lg border border-gray-300">
-            <h4 className="font-bold text-lg mb-4 text-center">221(g) FORM - REQUIRED DOCUMENTS</h4>
+        <div className="space-y-4">
+          <div className="p-6 bg-white rounded-lg border-2 border-gray-300 shadow-sm">
+            <h4 className="font-bold text-lg mb-6 text-gray-800">221(g) FORM - REQUIRED DOCUMENTS</h4>
             
             {/* Administrative processing */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="admin_processing"
                 checked={!!selectedItems.admin_processing}
                 onCheckedChange={(checked) => handleCheckboxChange('admin_processing', checked as boolean)}
+                className="mt-1"
               />
-              <div className="flex-1">
-                <Label htmlFor="admin_processing" className="text-base font-medium">
-                  Administrative processing (you will be notified if further action is needed)
-                </Label>
-              </div>
+              <Label htmlFor="admin_processing" className="text-sm font-normal cursor-pointer">
+                <span className="font-semibold">Administrative processing</span> <span className="italic text-gray-600">(you will be notified if further action is needed)</span>
+              </Label>
             </div>
 
             {/* Passport */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="passport"
                 checked={!!selectedItems.passport}
                 onCheckedChange={(checked) => handleCheckboxChange('passport', checked as boolean)}
+                className="mt-1"
               />
-              <div className="flex-1">
-                <Label htmlFor="passport" className="text-base font-medium">
-                  Passport (submit via courier)
-                </Label>
-              </div>
+              <Label htmlFor="passport" className="text-sm font-normal cursor-pointer">
+                <span className="font-semibold">Passport</span> <span className="italic text-gray-600">(submit via courier)</span>
+              </Label>
             </div>
 
             {/* Medical examination */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="medical_examination"
                 checked={!!selectedItems.medical_examination}
                 onCheckedChange={(checked) => handleCheckboxChange('medical_examination', checked as boolean)}
+                className="mt-1"
               />
-              <div className="flex-1">
-                <Label htmlFor="medical_examination" className="text-base font-medium">
-                  Medical examination (through panel physician)
-                </Label>
-              </div>
+              <Label htmlFor="medical_examination" className="text-sm font-normal cursor-pointer">
+                <span className="font-semibold">Medical examination</span> <span className="italic text-gray-600">(through panel physician)</span>
+              </Label>
             </div>
 
             {/* Original NADRA Family Registration Certificate */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="nadra_family_reg"
                 checked={!!selectedItems.nadra_family_reg}
                 onCheckedChange={(checked) => handleCheckboxChange('nadra_family_reg', checked as boolean)}
+                className="mt-1"
               />
-              <div className="flex-1">
-                <Label htmlFor="nadra_family_reg" className="text-base font-medium">
-                  Original NADRA Family Registration Certificate (submit via courier)
-                </Label>
-              </div>
+              <Label htmlFor="nadra_family_reg" className="text-sm font-normal cursor-pointer">
+                Original <span className="font-semibold">NADRA Family Registration Certificate</span> <span className="italic text-gray-600">(submit via courier)</span>
+              </Label>
             </div>
 
             {/* Original NADRA Birth Cert. */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="nadra_birth_cert"
                 checked={!!selectedItems.nadra_birth_cert}
                 onCheckedChange={(checked) => handleCheckboxChange('nadra_birth_cert', checked as boolean)}
+                className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="nadra_birth_cert" className="text-base font-medium">
-                  Original NADRA Birth Cert. (submit via courier)
+                <Label htmlFor="nadra_birth_cert" className="text-sm font-normal cursor-pointer">
+                  Original <span className="font-semibold">NADRA Birth Cert.</span> <span className="italic text-gray-600">(submit via courier)</span>
                 </Label>
-                <div className="ml-6 mt-2 flex space-x-4">
-                  <div className="flex items-center space-x-2">
+                <div className="ml-6 mt-1 flex items-center space-x-4">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="nadra_birth_cert_petitioner"
                       checked={!!selectedItems.nadra_birth_cert_petitioner}
                       onCheckedChange={(checked) => handleCheckboxChange('nadra_birth_cert_petitioner', checked as boolean)}
                     />
-                    <Label htmlFor="nadra_birth_cert_petitioner">Petitioner</Label>
+                    <Label htmlFor="nadra_birth_cert_petitioner" className="text-xs cursor-pointer">Petitioner</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="nadra_birth_cert_beneficiary"
                       checked={!!selectedItems.nadra_birth_cert_beneficiary}
                       onCheckedChange={(checked) => handleCheckboxChange('nadra_birth_cert_beneficiary', checked as boolean)}
                     />
-                    <Label htmlFor="nadra_birth_cert_beneficiary">Beneficiary</Label>
+                    <Label htmlFor="nadra_birth_cert_beneficiary" className="text-xs cursor-pointer">Beneficiary</Label>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Original NADRA Marriage Certificate */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="nadra_marriage_cert"
                 checked={!!selectedItems.nadra_marriage_cert}
                 onCheckedChange={(checked) => handleCheckboxChange('nadra_marriage_cert', checked as boolean)}
+                className="mt-1"
               />
-              <div className="flex-1">
-                <Label htmlFor="nadra_marriage_cert" className="text-base font-medium">
-                  Original NADRA Marriage Certificate (submit via courier)
-                </Label>
-              </div>
+              <Label htmlFor="nadra_marriage_cert" className="text-sm font-normal cursor-pointer">
+                Original <span className="font-semibold">NADRA Marriage Certificate</span> <span className="italic text-gray-600">(submit via courier)</span>
+              </Label>
             </div>
 
             {/* Original Nikah Nama */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="nikah_nama"
                 checked={!!selectedItems.nikah_nama}
                 onCheckedChange={(checked) => handleCheckboxChange('nikah_nama', checked as boolean)}
+                className="mt-1"
               />
-              <div className="flex-1">
-                <Label htmlFor="nikah_nama" className="text-base font-medium">
-                  Original Nikah Nama (submit via courier)
-                </Label>
-              </div>
+              <Label htmlFor="nikah_nama" className="text-sm font-normal cursor-pointer">
+                Original <span className="font-semibold">Nikah Nama</span> <span className="italic text-gray-600">(submit via courier)</span>
+              </Label>
             </div>
 
             {/* Original NADRA Divorce Cert. */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="nadra_divorce_cert"
                 checked={!!selectedItems.nadra_divorce_cert}
                 onCheckedChange={(checked) => handleCheckboxChange('nadra_divorce_cert', checked as boolean)}
+                className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="nadra_divorce_cert" className="text-base font-medium">
-                  Original NADRA Divorce Cert. (submit via courier)
+                <Label htmlFor="nadra_divorce_cert" className="text-sm font-normal cursor-pointer">
+                  Original <span className="font-semibold">NADRA Divorce Cert.</span> <span className="italic text-gray-600">(submit via courier)</span>
                 </Label>
-                <div className="ml-6 mt-2 flex space-x-4">
-                  <div className="flex items-center space-x-2">
+                <div className="ml-6 mt-1 flex items-center space-x-4">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="nadra_divorce_cert_petitioner"
                       checked={!!selectedItems.nadra_divorce_cert_petitioner}
                       onCheckedChange={(checked) => handleCheckboxChange('nadra_divorce_cert_petitioner', checked as boolean)}
                     />
-                    <Label htmlFor="nadra_divorce_cert_petitioner">Petitioner</Label>
+                    <Label htmlFor="nadra_divorce_cert_petitioner" className="text-xs cursor-pointer">Petitioner</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="nadra_divorce_cert_beneficiary"
                       checked={!!selectedItems.nadra_divorce_cert_beneficiary}
                       onCheckedChange={(checked) => handleCheckboxChange('nadra_divorce_cert_beneficiary', checked as boolean)}
                     />
-                    <Label htmlFor="nadra_divorce_cert_beneficiary">Beneficiary</Label>
+                    <Label htmlFor="nadra_divorce_cert_beneficiary" className="text-xs cursor-pointer">Beneficiary</Label>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Original U.S. Divorce Decree */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="us_divorce_decree"
                 checked={!!selectedItems.us_divorce_decree}
                 onCheckedChange={(checked) => handleCheckboxChange('us_divorce_decree', checked as boolean)}
+                className="mt-1"
               />
-              <div className="flex-1">
-                <Label htmlFor="us_divorce_decree" className="text-base font-medium">
-                  Original U.S. Divorce Decree or certified copy (submit via courier)
-                </Label>
-              </div>
+              <Label htmlFor="us_divorce_decree" className="text-sm font-normal cursor-pointer">
+                Original <span className="font-semibold">U.S. Divorce Decree</span> or certified copy <span className="italic text-gray-600">(submit via courier)</span>
+              </Label>
             </div>
 
             {/* Original Death Certificate */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="death_certificate"
                 checked={!!selectedItems.death_certificate}
                 onCheckedChange={(checked) => handleCheckboxChange('death_certificate', checked as boolean)}
+                className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="death_certificate" className="text-base font-medium">
-                  Original Death Certificate (submit via courier) for:
+                <Label htmlFor="death_certificate" className="text-sm font-normal cursor-pointer">
+                  Original <span className="font-semibold">Death Certificate</span> <span className="italic text-gray-600">(submit via courier)</span> for: <Input
+                    type="text"
+                    placeholder=""
+                    className="inline-block w-56 h-6 px-2 border-b border-gray-400 border-t-0 border-l-0 border-r-0 rounded-none focus:border-blue-500 focus:ring-0"
+                    value={selectedItems.death_certificate_name || ''}
+                    onChange={(e) => handleInputChange('death_certificate_name', e.target.value)}
+                  />
                 </Label>
-                <Input
-                  type="text"
-                  placeholder="Name"
-                  className="mt-2 ml-6 w-1/2"
-                  value={selectedItems.death_certificate_name || ''}
-                  onChange={(e) => handleInputChange('death_certificate_name', e.target.value)}
-                />
               </div>
             </div>
 
             {/* Original Police Certificate */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="police_certificate"
                 checked={!!selectedItems.police_certificate}
                 onCheckedChange={(checked) => handleCheckboxChange('police_certificate', checked as boolean)}
+                className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="police_certificate" className="text-base font-medium">
-                  Original Police Certificate (submit via courier) for country:
+                <Label htmlFor="police_certificate" className="text-sm font-normal cursor-pointer">
+                  Original <span className="font-semibold">Police Certificate</span> <span className="italic text-gray-600">(submit via courier)</span> for country: <Input
+                    type="text"
+                    placeholder=""
+                    className="inline-block w-56 h-6 px-2 border-b border-gray-400 border-t-0 border-l-0 border-r-0 rounded-none focus:border-blue-500 focus:ring-0"
+                    value={selectedItems.police_certificate_country || ''}
+                    onChange={(e) => handleInputChange('police_certificate_country', e.target.value)}
+                  />
                 </Label>
-                <Input
-                  type="text"
-                  placeholder="Country"
-                  className="mt-2 ml-6 w-1/2"
-                  value={selectedItems.police_certificate_country || ''}
-                  onChange={(e) => handleInputChange('police_certificate_country', e.target.value)}
-                />
               </div>
             </div>
 
             {/* English translation */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="english_translation"
                 checked={!!selectedItems.english_translation}
                 onCheckedChange={(checked) => handleCheckboxChange('english_translation', checked as boolean)}
+                className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="english_translation" className="text-base font-medium">
-                  English translation (submit via courier) of document:
+                <Label htmlFor="english_translation" className="text-sm font-normal cursor-pointer">
+                  <span className="font-semibold">English translation</span> <span className="italic text-gray-600">(submit via courier)</span> of document: <Input
+                    type="text"
+                    placeholder=""
+                    className="inline-block w-56 h-6 px-2 border-b border-gray-400 border-t-0 border-l-0 border-r-0 rounded-none focus:border-blue-500 focus:ring-0"
+                    value={selectedItems.english_translation_document || ''}
+                    onChange={(e) => handleInputChange('english_translation_document', e.target.value)}
+                  />
                 </Label>
-                <Input
-                  type="text"
-                  placeholder="Document name"
-                  className="mt-2 ml-6 w-1/2"
-                  value={selectedItems.english_translation_document || ''}
-                  onChange={(e) => handleInputChange('english_translation_document', e.target.value)}
-                />
               </div>
             </div>
 
             {/* I-864 Affidavit of Support */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="i864_affidavit"
                 checked={!!selectedItems.i864_affidavit}
                 onCheckedChange={(checked) => handleCheckboxChange('i864_affidavit', checked as boolean)}
+                className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="i864_affidavit" className="text-base font-medium">
-                  I-864 Affidavit of Support (submit via courier / online)
+                <Label htmlFor="i864_affidavit" className="text-sm font-normal cursor-pointer">
+                  <span className="font-semibold">I-864 Affidavit of Support</span> <span className="italic text-gray-600">(submit via</span>
                 </Label>
-                <div className="ml-6 mt-2 grid grid-cols-2 gap-2">
-                  <div className="flex items-center space-x-2">
+                <div className="ml-6 mt-1 flex items-center space-x-3">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="i864_courier"
                       checked={!!selectedItems.i864_courier}
                       onCheckedChange={(checked) => handleCheckboxChange('i864_courier', checked as boolean)}
                     />
-                    <Label htmlFor="i864_courier">Courier</Label>
+                    <Label htmlFor="i864_courier" className="text-xs cursor-pointer italic text-gray-600">courier /</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="i864_online"
                       checked={!!selectedItems.i864_online}
                       onCheckedChange={(checked) => handleCheckboxChange('i864_online', checked as boolean)}
                     />
-                    <Label htmlFor="i864_online">Online</Label>
+                    <Label htmlFor="i864_online" className="text-xs cursor-pointer italic text-gray-600">online)</Label>
                   </div>
                 </div>
-                <div className="ml-6 mt-2 flex flex-wrap gap-2">
-                  <div className="flex items-center space-x-2">
+                <div className="ml-6 mt-1 flex flex-wrap items-center gap-3">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="i864_petitioner"
                       checked={!!selectedItems.i864_petitioner}
                       onCheckedChange={(checked) => handleCheckboxChange('i864_petitioner', checked as boolean)}
                     />
-                    <Label htmlFor="i864_petitioner">Petitioner</Label>
+                    <Label htmlFor="i864_petitioner" className="text-xs cursor-pointer">Petitioner</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="i864_joint_sponsor"
                       checked={!!selectedItems.i864_joint_sponsor}
                       onCheckedChange={(checked) => handleCheckboxChange('i864_joint_sponsor', checked as boolean)}
                     />
-                    <Label htmlFor="i864_joint_sponsor">Joint Sponsor</Label>
+                    <Label htmlFor="i864_joint_sponsor" className="text-xs cursor-pointer">Joint Sponsor</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                </div>
+                <div className="ml-6 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="i864a"
                       checked={!!selectedItems.i864a}
                       onCheckedChange={(checked) => handleCheckboxChange('i864a', checked as boolean)}
                     />
-                    <Label htmlFor="i864a">I-864A</Label>
+                    <Label htmlFor="i864a" className="text-xs cursor-pointer">I-864A</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="i134"
                       checked={!!selectedItems.i134}
                       onCheckedChange={(checked) => handleCheckboxChange('i134', checked as boolean)}
                     />
-                    <Label htmlFor="i134">I-134</Label>
+                    <Label htmlFor="i134" className="text-xs cursor-pointer">I-134</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="i864w"
                       checked={!!selectedItems.i864w}
                       onCheckedChange={(checked) => handleCheckboxChange('i864w', checked as boolean)}
                     />
-                    <Label htmlFor="i864w">I-864W</Label>
+                    <Label htmlFor="i864w" className="text-xs cursor-pointer">I-864W</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="tax_1040"
                       checked={!!selectedItems.tax_1040}
                       onCheckedChange={(checked) => handleCheckboxChange('tax_1040', checked as boolean)}
                     />
-                    <Label htmlFor="tax_1040">1040</Label>
+                    <Label htmlFor="tax_1040" className="text-xs cursor-pointer">1040</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="w2"
                       checked={!!selectedItems.w2}
                       onCheckedChange={(checked) => handleCheckboxChange('w2', checked as boolean)}
                     />
-                    <Label htmlFor="w2">W-2</Label>
+                    <Label htmlFor="w2" className="text-xs cursor-pointer">W-2</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="irs_transcript"
                       checked={!!selectedItems.irs_transcript}
                       onCheckedChange={(checked) => handleCheckboxChange('irs_transcript', checked as boolean)}
                     />
-                    <Label htmlFor="irs_transcript">IRS tax transcript</Label>
+                    <Label htmlFor="irs_transcript" className="text-xs cursor-pointer">IRS tax transcript</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                </div>
+                <div className="ml-6 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="proof_citizenship"
                       checked={!!selectedItems.proof_citizenship}
                       onCheckedChange={(checked) => handleCheckboxChange('proof_citizenship', checked as boolean)}
                     />
-                    <Label htmlFor="proof_citizenship">Proof of U.S. citizenship</Label>
+                    <Label htmlFor="proof_citizenship" className="text-xs cursor-pointer">Proof of U.S. citizenship or LPR status</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <Checkbox
                       id="domicile"
                       checked={!!selectedItems.domicile}
                       onCheckedChange={(checked) => handleCheckboxChange('domicile', checked as boolean)}
                     />
-                    <Label htmlFor="domicile">Domicile</Label>
+                    <Label htmlFor="domicile" className="text-xs cursor-pointer">Domicile</Label>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* DNA test */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="dna_test"
                 checked={!!selectedItems.dna_test}
                 onCheckedChange={(checked) => handleCheckboxChange('dna_test', checked as boolean)}
+                className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="dna_test" className="text-base font-medium">
-                  DNA test recommended for:
+                <Label htmlFor="dna_test" className="text-sm font-normal cursor-pointer">
+                  <span className="font-semibold">DNA test</span> recommended for: <Input
+                    type="text"
+                    placeholder=""
+                    className="inline-block w-56 h-6 px-2 border-b border-gray-400 border-t-0 border-l-0 border-r-0 rounded-none focus:border-blue-500 focus:ring-0"
+                    value={selectedItems.dna_test_name || ''}
+                    onChange={(e) => handleInputChange('dna_test_name', e.target.value)}
+                  />
                 </Label>
-                <Input
-                  type="text"
-                  placeholder="Name"
-                  className="mt-2 ml-6 w-1/2"
-                  value={selectedItems.dna_test_name || ''}
-                  onChange={(e) => handleInputChange('dna_test_name', e.target.value)}
-                />
               </div>
             </div>
 
             {/* Other */}
-            <div className="flex items-start space-x-3 p-3 rounded-lg border mb-2">
+            <div className="flex items-start space-x-2 mb-3">
               <Checkbox
                 id="other"
                 checked={!!selectedItems.other}
                 onCheckedChange={(checked) => handleCheckboxChange('other', checked as boolean)}
+                className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="other" className="text-base font-medium">
-                  Other:
+                <Label htmlFor="other" className="text-sm font-normal cursor-pointer">
+                  <span className="font-semibold">Other:</span> <Input
+                    type="text"
+                    placeholder=""
+                    className="inline-block w-96 h-6 px-2 border-b border-gray-400 border-t-0 border-l-0 border-r-0 rounded-none focus:border-blue-500 focus:ring-0"
+                    value={selectedItems.other_details || ''}
+                    onChange={(e) => handleInputChange('other_details', e.target.value)}
+                  />
                 </Label>
-                <Textarea
-                  placeholder="Specify other requirements"
-                  className="mt-2 ml-6 w-1/2"
-                  value={selectedItems.other_details || ''}
-                  onChange={(e) => handleInputChange('other_details', e.target.value)}
-                />
               </div>
             </div>
           </div>

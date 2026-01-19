@@ -9,6 +9,7 @@ import { FormData, FormSelections } from './types/221g';
 
 export default function TwentyTwoOneGActionPlanner() {
   const [formData, setFormData] = useState<FormData | null>(null);
+  const [selectedItems, setSelectedItems] = useState<FormSelections | null>(null);
   const [classification, setClassification] = useState<ClassificationResult | null>(null);
   const [actionPlan, setActionPlan] = useState<ActionPlan | null>(null);
   const [showResults, setShowResults] = useState(false);
@@ -25,6 +26,7 @@ export default function TwentyTwoOneGActionPlanner() {
     const plan = generateActionPlan(classificationResult, selectedItemsArray);
     setActionPlan(plan);
     setFormData(data);
+    setSelectedItems(selectedItems);
 
     // Show the results
     setShowResults(true);
@@ -43,6 +45,7 @@ export default function TwentyTwoOneGActionPlanner() {
           classification={classification}
           actionPlan={actionPlan}
           formData={formData}
+          selectedItems={selectedItems}
           onBackToForm={handleBackToForm}
         />
       )}

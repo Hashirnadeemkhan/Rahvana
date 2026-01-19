@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/table";
 import Pagination from "@/components/ui/pagination";
 import { ElementType } from "react";
-import { filter } from "jszip";
 
 type TranslationStatus =
   | "PENDING"

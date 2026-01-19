@@ -187,6 +187,7 @@ export function SiteHeader({
         "Book Appintment": "/book-appointment",
         "Police Verification": "/police-verification",
         "document-translation": "/document-translation",
+        "221g-action-planner": "/221g-action-planner",
         "visa-case-strength-checker": "/visa-case-strength-checker",
         "view-security-questions": "/view-security-questions",
         "courier-registration": "/courier-registration",
@@ -462,6 +463,11 @@ export function SiteHeader({
                     href: "/document-translation",
                     label: "Document Translation",
                     id: "document-translation",
+                  },
+                  {
+                    href: "/221g-action-planner",
+                    label: "221G Action Planner",
+                    id: "221g-action-planner",
                   },
                   {
                     href: "/visa-case-strength-checker",
