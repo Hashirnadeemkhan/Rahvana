@@ -281,9 +281,33 @@ export class VisaCheckerSupabaseService {
     };
   }
 
-  /**
-   * Convert severity to priority number (1=HIGH, 2=MEDIUM, 3=LOW)
-   */
+  // Get User Requests
+  static async getUserRequests(email: string, limit: number = 50, offset: number = 0) {
+    const { data, error } = await supabase
+      .from('user_case_sessions')
+      .select('*')
+      .eq('user_email', email)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw new Error(`Failed to get user requests: ${error.message}`);
+    }
+
+    return data.map(item => ({
+      sessionId: item.id,
+      userEmail: item.user_email,
+      userName: item.user_name,
+      caseType: item.case_type as CaseType,
+      overallScore: item.overall_score,
+      riskLevel: item.risk_level as RiskLevel,
+      completed: item.completed,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at
+    }));
+  }
+
+  // Convert severity to priority number (1=HIGH, 2=MEDIUM, 3=LOW)
   private static getPriorityNumber(severity: string): number {
     switch (severity) {
       case "HIGH":

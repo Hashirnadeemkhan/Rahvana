@@ -49,8 +49,23 @@
       "title": "Education & Employment Background",
       "questions": [
         {
+          "id": "highest_education_level",
+          "label": "What is your highest level of education?",
+          "type": "select",
+          "options": [
+            "No formal education",
+            "Primary education",
+            "Secondary education",
+            "Diploma or Trade Certificate",
+            "Bachelor's degree",
+            "Master's degree",
+            "Doctorate (PhD)",
+            "Other"
+          ]
+        },
+        {
           "id": "highest_education_field",
-          "label": "What is your highest level of study?",
+          "label": "What is your highest field of study?",
           "type": "text"
         },
         {
@@ -74,6 +89,24 @@
             "Energy/Nuclear"
           ]
         },
+        {
+          "id": "prior_military_service",
+          "label": "Have you ever served in the armed forces of any country?",
+          "type": "boolean",
+          "risk_tag": "WORKING_IN_DEFENSE_SECTOR"
+        },
+        {
+          "id": "specialized_weapons_training",
+          "label": "Do you have specialized professional training involving weapons, explosives, or hazardous materials?",
+          "type": "boolean",
+          "risk_tag": "DUAL_USE_TECHNOLOGY_RISK"
+        },
+        {
+          "id": "unofficial_armed_groups",
+          "label": "Have you ever been part of any unofficial military or armed groups?",
+          "type": "boolean",
+          "risk_tag": "WORKING_IN_DEFENSE_SECTOR"
+        },                        
         {
           "id": "employer_type",
           "label": "Who is your employer?",
