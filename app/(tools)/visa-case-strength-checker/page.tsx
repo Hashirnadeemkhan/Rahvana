@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ResultPage } from "./components/ResultPage";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ResultPage } from "./result/ResultPage";
 
 type CaseType = "Spouse";
 
@@ -89,8 +90,14 @@ const CaseTypeStep = ({
   onBack,
 }: CaseTypeStepProps) => (
   <div className="space-y-6">
-    <h2 className="text-2xl font-bold text-slate-900 mb-6">
+    <h2 className="text-2xl font-bold text-slate-900 mb-6 flex justify-between items-center">
       Select Case Type
+      <button 
+                  onClick={() => window.location.href = '/visa-case-strength-checker/my-cases'} 
+                  className="text-primary hover:underline text-sm cursor-pointer"
+                >
+                  See your cases
+                </button>
     </h2>
 
     <p className="text-slate-600 mb-8">
@@ -101,16 +108,14 @@ const CaseTypeStep = ({
       {/* ACTIVE: SPOUSE */}
       <button
         type="button"
-        className={`p-6 border-2 rounded-xl text-center transition-all ${
+        className={`p-6 border-2 rounded-xl text-center transition-all cursor-pointer ${
           formData.caseType === "Spouse"
             ? "border-teal-600 bg-teal-50"
             : "border-gray-200 hover:border-teal-400"
         }`}
         onClick={() => onCaseTypeChange("Spouse")}
       >
-        <h3 className="font-semibold text-lg mb-2">
-          Spouse Visa
-        </h3>
+        <h3 className="font-semibold text-lg mb-2">Spouse Visa</h3>
         <p className="text-sm text-slate-600">
           IR-1 / CR-1 – Spouse of U.S. Citizen
         </p>
@@ -128,9 +133,7 @@ const CaseTypeStep = ({
             Coming Soon
           </span>
         </h3>
-        <p className="text-sm text-slate-500">
-          IR-5 – Parent of U.S. Citizen
-        </p>
+        <p className="text-sm text-slate-500">IR-5 – Parent of U.S. Citizen</p>
       </button>
 
       {/* COMING SOON: CHILD */}
@@ -168,8 +171,6 @@ const CaseTypeStep = ({
       </button>
     </div>
 
-    
-
     {error && (
       <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
         {error}
@@ -180,14 +181,14 @@ const CaseTypeStep = ({
       <Button
         onClick={onBack}
         variant="outline"
-        className="bg-teal-600 hover:bg-teal-700 text-white"
+        className="bg-teal-600 hover:bg-teal-700 text-white cursor-pointer"
       >
         Back
       </Button>
 
       <Button
         onClick={onNext}
-        className="bg-teal-600 hover:bg-teal-700 text-white"
+        className="bg-teal-600 hover:bg-teal-700 text-white cursor-pointer"
         disabled={!formData.caseType}
       >
         Next
@@ -232,7 +233,11 @@ const QuestionStep = ({
     options?: string | string[];
     risk_tag?: string;
   }) => {
-    const value = formData[question.id] as string | number | boolean | undefined;
+    const value = formData[question.id] as
+      | string
+      | number
+      | boolean
+      | undefined;
 
     switch (question.type) {
       case "text":
@@ -245,15 +250,15 @@ const QuestionStep = ({
               typeof value === "number"
                 ? value.toString()
                 : typeof value === "string"
-                ? value
-                : ""
+                  ? value
+                  : ""
             }
             onChange={(e) =>
               onChange(
                 question.id,
                 question.type === "number"
                   ? Number(e.target.value)
-                  : e.target.value
+                  : e.target.value,
               )
             }
             className="w-full p-2 border border-gray-300 rounded-md"
@@ -350,23 +355,28 @@ const QuestionStep = ({
             const educationLevel = formData.highest_education_level;
             const qualifyingLevels = [
               "Bachelor's degree",
-              "Master's degree", 
-              "Doctorate (PhD)"
+              "Master's degree",
+              "Doctorate (PhD)",
             ];
-            
+
             if (!educationLevel || !qualifyingLevels.includes(educationLevel)) {
               return null;
             }
           }
 
           // Hide military / defense additional questions unless industry sector meets criteria
-          if (question.id === "prior_military_service" || question.id === "specialized_weapons_training" || question.id === "unofficial_armed_groups") {
+          if (
+            question.id === "prior_military_service" ||
+            question.id === "specialized_weapons_training" ||
+            question.id === "unofficial_armed_groups"
+          ) {
             const industrySector = formData.industry_sector;
-            const qualifyingSectors = [
-              "Military/Defense",
-            ];
-            
-            if (!industrySector || !qualifyingSectors.includes(industrySector)) {
+            const qualifyingSectors = ["Military/Defense"];
+
+            if (
+              !industrySector ||
+              !qualifyingSectors.includes(industrySector)
+            ) {
               return null;
             }
           }
@@ -500,7 +510,13 @@ const ReviewStep = ({
         </div>
 
         {/* Basic Profile Section */}
-        {(formData.sponsor_dob || formData.beneficiary_dob || formData.country_of_residence || formData.relationship_start_date || formData.marriage_date || formData.spousal_relationship_type || formData.intended_us_state_of_residence) && (
+        {(formData.sponsor_dob ||
+          formData.beneficiary_dob ||
+          formData.country_of_residence ||
+          formData.relationship_start_date ||
+          formData.marriage_date ||
+          formData.spousal_relationship_type ||
+          formData.intended_us_state_of_residence) && (
           <div className="bg-slate-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <svg
@@ -522,13 +538,17 @@ const ReviewStep = ({
               {formData.sponsor_dob && (
                 <div>
                   <p className="text-sm text-slate-600">Sponsor DOB</p>
-                  <p className="font-medium">{formatDate(formData.sponsor_dob)}</p>
+                  <p className="font-medium">
+                    {formatDate(formData.sponsor_dob)}
+                  </p>
                 </div>
               )}
               {formData.beneficiary_dob && (
                 <div>
                   <p className="text-sm text-slate-600">Beneficiary DOB</p>
-                  <p className="font-medium">{formatDate(formData.beneficiary_dob)}</p>
+                  <p className="font-medium">
+                    {formatDate(formData.beneficiary_dob)}
+                  </p>
                 </div>
               )}
               {formData.country_of_residence && (
@@ -539,96 +559,135 @@ const ReviewStep = ({
               )}
               {formData.spousal_relationship_type && (
                 <div>
-                  <p className="text-sm text-slate-600">Spousal Relationship Type</p>
-                  <p className="font-medium">{formData.spousal_relationship_type}</p>
+                  <p className="text-sm text-slate-600">
+                    Spousal Relationship Type
+                  </p>
+                  <p className="font-medium">
+                    {formData.spousal_relationship_type}
+                  </p>
                 </div>
               )}
               {formData.intended_us_state_of_residence && (
                 <div>
-                  <p className="text-sm text-slate-600">Intended US State of Residence</p>
-                  <p className="font-medium">{formData.intended_us_state_of_residence}</p>
-                </div>
-              )}
-        </div>
-        <div className="bg-slate-50 rounded-lg py-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-teal-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 14l9-5-9-5-9 5 9 5z"
-                ></path>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 14l9-5-9-5-9 5 9 5z"
-                ></path>
-              </svg>
-              Education & Employment Background
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-            {formData.highest_education_level && (
-                <div>
-                  <p className="text-sm text-slate-600">Highest Education Level</p>
-                  <p className="font-medium">{formData.highest_education_level}</p>
-                </div>
-              )}
-              {formData.highest_education_field && (
-                <div>
-                  <p className="text-sm text-slate-600">Highest Education Field</p>
-                  <p className="font-medium">{formData.highest_education_field}</p>
-                </div>
-              )}
-              {formData.current_occupation_role && (
-                <div>
-                  <p className="text-sm text-slate-600">Current Occupation Role</p>
-                  <p className="font-medium">{formData.current_occupation_role}</p>
-                </div>
-              )}
-              {formData.industry_sector && (
-                <div>
-                  <p className="text-sm text-slate-600">Industry Sector</p>
-                  <p className="font-medium">{formData.industry_sector}</p>
-                </div>
-              )}
-              {formData.prior_military_service !== undefined && (
-                <div>
-                  <p className="text-sm text-slate-600">Prior Military Service</p>
-                  <p className="font-medium">{formatBoolean(formData.prior_military_service)}</p>
-                </div>
-              )}
-              {formData.specialized_weapons_training !== undefined && (
-                <div>
-                  <p className="text-sm text-slate-600">Specialized Weapons Training</p>
-                  <p className="font-medium">{formatBoolean(formData.specialized_weapons_training)}</p>
-                </div>
-              )}
-              {formData.unofficial_armed_groups !== undefined && (
-                <div>
-                  <p className="text-sm text-slate-600">Unofficial Armed Groups</p>
-                  <p className="font-medium">{formatBoolean(formData.unofficial_armed_groups)}</p>
-                </div>
-              )}
-              {formData.employer_type && (
-                <div>
-                  <p className="text-sm text-slate-600">Employer Type</p>
-                  <p className="font-medium">{formData.employer_type}</p>
+                  <p className="text-sm text-slate-600">
+                    Intended US State of Residence
+                  </p>
+                  <p className="font-medium">
+                    {formData.intended_us_state_of_residence}
+                  </p>
                 </div>
               )}
             </div>
-          </div>
+            <div className="bg-slate-50 rounded-lg py-6">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-teal-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 14l9-5-9-5-9 5 9 5z"
+                  ></path>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 14l9-5-9-5-9 5 9 5z"
+                  ></path>
+                </svg>
+                Education & Employment Background
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                {formData.highest_education_level && (
+                  <div>
+                    <p className="text-sm text-slate-600">
+                      Highest Education Level
+                    </p>
+                    <p className="font-medium">
+                      {formData.highest_education_level}
+                    </p>
+                  </div>
+                )}
+                {formData.highest_education_field && (
+                  <div>
+                    <p className="text-sm text-slate-600">
+                      Highest Education Field
+                    </p>
+                    <p className="font-medium">
+                      {formData.highest_education_field}
+                    </p>
+                  </div>
+                )}
+                {formData.current_occupation_role && (
+                  <div>
+                    <p className="text-sm text-slate-600">
+                      Current Occupation Role
+                    </p>
+                    <p className="font-medium">
+                      {formData.current_occupation_role}
+                    </p>
+                  </div>
+                )}
+                {formData.industry_sector && (
+                  <div>
+                    <p className="text-sm text-slate-600">Industry Sector</p>
+                    <p className="font-medium">{formData.industry_sector}</p>
+                  </div>
+                )}
+                {formData.prior_military_service !== undefined && (
+                  <div>
+                    <p className="text-sm text-slate-600">
+                      Prior Military Service
+                    </p>
+                    <p className="font-medium">
+                      {formatBoolean(formData.prior_military_service)}
+                    </p>
+                  </div>
+                )}
+                {formData.specialized_weapons_training !== undefined && (
+                  <div>
+                    <p className="text-sm text-slate-600">
+                      Specialized Weapons Training
+                    </p>
+                    <p className="font-medium">
+                      {formatBoolean(formData.specialized_weapons_training)}
+                    </p>
+                  </div>
+                )}
+                {formData.unofficial_armed_groups !== undefined && (
+                  <div>
+                    <p className="text-sm text-slate-600">
+                      Unofficial Armed Groups
+                    </p>
+                    <p className="font-medium">
+                      {formatBoolean(formData.unofficial_armed_groups)}
+                    </p>
+                  </div>
+                )}
+                {formData.employer_type && (
+                  <div>
+                    <p className="text-sm text-slate-600">Employer Type</p>
+                    <p className="font-medium">{formData.employer_type}</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
         {/* Relationship Strength Section */}
-        {(formData.how_did_you_meet || formData.number_of_in_person_visits !== undefined || formData.cohabitation_proof !== undefined || formData.shared_financial_accounts !== undefined || formData.wedding_photos_available !== undefined || formData.communication_logs !== undefined || formData.money_transfer_receipts_available !== undefined || formData.driving_license_copy_available !== undefined) && (
+        {(formData.how_did_you_meet ||
+          formData.number_of_in_person_visits !== undefined ||
+          formData.cohabitation_proof !== undefined ||
+          formData.shared_financial_accounts !== undefined ||
+          formData.wedding_photos_available !== undefined ||
+          formData.communication_logs !== undefined ||
+          formData.money_transfer_receipts_available !== undefined ||
+          formData.driving_license_copy_available !== undefined) && (
           <div className="bg-slate-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <svg
@@ -655,44 +714,68 @@ const ReviewStep = ({
               )}
               {formData.number_of_in_person_visits !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Number of In-Person Visits</p>
-                  <p className="font-medium">{formData.number_of_in_person_visits}</p>
+                  <p className="text-sm text-slate-600">
+                    Number of In-Person Visits
+                  </p>
+                  <p className="font-medium">
+                    {formData.number_of_in_person_visits}
+                  </p>
                 </div>
               )}
               {formData.cohabitation_proof !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Cohabitation Proof</p>
-                  <p className="font-medium">{formatBoolean(formData.cohabitation_proof)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.cohabitation_proof)}
+                  </p>
                 </div>
               )}
               {formData.shared_financial_accounts !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Shared Financial Accounts</p>
-                  <p className="font-medium">{formatBoolean(formData.shared_financial_accounts)}</p>
+                  <p className="text-sm text-slate-600">
+                    Shared Financial Accounts
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.shared_financial_accounts)}
+                  </p>
                 </div>
               )}
               {formData.wedding_photos_available !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Wedding Photos Available</p>
-                  <p className="font-medium">{formatBoolean(formData.wedding_photos_available)}</p>
+                  <p className="text-sm text-slate-600">
+                    Wedding Photos Available
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.wedding_photos_available)}
+                  </p>
                 </div>
               )}
               {formData.communication_logs !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Communication Logs</p>
-                  <p className="font-medium">{formatBoolean(formData.communication_logs)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.communication_logs)}
+                  </p>
                 </div>
               )}
               {formData.money_transfer_receipts_available !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Money Transfer Receipts Available</p>
-                  <p className="font-medium">{formatBoolean(formData.money_transfer_receipts_available)}</p>
+                  <p className="text-sm text-slate-600">
+                    Money Transfer Receipts Available
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.money_transfer_receipts_available)}
+                  </p>
                 </div>
               )}
               {formData.driving_license_copy_available !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Driving License Copy Available</p>
-                  <p className="font-medium">{formatBoolean(formData.driving_license_copy_available)}</p>
+                  <p className="text-sm text-slate-600">
+                    Driving License Copy Available
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.driving_license_copy_available)}
+                  </p>
                 </div>
               )}
             </div>
@@ -700,7 +783,10 @@ const ReviewStep = ({
         )}
 
         {/* Immigration History Section */}
-        {(formData.previous_visa_applications !== undefined || formData.previous_visa_denial !== undefined || formData.overstay_or_violation !== undefined || formData.criminal_record !== undefined) && (
+        {(formData.previous_visa_applications !== undefined ||
+          formData.previous_visa_denial !== undefined ||
+          formData.overstay_or_violation !== undefined ||
+          formData.criminal_record !== undefined) && (
           <div className="bg-slate-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <svg
@@ -721,26 +807,38 @@ const ReviewStep = ({
             <div className="grid grid-cols-2 gap-4">
               {formData.previous_visa_applications !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Previous Visa Applications</p>
-                  <p className="font-medium">{formatBoolean(formData.previous_visa_applications)}</p>
+                  <p className="text-sm text-slate-600">
+                    Previous Visa Applications
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.previous_visa_applications)}
+                  </p>
                 </div>
               )}
               {formData.previous_visa_denial !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Previous Visa Denial</p>
-                  <p className="font-medium">{formatBoolean(formData.previous_visa_denial)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.previous_visa_denial)}
+                  </p>
                 </div>
               )}
               {formData.overstay_or_violation !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Overstay or Violation</p>
-                  <p className="font-medium">{formatBoolean(formData.overstay_or_violation)}</p>
+                  <p className="text-sm text-slate-600">
+                    Overstay or Violation
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.overstay_or_violation)}
+                  </p>
                 </div>
               )}
               {formData.criminal_record !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Criminal Record</p>
-                  <p className="font-medium">{formatBoolean(formData.criminal_record)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.criminal_record)}
+                  </p>
                 </div>
               )}
             </div>
@@ -748,7 +846,14 @@ const ReviewStep = ({
         )}
 
         {/* Financial Profile Section */}
-        {(formData.sponsor_annual_income || formData.household_size || formData.has_tax_returns !== undefined || formData.has_employment_letter !== undefined || formData.has_paystubs !== undefined || formData.joint_sponsor_available !== undefined || formData.i864_affidavit_submitted !== undefined || formData.i864_supporting_financial_documents !== undefined) && (
+        {(formData.sponsor_annual_income ||
+          formData.household_size ||
+          formData.has_tax_returns !== undefined ||
+          formData.has_employment_letter !== undefined ||
+          formData.has_paystubs !== undefined ||
+          formData.joint_sponsor_available !== undefined ||
+          formData.i864_affidavit_submitted !== undefined ||
+          formData.i864_supporting_financial_documents !== undefined) && (
           <div className="bg-slate-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <svg
@@ -769,8 +874,12 @@ const ReviewStep = ({
             <div className="grid grid-cols-2 gap-4">
               {formData.sponsor_annual_income && (
                 <div>
-                  <p className="text-sm text-slate-600">Sponsor Annual Income</p>
-                  <p className="font-medium">${formData.sponsor_annual_income?.toLocaleString()}</p>
+                  <p className="text-sm text-slate-600">
+                    Sponsor Annual Income
+                  </p>
+                  <p className="font-medium">
+                    ${formData.sponsor_annual_income?.toLocaleString()}
+                  </p>
                 </div>
               )}
               {formData.household_size && (
@@ -782,37 +891,59 @@ const ReviewStep = ({
               {formData.has_tax_returns !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Has Tax Returns</p>
-                  <p className="font-medium">{formatBoolean(formData.has_tax_returns)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.has_tax_returns)}
+                  </p>
                 </div>
               )}
               {formData.has_employment_letter !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Has Employment Letter</p>
-                  <p className="font-medium">{formatBoolean(formData.has_employment_letter)}</p>
+                  <p className="text-sm text-slate-600">
+                    Has Employment Letter
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.has_employment_letter)}
+                  </p>
                 </div>
               )}
               {formData.has_paystubs !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Has Paystubs</p>
-                  <p className="font-medium">{formatBoolean(formData.has_paystubs)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.has_paystubs)}
+                  </p>
                 </div>
               )}
               {formData.joint_sponsor_available !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Joint Sponsor Available</p>
-                  <p className="font-medium">{formatBoolean(formData.joint_sponsor_available)}</p>
+                  <p className="text-sm text-slate-600">
+                    Joint Sponsor Available
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.joint_sponsor_available)}
+                  </p>
                 </div>
               )}
               {formData.i864_affidavit_submitted !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">I-864 Affidavit Submitted</p>
-                  <p className="font-medium">{formatBoolean(formData.i864_affidavit_submitted)}</p>
+                  <p className="text-sm text-slate-600">
+                    I-864 Affidavit Submitted
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.i864_affidavit_submitted)}
+                  </p>
                 </div>
               )}
               {formData.i864_supporting_financial_documents !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">I-864 Supporting Financial Documents</p>
-                  <p className="font-medium">{formatBoolean(formData.i864_supporting_financial_documents)}</p>
+                  <p className="text-sm text-slate-600">
+                    I-864 Supporting Financial Documents
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(
+                      formData.i864_supporting_financial_documents,
+                    )}
+                  </p>
                 </div>
               )}
             </div>
@@ -820,7 +951,11 @@ const ReviewStep = ({
         )}
 
         {/* Core Identity Documents Section */}
-        {(formData.urdu_marriage_certificate !== undefined || formData.english_translation_certificate !== undefined || formData.union_council_certificate !== undefined || formData.family_registration_certificate !== undefined || formData.birth_certificates !== undefined) && (
+        {(formData.urdu_marriage_certificate !== undefined ||
+          formData.english_translation_certificate !== undefined ||
+          formData.union_council_certificate !== undefined ||
+          formData.family_registration_certificate !== undefined ||
+          formData.birth_certificates !== undefined) && (
           <div className="bg-slate-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <svg
@@ -841,32 +976,50 @@ const ReviewStep = ({
             <div className="grid grid-cols-2 gap-4">
               {formData.urdu_marriage_certificate !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Urdu Marriage Certificate</p>
-                  <p className="font-medium">{formatBoolean(formData.urdu_marriage_certificate)}</p>
+                  <p className="text-sm text-slate-600">
+                    Urdu Marriage Certificate
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.urdu_marriage_certificate)}
+                  </p>
                 </div>
               )}
               {formData.english_translation_certificate !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">English Translation Certificate</p>
-                  <p className="font-medium">{formatBoolean(formData.english_translation_certificate)}</p>
+                  <p className="text-sm text-slate-600">
+                    English Translation Certificate
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.english_translation_certificate)}
+                  </p>
                 </div>
               )}
               {formData.union_council_certificate !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Union Council Certificate</p>
-                  <p className="font-medium">{formatBoolean(formData.union_council_certificate)}</p>
+                  <p className="text-sm text-slate-600">
+                    Union Council Certificate
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.union_council_certificate)}
+                  </p>
                 </div>
               )}
               {formData.family_registration_certificate !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Family Registration Certificate</p>
-                  <p className="font-medium">{formatBoolean(formData.family_registration_certificate)}</p>
+                  <p className="text-sm text-slate-600">
+                    Family Registration Certificate
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.family_registration_certificate)}
+                  </p>
                 </div>
               )}
               {formData.birth_certificates !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Birth Certificates</p>
-                  <p className="font-medium">{formatBoolean(formData.birth_certificates)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.birth_certificates)}
+                  </p>
                 </div>
               )}
             </div>
@@ -874,7 +1027,10 @@ const ReviewStep = ({
         )}
 
         {/* Passport & Police Documents Section */}
-        {(formData.passports_available !== undefined || formData.passport_copy_available !== undefined || formData.police_certificate_new !== undefined || formData.police_certificate_old !== undefined) && (
+        {(formData.passports_available !== undefined ||
+          formData.passport_copy_available !== undefined ||
+          formData.police_certificate_new !== undefined ||
+          formData.police_certificate_old !== undefined) && (
           <div className="bg-slate-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <svg
@@ -896,25 +1052,39 @@ const ReviewStep = ({
               {formData.passports_available !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Passports Available</p>
-                  <p className="font-medium">{formatBoolean(formData.passports_available)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.passports_available)}
+                  </p>
                 </div>
               )}
               {formData.passport_copy_available !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Passport Copy Available</p>
-                  <p className="font-medium">{formatBoolean(formData.passport_copy_available)}</p>
+                  <p className="text-sm text-slate-600">
+                    Passport Copy Available
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.passport_copy_available)}
+                  </p>
                 </div>
               )}
               {formData.police_certificate_new !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Police Certificate (New)</p>
-                  <p className="font-medium">{formatBoolean(formData.police_certificate_new)}</p>
+                  <p className="text-sm text-slate-600">
+                    Police Certificate (New)
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.police_certificate_new)}
+                  </p>
                 </div>
               )}
               {formData.police_certificate_old !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Police Certificate (Old)</p>
-                  <p className="font-medium">{formatBoolean(formData.police_certificate_old)}</p>
+                  <p className="text-sm text-slate-600">
+                    Police Certificate (Old)
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.police_certificate_old)}
+                  </p>
                 </div>
               )}
             </div>
@@ -922,7 +1092,13 @@ const ReviewStep = ({
         )}
 
         {/* Interview & Medical Documents Section */}
-        {(formData.ds260_confirmation !== undefined || formData.interview_letter !== undefined || formData.courier_registration !== undefined || formData.medical_report_available !== undefined || formData.polio_vaccination_certificate !== undefined || formData.covid_vaccination_certificate !== undefined || formData.passport_photos_2x2 !== undefined) && (
+        {(formData.ds260_confirmation !== undefined ||
+          formData.interview_letter !== undefined ||
+          formData.courier_registration !== undefined ||
+          formData.medical_report_available !== undefined ||
+          formData.polio_vaccination_certificate !== undefined ||
+          formData.covid_vaccination_certificate !== undefined ||
+          formData.passport_photos_2x2 !== undefined) && (
           <div className="bg-slate-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <svg
@@ -944,43 +1120,65 @@ const ReviewStep = ({
               {formData.ds260_confirmation !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">DS-260 Confirmation</p>
-                  <p className="font-medium">{formatBoolean(formData.ds260_confirmation)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.ds260_confirmation)}
+                  </p>
                 </div>
               )}
               {formData.interview_letter !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Interview Letter</p>
-                  <p className="font-medium">{formatBoolean(formData.interview_letter)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.interview_letter)}
+                  </p>
                 </div>
               )}
               {formData.courier_registration !== undefined && (
                 <div>
                   <p className="text-sm text-slate-600">Courier Registration</p>
-                  <p className="font-medium">{formatBoolean(formData.courier_registration)}</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.courier_registration)}
+                  </p>
                 </div>
               )}
               {formData.medical_report_available !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Medical Report Available</p>
-                  <p className="font-medium">{formatBoolean(formData.medical_report_available)}</p>
+                  <p className="text-sm text-slate-600">
+                    Medical Report Available
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.medical_report_available)}
+                  </p>
                 </div>
               )}
               {formData.polio_vaccination_certificate !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Polio Vaccination Certificate</p>
-                  <p className="font-medium">{formatBoolean(formData.polio_vaccination_certificate)}</p>
+                  <p className="text-sm text-slate-600">
+                    Polio Vaccination Certificate
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.polio_vaccination_certificate)}
+                  </p>
                 </div>
               )}
               {formData.covid_vaccination_certificate !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">COVID Vaccination Certificate</p>
-                  <p className="font-medium">{formatBoolean(formData.covid_vaccination_certificate)}</p>
+                  <p className="text-sm text-slate-600">
+                    COVID Vaccination Certificate
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.covid_vaccination_certificate)}
+                  </p>
                 </div>
               )}
               {formData.passport_photos_2x2 !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Passport Photos (2x2)</p>
-                  <p className="font-medium">{formatBoolean(formData.passport_photos_2x2)}</p>
+                  <p className="text-sm text-slate-600">
+                    Passport Photos (2x2)
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData.passport_photos_2x2)}
+                  </p>
                 </div>
               )}
             </div>
@@ -1032,45 +1230,52 @@ export default function VisaCaseStrengthChecker() {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [saveNotification, setSaveNotification] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check for existing session on component mount
   useEffect(() => {
     const checkExistingSession = async () => {
-      const savedSessionId = localStorage.getItem('visaCheckerSessionId');
-      
+      const savedSessionId = localStorage.getItem("visaCheckerSessionId");
+
       if (savedSessionId) {
         try {
           setLoading(true);
-          const response = await fetch(`/api/visa-checker/session/${savedSessionId}`);
+          const response = await fetch(
+            `/api/visa-checker/session/${savedSessionId}`,
+          );
           const sessionData = await response.json();
-          
+
           if (response.ok && sessionData.completed === false) {
             // Found an incomplete session, restore it
             setSessionId(savedSessionId);
-            setFormData(prev => ({
+            setFormData((prev) => ({
               ...prev,
               caseType: sessionData.caseType,
-              ...sessionData.answers
+              ...sessionData.answers,
             }));
-            
-            const answeredQuestions = Object.keys(sessionData.answers).filter(key => sessionData.answers[key] !== undefined && sessionData.answers[key] !== "").length;
-            
-            setStep(0); 
+
+            const answeredQuestions = Object.keys(sessionData.answers).filter(
+              (key) =>
+                sessionData.answers[key] !== undefined &&
+                sessionData.answers[key] !== "",
+            ).length;
+
+            setStep(0);
           } else {
             // Session doesn't exist or is already completed, remove from localStorage
-            localStorage.removeItem('visaCheckerSessionId');
+            localStorage.removeItem("visaCheckerSessionId");
           }
         } catch (err) {
-          console.error('Error restoring session:', err);
-          localStorage.removeItem('visaCheckerSessionId');
+          console.error("Error restoring session:", err);
+          localStorage.removeItem("visaCheckerSessionId");
         } finally {
           setLoading(false);
         }
       }
     };
-    
+
     checkExistingSession();
   }, []);
 
@@ -1090,13 +1295,18 @@ export default function VisaCaseStrengthChecker() {
     }>;
   }
 
-  const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null);
+  const [questionnaireData, setQuestionnaireData] =
+    useState<QuestionnaireData | null>(null);
 
   useEffect(() => {
     if (!questionnaireData) {
       import("../../../data/visa-case-strength-checker.json")
-        .then((data) => setQuestionnaireData(data.default || data as QuestionnaireData))
-        .catch((err) => console.error("Error loading questionnaire data:", err));
+        .then((data) =>
+          setQuestionnaireData(data.default || (data as QuestionnaireData)),
+        )
+        .catch((err) =>
+          console.error("Error loading questionnaire data:", err),
+        );
     }
   }, [questionnaireData]);
 
@@ -1110,14 +1320,14 @@ export default function VisaCaseStrengthChecker() {
     if (error) {
       setError(null);
     }
-    
+
     // Debounce the save operation to prevent rapid API calls
     if (sessionId) {
       // Clear the existing timeout if there is one
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
-      
+
       // Set a new timeout to save the answers after 500ms
       saveTimeoutRef.current = setTimeout(async () => {
         try {
@@ -1125,21 +1335,27 @@ export default function VisaCaseStrengthChecker() {
           const updatedFormData = { ...formData, [id]: value };
           // Filter out non-question fields before saving
           const { caseType, ...answers } = updatedFormData;
-          const answersResponse = await fetch(`/api/visa-checker/session/${sessionId}/answers`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+          const answersResponse = await fetch(
+            `/api/visa-checker/session/${sessionId}/answers`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                answers,
+              }),
             },
-            body: JSON.stringify({
-              answers,
-            }),
-          });
-          
+          );
+
           if (!answersResponse.ok) {
-            console.error('Failed to save answer:', await answersResponse.text());
+            console.error(
+              "Failed to save answer:",
+              await answersResponse.text(),
+            );
           }
         } catch (err) {
-          console.error('Error saving answer:', err);
+          console.error("Error saving answer:", err);
         }
       }, 500); // Wait 500ms before saving
     }
@@ -1151,51 +1367,67 @@ export default function VisaCaseStrengthChecker() {
       setError("Please select a case type");
       return;
     }
-    
+
     // If we're on the first step (case type selection), create a session
     if (step === 0 && formData.caseType) {
       try {
         setLoading(true);
-        const sessionResponse = await fetch('/api/visa-checker/session', {
-          method: 'POST',
+        const sessionResponse = await fetch("/api/visa-checker/session", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             caseType: formData.caseType,
-            userEmail: typeof window !== 'undefined' ? localStorage.getItem('userEmail') || 'guest@example.com' : 'guest@example.com',
-            userName: typeof window !== 'undefined' ? localStorage.getItem('userName') || 'Guest User' : 'Guest User',
+            userEmail:
+              typeof window !== "undefined"
+                ? localStorage.getItem("userEmail") || "guest@example.com"
+                : "guest@example.com",
+            userName:
+              typeof window !== "undefined"
+                ? localStorage.getItem("userName") || "Guest User"
+                : "Guest User",
           }),
         });
-        
+
         const sessionResult = await sessionResponse.json();
-        
+
         if (sessionResponse.ok) {
           setSessionId(sessionResult.sessionId);
           // Save session ID to localStorage for resume later functionality
-          localStorage.setItem('visaCheckerSessionId', sessionResult.sessionId);
-          
+          localStorage.setItem("visaCheckerSessionId", sessionResult.sessionId);
+
           // Save initial answers, excluding non-question fields
           const { caseType, ...answers } = formData;
-          const answersResponse = await fetch(`/api/visa-checker/session/${sessionResult.sessionId}/answers`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+          const answersResponse = await fetch(
+            `/api/visa-checker/session/${sessionResult.sessionId}/answers`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                answers,
+              }),
             },
-            body: JSON.stringify({
-              answers,
-            }),
-          });
-          
+          );
+
           if (!answersResponse.ok) {
-            console.error('Failed to save initial answers:', await answersResponse.text());
+            console.error(
+              "Failed to save initial answers:",
+              await answersResponse.text(),
+            );
           }
         } else {
-          throw new Error(sessionResult.error || 'Failed to create session');
+          throw new Error(sessionResult.error || "Failed to create session");
         }
       } catch (err) {
-        console.error('Error creating session:', err);
-        setError(err instanceof Error ? err.message : 'Failed to create session. Please try again.');
+        console.error("Error creating session:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to create session. Please try again.",
+        );
         setLoading(false);
         return;
       } finally {
@@ -1217,8 +1449,14 @@ export default function VisaCaseStrengthChecker() {
         }>) {
           const fieldValue = formData[question.id];
 
-          // Skip validation for the US state question as it's optional
-          if (question.id === 'intended_us_state_of_residence') {
+          // Skip validation for few questions as they're optional
+          if (
+            question.id === "intended_us_state_of_residence" ||
+            question.id === "highest_education_field" ||
+            question.id === "prior_military_service" ||
+            question.id === "specialized_weapons_training" ||
+            question.id === "unofficial_armed_groups"
+          ) {
             continue;
           }
 
@@ -1270,7 +1508,9 @@ export default function VisaCaseStrengthChecker() {
             typeof fieldValue === "number" &&
             fieldValue < 0
           ) {
-            setError(`Please enter a valid positive number for ${question.label}`);
+            setError(
+              `Please enter a valid positive number for ${question.label}`,
+            );
             return;
           }
 
@@ -1284,13 +1524,12 @@ export default function VisaCaseStrengthChecker() {
             const dateValue = new Date(fieldValue);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
+
             // For DOB fields, ensure date is in the past
-            if (
-              question.id.includes('dob') &&
-              dateValue >= today
-            ) {
-              setError(`Date of birth must be in the past for ${question.label}`);
+            if (question.id.includes("dob") && dateValue >= today) {
+              setError(
+                `Date of birth must be in the past for ${question.label}`,
+              );
               return;
             }
           }
@@ -1310,24 +1549,30 @@ export default function VisaCaseStrengthChecker() {
       try {
         // Filter out non-question fields before saving
         const { caseType, ...answers } = formData;
-        const answersResponse = await fetch(`/api/visa-checker/session/${sessionId}/answers`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const answersResponse = await fetch(
+          `/api/visa-checker/session/${sessionId}/answers`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              answers,
+            }),
           },
-          body: JSON.stringify({
-            answers,
-          }),
-        });
-        
+        );
+
         if (!answersResponse.ok) {
-          console.error('Failed to save answers on step change:', await answersResponse.text());
+          console.error(
+            "Failed to save answers on step change:",
+            await answersResponse.text(),
+          );
         }
       } catch (err) {
-        console.error('Error saving answers on step change:', err);
+        console.error("Error saving answers on step change:", err);
       }
     }
-    
+
     setStep((prev) => prev - 1);
     if (error) {
       setError(null);
@@ -1336,35 +1581,42 @@ export default function VisaCaseStrengthChecker() {
 
   const handleSaveForLater = async () => {
     if (!sessionId) {
-      setError('No session found to save. Please start the assessment first.');
+      setError("No session found to save. Please start the assessment first.");
       return;
     }
-    
+
     try {
       setLoading(true);
       // Force save all current answers
       const { caseType, ...answers } = formData;
-      const answersResponse = await fetch(`/api/visa-checker/session/${sessionId}/answers`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const answersResponse = await fetch(
+        `/api/visa-checker/session/${sessionId}/answers`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            answers,
+          }),
         },
-        body: JSON.stringify({
-          answers,
-        }),
-      });
-      
+      );
+
       if (answersResponse.ok) {
         // Save session ID to localStorage
-        localStorage.setItem('visaCheckerSessionId', sessionId);
-        alert('Your progress has been saved. You can return later to continue.');
+        localStorage.setItem("visaCheckerSessionId", sessionId);
+        setSaveNotification(
+          "Your progress has been saved. You can return later to continue.",
+        );
+        // Clear notification after 5 seconds
+        setTimeout(() => setSaveNotification(null), 5000);
       } else {
-        console.error('Failed to save answers:', await answersResponse.text());
-        setError('Failed to save your progress. Please try again.');
+        console.error("Failed to save answers:", await answersResponse.text());
+        setError("Failed to save your progress. Please try again.");
       }
     } catch (err) {
-      console.error('Error saving progress:', err);
-      setError('Error saving progress. Please try again.');
+      console.error("Error saving progress:", err);
+      setError("Error saving progress. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -1372,38 +1624,45 @@ export default function VisaCaseStrengthChecker() {
 
   const handleSubmit = async () => {
     if (!sessionId) {
-      setError('No session found. Please restart the assessment.');
+      setError("No session found. Please restart the assessment.");
       return;
     }
-    
+
     setLoading(true);
     setError(null);
 
     try {
       // Submit for scoring
-      const submitResponse = await fetch(`/api/visa-checker/session/${sessionId}/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const submitResponse = await fetch(
+        `/api/visa-checker/session/${sessionId}/submit`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
         },
-        body: JSON.stringify({}),
-      });
-      
+      );
+
       if (submitResponse.ok) {
         const responseData = await submitResponse.json();
         // Remove the session from localStorage since it's now completed
-        localStorage.removeItem('visaCheckerSessionId');
-        
+        localStorage.removeItem("visaCheckerSessionId");
+
         // Navigate to results page after successful submit
-        setStep(prev => prev + 1);
+        setStep((prev) => prev + 1);
       } else {
         const errorData = await submitResponse.text();
-        console.error('Submit response error:', errorData);
-        throw new Error('Failed to submit for scoring');
+        console.error("Submit response error:", errorData);
+        throw new Error("Failed to submit for scoring");
       }
     } catch (err) {
-      console.error('Error submitting analysis:', err);
-      setError(err instanceof Error ? err.message : 'Failed to submit analysis. Please try again.');
+      console.error("Error submitting analysis:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to submit analysis. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -1414,6 +1673,17 @@ export default function VisaCaseStrengthChecker() {
     if (!questionnaireData) {
       return <div>Loading questionnaire...</div>;
     }
+
+    const renderWithNotification = (content: React.ReactNode) => (
+      <div>
+        {saveNotification && (
+          <Alert className="mb-4">
+            <AlertDescription>{saveNotification}</AlertDescription>
+          </Alert>
+        )}
+        {content}
+      </div>
+    );
 
     if (step === 0) {
       return (
@@ -1432,36 +1702,46 @@ export default function VisaCaseStrengthChecker() {
       const section = questionnaireData.sections[sectionIndex];
 
       return (
-        <QuestionStep
-          title={section.title}
-          description={`Please answer the following questions for ${section.title}`}
-          questions={section.questions.map((q: QuestionDefinition) => ({
-            id: q.id as keyof FormData,
-            label: q.label,
-            type: q.type as "text" | "textarea" | "number" | "date" | "boolean" | "select",
-            options: q.options || undefined,
-          }))}
-          formData={formData}
-          error={error}
-          onChange={handleInputChange}
-          onNext={nextStep}
-          onBack={prevStep}
-          onSaveForLater={handleSaveForLater}
-        />
+        renderWithNotification(
+          <QuestionStep
+            title={section.title}
+            description={`Please answer the following questions for ${section.title}`}
+            questions={section.questions.map((q: QuestionDefinition) => ({
+              id: q.id as keyof FormData,
+              label: q.label,
+              type: q.type as
+                | "text"
+                | "textarea"
+                | "number"
+                | "date"
+                | "boolean"
+                | "select",
+              options: q.options || undefined,
+            }))}
+            formData={formData}
+            error={error}
+            onChange={handleInputChange}
+            onNext={nextStep}
+            onBack={prevStep}
+            onSaveForLater={handleSaveForLater}
+          />
+        )
       );
     }
 
     // Check if we're on the review page (after completing all questions)
     if (step === questionnaireData.sections.length + 1) {
       return (
-        <ReviewStep
-          formData={formData}
-          error={error}
-          loading={loading}
-          onSubmit={handleSubmit}
-          onBack={prevStep}
-          onSaveForLater={handleSaveForLater}
-        />
+        renderWithNotification(
+          <ReviewStep
+            formData={formData}
+            error={error}
+            loading={loading}
+            onSubmit={handleSubmit}
+            onBack={prevStep}
+            onSaveForLater={handleSaveForLater}
+          />
+        )
       );
     }
 
@@ -1478,13 +1758,15 @@ export default function VisaCaseStrengthChecker() {
     }
 
     return (
-      <ReviewStep
-        formData={formData}
-        error={error}
-        loading={loading}
-        onSubmit={handleSubmit}
-        onBack={prevStep}
-      />
+      renderWithNotification(
+        <ReviewStep
+          formData={formData}
+          error={error}
+          loading={loading}
+          onSubmit={handleSubmit}
+          onBack={prevStep}
+        />
+      )
     );
   };
 
@@ -1498,27 +1780,35 @@ export default function VisaCaseStrengthChecker() {
       <div className="mb-6">
         <div className="flex space-x-2 overflow-x-auto pb-2">
           <div className="flex w-full">
-            {sections.map((section: { title: string; questions: QuestionDefinition[] }, index: number) => {
-              const isActive = index === currentSectionIndex;
+            {sections.map(
+              (
+                section: { title: string; questions: QuestionDefinition[] },
+                index: number,
+              ) => {
+                const isActive = index === currentSectionIndex;
 
-              return (
-                <div key={index} className="flex flex-1 flex-col items-center">
-                  <span
-                    className={`text-xs font-medium mb-1 ${
-                      isActive ? "text-teal-600" : "text-slate-500"
-                    }`}
-                  >
-                    {section.title.substring(0, 3).toUpperCase()}
-                  </span>
-
+                return (
                   <div
-                    className={`h-2 rounded-full w-full ${
-                      isActive ? "bg-teal-600" : "bg-gray-200"
-                    }`}
-                  ></div>
-                </div>
-              );
-            })}
+                    key={index}
+                    className="flex flex-1 flex-col items-center"
+                  >
+                    <span
+                      className={`text-xs font-medium mb-1 ${
+                        isActive ? "text-teal-600" : "text-slate-500"
+                      }`}
+                    >
+                      {section.title.substring(0, 3).toUpperCase()}
+                    </span>
+
+                    <div
+                      className={`h-2 rounded-full w-full ${
+                        isActive ? "bg-teal-600" : "bg-gray-200"
+                      }`}
+                    ></div>
+                  </div>
+                );
+              },
+            )}
           </div>
         </div>
       </div>
