@@ -3,12 +3,12 @@ import { TimeSlot } from '@/types/consultation';
 import { consultationService } from '@/lib/services/consultationService';
 
 // Helper function to handle service errors
-const handleServiceError = (error: any, defaultMessage: string) => {
+const handleServiceError = (error: unknown, defaultMessage: string) => {
   console.error(defaultMessage, error);
   const errorMessage = error instanceof Error ? error.message : String(error);
-  return NextResponse.json({ 
+  return NextResponse.json({
     error: defaultMessage,
-    details: errorMessage 
+    details: errorMessage
   }, { status: 500 });
 };
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const data: any = await request.json();
+    const data = await request.json();
 
     // Validate required fields
     if (!data.date || !data.start_time || !data.end_time) {

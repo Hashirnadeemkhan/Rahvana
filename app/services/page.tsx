@@ -2,29 +2,67 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  User, 
-  Mail, 
-  Phone, 
-  Globe, 
-  AlertCircle, 
-  CheckCircle, 
-  Clock as ClockIcon,
+import {
+  Calendar,
+  Clock,
+  User,
+  Mail,
+  Phone,
+  Globe,
+  AlertCircle,
+  CheckCircle,
+  FileText,
   ChevronRight,
   ChevronLeft,
-  ChevronDown
+  X as CloseIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+interface Booking {
+  id: string;
+  reference_id: string;
+  full_name: string;
+  email: string;
+  visa_category: string;
+  issue_category: string;
+  status: 'confirmed' | 'pending_approval' | 'alternatives_proposed' | 'cancelled';
+  selected_slot: string;
+  alternate_slots?: string[];
+  admin_notes?: string;
+}
+
+interface TimeSlot {
+  id: string;
+  date: Date;
+  time: string;
+  formattedTime: string;
+  available: boolean;
+}
+
+interface FormData {
+  issue_category: string;
+  visa_category: string;
+  case_stage: string;
+  embassy_consulate: string;
+  urgency: string;
+  preferred_language: string;
+  full_name: string;
+  email: string;
+  country_code: string;
+  phone_number: string;
+  whatsapp_phone: string;
+  case_summary: string;
+  selected_slot: Date | null;
+  alternate_slots: Date[];
+  consent: boolean;
+}
 
 const ConsultationBookingPage = () => {
   const router = useRouter();
   
   // View state
   const [activeView, setActiveView] = useState<'booking' | 'requests'>('booking');
-  const [userBookings, setUserBookings] = useState<any[]>([]);
+  const [userBookings, setUserBookings] = useState<Booking[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Form state
@@ -34,7 +72,7 @@ const ConsultationBookingPage = () => {
     visa_category: '',
     case_stage: '',
     embassy_consulate: '',
-    urgency: 'normal' as 'normal' | 'urgent',
+    urgency: '' as string,
     preferred_language: 'English',
     full_name: '',
     email: '',
@@ -44,35 +82,17 @@ const ConsultationBookingPage = () => {
     case_summary: '',
     selected_slot: null as Date | null,
     alternate_slots: [] as Date[],
+    consent: false,
   });
   
   const [attachments, setAttachments] = useState<File[]>([]);
-  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);
   const [referenceId, setReferenceId] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Mock data for dropdowns
   const issueCategories = [
-    { value: 'i130-preparation', label: 'I-130 Petition Preparation' },
-    { value: 'i129f-petition', label: 'I-129F (K-1 Fiance) Petition' },
-    { value: 'filing-strategy', label: 'Filing Strategy (AOS vs. Consular)' },
-    { value: 'priority-date', label: 'Priority Date Questions' },
-    { value: 'birth-certificate', label: 'Birth Certificate Issues (NADRA)' },
-    { value: 'marriage-certificate', label: 'Marriage Certificate Authentication' },
-    { value: 'police-clearance', label: 'Police Clearance Certificates' },
-    { value: 'translation', label: 'Document Translation & Certification' },
-    { value: 'bona-fide-evidence', label: 'Evidence of Bona Fide Relationship' },
-    { value: 'financial-docs', label: 'Financial Documentation' },
-    { value: 'nvc-welcome', label: 'NVC Welcome Letter/Case Creation' },
-    { value: 'ds260', label: 'DS-260 Completion & Submission' },
-    { value: 'i864', label: 'I-864 Affidavit of Support' },
-    { value: 'nvc-fees', label: 'NVC Fee Payment Issues' },
-    { value: 'dq-status', label: 'Documentarily Qualified Status' },
-    { value: 'interview-scheduling', label: 'Interview Appointment Scheduling' },
-    { value: 'interview-prep', label: 'Interview Preparation' },
-    { value: 'medical-exam', label: 'Medical Examination' },
-    { value: 'interview-outcome', label: 'Interview Outcome Explanation' },
     { value: 'i130-preparation', label: 'I-130 Petition Preparation', group: 'Petition & Application Filing' },
     { value: 'i129f-petition', label: 'I-129F (K-1 Fiance) Petition', group: 'Petition & Application Filing' },
     { value: 'filing-strategy', label: 'Filing Strategy (AOS vs. Consular)', group: 'Petition & Application Filing' },
@@ -155,12 +175,20 @@ const ConsultationBookingPage = () => {
         const response = await fetch('/api/consultation/slots');
         if (response.ok) {
           const slots = await response.json();
-          const formattedSlots = slots.map((slot: any) => {
+          interface ApiTimeSlot {
+            id: string;
+            date: string;
+            start_time: string;
+            end_time: string;
+            status: string;
+          }
+
+          const formattedSlots = slots.map((slot: ApiTimeSlot) => {
             // Assume business timezone is US Eastern Time (GMT-5)
             // slot.date is "YYYY-MM-DD", slot.start_time is "HH:mm:ss"
             const etIso = `${slot.date}T${slot.start_time}-05:00`;
             const slotDate = new Date(etIso);
-            
+
             // Format for user's detected timezone (browser's local TZ by default)
             const formatOptions: Intl.DateTimeFormatOptions = {
               hour: '2-digit',
@@ -169,7 +197,7 @@ const ConsultationBookingPage = () => {
             };
 
             const displayTime = slotDate.toLocaleTimeString([], formatOptions);
-            
+
             // Handle end time conversion too
             const etEndIso = `${slot.date}T${slot.end_time}-05:00`;
             const slotEndDate = new Date(etEndIso);
@@ -187,7 +215,7 @@ const ConsultationBookingPage = () => {
         } else {
           setAvailableSlots([]);
         }
-      } catch (error) {
+      } catch {
         setAvailableSlots([]);
       }
     };
@@ -215,7 +243,7 @@ const ConsultationBookingPage = () => {
     if (activeView === 'requests') {
       fetchUserBookings(searchQuery);
     }
-  }, [activeView]);
+  }, [activeView, searchQuery]);
 
   const handleAcceptAlternative = async (bookingId: string, slot: Date) => {
     setLoading(true);
@@ -233,6 +261,115 @@ const ConsultationBookingPage = () => {
       }
     } catch (error) {
       console.error('Error accepting alternative:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof FormData, value: string | boolean | Date | Date[]) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setAttachments(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSlotSelect = (slot: TimeSlot) => {
+    setFormData(prev => ({
+      ...prev,
+      selected_slot: slot.date
+    }));
+  };
+
+  const handleAlternateSlotSelect = (slot: TimeSlot) => {
+    if (formData.alternate_slots.some(s => s.getTime() === slot.date.getTime())) {
+      setFormData(prev => ({
+        ...prev,
+        alternate_slots: prev.alternate_slots.filter(s => s.getTime() !== slot.date.getTime())
+      }));
+    } else {
+      if (formData.alternate_slots.length < 2) {
+        setFormData(prev => ({
+          ...prev,
+          alternate_slots: [...prev.alternate_slots, slot.date]
+        }));
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Submitting form...", formData);
+    setLoading(true);
+
+    try {
+      // 1. Upload attachments first if any
+      const uploadedPaths: string[] = [];
+      for (const file of attachments) {
+        const fileData = new FormData();
+        fileData.append('file', file);
+        
+        try {
+          const uploadRes = await fetch('/api/consultation/upload', {
+            method: 'POST',
+            body: fileData,
+          });
+          
+          if (uploadRes.ok) {
+            const uploadInfo = await uploadRes.json();
+            uploadedPaths.push(uploadInfo.path);
+          }
+        } catch (err) {
+          console.error("File upload failed for:", file.name, err);
+        }
+      }
+
+      // 2. Clean up and combine phone fields
+      // Remove all non-digits from phone_number except a leading + if present
+      const cleanPhoneNumber = formData.phone_number.replace(/[^\d+]/g, '');
+      // If the phone number already starts with +, we assume it has its own country code, 
+      // but the business requirement is to use the selected country_code. 
+      // Most robust: remove leading + from phone_number if country_code is already preened.
+      const finalPhoneStr = `${formData.country_code}${cleanPhoneNumber.startsWith('+') ? cleanPhoneNumber.substring(1) : cleanPhoneNumber}`.replace(/\s+/g, '');
+      
+      const payload = {
+        ...formData,
+        whatsapp_phone: finalPhoneStr,
+        attachments: uploadedPaths,
+        selected_slot: formData.selected_slot?.toISOString(),
+        alternate_slots: formData.alternate_slots?.map(slot => slot.toISOString()),
+      };
+      
+      console.log("Final Payload:", payload);
+
+      const response = await fetch('/api/consultation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setReferenceId(result.reference_id);
+        setShowConfirmation(true);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Submission failed:', errorData);
+        alert(`Failed to submit: ${errorData.error || 'Check console for details'}`);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert('An error occurred during submission.');
     } finally {
       setLoading(false);
     }
@@ -355,9 +492,9 @@ const ConsultationBookingPage = () => {
                   required
                 >
                   <option value="">Select urgency level...</option>
-                  <option value="low">Low - General guidance</option>
-                  <option value="medium">Medium - Deadline within 30 days</option>
-                  <option value="high">High - Deadline within 7 days</option>
+                  <option value="normal">Low - General guidance</option>
+                  <option value="normal">Medium - Deadline within 30 days</option>
+                  <option value="urgent">High - Deadline within 7 days</option>
                   <option value="urgent">Urgent - Immediate help needed</option>
                 </select>
               </div>
@@ -422,9 +559,7 @@ const ConsultationBookingPage = () => {
                     />
                   </div>
                 </div>
-                <p className="text-[10px] text-gray-500 mt-2 ml-1 flex items-center gap-1">
-                  <Info className="h-3 w-3" /> No need to enter country code here, select it from the dropdown.
-                </p>
+              
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Language *</label>
@@ -455,7 +590,7 @@ const ConsultationBookingPage = () => {
                     <div key={index} className="flex items-center justify-between bg-gray-100 p-3 rounded-lg text-sm">
                       <span>{file.name}</span>
                       <Button variant="ghost" onClick={() => removeAttachment(index)} className="p-1 h-auto text-red-500 hover:bg-red-50">
-                        <X className="h-4 w-4" />
+                        <CloseIcon className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
@@ -468,7 +603,7 @@ const ConsultationBookingPage = () => {
                 value={formData.case_summary}
                 onChange={(e) => handleInputChange('case_summary', e.target.value)}
                 rows={5}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition min-h-[120px]"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition min-h-30"
                 placeholder="Tell us about your visa status, any RFE/221g received, and specific questions you have..."
                 required
               />
@@ -496,7 +631,7 @@ const ConsultationBookingPage = () => {
           <div className="space-y-6">
             <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex gap-3">
               <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-              <p className="text-sm text-blue-700">Selected slots are held as "Pending Approval" until confirmed.</p>
+              <p className="text-sm text-blue-700">Selected slots are held as &#34;Pending Approval&#34; until confirmed.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {availableSlots.length > 0 ? (
@@ -569,7 +704,7 @@ const ConsultationBookingPage = () => {
         </div>
 
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden min-h-[400px]">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden min-h-100">
             <div className="p-6 border-b bg-gray-50 flex flex-col sm:flex-row gap-4 justify-between items-center">
               <div className="relative w-full sm:max-w-md">
                 <input
@@ -596,11 +731,11 @@ const ConsultationBookingPage = () => {
                 <div className="text-center py-20">
                   <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900">No requests found</h3>
-                  <p className="text-gray-500 mt-1">We couldn't find any requests matching your criteria.</p>
+                  <p className="text-gray-500 mt-1">We couldn&#39;t find any requests matching your criteria.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {userBookings.map((booking: any) => (
+                  {userBookings.map((booking: Booking) => (
                     <div key={booking.id} className="border border-gray-100 rounded-xl p-5 hover:border-teal-200 hover:shadow-md transition bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -632,7 +767,7 @@ const ConsultationBookingPage = () => {
                           <div className="mt-4 p-4 bg-teal-50 rounded-xl border border-teal-100 text-left w-full sm:w-auto">
                             <p className="text-[10px] font-black uppercase text-teal-700 mb-2">Alternative Slots Proposed:</p>
                             <div className="flex flex-wrap gap-2">
-                              {booking.alternate_slots.map((slot: any, idx: number) => (
+                              {booking.alternate_slots.map((slot: string, idx: number) => (
                                 <Button 
                                   key={idx} 
                                   onClick={() => handleAcceptAlternative(booking.id, new Date(slot))}
@@ -796,10 +931,29 @@ const ConsultationBookingPage = () => {
 export default ConsultationBookingPage;
 
 // Helper components for consistency
-const Info = ({ className }: { className?: string }) => <div className={className}><AlertCircle className="h-5 w-5" /></div>;
-const Button = ({ children, onClick, disabled, className, variant = "primary", type = "button" }: any) => {
+const Info = ({ className }: { className?: string }) => <span className={className}><AlertCircle className="h-5 w-5" /></span>;
+
+type ButtonVariant = "primary" | "outline" | "ghost";
+
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+  variant?: ButtonVariant;
+  type?: "button" | "submit" | "reset";
+}
+
+const Button: React.FC<ButtonProps> = ({
+  children,
+  onClick,
+  disabled,
+  className,
+  variant = "primary",
+  type = "button"
+}) => {
   const base = "inline-flex items-center justify-center rounded-lg font-medium transition-all px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed";
-  const variants: any = {
+  const variants: Record<ButtonVariant, string> = {
     primary: "bg-teal-600 text-white hover:bg-teal-700 shadow-sm",
     outline: "border border-gray-300 text-gray-700 hover:bg-gray-50",
     ghost: "text-gray-600 hover:bg-gray-100",

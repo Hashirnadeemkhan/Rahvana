@@ -1,15 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Trash2, 
-  Check, 
-  X, 
-  Calendar as CalendarIcon, 
-  Clock, 
-  ChevronLeft, 
-  ChevronRight,
+import {
+  Check,
+  X,
+  Calendar as CalendarIcon,
   Save,
   Loader2
 } from 'lucide-react';
@@ -27,11 +22,16 @@ interface Slot {
   status: 'available' | 'unavailable' | 'pending' | 'confirmed';
 }
 
+interface ProcessedSlot extends Slot {
+  localStart: Date;
+  localEnd: Date;
+  localDateLabel: string;
+}
+
 const AvailabilityGrid = () => {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
   
   // New slot form state
   const [newSlot, setNewSlot] = useState({
@@ -60,17 +60,37 @@ const AvailabilityGrid = () => {
     fetchSlots();
   }, []);
 
+  // Helper to convert ET strings to Local Date
+  const etToLocal = (dateStr: string, timeStr: string) => {
+    return new Date(`${dateStr}T${timeStr}-05:00`);
+  };
+
+  // Helper to convert Local strings to ET (for saving)
+  const localToEt = (dateStr: string, timeStr: string) => {
+    const local = new Date(`${dateStr}T${timeStr}`);
+    // Use Intl to get ET strings
+    const etDate = local.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); // YYYY-MM-DD
+    const etTime = local.toLocaleTimeString('en-GB', { timeZone: 'America/New_York', hour12: false }); // HH:mm:ss
+    return { date: etDate, time: etTime.substring(0, 5) };
+  };
+
   const handleAddSlot = async (e: React.MouseEvent) => {
     if (e) e.preventDefault();
     setSaving(true);
     setStatusMsg(null);
-    console.log('Sending slot data:', newSlot);
+    console.log('Original local slot data:', newSlot);
+    const etData = localToEt(newSlot.date, newSlot.start_time);
+    // Approximate end time by adding 1 hour to start time in ET logic
+    const etEnd = localToEt(newSlot.date, newSlot.end_time);
+
     try {
       const response = await fetch('/api/consultation/slots', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...newSlot,
+          date: etData.date,
+          start_time: etData.time,
+          end_time: etEnd.time,
           status: 'available',
           max_bookings: 1,
           current_bookings: 0
@@ -84,7 +104,7 @@ const AvailabilityGrid = () => {
         setStatusMsg({ type: 'success', text: 'Slot created successfully!' });
         fetchSlots();
         // Reset form to next hour for easy batch adding
-        const [h, m] = newSlot.start_time.split(':').map(Number);
+        const [h] = newSlot.start_time.split(':').map(Number);
         const nextH = (h + 1) % 24;
         const nextHStr = nextH.toString().padStart(2, '0');
         const endHStr = ((nextH + 1) % 24).toString().padStart(2, '0');
@@ -97,9 +117,10 @@ const AvailabilityGrid = () => {
         const errorText = data.details ? `${data.error}: ${data.details}` : `Failed: ${data.error || 'Unknown error'}`;
         setStatusMsg({ type: 'error', text: errorText });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding slot:', error);
-      setStatusMsg({ type: 'error', text: 'Network Error: ' + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setStatusMsg({ type: 'error', text: 'Network Error: ' + errorMessage });
     } finally {
       setSaving(false);
     }
@@ -117,19 +138,30 @@ const AvailabilityGrid = () => {
         }),
       });
       if (response.ok) {
-        setSlots(slots.map(s => s.id === slot.id ? { ...s, status: newStatus as any } : s));
+        setSlots(slots.map(s => s.id === slot.id ? { ...s, status: newStatus } : s));
       }
     } catch (error) {
       console.error('Error toggling slot:', error);
     }
   };
 
-  // Group slots by date
-  const groupedSlots = slots.reduce((acc, slot) => {
-    if (!acc[slot.date]) acc[slot.date] = [];
-    acc[slot.date].push(slot);
+  // Group slots by local date
+  const processedSlots = slots.map(slot => {
+    const start = etToLocal(slot.date, slot.start_time);
+    const end = etToLocal(slot.date, slot.end_time);
+    return {
+      ...slot,
+      localStart: start,
+      localEnd: end,
+      localDateLabel: start.toISOString().split('T')[0]
+    };
+  });
+
+  const groupedSlots = processedSlots.reduce((acc, slot) => {
+    if (!acc[slot.localDateLabel]) acc[slot.localDateLabel] = [];
+    acc[slot.localDateLabel].push(slot);
     return acc;
-  }, {} as Record<string, Slot[]>);
+  }, {} as Record<string, ProcessedSlot[]>);
 
   // Get unique dates sorted
   const sortedDates = Object.keys(groupedSlots).sort();
@@ -227,7 +259,7 @@ const AvailabilityGrid = () => {
                 <p>No availability slots defined yet.</p>
               </div>
             ) : (
-              <div className="overflow-auto max-h-[500px]">
+              <div className="overflow-auto max-h-125">
                 {sortedDates.map(date => (
                   <div key={date} className="border-b last:border-0 p-4">
                     <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
@@ -249,7 +281,9 @@ const AvailabilityGrid = () => {
                           onClick={() => slot.status !== 'confirmed' && handleToggleStatus(slot)}
                         >
                           <div className="flex flex-col">
-                            <span className="text-xs font-bold font-mono">{slot.start_time}</span>
+                            <span className="text-xs font-bold font-mono">
+                              {slot.localStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                             <span className={cn(
                               "text-[9px] uppercase font-black",
                               slot.status === 'available' ? "text-teal-600" : 

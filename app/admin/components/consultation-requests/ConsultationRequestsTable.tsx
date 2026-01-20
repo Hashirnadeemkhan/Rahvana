@@ -8,29 +8,24 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Calendar, 
   Clock, 
-  User, 
   Mail, 
   Phone, 
-  FileText, 
   Search, 
   Eye, 
   Check, 
   X, 
   MessageSquare,
-  Download,
   AlertTriangle,
   RefreshCw,
-  MoreVertical,
   CheckCircle2,
   Clock3,
   ListTodo,
   Info
 } from 'lucide-react';
-import { ConsultationBooking } from '@/types/consultation';
+import { ConsultationBooking, TimeSlot } from '@/types/consultation';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
@@ -40,14 +35,13 @@ const ConsultationRequestsTable = () => {
   const [filteredRequests, setFilteredRequests] = useState<ConsultationBooking[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [urgencyFilter, setUrgencyFilter] = useState('all');
   const [selectedRequest, setSelectedRequest] = useState<ConsultationBooking | null>(null);
   const [showSheet, setShowSheet] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
   const [actionType, setActionType] = useState<'approve' | 'propose' | 'more-info' | 'cancel' | null>(null);
   const [loading, setLoading] = useState(true);
   const [adminNote, setAdminNote] = useState('');
-  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
   const [selectedAlternativeSlots, setSelectedAlternativeSlots] = useState<string[]>([]);
   const [fetchingSlots, setFetchingSlots] = useState(false);
 
@@ -75,13 +69,31 @@ const ConsultationRequestsTable = () => {
       if (response.ok) {
         const data = await response.json();
         // Convert date strings to Date objects if they aren't already
-        const formattedData = data.map((req: any) => ({
-          ...req,
-          selected_slot: new Date(req.selected_slot),
-          created_at: new Date(req.created_at),
-          updated_at: new Date(req.updated_at),
-          expires_at: req.expires_at ? new Date(req.expires_at) : undefined,
-        }));
+        const formattedData = data.map((req: Partial<ConsultationBooking>) => {
+          const typedReq: ConsultationBooking = {
+            id: req.id || '',
+            reference_id: req.reference_id || '',
+            issue_category: req.issue_category || '',
+            visa_category: req.visa_category || '',
+            case_stage: req.case_stage || '',
+            urgency: req.urgency || 'normal',
+            preferred_language: req.preferred_language || '',
+            full_name: req.full_name || '',
+            email: req.email || '',
+            whatsapp_phone: req.whatsapp_phone || '',
+            embassy_consulate: req.embassy_consulate,
+            case_summary: req.case_summary || '',
+            attachments: req.attachments,
+            selected_slot: new Date(req.selected_slot!),
+            alternate_slots: req.alternate_slots,
+            status: req.status || 'pending_approval',
+            admin_notes: req.admin_notes,
+            created_at: new Date(req.created_at!),
+            updated_at: new Date(req.updated_at!),
+            expires_at: req.expires_at ? new Date(req.expires_at) : undefined,
+          };
+          return typedReq;
+        });
         setRequests(formattedData);
       } else {
         console.error('Failed to fetch consultation requests:', response.status, response.statusText);
@@ -116,12 +128,8 @@ const ConsultationRequestsTable = () => {
       result = result.filter(request => request.status === statusFilter);
     }
 
-    if (urgencyFilter !== 'all') {
-      result = result.filter(request => request.urgency === urgencyFilter);
-    }
-
     setFilteredRequests(result);
-  }, [requests, searchTerm, statusFilter, urgencyFilter]);
+  }, [requests, searchTerm, statusFilter]);
 
   // Stats calculation
   const stats = {
@@ -131,12 +139,18 @@ const ConsultationRequestsTable = () => {
     total: requests.length
   };
 
+  interface ActionPayload {
+    action: string;
+    alternate_slots?: string[];
+    adminNotes?: string;
+  }
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'pending_approval': return 'secondary';
-      case 'alternatives_proposed': return 'warning' as any;
+      case 'alternatives_proposed': return 'warning';
       case 'needs_more_info': return 'destructive';
-      case 'confirmed': return 'success' as any;
+      case 'confirmed': return 'success';
       case 'completed': return 'outline';
       case 'canceled': return 'outline';
       default: return 'outline';
@@ -183,20 +197,31 @@ const ConsultationRequestsTable = () => {
     if (!selectedRequest || !actionType) return;
 
     try {
-      let actionPayload: any = { action: '' };
+      let actionPayload: ActionPayload;
 
       switch (actionType) {
-        case 'approve': actionPayload.action = 'approve'; break;
-        case 'propose': 
-          actionPayload.action = 'propose_alternatives'; 
-          actionPayload.alternate_slots = selectedAlternativeSlots;
-          actionPayload.adminNotes = adminNote;
+        case 'approve':
+          actionPayload = { action: 'approve' };
           break;
-        case 'more-info': 
-          actionPayload.action = 'request_more_info'; 
-          actionPayload.adminNotes = adminNote;
+        case 'propose':
+          actionPayload = {
+            action: 'propose_alternatives',
+            alternate_slots: selectedAlternativeSlots,
+            adminNotes: adminNote
+          };
           break;
-        case 'cancel': actionPayload.action = 'cancel'; break;
+        case 'more-info':
+          actionPayload = {
+            action: 'request_more_info',
+            adminNotes: adminNote
+          };
+          break;
+        case 'cancel':
+          actionPayload = { action: 'cancel' };
+          break;
+        default:
+          actionPayload = { action: '' };
+          break;
       }
 
       const response = await fetch(`/api/consultation?id=${selectedRequest.id}`, {
@@ -290,13 +315,13 @@ const ConsultationRequestsTable = () => {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search requests..."
-                  className="pl-9 w-[220px] md:w-[300px]"
+                  className="pl-9 w-55 md:w-75"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-37.5">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -319,7 +344,7 @@ const ConsultationRequestsTable = () => {
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead className="w-[110px] pl-6">ID</TableHead>
+                  <TableHead className="w-27.5 pl-6">ID</TableHead>
                   <TableHead>Client Name</TableHead>
                   <TableHead>Category / Visa</TableHead>
                   <TableHead>Urgency</TableHead>
@@ -368,10 +393,10 @@ const ConsultationRequestsTable = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">{req.selected_slot.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' })}</div>
+                        <div className="text-sm">{req.selected_slot.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                         <div className="text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {req.selected_slot.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' })}
+                          {req.selected_slot.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -460,7 +485,7 @@ const ConsultationRequestsTable = () => {
               <div className="space-y-3">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Case Summary</h4>
                 <div className="bg-muted/30 p-4 rounded-lg border text-sm leading-relaxed italic">
-                  "{selectedRequest.case_summary}"
+                  &#34;{selectedRequest.case_summary}&#34;
                 </div>
               </div>
 
@@ -472,10 +497,10 @@ const ConsultationRequestsTable = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="text-lg font-bold text-teal-900">
-                      {selectedRequest.selected_slot.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/New_York' })}
+                      {selectedRequest.selected_slot.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
                     </div>
                     <div className="text-teal-700 flex items-center gap-1.5 font-medium">
-                      <Clock className="h-4 w-4" /> {selectedRequest.selected_slot.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' })}
+                      <Clock className="h-4 w-4" /> {selectedRequest.selected_slot.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
                 </div>
@@ -484,16 +509,16 @@ const ConsultationRequestsTable = () => {
               {/* Timeline (Simplified from 2.html concept) */}
               <div className="space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Timeline</h4>
-                <div className="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
+                <div className="relative pl-6 space-y-6 before:absolute before:left-2.75 before:top-2 before:bottom-2 before:w-0.5 before:bg-muted">
                   <div className="relative">
-                    <div className="absolute -left-[23px] top-1.5 h-3 w-3 rounded-full bg-teal-500 ring-4 ring-white" />
-                    <p className="text-xs text-muted-foreground">{selectedRequest.created_at.toLocaleString(undefined, { timeZone: 'America/New_York' })}</p>
+                    <div className="absolute -left-5.75 top-1.5 h-3 w-3 rounded-full bg-teal-500 ring-4 ring-white" />
+                    <p className="text-xs text-muted-foreground">{selectedRequest.created_at.toLocaleString()}</p>
                     <p className="text-sm font-medium">Request submitted by client</p>
                   </div>
                   {selectedRequest.updated_at > selectedRequest.created_at && (
                     <div className="relative">
-                      <div className="absolute -left-[23px] top-1.5 h-3 w-3 rounded-full bg-blue-500 ring-4 ring-white" />
-                      <p className="text-xs text-muted-foreground">{selectedRequest.updated_at.toLocaleString(undefined, { timeZone: 'America/New_York' })}</p>
+                      <div className="absolute -left-5.75 top-1.5 h-3 w-3 rounded-full bg-blue-500 ring-4 ring-white" />
+                      <p className="text-xs text-muted-foreground">{selectedRequest.updated_at.toLocaleString()}</p>
                       <p className="text-sm font-medium">Status updated to {getStatusDisplay(selectedRequest.status)}</p>
                       {selectedRequest.admin_notes && (
                         <p className="text-xs mt-1 bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
@@ -569,7 +594,7 @@ const ConsultationRequestsTable = () => {
           <div className="py-4">
             {(actionType === 'more-info' || actionType === 'propose') && (
               <textarea
-                className="w-full min-h-[100px] p-3 border rounded-md text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                className="w-full min-h-25 p-3 border rounded-md text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 placeholder={actionType === 'more-info' ? "What info do you need? (User will see this)" : "Notes for the user regarding alternatives..."}
                 value={adminNote}
                 onChange={(e) => setAdminNote(e.target.value)}
@@ -580,8 +605,8 @@ const ConsultationRequestsTable = () => {
               <div className="bg-muted p-4 rounded-lg flex items-center gap-4">
                 <Calendar className="h-10 w-10 text-muted-foreground" />
                 <div>
-                  <div className="font-bold">{selectedRequest.selected_slot.toLocaleDateString(undefined, { timeZone: 'America/New_York' })}</div>
-                  <div className="text-sm text-muted-foreground">{selectedRequest.selected_slot.toLocaleTimeString([], { timeZone: 'America/New_York' })}</div>
+                  <div className="font-bold">{selectedRequest.selected_slot.toLocaleDateString()}</div>
+                  <div className="text-sm text-muted-foreground">{selectedRequest.selected_slot.toLocaleTimeString()}</div>
                 </div>
               </div>
             )}
@@ -604,8 +629,8 @@ const ConsultationRequestsTable = () => {
                     <p className="text-xs text-muted-foreground">No available slots found in the system.</p>
                   </div>
                 ) : (
-                  <div className="max-h-[200px] overflow-y-auto space-y-2 pr-2">
-                    {availableSlots.map((slot: any) => {
+                  <div className="max-h-50 overflow-y-auto space-y-2 pr-2">
+                    {availableSlots.map((slot: TimeSlot) => {
                       const slotTime = `${slot.date} ${slot.start_time}`;
                       const isSelected = selectedAlternativeSlots.includes(slotTime);
                       return (
@@ -619,10 +644,12 @@ const ConsultationRequestsTable = () => {
                         >
                           <div className="flex flex-col">
                             <span className="text-xs font-bold">
-                              {new Date(slot.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                              {new Date(`${slot.date}T${slot.start_time}-05:00`).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                             </span>
-                            <span className="text-[10px] text-muted-foreground">{slot.start_time} - {slot.end_time}</span>
-                            <span className="text-[8px] text-teal-600 block mt-0.5">Note: Entering PKT but showing ET</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(`${slot.date}T${slot.start_time}-05:00`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            <span className="text-[8px] text-teal-600 block mt-0.5">Note: Displayed in your local timezone</span>
                           </div>
                           {isSelected ? <CheckCircle2 className="h-4 w-4 text-teal-600" /> : <div className="h-4 w-4 rounded-full border border-gray-300" />}
                         </div>
@@ -635,7 +662,7 @@ const ConsultationRequestsTable = () => {
                   <Info className="h-5 w-5 text-blue-600 mt-0.5" />
                   <p className="text-[10px] text-blue-700 leading-relaxed font-medium">
                     The user will be notified to pick one of these slots or contact you for further options. 
-                    The status will change to "Alternatives Proposed".
+                    The status will change to &#34;Alternatives Proposed&#34;.
                   </p>
                 </div>
               </div>

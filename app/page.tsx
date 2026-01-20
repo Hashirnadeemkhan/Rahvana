@@ -7,6 +7,7 @@ import { Wizard } from './test/components/Wizard';
 import { Dashboard } from './test/components/Dashboard';
 import { HomeSection, VisaCategorySection, ToolsSection, PricingSection, IR1JourneyDetail } from './test/components/StaticSections';
 import { useWizard } from './(main)/dashboard/hooks/useWizard';
+import GetInTouch from '@/app/components/HomePage/GetInTouch';
 
 
 
@@ -65,7 +66,10 @@ function HomePageContent() {
     
                 <main className="min-h-[calc(100vh-200px)]">
                     {activeSection === 'home' && (
-                        <HomeSection onNavigate={handleNavigate} isSignedIn={isSignedIn} />
+                        <>
+                            <HomeSection onNavigate={handleNavigate} isSignedIn={isSignedIn} />
+                            <GetInTouch />
+                        </>
                     )}
     
                     {activeSection === 'journeys' && (

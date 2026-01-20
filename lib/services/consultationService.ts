@@ -86,12 +86,15 @@ export const consultationService = {
     // Generate reference ID
     const referenceId = `REQ-${Math.floor(100000 + Math.random() * 900000)}`;
 
+    // Normalize urgency for database check constraint (must be 'normal' or 'urgent')
+    const normalizedUrgency = bookingData.urgency === 'urgent' ? 'urgent' : 'normal';
+
     // Map camelCase to snake_case for Supabase
     const newBooking = {
       issue_category: bookingData.issue_category,
       visa_category: bookingData.visa_category,
       case_stage: bookingData.case_stage,
-      urgency: bookingData.urgency || 'normal',
+      urgency: normalizedUrgency,
       preferred_language: bookingData.preferred_language || 'English',
       full_name: bookingData.full_name,
       email: bookingData.email,
@@ -150,17 +153,20 @@ export const consultationService = {
     }
 
     // Map camelCase to snake_case for Supabase
-    const updatesSnakeCase: any = {};
+    const updatesSnakeCase: Record<string, unknown> = {};
     Object.keys(updates).forEach(key => {
-      if (key === 'selected_slot') {
-        updatesSnakeCase['selected_slot'] = (updates as any)[key]?.toISOString();
-      } else if (key === 'alternate_slots') {
-        updatesSnakeCase['alternate_slots'] = (updates as any)[key]?.map((slot: Date) => slot.toISOString());
-      } else if (key === 'created_at' || key === 'updated_at' || key === 'expires_at') {
-        const val = (updates as any)[key];
-        updatesSnakeCase[key] = val === null ? null : val?.toISOString();
+      const typedKey = key as keyof Partial<ConsultationBooking>;
+      if (typedKey === 'selected_slot') {
+        const value = updates[typedKey];
+        updatesSnakeCase['selected_slot'] = value instanceof Date ? value.toISOString() : undefined;
+      } else if (typedKey === 'alternate_slots') {
+        const value = updates[typedKey] as Date[] | undefined;
+        updatesSnakeCase['alternate_slots'] = value?.map(slot => slot.toISOString());
+      } else if (typedKey === 'created_at' || typedKey === 'updated_at' || typedKey === 'expires_at') {
+        const value = updates[typedKey];
+        updatesSnakeCase[key] = value instanceof Date ? value.toISOString() : value === null ? null : undefined;
       } else {
-        updatesSnakeCase[key] = (updates as any)[key];
+        updatesSnakeCase[key] = updates[typedKey];
       }
     });
 
@@ -339,12 +345,14 @@ export const consultationService = {
     }
 
     // Map camelCase to snake_case for Supabase
-    const updatesSnakeCase: any = {};
+    const updatesSnakeCase: Record<string, unknown> = {};
     Object.keys(updates).forEach(key => {
-      if (key === 'date' || key === 'created_at' || key === 'updated_at') {
-        updatesSnakeCase[key] = (updates as any)[key]?.toISOString().split('T')[0]; // Date only for date field
+      const typedKey = key as keyof Partial<TimeSlot>;
+      if (typedKey === 'date' || typedKey === 'created_at' || typedKey === 'updated_at') {
+        const value = updates[typedKey];
+        updatesSnakeCase[key] = value instanceof Date ? value.toISOString().split('T')[0] : undefined; // Date only for date field
       } else {
-        updatesSnakeCase[key] = (updates as any)[key];
+        updatesSnakeCase[key] = updates[typedKey];
       }
     });
 
