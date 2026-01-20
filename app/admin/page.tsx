@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TranslationQueueTable from "./components/translation-queue/TranslationQueueTable";
 import PoliceVerificationTable from "./components/police-verifications/PoliceVerificationTable";
 import BookAppointmentTable from "./components/book-appointment/BookAppointmentTable";
+import ConsultationRequestsTable from "./components/consultation-requests/ConsultationRequestsTable";
+import AvailabilityGrid from "./components/consultation-requests/AvailabilityGrid";
 
 export default function AdminPanel() {
   const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
@@ -101,6 +103,17 @@ export default function AdminPanel() {
             <p className="text-gray-600">
               Manage appointments, translations, and police verifications
             </p>
+          </div>
+
+
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">Availability Management</h2>
+            <AvailabilityGrid />
+          </div>
+
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-4">Consultation Requests</h2>
+            <ConsultationRequestsTable />
           </div>
 
           <BookAppointmentTable />
