@@ -1,0 +1,233 @@
+{
+    "caseType": "Spouse",
+    "sections": [
+      {
+        "id": "basic_case_information",
+        "title": "Basic Case Information",
+        "description": "General details about you, your spouse, and your marriage.",
+        "questions": [
+          {
+            "key": "beneficiary_country",
+            "label": "Which country does the beneficiary applying from?",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "marriage_date",
+            "label": "What is your date of marriage?",
+            "type": "date",
+            "required": true
+          },
+          {
+            "key": "marriage_location",
+            "label": "Where did the marriage take place (city & country)?",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "previous_marriages",
+            "label": "Have you or your spouse been married before?",
+            "type": "select",
+            "options": ["No", "Yes – Beneficiary", "Yes – Sponsor", "Yes – Both"],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "relationship_origin",
+        "title": "Relationship Origin",
+        "description": "How your relationship started and developed.",
+        "questions": [
+          {
+            "key": "how_did_you_meet",
+            "label": "How and where did you first meet your spouse?",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "first_in_person_meeting",
+            "label": "When and where did you first meet in person?",
+            "type": "text",
+            "required": false
+          },
+          {
+            "key": "number_of_in_person_visits",
+            "label": "How many times have you met in person?",
+            "type": "number",
+            "required": true
+          },
+          {
+            "key": "proposal_details",
+            "label": "How and when did the proposal happen?",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "courtship_duration",
+            "label": "How long did you know each other before getting married?",
+            "type": "text",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "married_life",
+        "title": "Married Life & Daily Interaction",
+        "description": "Your daily communication and relationship behavior.",
+        "questions": [
+          {
+            "key": "current_living_arrangement",
+            "label": "Are you currently living together?",
+            "type": "select",
+            "options": ["Yes", "No – Living apart"],
+            "required": true
+          },
+          {
+            "key": "spouse_address",
+            "label": "Where does your spouse currently live?",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "daily_communication",
+            "label": "How do you communicate regularly?",
+            "type": "select",
+            "options": ["Phone calls", "Video calls", "Text messages", "All of the above"],
+            "required": true
+          },
+          {
+            "key": "shared_activities",
+            "label": "What activities do you enjoy doing together?",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "important_dates_knowledge",
+            "label": "Do you know your spouse’s birthday and important dates?",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "family_and_social",
+        "title": "Family & Social Knowledge",
+        "description": "Your awareness of each other’s family and social life.",
+        "questions": [
+          {
+            "key": "met_spouse_family",
+            "label": "Have you met your spouse’s family?",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "key": "family_reaction_to_marriage",
+            "label": "How did both families react to your marriage?",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "wedding_attendees",
+            "label": "Who attended your wedding?",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "marriage_type",
+            "label": "Was your marriage religious, civil, or both?",
+            "type": "select",
+            "options": ["Religious", "Civil", "Both"],
+            "required": true
+          },
+          {
+            "key": "mutual_friends",
+            "label": "Do you have mutual friends?",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "background_and_plans",
+        "title": "Background & Future Plans",
+        "description": "Employment, language, and US settlement plans.",
+        "questions": [
+          {
+            "key": "beneficiary_employment",
+            "label": "What is your current occupation?",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "sponsor_employment",
+            "label": "What does your spouse do for work?",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "military_or_defense_background",
+            "label": "Have you ever worked in the military, defense, or law enforcement?",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "key": "previous_us_visits",
+            "label": "Have you ever visited the United States?",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "key": "previous_visa_refusal",
+            "label": "Have you ever been refused a US visa?",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "key": "english_proficiency",
+            "label": "How well do you speak and understand English?",
+            "type": "select",
+            "options": ["Not at all", "Basic", "Intermediate", "Fluent"],
+            "required": true
+          },
+          {
+            "key": "intended_us_state",
+            "label": "Which US state does the beneficiary plan to live in?",
+            "type": "text",
+            "required": true
+          },
+          {
+            "key": "living_arrangements_in_us",
+            "label": "Where will the beneficiary live initially in the US?",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "key": "future_plans",
+            "label": "What are the beneficiary's plans after moving to the US?",
+            "type": "textarea",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "finances_and_household",
+        "title": "Finances & Household Management",
+        "description": "How you manage money and household responsibilities together.",
+        "questions": [
+          {
+            "key": "joint_finances",
+            "label": "Do you share finances?",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "key": "financial_arrangement_description",
+            "label": "Describe how household finances are managed",
+            "type": "textarea",
+            "required": true
+          }
+        ]
+      }
+    ]
+  }
+  
