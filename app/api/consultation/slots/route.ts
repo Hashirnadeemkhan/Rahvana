@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TimeSlot } from '@/types/consultation';
 import { consultationService } from '@/lib/services/consultationService';
 
 // Helper function to handle service errors

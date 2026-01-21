@@ -3,7 +3,7 @@ import { ConsultationRequest } from '@/types/consultation';
 import { consultationService } from '@/lib/services/consultationService';
 
 // Helper function to handle service errors
-const handleServiceError = (error: any, defaultMessage: string) => {
+const handleServiceError = (error: unknown, defaultMessage: string) => {
   console.error(defaultMessage, error);
   return NextResponse.json({ error: defaultMessage }, { status: 500 });
 };
@@ -86,7 +86,7 @@ export async function PUT(request: NextRequest) {
         await consultationService.updateBooking(id, {
           status: 'confirmed',
           selected_slot: data.selected_slot ? new Date(data.selected_slot) : undefined,
-          expires_at: null as any, // Remove expiration since it's confirmed
+          expires_at: undefined, // Remove expiration since it's confirmed
         });
         break;
 
