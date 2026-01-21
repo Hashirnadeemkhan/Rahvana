@@ -7,6 +7,7 @@ import {
   INCOME_THRESHOLDS,
   RELATIONSHIP_THRESHOLDS,
 } from "./scoring-config";
+import { IMPROVEMENT_MESSAGES } from "./improvements";
 
 interface RiskFlag {
   flagCode: FlagCode;
@@ -23,7 +24,7 @@ interface ScoringResult {
 export class ScoringRules {
   static calculateIncomeScore(
     income: number,
-    householdSize: number
+    householdSize: number,
   ): ScoringResult {
     const risks: RiskFlag[] = [];
     let score = COMPONENT_WEIGHTS.INCOME_AND_FINANCIAL;
@@ -41,8 +42,7 @@ export class ScoringRules {
         explanation: `Income ($${income.toLocaleString()}) is below ${
           INCOME_THRESHOLDS.CRITICAL_RATIO * 100
         }% of poverty guideline ($${povertyThreshold.toLocaleString()})`,
-        improvement:
-          "Consider getting a joint sponsor or increasing income documentation",
+        improvement: IMPROVEMENT_MESSAGES.SPONSOR_INCOME_BELOW_GUIDELINE_HIGH,
       });
       score -= RISK_POINTS_DEDUCTION.HIGH;
     } else if (incomeRatio < INCOME_THRESHOLDS.WARNING_RATIO) {
@@ -52,8 +52,7 @@ export class ScoringRules {
         explanation: `Income ($${income.toLocaleString()}) is below ${
           INCOME_THRESHOLDS.WARNING_RATIO * 100
         }% of poverty guideline ($${povertyThreshold.toLocaleString()})`,
-        improvement:
-          "Income is acceptable but could be stronger with additional documentation",
+        improvement: IMPROVEMENT_MESSAGES.SPONSOR_INCOME_BELOW_GUIDELINE_MEDIUM,
       });
       score -= RISK_POINTS_DEDUCTION.MEDIUM;
     }
@@ -67,7 +66,7 @@ export class ScoringRules {
   }
 
   static calculateRelationshipScore(
-    answers: Record<string, unknown>
+    answers: Record<string, unknown>,
   ): ScoringResult {
     const risks: RiskFlag[] = [];
     let score = COMPONENT_WEIGHTS.RELATIONSHIP_STRENGTH;
@@ -89,10 +88,9 @@ export class ScoringRules {
           flagCode: "SHORT_RELATIONSHIP_DURATION",
           severity: "HIGH",
           explanation: `Marriage duration is very short (${Math.round(
-            durationMonths
+            durationMonths,
           )} months < ${RELATIONSHIP_THRESHOLDS.SHORT_DURATION_MONTHS} months)`,
-          improvement:
-            "Longer marriage duration strengthens the case for genuine relationship",
+          improvement: IMPROVEMENT_MESSAGES.SHORT_RELATIONSHIP_DURATION,
         });
         score -= RISK_POINTS_DEDUCTION.HIGH;
       }
@@ -105,8 +103,7 @@ export class ScoringRules {
         flagCode: "NO_IN_PERSON_MEETINGS",
         severity: "HIGH",
         explanation: `No in-person meetings reported (${inPersonVisits} visits)`,
-        improvement:
-          "Meeting in person strengthens the case for genuine relationship",
+        improvement: IMPROVEMENT_MESSAGES.NO_IN_PERSON_MEETINGS_HIGH,
       });
       score -= RISK_POINTS_DEDUCTION.HIGH;
     } else if (inPersonVisits < RELATIONSHIP_THRESHOLDS.MIN_IN_PERSON_VISITS) {
@@ -114,8 +111,7 @@ export class ScoringRules {
         flagCode: "NO_IN_PERSON_MEETINGS",
         severity: "MEDIUM",
         explanation: `Limited in-person meetings (${inPersonVisits} visits < ${RELATIONSHIP_THRESHOLDS.MIN_IN_PERSON_VISITS})`,
-        improvement:
-          "More in-person meetings strengthen the case for genuine relationship",
+        improvement: IMPROVEMENT_MESSAGES.NO_IN_PERSON_MEETINGS_MEDIUM,
       });
       score -= RISK_POINTS_DEDUCTION.MEDIUM;
     }
@@ -127,8 +123,7 @@ export class ScoringRules {
         flagCode: "NO_COHABITATION_EVIDENCE",
         severity: "MEDIUM",
         explanation: "No cohabitation evidence provided",
-        improvement:
-          "Evidence of living together strengthens the case for genuine relationship",
+        improvement: IMPROVEMENT_MESSAGES.NO_COHABITATION_EVIDENCE,
       });
       score -= RISK_POINTS_DEDUCTION.MEDIUM;
     }
@@ -143,8 +138,7 @@ export class ScoringRules {
         flagCode: "NO_SHARED_FINANCIALS",
         severity: "MEDIUM",
         explanation: "No shared financial evidence",
-        improvement:
-          "Joint accounts or financial transfers show commitment to shared life",
+        improvement: IMPROVEMENT_MESSAGES.NO_SHARED_FINANCIALS,
       });
       score -= RISK_POINTS_DEDUCTION.MEDIUM;
     }
@@ -156,7 +150,7 @@ export class ScoringRules {
         flagCode: "NO_WEDDING_PHOTOS",
         severity: "LOW",
         explanation: "No wedding photos available",
-        improvement: "Wedding photos provide evidence of relationship",
+        improvement: IMPROVEMENT_MESSAGES.NO_WEDDING_PHOTOS,
       });
       score -= RISK_POINTS_DEDUCTION.LOW;
     }
@@ -168,7 +162,7 @@ export class ScoringRules {
         flagCode: "NO_COMMUNICATION_HISTORY",
         severity: "LOW",
         explanation: "No communication history provided",
-        improvement: "Chat logs, call records show ongoing relationship",
+        improvement: IMPROVEMENT_MESSAGES.NO_COMMUNICATION_HISTORY,
       });
       score -= RISK_POINTS_DEDUCTION.LOW;
     }
@@ -192,8 +186,7 @@ export class ScoringRules {
           flagCode: "AGE_GAP_HIGH",
           severity: "HIGH",
           explanation: `Large age gap (${ageGap} years) between sponsor (${sponsorAge} years) and beneficiary (${beneficiaryAge} years)`,
-          improvement:
-            "Large age gaps may raise questions about the legitimacy of the relationship",
+          improvement: IMPROVEMENT_MESSAGES.AGE_GAP_HIGH,
         });
         score -= RISK_POINTS_DEDUCTION.HIGH;
       }
@@ -207,7 +200,7 @@ export class ScoringRules {
   }
 
   static calculateDocumentScore(
-    answers: Record<string, unknown>
+    answers: Record<string, unknown>,
   ): ScoringResult {
     const risks: RiskFlag[] = [];
     let score = COMPONENT_WEIGHTS.DOCUMENT_COMPLETENESS;
@@ -226,22 +219,6 @@ export class ScoringRules {
       ],
       ["birth_certificates", "NO_BIRTH_CERTIFICATES", "Birth certificates"],
       ["passports_available", "NO_VALID_PASSPORTS", "Valid passports"],
-    ];
-
-    for (const [docKey, flagCode, docName] of criticalDocs) {
-      if (!answers[docKey]) {
-        risks.push({
-          flagCode,
-          severity: "HIGH",
-          explanation: `No ${docName} provided`,
-          improvement: `Critical document missing: ${docName}`,
-        });
-        score -= RISK_POINTS_DEDUCTION.HIGH;
-      }
-    }
-
-    // Important documents check
-    const importantDocs: [string, FlagCode | null, string][] = [
       [
         "union_council_certificate",
         "NO_UNION_COUNCIL_CERTIFICATE",
@@ -252,22 +229,79 @@ export class ScoringRules {
         "NO_FRC_AVAILABLE",
         "Family Registration Certificate",
       ],
-      ["passport_copy_available", "NO_PASSPORT_COPY", "Passport copy"],
       [
         "valid_police_clearance_certificate",
         "NO_VALID_POLICE_CLEARANCE_CERTIFICATE",
         "Police certificate",
       ],
+      ["medical_report_available", "NO_MEDICAL_REPORT", "Medical report"],
+    ];
+
+    for (const [docKey, flagCode, docName] of criticalDocs) {
+      if (!answers[docKey]) {
+        let improvementMsg: string;
+        switch (flagCode) {
+          case "NO_MARRIAGE_CERTIFICATE":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_MARRIAGE_CERTIFICATE;
+            break;
+          case "NO_MARRIAGE_TRANSLATION":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_MARRIAGE_TRANSLATION;
+            break;
+          case "NO_BIRTH_CERTIFICATES":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_BIRTH_CERTIFICATES;
+            break;
+          case "NO_VALID_PASSPORTS":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_VALID_PASSPORTS;
+            break;
+          case "NO_UNION_COUNCIL_CERTIFICATE":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_UNION_COUNCIL_CERTIFICATE;
+            break;
+          case "NO_FRC_AVAILABLE":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_FRC_AVAILABLE;
+            break;
+          case "NO_VALID_POLICE_CLEARANCE_CERTIFICATE":
+            improvementMsg =
+              IMPROVEMENT_MESSAGES.NO_VALID_POLICE_CLEARANCE_CERTIFICATE;
+            break;
+          case "NO_MEDICAL_REPORT":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_MEDICAL_REPORT;
+            break;
+          default:
+            improvementMsg = `Critical document missing: ${docName}`;
+        }
+
+        risks.push({
+          flagCode,
+          severity: "HIGH",
+          explanation: `No ${docName} provided`,
+          improvement: improvementMsg,
+        });
+        score -= RISK_POINTS_DEDUCTION.HIGH;
+      }
+    }
+
+    // Important documents check
+    const importantDocs: [string, FlagCode | null, string][] = [
+      ["passport_copy_available", "NO_PASSPORT_COPY", "Passport copy"],
     ];
 
     for (const [docKey, flagCode, docName] of importantDocs) {
       if (!answers[docKey]) {
         if (flagCode) {
+          let improvementMsg: string;
+          switch (flagCode) {
+            case "NO_PASSPORT_COPY":
+              improvementMsg = IMPROVEMENT_MESSAGES.NO_PASSPORT_COPY;
+              break;
+            default:
+              improvementMsg = `Important document missing: ${docName}`;
+          }
+
           risks.push({
             flagCode,
             severity: "MEDIUM",
             explanation: `No ${docName} provided`,
-            improvement: `Important document missing: ${docName}`,
+            improvement: improvementMsg,
           });
           score -= 3;
         }
@@ -278,17 +312,31 @@ export class ScoringRules {
     const appDocs: [string, FlagCode, string][] = [
       ["ds260_confirmation", "DS260_NOT_SUBMITTED", "DS-260 confirmation"],
       ["interview_letter", "NO_INTERVIEW_LETTER", "Interview letter"],
-      ["medical_report_available", "NO_MEDICAL_REPORT", "Medical report"],
       ["passport_photos_2x2", "NO_PASSPORT_PHOTOS_2X2", "Passport photos"],
     ];
 
     for (const [docKey, flagCode, docName] of appDocs) {
       if (!answers[docKey]) {
+        let improvementMsg: string;
+        switch (flagCode) {
+          case "DS260_NOT_SUBMITTED":
+            improvementMsg = IMPROVEMENT_MESSAGES.DS260_NOT_SUBMITTED;
+            break;
+          case "NO_INTERVIEW_LETTER":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_INTERVIEW_LETTER;
+            break;
+          case "NO_PASSPORT_PHOTOS_2X2":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_PASSPORT_PHOTOS_2X2;
+            break;
+          default:
+            improvementMsg = `Required application document missing: ${docName}`;
+        }
+
         risks.push({
           flagCode,
           severity: "MEDIUM",
           explanation: `No ${docName} provided`,
-          improvement: `Required application document missing: ${docName}`,
+          improvement: improvementMsg,
         });
         score -= 3;
       }
@@ -303,7 +351,7 @@ export class ScoringRules {
         flagCode: "NO_COVID_VACCINATION_PROOF",
         severity: "MEDIUM",
         explanation: "No COVID vaccination proof",
-        improvement: "COVID vaccination is required for US entry",
+        improvement: IMPROVEMENT_MESSAGES.NO_COVID_VACCINATION_PROOF,
       });
       score -= 2;
     }
@@ -313,9 +361,43 @@ export class ScoringRules {
         flagCode: "NO_POLIO_VACCINATION_PROOF",
         severity: "MEDIUM",
         explanation: "No polio vaccination proof",
-        improvement: "Polio vaccination may be required for US entry",
+        improvement: IMPROVEMENT_MESSAGES.NO_POLIO_VACCINATION_PROOF,
       });
       score -= 2;
+    }
+
+    // Check for financial documentation
+    const financialDocs: [string, FlagCode, string][] = [
+      ["has_tax_returns", "NO_TAX_RETURNS_AVAILABLE", "Tax returns"],
+      ["has_employment_letter", "NO_EMPLOYMENT_PROOF", "Employment letter"],
+      ["has_paystubs", "NO_PAYSTUBS", "Pay stubs"],
+    ];
+
+    for (const [docKey, flagCode, docName] of financialDocs) {
+      if (!answers[docKey]) {
+        let improvementMsg: string;
+        switch (flagCode) {
+          case "NO_TAX_RETURNS_AVAILABLE":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_TAX_RETURNS_AVAILABLE;
+            break;
+          case "NO_EMPLOYMENT_PROOF":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_EMPLOYMENT_PROOF;
+            break;
+          case "NO_PAYSTUBS":
+            improvementMsg = IMPROVEMENT_MESSAGES.NO_PAYSTUBS;
+            break;
+          default:
+            improvementMsg = `Financial documentation missing: ${docName}`;
+        }
+
+        risks.push({
+          flagCode,
+          severity: "MEDIUM",
+          explanation: `No ${docName} provided`,
+          improvement: improvementMsg,
+        });
+        score -= 5;
+      }
     }
 
     const MIN_DOCUMENT_SCORE = COMPONENT_WEIGHTS.DOCUMENT_COMPLETENESS * 0.2;
@@ -326,7 +408,7 @@ export class ScoringRules {
   }
 
   static calculateImmigrationHistoryScore(
-    answers: Record<string, unknown>
+    answers: Record<string, unknown>,
   ): ScoringResult {
     const risks: RiskFlag[] = [];
     let score = COMPONENT_WEIGHTS.IMMIGRATION_HISTORY;
@@ -337,7 +419,7 @@ export class ScoringRules {
         flagCode: "PREVIOUS_US_VISA_DENIAL",
         severity: "HIGH",
         explanation: "Previous US visa denial",
-        improvement: "Previous denial significantly impacts case strength",
+        improvement: IMPROVEMENT_MESSAGES.PREVIOUS_US_VISA_DENIAL,
       });
       score -= RISK_POINTS_DEDUCTION.HIGH;
     }
@@ -347,7 +429,7 @@ export class ScoringRules {
         flagCode: "PRIOR_IMMIGRATION_VIOLATION",
         severity: "HIGH",
         explanation: "Prior immigration violation",
-        improvement: "Prior violations significantly impact case strength",
+        improvement: IMPROVEMENT_MESSAGES.PRIOR_IMMIGRATION_VIOLATION,
       });
       score -= RISK_POINTS_DEDUCTION.HIGH;
     }
@@ -357,7 +439,7 @@ export class ScoringRules {
         flagCode: "CRIMINAL_HISTORY_PRESENT",
         severity: "HIGH",
         explanation: "Criminal record present",
-        improvement: "Criminal history significantly impacts case strength",
+        improvement: IMPROVEMENT_MESSAGES.CRIMINAL_HISTORY_PRESENT,
       });
       score -= RISK_POINTS_DEDUCTION.HIGH;
     }
@@ -421,29 +503,9 @@ export class ScoringRules {
           flagCode: "MARRIAGE_INVALID_IN_INTENDED_STATE",
           severity: "MEDIUM",
           explanation: `Cousin marriage may face legal or policy scrutiny in ${intendedState}`,
-          improvement:
-            "Consult an immigration attorney regarding state-specific marriage recognition",
+          improvement: IMPROVEMENT_MESSAGES.MARRIAGE_INVALID_IN_INTENDED_STATE,
         });
         score -= RISK_POINTS_DEDUCTION.MEDIUM;
-      }
-    }
-
-    // Check for financial documentation
-    const financialDocs: [string, FlagCode, string][] = [
-      ["has_tax_returns", "NO_TAX_RETURNS_AVAILABLE", "Tax returns"],
-      ["has_employment_letter", "NO_EMPLOYMENT_PROOF", "Employment letter"],
-      ["has_paystubs", "NO_PAYSTUBS", "Pay stubs"],
-    ];
-
-    for (const [docKey, flagCode, docName] of financialDocs) {
-      if (!answers[docKey]) {
-        risks.push({
-          flagCode,
-          severity: "MEDIUM",
-          explanation: `No ${docName} provided`,
-          improvement: `Financial documentation missing: ${docName}`,
-        });
-        score -= 5;
       }
     }
 
@@ -457,7 +519,7 @@ export class ScoringRules {
         flagCode: "NO_JOINT_SPONSOR_WHEN_REQUIRED",
         severity: "HIGH",
         explanation: "No joint sponsor when income is insufficient",
-        improvement: "Consider finding a joint sponsor for financial support",
+        improvement: IMPROVEMENT_MESSAGES.NO_JOINT_SPONSOR_WHEN_REQUIRED,
       });
       score -= 15;
     }
@@ -468,7 +530,7 @@ export class ScoringRules {
         flagCode: "NO_I864_SUBMITTED",
         severity: "HIGH",
         explanation: "Form I-864 not submitted",
-        improvement: "Form I-864 Affidavit of Support is required",
+        improvement: IMPROVEMENT_MESSAGES.NO_I864_SUBMITTED,
       });
       score -= 10;
     }
@@ -478,7 +540,7 @@ export class ScoringRules {
         flagCode: "I864_FINANCIAL_EVIDENCE_WEAK",
         severity: "MEDIUM",
         explanation: "No supporting financial documents for I-864",
-        improvement: "Supporting financial documents strengthen I-864",
+        improvement: IMPROVEMENT_MESSAGES.I864_FINANCIAL_EVIDENCE_WEAK,
       });
       score -= 5;
     }
@@ -494,7 +556,7 @@ export class ScoringRules {
     // Calculate individual component scores
     const householdSize = Math.max(
       1,
-      this.safeNumber(answers.household_size, 2)
+      this.safeNumber(answers.household_size, 2),
     );
 
     const income = this.safeNumber(answers.sponsor_annual_income, 0);
@@ -519,9 +581,9 @@ export class ScoringRules {
 
     // Determine risk level
     let riskLevel: "STRONG" | "MODERATE" | "WEAK";
-    if (totalScore >= 80) {
+    if (totalScore > 80) {
       riskLevel = "STRONG";
-    } else if (totalScore >= 50) {
+    } else if (totalScore > 50) {
       riskLevel = "MODERATE";
     } else {
       riskLevel = "WEAK";
@@ -535,30 +597,64 @@ export class ScoringRules {
       ...immigrationRisks,
     ];
 
+    // Additional custom risk flags based on military background
+    if (
+      answers.industry_sector === "Military/Defense" ||
+      answers.prior_military_service === true
+    ) {
+      allRisks.push({
+        flagCode: "WORKING_IN_DEFENSE_SECTOR",
+        severity: "MEDIUM",
+        explanation:
+          "Defense or military background can trigger additional security screening (Administrative Processing).",
+        improvement: IMPROVEMENT_MESSAGES.WORKING_IN_DEFENSE_SECTOR,
+      });
+    }
+
+    if (answers.specialized_weapons_training === true) {
+      allRisks.push({
+        flagCode: "DUAL_USE_TECHNOLOGY_RISK",
+        severity: "HIGH",
+        explanation:
+          "Specialized training involving weapons or hazardous materials may raise security-related concerns.",
+        improvement: IMPROVEMENT_MESSAGES.DUAL_USE_TECHNOLOGY_RISK,
+      });
+    }
+
+    if (answers.unofficial_armed_groups === true) {
+      allRisks.push({
+        flagCode: "WORKING_IN_DEFENSE_SECTOR",
+        severity: "HIGH",
+        explanation:
+          "Association with unofficial armed groups is considered a serious risk factor in visa adjudication.",
+        improvement: IMPROVEMENT_MESSAGES.UNOFFICIAL_ARMED_GROUPS,
+      });
+    }
+
     // Generate summary reasons and suggestions
     const summaryReasons: string[] = [];
     const improvementSuggestions: string[] = [];
 
-    if (totalScore < 50) {
+    if (totalScore <= 50) {
       summaryReasons.push(
-        "Case has significant weaknesses that need to be addressed"
+        "Your case has multiple high-impact issues that could significantly affect visa approval.",
       );
       improvementSuggestions.push(
-        "Focus on strengthening the weakest areas of your case"
+        "Prioritize resolving high-risk items such as missing critical documents, financial eligibility, or relationship evidence before proceeding.",
       );
-    } else if (totalScore < 80) {
+    } else if (totalScore <= 80) {
       summaryReasons.push(
-        "Case has moderate strengths but some areas need improvement"
+        "Your case shows legitimate strengths, but some areas may raise questions during review.",
       );
       improvementSuggestions.push(
-        "Address the identified risk factors to strengthen your case"
+        "Strengthen medium-risk areas by adding supporting documentation and clarifying any potential concerns.",
       );
     } else {
       summaryReasons.push(
-        "Case has strong fundamentals and good chances of approval"
+        "Your case demonstrates strong overall eligibility with well-supported evidence.",
       );
       improvementSuggestions.push(
-        "Maintain current strengths and ensure all documentation is complete"
+        "Maintain document accuracy and be prepared to clearly explain your case during the interview.",
       );
     }
 
