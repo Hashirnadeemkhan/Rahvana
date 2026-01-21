@@ -240,7 +240,7 @@ const ConsultationBookingPage = () => {
   };
 
   useEffect(() => {
-    if (activeView === 'requests') {
+    if (activeView === ('requests' as 'booking' | 'requests')) {
       fetchUserBookings(searchQuery);
     }
   }, [activeView, searchQuery]);
@@ -687,7 +687,7 @@ const ConsultationBookingPage = () => {
     }
   };
 
-  if (activeView === 'requests') {
+  if (activeView === ('requests' as 'booking' | 'requests')) {
     return (
       <div className="min-h-screen bg-gray-50 pb-12">
         <div className="bg-gradient-to-r from-teal-800 to-teal-600 text-white py-12 mb-10 shadow-lg relative overflow-hidden">
@@ -831,16 +831,16 @@ const ConsultationBookingPage = () => {
                 onClick={() => setActiveView('booking')} 
                 className={cn(
                   "px-6 py-2 rounded-full text-sm font-bold transition-all",
-                  activeView === 'booking' ? "bg-white text-teal-800 shadow-lg" : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
+                  activeView === ('booking' as 'booking' | 'requests') ? "bg-white text-teal-800 shadow-lg" : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
                 )}
               >
                 Book New
               </Button>
-              <Button 
-                onClick={() => setActiveView('requests')} 
+              <Button
+                onClick={() => setActiveView('requests')}
                 className={cn(
                   "px-6 py-2 rounded-full text-sm font-bold transition-all",
-                  activeView === 'requests' ? "bg-white text-teal-800 shadow-lg" : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
+                  activeView === ('requests' as 'booking' | 'requests') ? "bg-white text-teal-800 shadow-lg" : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
                 )}
               >
                 My Requests
