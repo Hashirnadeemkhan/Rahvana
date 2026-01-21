@@ -484,11 +484,7 @@ export function SiteHeader({
                     label: "Custom Requirements",
                     id: "custom-requirements",
                   },
-                  {
-                    href: "/visa-status-checker",
-                    label: "Visa Status Checker",
-                    id: "visa-status-checker",
-                  },
+                 
                 ].map((item) => (
                   <Link
                     key={item.href}
@@ -826,10 +822,6 @@ export function SiteHeader({
                         {
                           id: "document-translation",
                           label: "Document Translation",
-                        },
-                        {
-                          id: "visa-status-checker",
-                          label: "Visa Status Checker",
                         },
                       ].map((item) => (
                         <HydrationSafeButton
