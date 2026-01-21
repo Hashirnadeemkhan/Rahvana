@@ -8,6 +8,8 @@ export interface InterviewSession {
   completed: boolean;
   created_at: string;
   updated_at: string;
+  answers?: unknown[];
+  output?: unknown[];
 }
 
 export interface InterviewSessionInput {
@@ -28,7 +30,7 @@ export interface InterviewAnswer {
 export interface InterviewResult {
   id: string;
   session_id: string;
-  generated_questions: any[];
+  generated_questions: unknown[];
   created_at: string;
 }
 

@@ -26,28 +26,28 @@
       {
         "category": "Relationship Origin",
         "question": "How and where did you first meet your spouse?",
-        "suggestedAnswer": "We first met {{meeting_place}}, and our connection developed naturally over time. We started communicating regularly and learned more about each other’s values and goals.",
+        "suggestedAnswer": "We first met {{how_did_you_meet}}, and our connection developed naturally over time. We started communicating regularly and learned more about each other’s values and goals.",
         "guidance": "Focus on how the relationship developed naturally.",
         "tooltip": "Officers assess whether the relationship started naturally and is genuine."
       },
       {
         "category": "Relationship Origin",
         "question": "When and where did you first meet in person?",
-        "suggestedAnswer": "We first met in person at {{first_meeting_place}} on {{first_meeting_date}}, which helped strengthen our bond.",
+        "suggestedAnswer": "We first met in person {{first_in_person_meeting}}, which helped strengthen our bond.",
         "guidance": "Provide approximate details; exact dates are helpful but not critical.",
         "tooltip": "Officers want to confirm the timeline of your relationship."
       },
       {
         "category": "Relationship Origin",
         "question": "How many times have you met in person?",
-        "suggestedAnswer": "We have met in person {{number_of_visits}} times, maintaining consistent communication between visits.",
+        "suggestedAnswer": "We have met in person {{number_of_in_person_visits}} times, maintaining consistent communication between visits.",
         "guidance": "Be honest and approximate if unsure.",
         "tooltip": "Officers gauge the seriousness and commitment in the relationship."
       },
       {
         "category": "Proposal",
         "question": "How and when did the proposal happen?",
-        "suggestedAnswer": "The proposal happened on {{proposal_date}} and was meaningful to both of us, reflecting our commitment to each other.",
+        "suggestedAnswer": "The proposal happened on {{proposal_details}} and was meaningful to both of us, reflecting our commitment to each other.",
         "guidance": "Simple sincerity is enough.",
         "tooltip": "Officers want to see genuine relationship milestones."
       },
@@ -61,7 +61,7 @@
       {
         "category": "Wedding",
         "question": "Tell me about your wedding.",
-        "suggestedAnswer": "Our wedding was celebrated with close family and friends in {{wedding_location}}. It reflected our culture, values, and the significance of bringing our families together.",
+        "suggestedAnswer": "Our wedding was celebrated with close family and friends in {{marriage_location}}. It reflected our culture, values, and the significance of bringing our families together.",
         "guidance": "Size of wedding does not matter.",
         "tooltip": "Officers may ask about your wedding to verify cultural and social integration."
       },
@@ -75,7 +75,7 @@
       {
         "category": "Daily Life",
         "question": "How do you communicate when you are apart?",
-        "suggestedAnswer": "We communicate regularly through {{communication_methods}}, ensuring we stay connected and share updates about our daily lives.",
+        "suggestedAnswer": "We communicate regularly through {{daily_communication}}, ensuring we stay connected and share updates about our daily lives.",
         "guidance": "Mention consistency and methods.",
         "tooltip": "Officers want to know how the couple maintains a real connection despite distance."
       },
@@ -96,7 +96,7 @@
       {
         "category": "Employment",
         "question": "Where does your spouse work?",
-        "suggestedAnswer": "My spouse works at {{spouse_employer}} and maintains stable employment, which helps us plan responsibly for our shared future.",
+        "suggestedAnswer": "My spouse works at {{sponsor_employment}} and maintains stable employment, which helps us plan responsibly for our shared future.",
         "guidance": "Do not guess salary unless asked.",
         "tooltip": "Officers want to verify employment stability and financial responsibility."
       },

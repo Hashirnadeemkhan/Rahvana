@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { 
   getInterviewSession, 
   updateInterviewSessionAnswers, 
@@ -6,9 +6,9 @@ import {
   completeInterviewSession
 } from "@/lib/interview-prep/service";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id: sessionId } = params;
+    const { id: sessionId } = await params;
     
     if (!sessionId) {
       return NextResponse.json(
@@ -39,9 +39,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id: sessionId } = params;
+    const { id: sessionId } = await params;
     const body = await request.json();
     const { action } = body;
 

@@ -250,9 +250,10 @@ class QuestionSelectionEngine {
       // Check if there's specific criteria for this question
       const criteria = this.criteriaMap.get(questionEntry.question);
 
-      let isApplicable = true;
-      let priority: "high" | "medium" | "low" = "medium";
-      let reason = "Standard question relevance";
+      // By default, questions are not applicable unless they meet specific criteria
+      let isApplicable = false;
+      let priority: "high" | "medium" | "low" = "low";
+      let reason = "Question not directly relevant to provided information";
 
       if (criteria) {
         isApplicable = criteria.condition(answers);
@@ -482,6 +483,11 @@ class AnswerGenerationEngine {
           replacement = value ? "Yes" : "No";
         } else {
           replacement = String(value);
+          
+          // Special handling for daily_communication "All of the above"
+          if (placeholderKey === "daily_communication" && replacement === "All of the above") {
+            replacement = "phone calls, video calls, and text messages";
+          }
         }
 
         // Escape special regex characters in the replacement
@@ -640,7 +646,7 @@ export async function createInterviewSession(
   return await createInterviewSessionDB(sessionData);
 }
 
-// Retrieves an interview prep session with its answers
+// Retrieves an interview prep session with its answers and output
 export async function getInterviewSession(
   sessionId: string,
 ): Promise<InterviewSession | null> {
@@ -648,9 +654,12 @@ export async function getInterviewSession(
   if (!session) return null;
 
   const answers = await getSessionAnswersDB(sessionId);
+  const results = await getInterviewResultsDB(sessionId);
+  
   return {
     ...session,
     answers,
+    output: results?.generated_questions || null,
   } as InterviewSession;
 }
 
@@ -760,15 +769,15 @@ export async function getInterviewPrepOutput(
 
   return {
     sessionId,
-    questions: results.generated_questions,
+    questions: results.generated_questions as GeneratedQuestion[],
     summary: {
-      totalQuestions: results.generated_questions.length,
-      applicableQuestions: results.generated_questions.filter(
+      totalQuestions: (results.generated_questions as GeneratedQuestion[]).length,
+      applicableQuestions: (results.generated_questions as GeneratedQuestion[]).filter(
         (q: GeneratedQuestion) => q.applicable,
       ).length,
       categories: Array.from(
         new Set(
-          results.generated_questions.map(
+          (results.generated_questions as GeneratedQuestion[]).map(
             (q: GeneratedQuestion) => q.category as string,
           ),
         ),

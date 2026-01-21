@@ -192,6 +192,7 @@ export function SiteHeader({
         "view-security-questions": "/view-security-questions",
         "courier-registration": "/courier-registration",
         "custom-requirements": "/custom-requirements",
+        "interview-prep": "/interview-prep",
       };
 
       const targetRoute = routes[id] || "/";
@@ -398,7 +399,7 @@ export function SiteHeader({
 
               <div
                 className={`absolute left-0 top-full w-64 rounded-lg shadow-lg border border-gray-200 bg-white p-2 z-50 ${
-                  toolsMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                  toolsMenuOpen ? "opacity-100 visible overflow-y-auto max-h-[500px]" : "opacity-0 invisible"
                 }`}
               >
                 <div className="font-semibold text-primary px-3 py-1.5 text-sm">
@@ -483,6 +484,11 @@ export function SiteHeader({
                     href: "/custom-requirements",
                     label: "Custom Requirements",
                     id: "custom-requirements",
+                  },
+                  {
+                    href: "/interview-prep",
+                    label: "Interview Preparation",
+                    id: "interview-prep",
                   },
                 ].map((item) => (
                   <Link
