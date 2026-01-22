@@ -9,6 +9,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -555,21 +556,22 @@ export default function TranslationQueueTable() {
                     </TableRow>
                   ))}
                 </TableBody>
-
                 {/* Pagination - only show if there are requests and multiple pages */}
                 {filteredTranslationRequests.length > 0 && totalPages > 1 && (
-                  <TableRow>
-                    <TableCell colSpan={6}>
-                      <div className="w-full flex justify-center py-4">
-                        <Pagination
-                          currentPage={currentPage}
-                          totalItems={filteredTranslationRequests.length}
-                          itemsPerPage={ITEMS_PER_PAGE}
-                          onPageChange={setCurrentPage}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <TableFooter>
+                    <TableRow>
+                      <TableCell colSpan={6}>
+                        <div className="w-full flex justify-center py-4">
+                          <Pagination
+                            currentPage={currentPage}
+                            totalItems={filteredTranslationRequests.length}
+                            itemsPerPage={ITEMS_PER_PAGE}
+                            onPageChange={setCurrentPage}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  </TableFooter>
                 )}
               </Table>
             </div>

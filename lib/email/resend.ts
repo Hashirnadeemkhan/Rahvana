@@ -12,7 +12,7 @@ interface SendEmailParams {
 export async function sendEmail({ to, subject, html }: SendEmailParams) {
   try {
     const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || "Arachnie <onboarding@resend.dev>",
+      from: process.env.EMAIL_FROM || "Rahvana <onboarding@resend.dev>",
       to,
       subject,
       html,
