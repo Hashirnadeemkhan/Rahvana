@@ -60,18 +60,29 @@ const AvailabilityGrid = () => {
     fetchSlots();
   }, []);
 
-  // Helper to convert ET strings to Local Date
-  const etToLocal = (dateStr: string, timeStr: string) => {
-    return new Date(`${dateStr}T${timeStr}-05:00`);
+  // Helper to convert UTC strings to Local Date for display
+  const utcToLocal = (dateStr: string, timeStr: string) => {
+    // The API returns times in UTC, so we treat them as UTC and convert to user's local time
+    // Using the 'Z' suffix tells JavaScript this is a UTC time
+    return new Date(`${dateStr}T${timeStr}Z`);
   };
 
-  // Helper to convert Local strings to ET (for saving)
-  const localToEt = (dateStr: string, timeStr: string) => {
-    const local = new Date(`${dateStr}T${timeStr}`);
-    // Use Intl to get ET strings
-    const etDate = local.toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); // YYYY-MM-DD
-    const etTime = local.toLocaleTimeString('en-GB', { timeZone: 'America/New_York', hour12: false }); // HH:mm:ss
-    return { date: etDate, time: etTime.substring(0, 5) };
+  // Helper to convert Local strings to UTC (for saving)
+  const localToUtc = (dateStr: string, timeStr: string) => {
+    // Create a date object using the local date and time
+    // This interprets the date/time as being in the user's local timezone
+    const localDateTime = new Date(`${dateStr}T${timeStr}`);
+
+    // Convert to UTC by getting the ISO string and extracting the date and time parts
+    const utcISOString = localDateTime.toISOString();
+    const [utcDatePart, timePartWithMs] = utcISOString.split('T');
+    const [utcTimePart] = timePartWithMs.split('.'); // Remove milliseconds part
+
+    // Extract just hours and minutes
+    const [hours, minutes] = utcTimePart.split(':');
+    const utcTime = `${hours}:${minutes}`;
+
+    return { date: utcDatePart, time: utcTime };
   };
 
   const handleAddSlot = async (e: React.MouseEvent) => {
@@ -79,24 +90,24 @@ const AvailabilityGrid = () => {
     setSaving(true);
     setStatusMsg(null);
     console.log('Original local slot data:', newSlot);
-    const etData = localToEt(newSlot.date, newSlot.start_time);
-    // Approximate end time by adding 1 hour to start time in ET logic
-    const etEnd = localToEt(newSlot.date, newSlot.end_time);
+    const utcData = localToUtc(newSlot.date, newSlot.start_time);
+    // Approximate end time by adding 1 hour to start time in UTC logic
+    const utcEnd = localToUtc(newSlot.date, newSlot.end_time);
 
     try {
       const response = await fetch('/api/consultation/slots', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          date: etData.date,
-          start_time: etData.time,
-          end_time: etEnd.time,
+          date: utcData.date,
+          start_time: utcData.time,
+          end_time: utcEnd.time,
           status: 'available',
           max_bookings: 1,
           current_bookings: 0
         }),
       });
-      
+
       const data = await response.json();
       console.log('Server response:', data);
 
@@ -147,13 +158,15 @@ const AvailabilityGrid = () => {
 
   // Group slots by local date
   const processedSlots = slots.map(slot => {
-    const start = etToLocal(slot.date, slot.start_time);
-    const end = etToLocal(slot.date, slot.end_time);
+    const start = utcToLocal(slot.date, slot.start_time);
+    const end = utcToLocal(slot.date, slot.end_time);
+    // Use the local date for grouping, not the UTC date
+    const localDateLabel = start.toLocaleDateString('en-CA'); // Format as YYYY-MM-DD
     return {
       ...slot,
       localStart: start,
       localEnd: end,
-      localDateLabel: start.toISOString().split('T')[0]
+      localDateLabel: localDateLabel
     };
   });
 
@@ -282,7 +295,11 @@ const AvailabilityGrid = () => {
                         >
                           <div className="flex flex-col">
                             <span className="text-xs font-bold font-mono">
-                              {slot.localStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {slot.localStart.toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false // Use 24-hour format to be clear
+                              })}
                             </span>
                             <span className={cn(
                               "text-[9px] uppercase font-black",
