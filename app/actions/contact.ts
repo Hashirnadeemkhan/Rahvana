@@ -30,7 +30,7 @@ export async function submitContactForm(formData: FormData) {
 
     try {
         const result = await sendEmail({
-            to: "khashir657@gmail.com",
+            to: "support@rahvana.com",
             subject,
             html,
         });

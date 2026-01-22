@@ -59,7 +59,93 @@ interface FormData {
 
 const ConsultationBookingPage = () => {
   const router = useRouter();
-  
+
+  // Function to get phone number placeholder based on country code
+  const getPhonePlaceholder = (countryCode: string): string => {
+    switch(countryCode) {
+      case '+92': // Pakistan
+        return '300 1234567';
+      case '+1': // USA/Canada
+        return '123 456 7890';
+      case '+44': // UK
+        return '7123 456789';
+      case '+91': // India
+        return '98765 43210';
+      case '+971': // UAE
+        return '50 123 4567';
+      case '+966': // Saudi Arabia
+        return '50 123 4567';
+      case '+61': // Australia
+        return '412 345 678';
+      case '+49': // Germany
+        return '151 23456789';
+      case '+33': // France
+        return '6 12 34 56 78';
+      case '+81': // Japan
+        return '90-1234-5678';
+      case '+86': // China
+        return '138 0013 8000';
+      default:
+        return '123 456 7890'; // Default placeholder
+    }
+  };
+
+  // Function to validate phone number format based on country code
+  const validatePhoneNumber = (phone: string, countryCode: string): boolean => {
+    // Remove all non-digit characters for validation
+    const digitsOnly = phone.replace(/\D/g, '');
+
+    // Basic length validation based on country code
+    switch(countryCode) {
+      case '+92': // Pakistan: typically 10-11 digits after country code
+        return digitsOnly.length >= 10 && digitsOnly.length <= 11;
+      case '+1': // USA/Canada: 10 digits
+        return digitsOnly.length === 10;
+      case '+44': // UK: 10-11 digits
+        return digitsOnly.length >= 10 && digitsOnly.length <= 11;
+      case '+91': // India: 10 digits
+        return digitsOnly.length === 10;
+      case '+971': // UAE: 9 digits
+        return digitsOnly.length === 9;
+      case '+966': // Saudi Arabia: 9 digits
+        return digitsOnly.length === 9;
+      case '+61': // Australia: 9 digits
+        return digitsOnly.length === 9;
+      case '+49': // Germany: 10-11 digits
+        return digitsOnly.length >= 10 && digitsOnly.length <= 11;
+      case '+33': // France: 9 digits
+        return digitsOnly.length === 9;
+      case '+81': // Japan: 10 digits
+        return digitsOnly.length >= 10;
+      case '+86': // China: 11 digits
+        return digitsOnly.length === 11;
+      default:
+        // Default: minimum 7 digits, maximum 15 digits
+        return digitsOnly.length >= 7 && digitsOnly.length <= 15;
+    }
+  };
+
+  // Function to validate email format
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Function to validate name format (allow letters, spaces, hyphens, apostrophes)
+  const validateName = (name: string): boolean => {
+    if (!name.trim()) return false; // Name cannot be empty
+
+    // Allow letters (both cases), spaces, hyphens, apostrophes, and periods
+    const nameRegex = /^[a-zA-Z\s\-\'\.]+$/;
+    return nameRegex.test(name) && name.trim().length >= 2;
+  };
+
+  // Function to validate case summary (minimum length requirement)
+  const validateCaseSummary = (summary: string): boolean => {
+    // Minimum 20 characters for a meaningful case summary
+    return summary.trim().length >= 20;
+  };
+
   // View state
   const [activeView, setActiveView] = useState<'booking' | 'requests'>('booking');
   const [userBookings, setUserBookings] = useState<Booking[]>([]);
@@ -67,6 +153,7 @@ const ConsultationBookingPage = () => {
 
   // Form state
   const [currentStep, setCurrentStep] = useState(1);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     issue_category: '',
     visa_category: '',
@@ -168,6 +255,7 @@ const ConsultationBookingPage = () => {
     { code: '+86', name: 'China' },
   ].sort((a, b) => a.name.localeCompare(b.name));
 
+
   // Load time slots from API
   useEffect(() => {
     const fetchTimeSlots = async () => {
@@ -184,23 +272,25 @@ const ConsultationBookingPage = () => {
           }
 
           const formattedSlots = slots.map((slot: ApiTimeSlot) => {
-            // Assume business timezone is US Eastern Time (GMT-5)
             // slot.date is "YYYY-MM-DD", slot.start_time is "HH:mm:ss"
-            const etIso = `${slot.date}T${slot.start_time}-05:00`;
-            const slotDate = new Date(etIso);
+
+            // Create a combined datetime string in business timezone
+            const slotDateTimeStr = `${slot.date}T${slot.start_time}`;
+            const slotEndDateStr = `${slot.date}T${slot.end_time}`;
+
+            // Convert to user's timezone
+            const slotDate = new Date(slotDateTimeStr + 'Z'); // Treat as UTC then convert to user's timezone
+            const slotEndDate = new Date(slotEndDateStr + 'Z'); // Treat as UTC then convert to user's timezone
 
             // Format for user's detected timezone (browser's local TZ by default)
             const formatOptions: Intl.DateTimeFormatOptions = {
               hour: '2-digit',
               minute: '2-digit',
-              hour12: true
+              hour12: true,
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
             };
 
             const displayTime = slotDate.toLocaleTimeString([], formatOptions);
-
-            // Handle end time conversion too
-            const etEndIso = `${slot.date}T${slot.end_time}-05:00`;
-            const slotEndDate = new Date(etEndIso);
             const displayEndTime = slotEndDate.toLocaleTimeString([], formatOptions);
 
             return {
@@ -215,13 +305,16 @@ const ConsultationBookingPage = () => {
         } else {
           setAvailableSlots([]);
         }
-      } catch {
+      } catch (error) {
+        console.error('Slot fetch error:', error);
         setAvailableSlots([]);
       }
     };
 
     fetchTimeSlots();
   }, []); // Only fetch once, uses browser's local TZ by default via toLocaleTimeString
+
+
 
   const fetchUserBookings = async (query = '') => {
     setLoading(true);
@@ -267,10 +360,20 @@ const ConsultationBookingPage = () => {
   };
 
   const handleInputChange = (field: keyof FormData, value: string | boolean | Date | Date[]) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    // Validate phone number field to prevent alphabetic characters
+    if (field === 'phone_number' && typeof value === 'string') {
+      // Allow only digits, spaces, hyphens, parentheses, plus signs, and periods
+      const cleanedValue = value.replace(/[^\d\s\-\(\)\+.]/g, '');
+      setFormData(prev => ({
+        ...prev,
+        [field]: cleanedValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -309,6 +412,62 @@ const ConsultationBookingPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Comprehensive form validation before submission
+    if (!formData.issue_category) {
+      alert("Please select an issue category.");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.visa_category) {
+      alert("Please select a visa category.");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.case_stage) {
+      alert("Please select a case stage.");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.full_name || !validateName(formData.full_name)) {
+      alert("Please enter a valid full name (letters, spaces, hyphens, apostrophes only).");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.email || !validateEmail(formData.email)) {
+      alert("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePhoneNumber(formData.phone_number, formData.country_code)) {
+      alert(`Please enter a valid phone number for the selected country (${formData.country_code}).`);
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.case_summary || !validateCaseSummary(formData.case_summary)) {
+      alert("Please provide a detailed case summary with at least 20 characters.");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.selected_slot) {
+      alert("Please select a consultation time slot.");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.consent) {
+      alert("Please agree to the consent terms before submitting.");
+      setLoading(false);
+      return;
+    }
+
     console.log("Submitting form...", formData);
     setLoading(true);
 
@@ -318,13 +477,13 @@ const ConsultationBookingPage = () => {
       for (const file of attachments) {
         const fileData = new FormData();
         fileData.append('file', file);
-        
+
         try {
           const uploadRes = await fetch('/api/consultation/upload', {
             method: 'POST',
             body: fileData,
           });
-          
+
           if (uploadRes.ok) {
             const uploadInfo = await uploadRes.json();
             uploadedPaths.push(uploadInfo.path);
@@ -337,8 +496,8 @@ const ConsultationBookingPage = () => {
       // 2. Clean up and combine phone fields
       // Remove all non-digits from phone_number except a leading + if present
       const cleanPhoneNumber = formData.phone_number.replace(/[^\d+]/g, '');
-      // If the phone number already starts with +, we assume it has its own country code, 
-      // but the business requirement is to use the selected country_code. 
+      // If the phone number already starts with +, we assume it has its own country code,
+      // but the business requirement is to use the selected country_code.
       // Most robust: remove leading + from phone_number if country_code is already preened.
       const finalPhoneStr = `${formData.country_code}${cleanPhoneNumber.startsWith('+') ? cleanPhoneNumber.substring(1) : cleanPhoneNumber}`.replace(/\s+/g, '');
       
@@ -376,13 +535,52 @@ const ConsultationBookingPage = () => {
   };
 
   const handleNext = () => {
-    if (currentStep === 2 && !formData.consent) {
-      alert("Please agree to the consent terms before continuing.");
-      return;
+    if (!validateStep(currentStep)) {
+      return; // Don't proceed if validation fails
     }
     setCurrentStep(prev => Math.min(prev + 1, 3));
   };
-  const prevStep = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
+  // Validation function for each step
+  const validateStep = (step: number): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (step === 1) {
+      if (!formData.issue_category) {
+        newErrors.issue_category = "Issue category is required";
+      }
+      if (!formData.visa_category) {
+        newErrors.visa_category = "Visa category is required";
+      }
+      if (!formData.case_stage) {
+        newErrors.case_stage = "Case stage is required";
+      }
+    } else if (step === 2) {
+      if (!formData.full_name || !validateName(formData.full_name)) {
+        newErrors.full_name = "Please enter a valid full name";
+      }
+      if (!formData.email || !validateEmail(formData.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+      if (!validatePhoneNumber(formData.phone_number, formData.country_code)) {
+        newErrors.phone_number = "Please enter a valid phone number";
+      }
+      if (!formData.case_summary || !validateCaseSummary(formData.case_summary)) {
+        newErrors.case_summary = "Case summary must be at least 20 characters";
+      }
+      if (!formData.consent) {
+        newErrors.consent = "You must agree to the terms to continue";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -417,8 +615,20 @@ const ConsultationBookingPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Issue Category *</label>
                 <select
                   value={formData.issue_category}
-                  onChange={(e) => handleInputChange('issue_category', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition"
+                  onChange={(e) => {
+                    handleInputChange('issue_category', e.target.value);
+                    // Clear error when user selects a value
+                    if (errors.issue_category && e.target.value) {
+                      setErrors(prev => {
+                        const newErrors = {...prev};
+                        delete newErrors.issue_category;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 transition ${
+                    errors.issue_category ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 >
                   <option value="">Select an issue category...</option>
@@ -430,13 +640,28 @@ const ConsultationBookingPage = () => {
                     </optgroup>
                   ))}
                 </select>
+                {errors.issue_category && (
+                  <p className="mt-1 text-sm text-red-600">{errors.issue_category}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Visa Category *</label>
                 <select
                   value={formData.visa_category}
-                  onChange={(e) => handleInputChange('visa_category', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition"
+                  onChange={(e) => {
+                    handleInputChange('visa_category', e.target.value);
+                    // Clear error when user selects a value
+                    if (errors.visa_category && e.target.value) {
+                      setErrors(prev => {
+                        const newErrors = {...prev};
+                        delete newErrors.visa_category;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 transition ${
+                    errors.visa_category ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 >
                   <option value="">Select a visa category...</option>
@@ -448,6 +673,9 @@ const ConsultationBookingPage = () => {
                     </optgroup>
                   ))}
                 </select>
+                {errors.visa_category && (
+                  <p className="mt-1 text-sm text-red-600">{errors.visa_category}</p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -455,8 +683,20 @@ const ConsultationBookingPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Case Stage *</label>
                 <select
                   value={formData.case_stage}
-                  onChange={(e) => handleInputChange('case_stage', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition"
+                  onChange={(e) => {
+                    handleInputChange('case_stage', e.target.value);
+                    // Clear error when user selects a value
+                    if (errors.case_stage && e.target.value) {
+                      setErrors(prev => {
+                        const newErrors = {...prev};
+                        delete newErrors.case_stage;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 transition ${
+                    errors.case_stage ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 >
                   <option value="">Select stage...</option>
@@ -468,6 +708,9 @@ const ConsultationBookingPage = () => {
                     </optgroup>
                   ))}
                 </select>
+                {errors.case_stage && (
+                  <p className="mt-1 text-sm text-red-600">{errors.case_stage}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Embassy / Consulate</label>
@@ -499,6 +742,7 @@ const ConsultationBookingPage = () => {
                 </select>
               </div>
             </div>
+
           </div>
         );
       case 2:
@@ -512,12 +756,33 @@ const ConsultationBookingPage = () => {
                   <input
                     type="text"
                     value={formData.full_name}
-                    onChange={(e) => handleInputChange('full_name', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition"
+                    onChange={(e) => {
+                      const nameValue = e.target.value;
+                      // Validate name format (allow only letters, spaces, hyphens, apostrophes)
+                      if (nameValue && !validateName(nameValue)) {
+                        // Allow the input but potentially show a warning
+                        console.warn("Name contains invalid characters");
+                      }
+                      handleInputChange('full_name', nameValue);
+                      // Clear error when user types
+                      if (errors.full_name) {
+                        setErrors(prev => {
+                          const newErrors = {...prev};
+                          delete newErrors.full_name;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 transition ${
+                      errors.full_name ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     placeholder="John Doe"
                     required
                   />
                 </div>
+                {errors.full_name && (
+                  <p className="mt-1 text-sm text-red-600">{errors.full_name}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
@@ -526,12 +791,33 @@ const ConsultationBookingPage = () => {
                   <input
                     type="email"
                     value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition"
+                    onChange={(e) => {
+                      const emailValue = e.target.value;
+                      // Validate email format
+                      if (emailValue && !validateEmail(emailValue)) {
+                        // Optionally show a warning to the user
+                        console.warn("Invalid email format");
+                      }
+                      handleInputChange('email', emailValue);
+                      // Clear error when user types
+                      if (errors.email) {
+                        setErrors(prev => {
+                          const newErrors = {...prev};
+                          delete newErrors.email;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 transition ${
+                      errors.email ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     placeholder="john@example.com"
                     required
                   />
                 </div>
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -540,8 +826,20 @@ const ConsultationBookingPage = () => {
                 <div className="flex gap-2">
                   <select
                     value={formData.country_code}
-                    onChange={(e) => handleInputChange('country_code', e.target.value)}
-                    className="w-32 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition bg-gray-50 font-medium"
+                    onChange={(e) => {
+                      handleInputChange('country_code', e.target.value);
+                      // Clear error when user changes country code
+                      if (errors.phone_number) {
+                        setErrors(prev => {
+                          const newErrors = {...prev};
+                          delete newErrors.phone_number;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    className={`w-32 px-3 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 transition bg-gray-50 font-medium ${
+                      errors.phone_number ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   >
                     {countryCodes.map(c => (
                       <option key={c.code} value={c.code}>{c.code} {c.name.substring(0, 3)}</option>
@@ -552,14 +850,30 @@ const ConsultationBookingPage = () => {
                     <input
                       type="tel"
                       value={formData.phone_number}
-                      onChange={(e) => handleInputChange('phone_number', e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition"
-                      placeholder="300 1234567"
+                      onChange={(e) => {
+                        // Allow only digits, spaces, hyphens, parentheses, plus signs, and periods
+                        const cleanedValue = e.target.value.replace(/[^\d\s\-\(\)\+.]/g, '');
+                        handleInputChange('phone_number', cleanedValue);
+                        // Clear error when user types
+                        if (errors.phone_number) {
+                          setErrors(prev => {
+                            const newErrors = {...prev};
+                            delete newErrors.phone_number;
+                            return newErrors;
+                          });
+                        }
+                      }}
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 transition ${
+                        errors.phone_number ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder={getPhonePlaceholder(formData.country_code)}
                       required
                     />
                   </div>
                 </div>
-              
+                {errors.phone_number && (
+                  <p className="mt-1 text-sm text-red-600">{errors.phone_number}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Language *</label>
@@ -601,12 +915,33 @@ const ConsultationBookingPage = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Detailed Case Summary *</label>
               <textarea
                 value={formData.case_summary}
-                onChange={(e) => handleInputChange('case_summary', e.target.value)}
+                onChange={(e) => {
+                  const summaryValue = e.target.value;
+                  // Validate case summary length
+                  if (summaryValue && !validateCaseSummary(summaryValue)) {
+                    // Optionally show a character count or warning
+                    console.warn("Case summary should be at least 20 characters");
+                  }
+                  handleInputChange('case_summary', summaryValue);
+                  // Clear error when user types
+                  if (errors.case_summary) {
+                    setErrors(prev => {
+                      const newErrors = {...prev};
+                      delete newErrors.case_summary;
+                      return newErrors;
+                    });
+                  }
+                }}
                 rows={5}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition min-h-30"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 transition min-h-30 ${
+                  errors.case_summary ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Tell us about your visa status, any RFE/221g received, and specific questions you have..."
                 required
               />
+              {errors.case_summary && (
+                <p className="mt-1 text-sm text-red-600">{errors.case_summary}</p>
+              )}
             </div>
             <div className="bg-teal-50/50 border border-teal-100 p-5 rounded-2xl">
               <label className="flex items-start gap-3 cursor-pointer group">
@@ -615,23 +950,50 @@ const ConsultationBookingPage = () => {
                     type="checkbox"
                     required
                     checked={formData.consent}
-                    onChange={(e) => handleInputChange('consent', e.target.checked)}
-                    className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
+                    onChange={(e) => {
+                      handleInputChange('consent', e.target.checked);
+                      // Clear error when user checks the box
+                      if (errors.consent && e.target.checked) {
+                        setErrors(prev => {
+                          const newErrors = {...prev};
+                          delete newErrors.consent;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    className={`w-4 h-4 text-teal-600 rounded focus:ring-teal-500 cursor-pointer ${
+                      errors.consent ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   />
                 </div>
                 <span className="text-xs text-gray-600 leading-relaxed font-medium group-hover:text-teal-900 transition-colors">
                   I consent to being contacted via email and WhatsApp. I understand this consultation provides general guidance and does not constitute legal advice.
                 </span>
               </label>
+              {errors.consent && (
+                <p className="mt-1 text-sm text-red-600">{errors.consent}</p>
+              )}
             </div>
           </div>
         );
       case 3:
         return (
           <div className="space-y-6">
-            <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex gap-3">
-              <Info className="h-5 w-5 text-blue-600 mt-0.5" />
-              <p className="text-sm text-blue-700">Selected slots are held as &#34;Pending Approval&#34; until confirmed.</p>
+            <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                <p className="text-sm text-blue-700">Selected slots are held as &#34;Pending Approval&#34; until confirmed.</p>
+              </div>
+              <div className="flex justify-end">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                  <Globe className="h-3.5 w-3.5" />
+                  Your Time: {new Date().toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZoneName: 'short'
+                  })}
+                </span>
+              </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {availableSlots.length > 0 ? (
@@ -641,7 +1003,7 @@ const ConsultationBookingPage = () => {
                     onClick={() => handleSlotSelect(slot)}
                     className={cn(
                       "border rounded-xl p-4 cursor-pointer transition",
-                      formData.selected_slot?.getTime() === slot.date.getTime() ? "border-teal-500 bg-teal-50" : 
+                      formData.selected_slot?.getTime() === slot.date.getTime() ? "border-teal-500 bg-teal-50" :
                       slot.available ? "border-gray-200 hover:border-teal-300 hover:bg-teal-50/30" : "opacity-50 cursor-not-allowed bg-gray-50"
                     )}
                   >
@@ -931,7 +1293,7 @@ const ConsultationBookingPage = () => {
 export default ConsultationBookingPage;
 
 // Helper components for consistency
-const Info = ({ className }: { className?: string }) => <span className={className}><AlertCircle className="h-5 w-5" /></span>;
+const Info = ({ className }: { className?: string }) => <AlertCircle className={className} />;
 
 type ButtonVariant = "primary" | "outline" | "ghost";
 

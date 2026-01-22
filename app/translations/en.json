@@ -1,0 +1,75 @@
+{
+  "welcome": "Welcome",
+  "home": "Home",
+  "about": "About",
+  "services": "Services",
+  "contact": "Contact",
+  "language": "Language",
+  "english": "English",
+  "urdu": "Urdu",
+  "toggleLanguage": "Toggle Language",
+  "navigation": {
+    "home": "Home",
+    "about": "About Us",
+    "services": "Services",
+    "contact": "Contact",
+    "login": "Login",
+    "signup": "Sign Up",
+    "visaCategory": "Visa Category",
+    "tools": "Tools",
+    "pricing": "Pricing",
+    "dashboard": "Dashboard"
+  },
+  "header": {
+    "title": "Immigration Assistant",
+    "tagline": "Automate immigration form filling"
+  },
+  "footer": {
+    "copyright": "© 2025 Arachnie. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us",
+    "about": "About Rahvana",
+    "disclaimerTitle": "Legal Disclaimer",
+    "disclaimerText": "Rahvana is not a law firm and does not provide legal advice. All information provided is for educational purposes only and should not be construed as legal advice. Immigration laws are complex and subject to change. For legal guidance specific to your situation, please consult a licensed immigration attorney. Use of this platform does not create an attorney-client relationship.",
+    "tagline": "Your visa journey companion"
+  },
+  "buttons": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close"
+  },
+  "forms": {
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phoneNumber": "Phone Number"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "passwordMismatch": "Passwords do not match"
+  },
+  "pages": {
+    "home": {
+      "title": "Home - Immigration Assistant"
+    },
+    "about": {
+      "title": "About Us - Immigration Assistant"
+    },
+    "services": {
+      "title": "Services - Immigration Assistant"
+    },
+    "contact": {
+      "title": "Contact - Immigration Assistant"
+    }
+  },
+  "generic": {
+    "loading": "Loading...",
+    "success": "Success!",
+    "error": "Error occurred"
+  }
+}

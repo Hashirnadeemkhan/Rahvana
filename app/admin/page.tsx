@@ -1,11 +1,11 @@
 "use client";
 
-
+import React from 'react';
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-;
+import { Globe } from "lucide-react";
 
 import TranslationQueueTable from "./components/translation-queue/TranslationQueueTable";
 import PoliceVerificationTable from "./components/police-verifications/PoliceVerificationTable";
@@ -80,6 +80,14 @@ export default function AdminPanel() {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                <Globe className="h-3.5 w-3.5" />
+                Your Time: {new Date().toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  timeZoneName: 'short'
+                })}
+              </span>
               <span className="text-sm text-gray-600">
                 Admin: {user?.email}
               </span>
