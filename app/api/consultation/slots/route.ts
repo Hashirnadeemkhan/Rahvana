@@ -24,7 +24,14 @@ export async function GET(request: NextRequest) {
 
     const slots = await consultationService.getTimeSlots(filters);
 
-    return NextResponse.json(slots);
+    // Return slots with proper timezone info
+    // Database stores in UTC, so we'll send back the raw data
+    // and let the frontend handle the display timezone conversion
+    return NextResponse.json(slots.map(slot => ({
+      ...slot,
+      // Add a flag to indicate this is stored in UTC
+      timezone: 'UTC'
+    })));
   } catch (error) {
     return handleServiceError(error, 'Error fetching time slots');
   }
@@ -39,17 +46,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Create new time slot
+    // IMPORTANT: Accept the date and time as-is from admin
+    // The admin inputs in their local timezone
+    // We need to preserve the date in the user's timezone context
+    // To do this, we'll create a date object that represents the local time in the user's timezone
+    // and then convert it to UTC for storage
+
+    // Create a date object using the local date and time
+    // This interprets the date/time as being in the user's local timezone
+    const localDateTime = new Date(`${data.date}T${data.start_time}`);
+
+    // Convert to UTC by getting the UTC values
+    // This might change the date if the local time crosses midnight UTC
+    const utcISOString = localDateTime.toISOString();
+    const [utcDate, timeWithMs] = utcISOString.split('T');
+    const utcStartTime = timeWithMs.substring(0, 8); // HH:mm:ss in UTC
+
+    const localEndTime = new Date(`${data.date}T${data.end_time}`);
+    const utcEndISOString = localEndTime.toISOString();
+    const [, endTimeWithMs] = utcEndISOString.split('T');
+    const utcEndTime = endTimeWithMs.substring(0, 8); // HH:mm:ss in UTC
+
+    // Create new time slot with UTC times
     const newSlot = await consultationService.createTimeSlot({
-      date: new Date(data.date),
-      start_time: data.start_time,
-      end_time: data.end_time,
+      date: new Date(utcDate),
+      start_time: utcStartTime,
+      end_time: utcEndTime,
       status: data.status || 'available',
       max_bookings: data.max_bookings || 1,
       current_bookings: data.current_bookings || 0,
     });
 
-    return NextResponse.json(newSlot, { status: 201 });
+    return NextResponse.json({
+      ...newSlot,
+      timezone: 'UTC',
+      original_input: {
+        date: data.date,
+        start_time: data.start_time,
+        end_time: data.end_time
+      }
+    }, { status: 201 });
   } catch (error) {
     return handleServiceError(error, 'Error creating time slot');
   }
@@ -69,7 +105,10 @@ export async function PUT(request: NextRequest) {
     // Update the time slot
     const updatedSlot = await consultationService.updateTimeSlot(id, data);
 
-    return NextResponse.json(updatedSlot);
+    return NextResponse.json({
+      ...updatedSlot,
+      timezone: 'UTC'
+    });
   } catch (error) {
     return handleServiceError(error, 'Error updating time slot');
   }
