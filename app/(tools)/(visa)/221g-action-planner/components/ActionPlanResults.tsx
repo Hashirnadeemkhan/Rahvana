@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -70,6 +70,8 @@ export default function ActionPlanResults({
     additionalNotes: ''
   });
 
+  // Ref for tracking document scrolling (for UI)
+  const documentSectionsRef = useRef<Record<string, HTMLElement | null>>({});
 
   // Restore progress from localStorage on mount
   useEffect(() => {

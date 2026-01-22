@@ -14,12 +14,14 @@ export function HomeSection({ onNavigate, isSignedIn }: { onNavigate: (section: 
                         <button 
                             className="px-8 py-4 rounded-lg cursor-pointer text-base font-semibold transition-all no-underline bg-[#0d9488] text-white hover:bg-[#0f766e] hover:-translate-y-px hover:shadow-md"
                             onClick={() => onNavigate('journeys')}
+                            suppressHydrationWarning
                         >
                             Explore Visa Journeys →
                         </button>
                       {isSignedIn && (  <button 
                             className="px-8 py-4 rounded-lg cursor-pointer text-base font-semibold transition-all no-underline bg-[#0d9488] text-white hover:bg-[#0f766e] hover:-translate-y-px hover:shadow-md"
                             onClick={() => onNavigate('dashboard')}
+                            suppressHydrationWarning
                         >
                             Go to Dashboard
                         </button>)}
@@ -53,6 +55,7 @@ export function HomeSection({ onNavigate, isSignedIn }: { onNavigate: (section: 
                         <button 
                             className="px-6 py-3 rounded-lg cursor-pointer text-[15px] font-semibold transition-all no-underline bg-[#0d9488] text-white hover:bg-[#0f766e] hover:-translate-y-px hover:shadow-md"
                             onClick={() => onNavigate('ir1-journey')}
+                            suppressHydrationWarning
                         >
                             Start Journey →
                         </button>
@@ -126,6 +129,7 @@ export function VisaCategorySection({ onNavigate }: { onNavigate: (section: stri
                         <button 
                             className="w-full mt-4 px-8 py-4 rounded-lg cursor-pointer text-base font-semibold transition-all no-underline bg-[#0d9488] text-white hover:bg-[#0f766e] hover:-translate-y-px hover:shadow-md"
                             onClick={() => onNavigate('ir1-journey')}
+                            suppressHydrationWarning
                         >
                             Start IR-1 Journey →
                         </button>
@@ -330,6 +334,7 @@ export function IR1JourneyDetail({ isSignedIn, onToggleAuth, children }: { isSig
                         <button 
                             className="px-8 py-3 rounded-xl bg-primary/90 text-white font-bold text-lg hover:bg-[#0f766e] transition-all shadow-lg active:scale-95"
                             onClick={onToggleAuth}
+                            suppressHydrationWarning
                         >
                             Sign In Free
                         </button>
