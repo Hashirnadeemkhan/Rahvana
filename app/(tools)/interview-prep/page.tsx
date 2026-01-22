@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+
 import { useRouter } from "next/navigation";
 import { ResultPage } from "./result/ResultPage";
 import { InterviewPrepOutput } from "../../../lib/interview-prep/types";
@@ -57,6 +57,16 @@ interface CaseTypeStepProps {
   onNext: () => void;
   onBack: () => void;
 }
+
+const mapAnswersToFormData = (
+  answers: Array<{ question_key: string; answer_value: unknown }>
+): Partial<FormData> => {
+  const mapped: Partial<FormData> = {};
+  answers.forEach((a) => {
+    mapped[a.question_key as keyof FormData] = a.answer_value as never;
+  });
+  return mapped;
+};
 
 const CaseTypeStep = ({
   formData,
@@ -182,7 +192,6 @@ interface QuestionStepProps {
   onChange: (id: keyof FormData, value: unknown) => void;
   onNext: () => void;
   onBack: () => void;
-  onSaveForLater?: () => void;
 }
 
 const QuestionStep = ({
@@ -194,7 +203,6 @@ const QuestionStep = ({
   onChange,
   onNext,
   onBack,
-  onSaveForLater,
 }: QuestionStepProps) => {
   const renderInput = (question: {
     key: keyof FormData;
@@ -335,14 +343,6 @@ const QuestionStep = ({
           </Button>
           <div className="flex space-x-2">
             <Button
-              onClick={() => onSaveForLater && onSaveForLater()}
-              variant="outline"
-              className="text-slate-600"
-              type="button"
-            >
-              Save for Later
-            </Button>
-            <Button
               onClick={onNext}
               className="bg-teal-600 hover:bg-teal-700 text-white"
             >
@@ -361,7 +361,6 @@ interface ReviewStepProps {
   loading: boolean;
   onSubmit: () => void;
   onBack: () => void;
-  onSaveForLater?: () => void;
 }
 
 const ReviewStep = ({
@@ -370,7 +369,6 @@ const ReviewStep = ({
   loading,
   onSubmit,
   onBack,
-  onSaveForLater,
 }: ReviewStepProps) => {
   // Helper function to format boolean values
   const formatBoolean = (value: boolean | undefined) => {
@@ -818,15 +816,6 @@ const ReviewStep = ({
           </Button>
           <div className="flex space-x-2">
             <Button
-              onClick={() => onSaveForLater && onSaveForLater()}
-              variant="outline"
-              className="text-slate-600"
-              type="button"
-              disabled={loading}
-            >
-              Save for Later
-            </Button>
-            <Button
               onClick={onSubmit}
               disabled={loading}
               className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -847,7 +836,7 @@ export default function InterviewPreparation() {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [saveNotification, setSaveNotification] = useState<string | null>(null);
+
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [generatedResults, setGeneratedResults] = useState<InterviewPrepOutput | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -866,13 +855,13 @@ export default function InterviewPreparation() {
           );
           const sessionData = await response.json();
 
-          if (response.ok && sessionData.completed === false) {
+          if (response.ok && sessionData.session && sessionData.session.completed === false) {
             // Found an incomplete session, restore it
             setSessionId(savedSessionId);
             setFormData((prev) => ({
               ...prev,
-              caseType: sessionData.caseType,
-              ...sessionData.answers,
+              caseType: sessionData.session.case_type,
+              ...sessionData.session.answers,
             }));
 
             setStep(0);
@@ -985,10 +974,52 @@ export default function InterviewPreparation() {
       return;
     }
   
-    // If we're on the first step (case type selection), create a session
+    // If we're on the first step (case type selection), check for existing session first
     if (step === 0 && formData.caseType) {
       try {
         setLoading(true);
+        const storedSessionId = localStorage.getItem("interviewPrepSessionId");
+
+        // 🔹 CHECK FOR EXISTING SESSION FIRST
+        if (storedSessionId) {
+          const existingRes = await fetch(
+            `/api/interview-prep/sessions/${storedSessionId}`
+          );
+          const existingData = await existingRes.json();
+
+          if (
+            existingRes.ok &&
+            existingData.session &&
+            existingData.session.completed === false &&
+            existingData.session.case_type === formData.caseType
+          ) {
+            // ✅ Resume existing session
+            setSessionId(existingData.session.id);
+
+            // Restore answers to form data
+            const restoredAnswers = mapAnswersToFormData(
+              existingData.session.answers || []
+            );
+
+            setFormData((prev) => ({
+              ...prev,
+              caseType: existingData.session.case_type,
+              ...restoredAnswers,
+            }));
+
+            // Force re-render to populate form fields
+            setTimeout(() => {
+              setFormData(prev => ({ ...prev }));
+            }, 0);
+
+            setStep(1);
+            setLoading(false);
+            return;
+          }
+
+          // Completed or case type mismatch → clear localStorage
+          localStorage.removeItem("interviewPrepSessionId");
+        }
         const sessionResponse = await fetch("/api/interview-prep", {
           method: "POST",
           headers: {
@@ -1040,11 +1071,11 @@ export default function InterviewPreparation() {
           throw new Error(sessionResult.error || "Failed to create session");
         }
       } catch (err) {
-        console.error("Error creating session:", err);
+        console.error("Error creating/resuming session:", err);
         setError(
           err instanceof Error
             ? err.message
-            : "Failed to create session. Please try again.",
+            : "Failed to create/resume session. Please try again.",
         );
         setLoading(false);
         return;
@@ -1192,48 +1223,7 @@ export default function InterviewPreparation() {
     }
   };
 
-  const handleSaveForLater = async () => {
-    if (!sessionId) {
-      setError("No session found to save. Please start the assessment first.");
-      return;
-    }
 
-    try {
-      setLoading(true);
-      // Force save all current answers
-      const { caseType, ...answers } = formData;
-      const answersResponse = await fetch(
-        `/api/interview-prep/sessions/${sessionId}/answers`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            answers,
-          }),
-        },
-      );
-
-      if (answersResponse.ok) {
-        // Save session ID to localStorage
-        localStorage.setItem("interviewPrepSessionId", sessionId);
-        setSaveNotification(
-          "Your progress has been saved. You can return later to continue.",
-        );
-        // Clear notification after 5 seconds
-        setTimeout(() => setSaveNotification(null), 5000);
-      } else {
-        console.error("Failed to save answers:", await answersResponse.text());
-        setError("Failed to save your progress. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error saving progress:", err);
-      setError("Error saving progress. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async () => {
     if (!sessionId) {
@@ -1313,11 +1303,6 @@ export default function InterviewPreparation() {
 
     const renderWithNotification = (content: React.ReactNode) => (
       <div>
-        {saveNotification && (
-          <Alert className="mb-4">
-            <AlertDescription>{saveNotification}</AlertDescription>
-          </Alert>
-        )}
         {content}
       </div>
     );
@@ -1361,7 +1346,6 @@ export default function InterviewPreparation() {
             onChange={handleInputChange}
             onNext={nextStep}
             onBack={prevStep}
-            onSaveForLater={handleSaveForLater}
           />
         )
       );
@@ -1377,7 +1361,6 @@ export default function InterviewPreparation() {
             loading={loading}
             onSubmit={handleSubmit}
             onBack={prevStep}
-            onSaveForLater={handleSaveForLater}
           />
         )
       );

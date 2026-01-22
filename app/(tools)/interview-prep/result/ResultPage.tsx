@@ -1,9 +1,9 @@
 "use client";
 
-import * as Tooltip from "@radix-ui/react-tooltip";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, Info } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { BookOpen, Info } from "lucide-react";
 import { InterviewPrepOutput, GeneratedQuestion } from "@/lib/interview-prep";
 
 interface ResultPageProps {
@@ -12,96 +12,33 @@ interface ResultPageProps {
   onRestart: () => void;
 }
 
-interface AccordionItemProps {
-  item: GeneratedQuestion;
-  index: number;
-}
-
-const AccordionItem = ({ item, index }: AccordionItemProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="border border-gray-200 rounded-lg relative">
-      <div
-        className="flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100 cursor-pointer"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <div className="flex items-center gap-2">
-          {isOpen ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-          <span className="font-medium text-slate-800 truncate max-w-md">
-            {item.question}
-          </span>
-        </div>
-        <Tooltip.Provider>
-            <Tooltip.Root>
-              <Tooltip.Trigger asChild>
-                <Info
-                  size={16}
-                  className="text-gray-500 hover:text-gray-700"
-                />
-              </Tooltip.Trigger>
-
-              <Tooltip.Portal>
-                <Tooltip.Content
-                  side="top"
-                  className="z-[9999] max-w-2xs rounded bg-slate-800 px-3 py-2 text-xs text-white shadow-lg"
-                >
-                  {item.tooltip}
-                  <Tooltip.Arrow className="fill-slate-800" />
-                </Tooltip.Content>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </Tooltip.Provider>
-      </div>
-
-      {isOpen && (
-        <div className="p-6 bg-white border-t border-gray-200">
-          <div className="mb-4">
-            <div className="text-sm text-gray-500 mb-4">
-              <strong>Category:</strong> {item.category}
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <h4 className="font-medium text-blue-800 mb-2">
-              Suggested Answer:
-            </h4>
-            <p className="text-slate-700">{item.suggestedAnswer}</p>
-          </div>
-
-          <div>
-            <h4 className="font-medium text-slate-800 mb-2">Guidance:</h4>
-            <p className="text-slate-600">{item.guidance}</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const ResultPage = ({
-  sessionId,
-  results,
-  onRestart,
-}: ResultPageProps) => {
+export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<GeneratedQuestion | null>(null);
+  const [isFlipped, setIsFlipped] = useState(false);
 
-  // Use the passed results directly
   useEffect(() => {
     if (results === undefined || results === null) {
-      setError("No results found. Please try again.");
+      setError('No results found. Please try again.');
       setLoading(false);
     }
   }, [results]);
+
+  const handleQuestionSelect = (question: GeneratedQuestion) => {
+    setSelectedQuestion(question);
+    setIsFlipped(false);
+  };
+
+  const handleCardClick = () => {
+    setIsFlipped(!isFlipped);
+  };
 
   if (loading) {
     return (
       <div className="text-center py-8">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-        <p className="mt-4 text-slate-600">
-          Generating your interview preparation materials...
-        </p>
+        <p className="mt-4 text-slate-600">Generating your interview preparation materials...</p>
       </div>
     );
   }
@@ -110,10 +47,7 @@ export const ResultPage = ({
     return (
       <div className="text-center py-8">
         <p className="text-red-600">Error: {error}</p>
-        <Button
-          onClick={onRestart}
-          className="mt-4 bg-teal-600 hover:bg-teal-700 text-white"
-        >
+        <Button onClick={onRestart} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white">
           Restart
         </Button>
       </div>
@@ -122,31 +56,183 @@ export const ResultPage = ({
 
   if (results && results.questions) {
     return (
-      <div className="space-y-6">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            Your Interview Preparation Materials
-          </h2>
-          <p className="text-slate-600">
-            Below are the questions and answers tailored to your specific case
-          </p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">
+              Interview Preparation Flashcards
+            </h2>
+            <p className="text-slate-600">
+              Click any question to view answers and guidance
+            </p>
+          </div>
 
-        <div className="space-y-3">
-          {results.questions
-            .filter((item: GeneratedQuestion) => item.applicable)
-            .map((item: GeneratedQuestion, index: number) => (
-              <AccordionItem key={index} item={item} index={index} />
-            ))}
-        </div>
+          <div className="flex flex-col lg:flex-row gap-6">
+             {/* Questions Sidebar */}
+            <div className="lg:w-2/5">
+              <div className="bg-white rounded-xl shadow-lg p-6 h-fit sticky top-6">
+                <h3 className="font-semibold text-lg text-slate-800 mb-4 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-teal-600" />
+                  Questions ({results.questions.filter((q: GeneratedQuestion) => q.applicable).length})
+                </h3>
+                <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
+                  {results.questions
+                    .filter((item: GeneratedQuestion) => item.applicable)
+                    .map((item: GeneratedQuestion, index: number) => (
+                      <div
+                        key={index}
+                        onClick={() => handleQuestionSelect(item)}
+                        className={`w-full cursor-pointer p-4 rounded-lg transition-all duration-200 border ${
+                          selectedQuestion?.id === item.id
+                            ? 'bg-teal-100 border-2 border-teal-500 shadow-md'
+                            : 'bg-slate-50 hover:bg-slate-100 border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-medium mt-1">
+                            {index + 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-slate-800 text-sm">
+                              {item.question}
+                            </p>
+                            <div className="mt-2">
+                              <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                {item.category}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
 
-        <div className="pt-6">
-          <Button
-            onClick={onRestart}
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-          >
-            Start New Interview Prep
-          </Button>
+            {/* Flashcard Area */}
+            <div className="lg:w-3/5">
+              <div className="bg-white rounded-xl shadow-lg p-8 min-h-[80vh] flex items-center justify-center">
+                {selectedQuestion ? (
+                  <div className="w-full max-w-2xl">
+                    <div 
+                      className={`relative w-full h-full min-h-[540px] cursor-pointer transition-transform duration-700 ease-out-cubic ${
+                        isFlipped ? 'transform rotate-y-180' : ''
+                      }`}
+                      style={{ 
+                        transformStyle: 'preserve-3d',
+                        perspective: '1000px'
+                      }}
+                      onClick={handleCardClick}
+                    >
+                      {/* Front of Card - Question */}
+                      <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl p-8 flex flex-col justify-between text-white shadow-xl">
+                        <div>
+                          <div className="flex justify-between items-start mb-6">
+                            <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+                              {selectedQuestion.category}
+                            </span>
+                            {selectedQuestion.tooltip && (
+                              <div className="group relative">
+                                <Info size={20} className="text-white/80 hover:text-white" />
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 bg-slate-800 text-white text-xs rounded-lg p-3 z-50 shadow-xl border border-slate-700">
+                                  <div className="text-teal-300 font-medium mb-1 flex items-center gap-1">
+                                    <Info size={14} className="text-teal-300" />
+                                    Tip
+                                  </div>
+                                  <p>{selectedQuestion.tooltip}</p>
+                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-8 border-transparent border-t-slate-800"></div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="text-2xl font-bold leading-tight">
+                            {selectedQuestion.question}
+                          </h3>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-teal-100 text-sm mb-2">Click card to reveal answer</p>
+                          <div className="flex justify-center">
+                            <div className="w-8 h-8 border-2 border-white/50 rounded-full animate-bounce flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white/80 rounded-full"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Back of Card - Answer & Guidance */}
+                      <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-8 flex flex-col text-white shadow-xl">
+                        <div className="flex justify-between items-start mb-6">
+                          <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+                            Answer & Guidance
+                          </span>
+                        </div>
+
+                        <ScrollArea className="flex-1 pr-4">
+                          <div className="space-y-6">
+                            <div>
+                              <h4 className="text-teal-300 font-semibold mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 bg-teal-300 rounded-full"></span>
+                                Suggested Answer
+                              </h4>
+                              <p className="text-slate-100 leading-relaxed">
+                                {selectedQuestion.suggestedAnswer}
+                              </p>
+                            </div>
+
+                            <div>
+                              <h4 className="text-blue-300 font-semibold mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 bg-blue-300 rounded-full"></span>
+                                Guidance
+                              </h4>
+                              <p className="text-slate-200 leading-relaxed">
+                                {selectedQuestion.guidance}
+                              </p>
+                            </div>
+
+                            {selectedQuestion.tooltip && (
+                              <div>
+                                <h4 className="text-amber-300 font-semibold mb-2 flex items-center gap-2">
+                                  <span className="w-2 h-2 bg-amber-300 rounded-full"></span>
+                                  Tip
+                                </h4>
+                                <p className="text-slate-300 text-sm italic">
+                                  {selectedQuestion.tooltip}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </ScrollArea>
+                        
+                        <div className="text-center mt-4">
+                          <p className="text-slate-300 text-sm">Click card to flip back</p>
+                          <div className="flex justify-center mt-2">
+                            <div className="w-8 h-8 border-2 border-slate-300 rounded-full animate-bounce flex items-center justify-center">
+                              <div className="w-2 h-2 bg-slate-300 rounded-full"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center text-slate-500">
+                    <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <h3 className="text-xl font-medium mb-2">Select a Question</h3>
+                    <p>Choose any question from the sidebar to view detailed answers and guidance</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <Button 
+              onClick={onRestart} 
+              className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-6 cursor-pointer text-lg"
+            >
+              Start New Interview Prep
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -155,10 +241,7 @@ export const ResultPage = ({
   return (
     <div className="text-center py-8">
       <p className="text-slate-600">No results found. Please try again.</p>
-      <Button
-        onClick={onRestart}
-        className="mt-4 bg-teal-600 hover:bg-teal-700 text-white"
-      >
+      <Button onClick={onRestart} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white">
         Restart
       </Button>
     </div>
