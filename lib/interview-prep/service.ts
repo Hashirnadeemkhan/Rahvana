@@ -228,6 +228,96 @@ class QuestionSelectionEngine {
       priority: "medium",
       reason: "Family acceptance indicates relationship stability",
     });
+
+    // Criteria for age range questions
+    this.criteriaMap.set("What is your age difference with your spouse?", {
+      condition: (answers: Record<string, unknown>) => {
+        return !!answers["age_range"];
+      },
+      priority: "medium",
+      reason: "Age difference may affect relationship dynamics",
+    });
+
+    // Criteria for education level questions
+    this.criteriaMap.set("What is your educational background?", {
+      condition: (answers: Record<string, unknown>) => {
+        return !!answers["highest_education"];
+      },
+      priority: "medium",
+      reason: "Education level may influence relationship expectations",
+    });
+
+    // Criteria for household size questions
+    this.criteriaMap.set("How will you be financially supported in the US?", {
+      condition: (answers: Record<string, unknown>) => {
+        return !!answers["household_size"];
+      },
+      priority: "high",
+      reason: "Household size affects financial support requirements",
+    });
+
+    // Criteria for petitioner status questions
+    this.criteriaMap.set("What is your petitioner immigration status?", {
+      condition: (answers: Record<string, unknown>) => {
+        return !!answers["petitioner_status"];
+      },
+      priority: "high",
+      reason: "Petitioner status affects visa eligibility",
+    });
+
+    // Criteria for income level questions
+    this.criteriaMap.set("How will you be financially supported in the US?", {
+      condition: (answers: Record<string, unknown>) => {
+        return !!answers["petitioner_income_level"];
+      },
+      priority: "high",
+      reason: "Income level affects financial support capability",
+    });
+
+    // Criteria for time together questions
+    this.criteriaMap.set("How long have you been in a relationship?", {
+      condition: (answers: Record<string, unknown>) => {
+        return !!answers["total_time_spent_together"];
+      },
+      priority: "high",
+      reason: "Time spent together affects relationship authenticity",
+    });
+
+    // Criteria for communication frequency questions
+    this.criteriaMap.set("How do you communicate with your spouse when apart?", {
+      condition: (answers: Record<string, unknown>) => {
+        return !!answers["communication_frequency"];
+      },
+      priority: "high",
+      reason: "Communication patterns show relationship maintenance",
+    });
+
+    // Criteria for marriage timing questions
+    this.criteriaMap.set("When did you get married?", {
+      condition: (answers: Record<string, unknown>) => {
+        return !!answers["months_since_marriage"];
+      },
+      priority: "medium",
+      reason: "Timing of marriage affects relationship timeline",
+    });
+
+    // Criteria for visa overstay history questions
+    this.criteriaMap.set("Have you ever overstayed a visa in any country?", {
+      condition: (answers: Record<string, unknown>) => {
+        return answers["visa_overstay_history"] === true;
+      },
+      priority: "high",
+      reason: "Visa overstay history requires detailed explanation",
+    });
+
+    // Criteria for criminal history questions
+    this.criteriaMap.set("Have you ever been arrested or charged with a crime?", {
+      condition: (answers: Record<string, unknown>) => {
+        return answers["criminal_history"] === true;
+      },
+      priority: "high",
+      reason: "Criminal history requires detailed disclosure",
+    });
   }
 
   //   Selects applicable questions based on user answers

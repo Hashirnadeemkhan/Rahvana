@@ -17,6 +17,7 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
   const [error, setError] = useState<string | null>(null);
   const [selectedQuestion, setSelectedQuestion] = useState<GeneratedQuestion | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (results === undefined || results === null) {
@@ -68,54 +69,84 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
           </div>
 
           <div className="flex flex-col lg:flex-row gap-6">
-             {/* Questions Sidebar */}
-            <div className="lg:w-2/5">
-              <div className="bg-white rounded-xl shadow-lg p-6 h-fit sticky top-6">
-                <h3 className="font-semibold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-teal-600" />
-                  Questions ({results.questions.filter((q: GeneratedQuestion) => q.applicable).length})
-                </h3>
-                <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
-                  {results.questions
-                    .filter((item: GeneratedQuestion) => item.applicable)
-                    .map((item: GeneratedQuestion, index: number) => (
-                      <div
-                        key={index}
-                        onClick={() => handleQuestionSelect(item)}
-                        className={`w-full cursor-pointer p-4 rounded-lg transition-all duration-200 border ${
-                          selectedQuestion?.id === item.id
-                            ? 'bg-teal-100 border-2 border-teal-500 shadow-md'
-                            : 'bg-slate-50 hover:bg-slate-100 border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-medium mt-1">
-                            {index + 1}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-slate-800 text-sm">
-                              {item.question}
-                            </p>
-                            <div className="mt-2">
-                              <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">
-                                {item.category}
+            {/* Questions Sidebar */}
+            {!sidebarCollapsed && (
+              <div className="lg:w-2/5">
+                <div className="bg-white rounded-xl shadow-lg p-6 h-[calc(90vh-1rem)] sticky top-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-semibold text-lg text-slate-800 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-teal-600" />
+                      Questions ({results.questions.filter((q: GeneratedQuestion) => q.applicable).length})
+                    </h3>
+                    <button 
+                      onClick={() => setSidebarCollapsed(true)}
+                      className="text-slate-500 hover:text-slate-700"
+                      aria-label="Collapse sidebar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                  <ScrollArea className="h-[calc(100%-4rem)] pr-4">
+                    <div className="space-y-3">
+                      {results.questions
+                        .filter((item: GeneratedQuestion) => item.applicable)
+                        .map((item: GeneratedQuestion, index: number) => (
+                          <div
+                            key={index}
+                            onClick={() => handleQuestionSelect(item)}
+                            className={`w-full cursor-pointer p-4 rounded-lg transition-all duration-200 border ${
+                              selectedQuestion?.id === item.id
+                                ? 'bg-teal-100 border-2 border-teal-500 shadow-md'
+                                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-medium mt-1">
+                                {index + 1}
                               </span>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-slate-800 text-sm">
+                                  {item.question}
+                                </p>
+                                <div className="mt-2">
+                                  <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                    {item.category}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    ))}
+                        ))}
+                    </div>
+                  </ScrollArea>
                 </div>
               </div>
-            </div>
+            )}
+            
+            {/* Expand button when sidebar is collapsed */}
+            {sidebarCollapsed && (
+              <div className="lg:w-1/12">
+                <button 
+                  onClick={() => setSidebarCollapsed(false)}
+                  className="bg-white rounded-xl shadow-lg p-3 h-fit sticky top-6 text-slate-500 hover:text-slate-700"
+                  aria-label="Expand sidebar"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            )}
 
             {/* Flashcard Area */}
-            <div className="lg:w-3/5">
-              <div className="bg-white rounded-xl shadow-lg p-8 min-h-[80vh] flex items-center justify-center">
+            <div className={`${sidebarCollapsed ? 'lg:w-11/12' : 'lg:w-3/5'}`}>
+              <div className="bg-white rounded-xl shadow-lg p-8 min-h-[calc(90vh-2rem)] flex items-center justify-center">
                 {selectedQuestion ? (
                   <div className="w-full max-w-2xl">
                     <div 
-                      className={`relative w-full h-full min-h-[540px] cursor-pointer transition-transform duration-700 ease-out-cubic ${
+                      className={`relative w-full h-full min-h-[575px] cursor-pointer transition-transform duration-700 ease-out-cubic ${
                         isFlipped ? 'transform rotate-y-180' : ''
                       }`}
                       style={{ 
@@ -125,7 +156,7 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                       onClick={handleCardClick}
                     >
                       {/* Front of Card - Question */}
-                      <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl p-8 flex flex-col justify-between text-white shadow-xl">
+                      <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl p-8 flex flex-col justify-between text-white shadow-xl">
                         <div>
                           <div className="flex justify-between items-start mb-6">
                             <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
@@ -160,7 +191,7 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                       </div>
 
                       {/* Back of Card - Answer & Guidance */}
-                      <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-8 flex flex-col text-white shadow-xl">
+                      <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-8 flex flex-col text-white shadow-xl">
                         <div className="flex justify-between items-start mb-6">
                           <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
                             Answer & Guidance
@@ -170,8 +201,8 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                         <ScrollArea className="flex-1 pr-4">
                           <div className="space-y-6">
                             <div>
-                              <h4 className="text-teal-300 font-semibold mb-2 flex items-center gap-2">
-                                <span className="w-2 h-2 bg-teal-300 rounded-full"></span>
+                              <h4 className="text-teal-200 font-semibold mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 bg-teal-200 rounded-full"></span>
                                 Suggested Answer
                               </h4>
                               <p className="text-slate-100 leading-relaxed">
@@ -180,8 +211,8 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                             </div>
 
                             <div>
-                              <h4 className="text-blue-300 font-semibold mb-2 flex items-center gap-2">
-                                <span className="w-2 h-2 bg-blue-300 rounded-full"></span>
+                              <h4 className="text-blue-200 font-semibold mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 bg-blue-200 rounded-full"></span>
                                 Guidance
                               </h4>
                               <p className="text-slate-200 leading-relaxed">
@@ -191,8 +222,8 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
 
                             {selectedQuestion.tooltip && (
                               <div>
-                                <h4 className="text-amber-300 font-semibold mb-2 flex items-center gap-2">
-                                  <span className="w-2 h-2 bg-amber-300 rounded-full"></span>
+                                <h4 className="text-amber-200 font-semibold mb-2 flex items-center gap-2">
+                                  <span className="w-2 h-2 bg-amber-200 rounded-full"></span>
                                   Tip
                                 </h4>
                                 <p className="text-slate-300 text-sm italic">

@@ -7,47 +7,60 @@ import { Card } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { ResultPage } from "./result/ResultPage";
 import { InterviewPrepOutput } from "../../../lib/interview-prep/types";
+import { OptionCard } from "@/app/components/interview-prep/OptionCard";
+import { ToggleSwitch } from "@/app/components/interview-prep/ToggleSwitch";
 
 type CaseType = "Spouse";
 
 interface FormData {
   caseType: CaseType | "";
+  visaCategory?: string;
   // Basic Case Information
-  "beneficiary_country"?: string;
-  "marriage_date"?: string;
-  "marriage_location"?: string;
-  "previous_marriages"?: string;
+  beneficiary_country?: string;
+  age_range?: string;
+  highest_education?: string;
+  marriage_date?: string;
+  months_since_marriage?: number;
+  marriage_location?: string;
+  previous_marriages?: string;
   // Relationship Origin
-  "how_did_you_meet"?: string;
-  "first_in_person_meeting"?: string;
-  "number_of_in_person_visits"?: number;
-  "proposal_details"?: string;
-  "courtship_duration"?: string;
+  relationship_origin_type?: string;
+  total_time_spent_together?: string;
+  number_of_in_person_visits?: number;
+  proposal_details?: string;
+  courtship_duration?: string;
   // Married Life & Daily Interaction
-  "current_living_arrangement"?: string;
-  "spouse_address"?: string;
-  "daily_communication"?: string;
-  "shared_activities"?: string;
-  "important_dates_knowledge"?: boolean;
+  current_living_arrangement?: string;
+  spouse_address?: string;
+  communication_frequency?: string;
+  daily_communication?: string;
+  shared_activities?: string;
+  important_dates_knowledge?: boolean;
   // Family & Social Knowledge
-  "met_spouse_family"?: boolean;
-  "family_reaction_to_marriage"?: string;
-  "wedding_attendees"?: string;
-  "marriage_type"?: string;
-  "mutual_friends"?: boolean;
+  met_spouse_family?: boolean;
+  family_reaction_to_marriage?: string;
+  wedding_attendees?: string;
+  marriage_type?: string;
+  mutual_friends?: boolean;
+  // Petitioner Information
+  petitioner_status?: string;
+  petitioner_income_level?: string;
+  household_size?: string;
   // Background & Future Plans
-  "beneficiary_employment"?: string;
-  "sponsor_employment"?: string;
-  "military_or_defense_background"?: boolean;
-  "previous_us_visits"?: boolean;
-  "previous_visa_refusal"?: boolean;
-  "english_proficiency"?: string;
-  "intended_us_state"?: string;
-  "living_arrangements_in_us"?: string;
-  "future_plans"?: string;
+  beneficiary_employment?: string;
+  sponsor_employment?: string;
+  military_or_defense_background?: boolean;
+  previous_us_visits?: boolean;
+  previous_visa_refusal?: boolean;
+  visa_overstay_history?: boolean;
+  criminal_history?: boolean;
+  english_proficiency?: string;
+  intended_us_state?: string;
+  living_arrangements_in_us?: string;
+  future_plans?: string;
   // Finances & Household Management
-  "joint_finances"?: boolean;
-  "financial_arrangement_description"?: string;
+  joint_finances?: boolean;
+  financial_arrangement_description?: string;
 }
 
 interface CaseTypeStepProps {
@@ -59,7 +72,7 @@ interface CaseTypeStepProps {
 }
 
 const mapAnswersToFormData = (
-  answers: Array<{ question_key: string; answer_value: unknown }>
+  answers: Array<{ question_key: string; answer_value: unknown }>,
 ): Partial<FormData> => {
   const mapped: Partial<FormData> = {};
   answers.forEach((a) => {
@@ -76,9 +89,7 @@ const CaseTypeStep = ({
   onBack,
 }: CaseTypeStepProps) => (
   <div className="space-y-6">
-    <h2 className="text-2xl font-bold text-slate-900 mb-6">
-      Select Case Type
-    </h2>
+    <h2 className="text-2xl font-bold text-slate-900 mb-6">Select Case Type</h2>
 
     <p className="text-slate-600 mb-8">
       Please select the type of visa case you want to prepare for interview.
@@ -88,10 +99,10 @@ const CaseTypeStep = ({
       {/* ACTIVE: SPOUSE */}
       <button
         type="button"
-        className={`p-6 border-2 rounded-xl text-center transition-all cursor-pointer ${
+        className={`p-6 rounded-xl text-center transition-all cursor-pointer ${
           formData.caseType === "Spouse"
-            ? "border-teal-600 bg-teal-50"
-            : "border-gray-200 hover:border-teal-400"
+            ? "border-teal-600 bg-teal-50 border-4"
+            : "border-gray-200 hover:border-teal-400 border-2"
         }`}
         onClick={() => onCaseTypeChange("Spouse")}
       >
@@ -149,15 +160,45 @@ const CaseTypeStep = ({
           F1 / F2A / F2B / F3 / F4 – Family Preference Visas
         </p>
       </button>
+
+      {/* COMING SOON: K1 */}
+      <button
+        type="button"
+        disabled
+        className="p-6 border-2 rounded-xl text-center bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed"
+      >
+        <h3 className="font-semibold text-lg mb-2 flex items-center justify-center gap-2">
+          K1 Visa
+          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
+            Coming Soon
+          </span>
+        </h3>
+        <p className="text-sm text-slate-500">K1 – Fiance(e) of US Citizen</p>
+      </button>
+
+      {/* COMING SOON: B1/B2 */}
+      <button
+        type="button"
+        disabled
+        className="p-6 border-2 rounded-xl text-center bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed"
+      >
+        <h3 className="font-semibold text-lg mb-2 flex items-center justify-center gap-2">
+          B1/B2 Visa
+          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
+            Coming Soon
+          </span>
+        </h3>
+        <p className="text-sm text-slate-500">B1 / B2 – Visitor Visa</p>
+      </button>
     </div>
 
     {error && (
-      <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+      <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm max-w-2xl">
         {error}
       </div>
     )}
 
-    <div className="flex justify-between pt-6">
+    <div className="flex justify-between pt-6 max-w-2xl mx-auto">
       <Button
         onClick={onBack}
         variant="outline"
@@ -217,6 +258,23 @@ const QuestionStep = ({
       | boolean
       | undefined;
 
+    // Check if the question should be rendered with option cards
+    const useOptionCards = [
+      'age_range',
+      'highest_education',
+      'total_time_spent_together',
+      'current_living_arrangement',
+      'communication_frequency',
+      'daily_communication',
+      'marriage_type',
+      'petitioner_status',
+      'petitioner_income_level',
+      'household_size',
+      'english_proficiency',
+      'previous_marriages',
+      'relationship_origin_type',
+    ].includes(question.key);
+
     switch (question.type) {
       case "text":
       case "number":
@@ -255,47 +313,48 @@ const QuestionStep = ({
         );
       case "boolean":
         return (
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id={`${question.key}-yes`}
-                name={question.key}
-                checked={value === true}
-                onChange={() => onChange(question.key, true)}
-                className="h-4 w-4 text-teal-600 border-gray-300"
-              />
-              <label htmlFor={`${question.key}-yes`}>Yes</label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id={`${question.key}-no`}
-                name={question.key}
-                checked={value === false}
-                onChange={() => onChange(question.key, false)}
-                className="h-4 w-4 text-teal-600 border-gray-300"
-              />
-              <label htmlFor={`${question.key}-no`}>No</label>
-            </div>
+          <div className="flex items-center justify-between p-4 rounded-lg bg-teal-50 border">
+            <span className="text-slate-700">{question.label}</span>
+            <ToggleSwitch
+              checked={!!value}
+              onChange={(checked) => onChange(question.key, checked)}
+            />
           </div>
         );
       case "select":
         if (Array.isArray(question.options)) {
-          return (
-            <select
-              value={typeof value === "string" ? value : ""}
-              onChange={(e) => onChange(question.key, e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Select an option</option>
-              {question.options.map((option: string) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          );
+          if (useOptionCards) {
+            // Render options as cards
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {question.options.map((option: string) => (
+                  <OptionCard
+                    key={option}
+                    value={option}
+                    label={option}
+                    isSelected={value === option}
+                    onSelect={() => onChange(question.key, option)}
+                  />
+                ))}
+              </div>
+            );
+          } else {
+            // Render as traditional select
+            return (
+              <select
+                value={typeof value === "string" ? value : ""}
+                onChange={(e) => onChange(question.key, e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              >
+                <option value="">Select an option</option>
+                {question.options.map((option: string) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            );
+          }
         }
         return null;
       default:
@@ -318,10 +377,14 @@ const QuestionStep = ({
         {questions.map((question) => {
           return (
             <div key={question.key} className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
-                {question.label}
-                {question.required && <span className="text-red-500 ml-1">*</span>}
-              </label>
+              {question.type !== "boolean" && (
+                <label className="block text-sm font-medium text-slate-700">
+                  {question.label}
+                  {question.required && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
+                </label>
+              )}
               {renderInput(question)}
             </div>
           );
@@ -432,7 +495,10 @@ const ReviewStep = ({
 
         {/* Basic Case Information Section */}
         {(formData["beneficiary_country"] ||
+          formData["age_range"] ||
+          formData["highest_education"] ||
           formData["marriage_date"] ||
+          formData["months_since_marriage"] ||
           formData["marriage_location"] ||
           formData["previous_marriages"]) && (
           <div className="bg-slate-50 rounded-lg p-6">
@@ -456,7 +522,21 @@ const ReviewStep = ({
               {formData["beneficiary_country"] && (
                 <div>
                   <p className="text-sm text-slate-600">Beneficiary Country</p>
-                  <p className="font-medium">{formData["beneficiary_country"]}</p>
+                  <p className="font-medium">
+                    {formData["beneficiary_country"]}
+                  </p>
+                </div>
+              )}
+              {formData["age_range"] && (
+                <div>
+                  <p className="text-sm text-slate-600">Age Range</p>
+                  <p className="font-medium">{formData["age_range"]}</p>
+                </div>
+              )}
+              {formData["highest_education"] && (
+                <div>
+                  <p className="text-sm text-slate-600">Highest Education</p>
+                  <p className="font-medium">{formData["highest_education"]}</p>
                 </div>
               )}
               {formData["marriage_date"] && (
@@ -465,6 +545,12 @@ const ReviewStep = ({
                   <p className="font-medium">
                     {formatDate(formData["marriage_date"])}
                   </p>
+                </div>
+              )}
+              {formData["months_since_marriage"] && (
+                <div>
+                  <p className="text-sm text-slate-600">Months Since Marriage</p>
+                  <p className="font-medium">{formData["months_since_marriage"]}</p>
                 </div>
               )}
               {formData["marriage_location"] && (
@@ -476,7 +562,9 @@ const ReviewStep = ({
               {formData["previous_marriages"] && (
                 <div>
                   <p className="text-sm text-slate-600">Previous Marriages</p>
-                  <p className="font-medium">{formData["previous_marriages"]}</p>
+                  <p className="font-medium">
+                    {formData["previous_marriages"]}
+                  </p>
                 </div>
               )}
             </div>
@@ -484,8 +572,8 @@ const ReviewStep = ({
         )}
 
         {/* Relationship Origin Section */}
-        {(formData["how_did_you_meet"] ||
-          formData["first_in_person_meeting"] ||
+        {(formData["relationship_origin_type"] ||
+          formData["total_time_spent_together"] ||
           formData["number_of_in_person_visits"] !== undefined ||
           formData["proposal_details"] ||
           formData["courtship_duration"]) && (
@@ -507,22 +595,30 @@ const ReviewStep = ({
               Relationship Origin
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              {formData["how_did_you_meet"] && (
+              {formData["relationship_origin_type"] && (
                 <div>
                   <p className="text-sm text-slate-600">How Did You Meet</p>
-                  <p className="font-medium">{formData["how_did_you_meet"]}</p>
+                  <p className="font-medium">{formData["relationship_origin_type"]}</p>
                 </div>
               )}
-              {formData["first_in_person_meeting"] && (
+              {formData["total_time_spent_together"] && (
                 <div>
-                  <p className="text-sm text-slate-600">First In-Person Meeting</p>
-                  <p className="font-medium">{formData["first_in_person_meeting"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Total Time Spent Together
+                  </p>
+                  <p className="font-medium">
+                    {formData["total_time_spent_together"]}
+                  </p>
                 </div>
               )}
               {formData["number_of_in_person_visits"] !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Number of In-Person Visits</p>
-                  <p className="font-medium">{formData["number_of_in_person_visits"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Number of In-Person Visits
+                  </p>
+                  <p className="font-medium">
+                    {formData["number_of_in_person_visits"]}
+                  </p>
                 </div>
               )}
               {formData["proposal_details"] && (
@@ -534,7 +630,9 @@ const ReviewStep = ({
               {formData["courtship_duration"] && (
                 <div>
                   <p className="text-sm text-slate-600">Courtship Duration</p>
-                  <p className="font-medium">{formData["courtship_duration"]}</p>
+                  <p className="font-medium">
+                    {formData["courtship_duration"]}
+                  </p>
                 </div>
               )}
             </div>
@@ -544,6 +642,7 @@ const ReviewStep = ({
         {/* Married Life & Daily Interaction Section */}
         {(formData["current_living_arrangement"] ||
           formData["spouse_address"] ||
+          formData["communication_frequency"] ||
           formData["daily_communication"] ||
           formData["shared_activities"] ||
           formData["important_dates_knowledge"] !== undefined) && (
@@ -573,8 +672,12 @@ const ReviewStep = ({
             <div className="grid grid-cols-2 gap-4">
               {formData["current_living_arrangement"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Current Living Arrangement</p>
-                  <p className="font-medium">{formData["current_living_arrangement"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Current Living Arrangement
+                  </p>
+                  <p className="font-medium">
+                    {formData["current_living_arrangement"]}
+                  </p>
                 </div>
               )}
               {formData["spouse_address"] && (
@@ -583,10 +686,18 @@ const ReviewStep = ({
                   <p className="font-medium">{formData["spouse_address"]}</p>
                 </div>
               )}
+              {formData["communication_frequency"] && (
+                <div>
+                  <p className="text-sm text-slate-600">Communication Frequency</p>
+                  <p className="font-medium">{formData["communication_frequency"]}</p>
+                </div>
+              )}
               {formData["daily_communication"] && (
                 <div>
                   <p className="text-sm text-slate-600">Daily Communication</p>
-                  <p className="font-medium">{formData["daily_communication"]}</p>
+                  <p className="font-medium">
+                    {formData["daily_communication"]}
+                  </p>
                 </div>
               )}
               {formData["shared_activities"] && (
@@ -597,7 +708,9 @@ const ReviewStep = ({
               )}
               {formData["important_dates_knowledge"] !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">Important Dates Knowledge</p>
+                  <p className="text-sm text-slate-600">
+                    Important Dates Knowledge
+                  </p>
                   <p className="font-medium">
                     {formatBoolean(formData["important_dates_knowledge"])}
                   </p>
@@ -641,8 +754,12 @@ const ReviewStep = ({
               )}
               {formData["family_reaction_to_marriage"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Family Reaction to Marriage</p>
-                  <p className="font-medium">{formData["family_reaction_to_marriage"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Family Reaction to Marriage
+                  </p>
+                  <p className="font-medium">
+                    {formData["family_reaction_to_marriage"]}
+                  </p>
                 </div>
               )}
               {formData["wedding_attendees"] && (
@@ -669,12 +786,85 @@ const ReviewStep = ({
           </div>
         )}
 
+        {/* Travel & Background History Section */}
+        {(formData["military_or_defense_background"] !== undefined ||
+          formData["previous_us_visits"] !== undefined ||
+          formData["previous_visa_refusal"] !== undefined ||
+          formData["visa_overstay_history"] !== undefined ||
+          formData["criminal_history"] !== undefined) && (
+          <div className="bg-slate-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <svg
+                className="w-5 h-5 text-teal-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                ></path>
+              </svg>
+              Travel & Background History
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              {formData["military_or_defense_background"] !== undefined && (
+                <div>
+                  <p className="text-sm text-slate-600">
+                    Military/Defense Background
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData["military_or_defense_background"])}
+                  </p>
+                </div>
+              )}
+              {formData["previous_us_visits"] !== undefined && (
+                <div>
+                  <p className="text-sm text-slate-600">Previous US Visits</p>
+                  <p className="font-medium">
+                    {formatBoolean(formData["previous_us_visits"])}
+                  </p>
+                </div>
+              )}
+              {formData["previous_visa_refusal"] !== undefined && (
+                <div>
+                  <p className="text-sm text-slate-600">
+                    Previous Visa Refusal
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData["previous_visa_refusal"])}
+                  </p>
+                </div>
+              )}
+              {formData["visa_overstay_history"] !== undefined && (
+                <div>
+                  <p className="text-sm text-slate-600">
+                    Visa Overstay History
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData["visa_overstay_history"])}
+                  </p>
+                </div>
+              )}
+              {formData["criminal_history"] !== undefined && (
+                <div>
+                  <p className="text-sm text-slate-600">
+                    Criminal History
+                  </p>
+                  <p className="font-medium">
+                    {formatBoolean(formData["criminal_history"])}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Background & Future Plans Section */}
         {(formData["beneficiary_employment"] ||
           formData["sponsor_employment"] ||
-          formData["military_or_defense_background"] !== undefined ||
-          formData["previous_us_visits"] !== undefined ||
-          formData["previous_visa_refusal"] !== undefined ||
           formData["english_proficiency"] ||
           formData["intended_us_state"] ||
           formData["living_arrangements_in_us"] ||
@@ -699,44 +889,28 @@ const ReviewStep = ({
             <div className="grid grid-cols-2 gap-4">
               {formData["beneficiary_employment"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Beneficiary Employment</p>
-                  <p className="font-medium">{formData["beneficiary_employment"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Beneficiary Employment
+                  </p>
+                  <p className="font-medium">
+                    {formData["beneficiary_employment"]}
+                  </p>
                 </div>
               )}
               {formData["sponsor_employment"] && (
                 <div>
                   <p className="text-sm text-slate-600">Sponsor Employment</p>
-                  <p className="font-medium">{formData["sponsor_employment"]}</p>
-                </div>
-              )}
-              {formData["military_or_defense_background"] !== undefined && (
-                <div>
-                  <p className="text-sm text-slate-600">Military/Defense Background</p>
                   <p className="font-medium">
-                    {formatBoolean(formData["military_or_defense_background"])}
-                  </p>
-                </div>
-              )}
-              {formData["previous_us_visits"] !== undefined && (
-                <div>
-                  <p className="text-sm text-slate-600">Previous US Visits</p>
-                  <p className="font-medium">
-                    {formatBoolean(formData["previous_us_visits"])}
-                  </p>
-                </div>
-              )}
-              {formData["previous_visa_refusal"] !== undefined && (
-                <div>
-                  <p className="text-sm text-slate-600">Previous Visa Refusal</p>
-                  <p className="font-medium">
-                    {formatBoolean(formData["previous_visa_refusal"])}
+                    {formData["sponsor_employment"]}
                   </p>
                 </div>
               )}
               {formData["english_proficiency"] && (
                 <div>
                   <p className="text-sm text-slate-600">English Proficiency</p>
-                  <p className="font-medium">{formData["english_proficiency"]}</p>
+                  <p className="font-medium">
+                    {formData["english_proficiency"]}
+                  </p>
                 </div>
               )}
               {formData["intended_us_state"] && (
@@ -747,14 +921,62 @@ const ReviewStep = ({
               )}
               {formData["living_arrangements_in_us"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Living Arrangements in US</p>
-                  <p className="font-medium">{formData["living_arrangements_in_us"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Living Arrangements in US
+                  </p>
+                  <p className="font-medium">
+                    {formData["living_arrangements_in_us"]}
+                  </p>
                 </div>
               )}
               {formData["future_plans"] && (
                 <div>
                   <p className="text-sm text-slate-600">Future Plans</p>
                   <p className="font-medium">{formData["future_plans"]}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Petitioner Information Section */}
+        {(formData["petitioner_status"] ||
+          formData["petitioner_income_level"] ||
+          formData["household_size"]) && (
+          <div className="bg-slate-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <svg
+                className="w-5 h-5 text-teal-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+              Petitioner Information
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              {formData["petitioner_status"] && (
+                <div>
+                  <p className="text-sm text-slate-600">Petitioner Status</p>
+                  <p className="font-medium">{formData["petitioner_status"]}</p>
+                </div>
+              )}
+              {formData["petitioner_income_level"] && (
+                <div>
+                  <p className="text-sm text-slate-600">Petitioner Income Level</p>
+                  <p className="font-medium">{formData["petitioner_income_level"]}</p>
+                </div>
+              )}
+              {formData["household_size"] && (
+                <div>
+                  <p className="text-sm text-slate-600">Household Size</p>
+                  <p className="font-medium">{formData["household_size"]}</p>
                 </div>
               )}
             </div>
@@ -792,8 +1014,12 @@ const ReviewStep = ({
               )}
               {formData["financial_arrangement_description"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Financial Arrangement Description</p>
-                  <p className="font-medium">{formData["financial_arrangement_description"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Financial Arrangement Description
+                  </p>
+                  <p className="font-medium">
+                    {formData["financial_arrangement_description"]}
+                  </p>
                 </div>
               )}
             </div>
@@ -838,7 +1064,8 @@ export default function InterviewPreparation() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [generatedResults, setGeneratedResults] = useState<InterviewPrepOutput | null>(null);
+  const [generatedResults, setGeneratedResults] =
+    useState<InterviewPrepOutput | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
@@ -855,7 +1082,11 @@ export default function InterviewPreparation() {
           );
           const sessionData = await response.json();
 
-          if (response.ok && sessionData.session && sessionData.session.completed === false) {
+          if (
+            response.ok &&
+            sessionData.session &&
+            sessionData.session.completed === false
+          ) {
             // Found an incomplete session, restore it
             setSessionId(savedSessionId);
             setFormData((prev) => ({
@@ -939,7 +1170,7 @@ export default function InterviewPreparation() {
           const updatedFormData = { ...formData };
           (updatedFormData as Record<string, unknown>)[id as string] = value;
           // Filter out non-question fields before saving
-          const { caseType, ...answers } = updatedFormData;
+          const { caseType, visaCategory, ...answers } = updatedFormData;
           const answersResponse = await fetch(
             `/api/interview-prep/sessions/${sessionId}`,
             {
@@ -973,7 +1204,7 @@ export default function InterviewPreparation() {
       setError("Please select a case type");
       return;
     }
-  
+
     // If we're on the first step (case type selection), check for existing session first
     if (step === 0 && formData.caseType) {
       try {
@@ -983,7 +1214,7 @@ export default function InterviewPreparation() {
         // 🔹 CHECK FOR EXISTING SESSION FIRST
         if (storedSessionId) {
           const existingRes = await fetch(
-            `/api/interview-prep/sessions/${storedSessionId}`
+            `/api/interview-prep/sessions/${storedSessionId}`,
           );
           const existingData = await existingRes.json();
 
@@ -998,7 +1229,7 @@ export default function InterviewPreparation() {
 
             // Restore answers to form data
             const restoredAnswers = mapAnswersToFormData(
-              existingData.session.answers || []
+              existingData.session.answers || [],
             );
 
             setFormData((prev) => ({
@@ -1009,7 +1240,7 @@ export default function InterviewPreparation() {
 
             // Force re-render to populate form fields
             setTimeout(() => {
-              setFormData(prev => ({ ...prev }));
+              setFormData((prev) => ({ ...prev }));
             }, 0);
 
             setStep(1);
@@ -1037,16 +1268,19 @@ export default function InterviewPreparation() {
                 : "John Doe",
           }),
         });
-  
+
         const sessionResult = await sessionResponse.json();
-  
+
         if (sessionResponse.ok) {
           setSessionId(sessionResult.session.id);
           // Save session ID to localStorage for resume later functionality
-          localStorage.setItem("interviewPrepSessionId", sessionResult.session.id);
-  
+          localStorage.setItem(
+            "interviewPrepSessionId",
+            sessionResult.session.id,
+          );
+
           // Save initial answers, excluding non-question fields
-          const { caseType, ...answers } = formData;
+          const { caseType, visaCategory, ...answers } = formData;
           const answersResponse = await fetch(
             `/api/interview-prep/sessions/${sessionResult.session.id}`,
             {
@@ -1060,7 +1294,7 @@ export default function InterviewPreparation() {
               }),
             },
           );
-  
+
           if (!answersResponse.ok) {
             console.error(
               "Failed to save initial answers:",
@@ -1083,11 +1317,11 @@ export default function InterviewPreparation() {
         setLoading(false);
       }
     }
-  
+
     if (step > 0 && questionnaireData) {
       const currentSectionIndex = step - 1;
       const currentSection = questionnaireData.sections[currentSectionIndex];
-  
+
       if (currentSection) {
         for (const question of currentSection.questions as Array<{
           key: keyof FormData;
@@ -1097,17 +1331,14 @@ export default function InterviewPreparation() {
           required?: boolean;
         }>) {
           const fieldValue = formData[question.key];
-            
+
           // Skip validation for optional questions
           if (!question.required) {
             continue;
           }
-            
+
           if (question.type === "boolean") {
-            if (fieldValue === undefined || fieldValue === null) {
-              setError(`Please select an option for: ${question.label}`);
-              return;
-            }
+            // Skip validation for boolean questions since false/unselected is a valid state
           } else if (question.type === "select") {
             if (
               fieldValue === undefined ||
@@ -1127,7 +1358,7 @@ export default function InterviewPreparation() {
               return;
             }
           }
-            
+
           if (
             question.type === "number" &&
             typeof fieldValue === "number" &&
@@ -1136,7 +1367,7 @@ export default function InterviewPreparation() {
             setError(`Please enter a valid number for ${question.label}`);
             return;
           }
-            
+
           if (
             question.type === "date" &&
             typeof fieldValue === "string" &&
@@ -1145,7 +1376,7 @@ export default function InterviewPreparation() {
             setError(`Please enter a valid date for ${question.label}`);
             return;
           }
-            
+
           if (
             question.type === "number" &&
             typeof fieldValue === "number" &&
@@ -1156,7 +1387,7 @@ export default function InterviewPreparation() {
             );
             return;
           }
-            
+
           // Additional validation for date type
           if (
             question.type === "date" &&
@@ -1167,19 +1398,17 @@ export default function InterviewPreparation() {
             const dateValue = new Date(fieldValue);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
+
             // For DOB fields, ensure date is in the past
             if (question.key.includes("date") && dateValue >= today) {
-              setError(
-                `Date must be in the past for ${question.label}`,
-              );
+              setError(`Date must be in the past for ${question.label}`);
               return;
             }
           }
         }
       }
     }
-  
+
     setStep((prev) => prev + 1);
     if (error) {
       setError(null);
@@ -1191,7 +1420,7 @@ export default function InterviewPreparation() {
     if (sessionId) {
       try {
         // Filter out non-question fields before saving
-        const { caseType, ...answers } = formData;
+        const { caseType, visaCategory, ...answers } = formData;
         const answersResponse = await fetch(
           `/api/interview-prep/sessions/${sessionId}`,
           {
@@ -1223,8 +1452,6 @@ export default function InterviewPreparation() {
     }
   };
 
-
-
   const handleSubmit = async () => {
     if (!sessionId) {
       setError("No session found. Please restart the assessment.");
@@ -1244,38 +1471,41 @@ export default function InterviewPreparation() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            action: "generate"
+            action: "generate",
           }),
         },
       );
 
       if (submitResponse.ok) {
         const responseData = await submitResponse.json();
-        
+
         // Longer delay to ensure loading state is visible
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+
         // Store the generated results locally instead of navigating
         setGeneratedResults(responseData.output);
-        
+
         // Mark the session as completed
-        const completeResponse = await fetch(`/api/interview-prep/sessions/${sessionId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const completeResponse = await fetch(
+          `/api/interview-prep/sessions/${sessionId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "complete",
+            }),
           },
-          body: JSON.stringify({
-            action: "complete"
-          }),
-        });
-        
+        );
+
         if (!completeResponse.ok) {
           console.error("Failed to mark session as completed");
         }
-        
+
         // Remove the session from localStorage since it's now completed
         localStorage.removeItem("interviewPrepSessionId");
-        
+
         // Increment step to show results on the same page
         setStep((prev) => prev + 1);
       } else {
@@ -1302,9 +1532,7 @@ export default function InterviewPreparation() {
     }
 
     const renderWithNotification = (content: React.ReactNode) => (
-      <div>
-        {content}
-      </div>
+      <div>{content}</div>
     );
 
     if (step === 0) {
@@ -1323,46 +1551,42 @@ export default function InterviewPreparation() {
       const sectionIndex = step - 1;
       const section = questionnaireData.sections[sectionIndex];
 
-      return (
-        renderWithNotification(
-          <QuestionStep
-            title={section.title}
-            description={section.description}
-            questions={section.questions.map((q: QuestionDefinition) => ({
-              key: q.key as keyof FormData,
-              label: q.label,
-              type: q.type as
-                | "text"
-                | "textarea"
-                | "number"
-                | "date"
-                | "boolean"
-                | "select",
-              options: q.options || undefined,
-              required: q.required,
-            }))}
-            formData={formData}
-            error={error}
-            onChange={handleInputChange}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        )
+      return renderWithNotification(
+        <QuestionStep
+          title={section.title}
+          description={section.description}
+          questions={section.questions.map((q: QuestionDefinition) => ({
+            key: q.key as keyof FormData,
+            label: q.label,
+            type: q.type as
+              | "text"
+              | "textarea"
+              | "number"
+              | "date"
+              | "boolean"
+              | "select",
+            options: q.options || undefined,
+            required: q.required,
+          }))}
+          formData={formData}
+          error={error}
+          onChange={handleInputChange}
+          onNext={nextStep}
+          onBack={prevStep}
+        />,
       );
     }
 
     // Check if we're on the review page (after completing all questions)
     if (step === questionnaireData.sections.length + 1) {
-      return (
-        renderWithNotification(
-          <ReviewStep
-            formData={formData}
-            error={error}
-            loading={loading}
-            onSubmit={handleSubmit}
-            onBack={prevStep}
-          />
-        )
+      return renderWithNotification(
+        <ReviewStep
+          formData={formData}
+          error={error}
+          loading={loading}
+          onSubmit={handleSubmit}
+          onBack={prevStep}
+        />,
       );
     }
 
@@ -1375,24 +1599,33 @@ export default function InterviewPreparation() {
           </div>
         );
       }
-      return <ResultPage sessionId={sessionId} results={generatedResults} onRestart={() => setStep(0)} />;
+      return (
+        <ResultPage
+          sessionId={sessionId}
+          results={generatedResults}
+          onRestart={() => setStep(0)}
+        />
+      );
     }
 
-    return (
-      renderWithNotification(
-        <ReviewStep
-          formData={formData}
-          error={error}
-          loading={loading}
-          onSubmit={handleSubmit}
-          onBack={prevStep}
-        />
-      )
+    return renderWithNotification(
+      <ReviewStep
+        formData={formData}
+        error={error}
+        loading={loading}
+        onSubmit={handleSubmit}
+        onBack={prevStep}
+      />,
     );
   };
 
   const renderProgressSections = () => {
-    if (!questionnaireData || step === 0 || step === questionnaireData.sections.length + 2) return null;
+    if (
+      !questionnaireData ||
+      step === 0 ||
+      step === questionnaireData.sections.length + 2
+    )
+      return null;
 
     const sections = questionnaireData.sections;
     const currentSectionIndex = step - 1;
@@ -1443,7 +1676,8 @@ export default function InterviewPreparation() {
           Interview Preparation Tool
         </h1>
         <p className="text-slate-600">
-          Prepare for your IR-1/CR-1 visa interview with personalized questions and answers
+          Prepare for your IR-1/CR-1 visa interview with personalized questions
+          and answers
         </p>
       </div>
 
