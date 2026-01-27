@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import NextImage from 'next/image';
-import { Upload, X, RotateCw, Download, Trash2, Copy, Plus, Eye, GripHorizontal } from 'lucide-react';
+import { Upload, X, RotateCw, Download, Trash2, Copy, Plus, Eye, GripHorizontal, AlertCircle, FileCheck } from 'lucide-react';
 
 interface PDFPage {
   id: string;
@@ -18,12 +20,21 @@ interface PDFFileInfo {
   pages: PDFPage[];
 }
 
+interface MergeResult {
+  originalSize: number;
+  mergedSize: number;
+  filesCount: number;
+}
+
 export default function PDFMergeAdvanced() {
   const [files, setFiles] = useState<PDFFileInfo[]>([]);
   const [allPages, setAllPages] = useState<PDFPage[]>([]);
   const [loading, setLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [mergedPdfUrl, setMergedPdfUrl] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState<MergeResult | null>(null);
+  const [apiUrl] = useState('http://localhost:8000');
 
   const [draggedFileId, setDraggedFileId] = useState<string | null>(null); // For dragging files in main mode
   const [draggedPageIndex, setDraggedPageIndex] = useState<number | null>(null); // For dragging pages in preview mode
@@ -190,6 +201,19 @@ export default function PDFMergeAdvanced() {
         alert(`Skipping ${file.name}: PowerPoint not supported.`);
         continue;
       }
+
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        setError('Please select PDF files only');
+        setLoading(false);
+        return;
+      }
+
+      if (file.size > 100 * 1024 * 1024) {
+        setError('File is too large. Maximum size is 100MB');
+        setLoading(false);
+        return;
+      }
+
       const pdfFile = await convertToPDF(file);
       if (pdfFile) {
         const fileId = Math.random().toString(36).substr(2, 9);
@@ -205,6 +229,8 @@ export default function PDFMergeAdvanced() {
 
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
+    setError('');
+    setResult(null);
     await processFiles(Array.from(e.target.files));
     if (e.target.value) e.target.value = '';
   };
@@ -314,6 +340,9 @@ export default function PDFMergeAdvanced() {
   const handleMerge = async (auto = false) => {
     if (allPages.length === 0) return;
     setLoading(true);
+    setError('');
+    setResult(null);
+
     try {
       const pdfLib = await import('pdf-lib');
       const mergedPdf = await pdfLib.PDFDocument.create();
@@ -339,12 +368,33 @@ export default function PDFMergeAdvanced() {
       if (mergedPdfUrl) URL.revokeObjectURL(mergedPdfUrl);
       setMergedPdfUrl(newUrl);
 
+      // Calculate result stats
+      const totalOriginalSize = files.reduce((sum, file) => sum + file.file.size, 0);
+      const mergedSize = blob.size;
+
+      setResult({
+        originalSize: totalOriginalSize,
+        mergedSize,
+        filesCount: files.length
+      });
+
       if (!auto) setPreviewMode(true);
     } catch (err) {
-      alert('Error merging PDF');
+      const message = err instanceof Error ? err.message : 'Merging failed. Please try again.';
+      setError(message);
       console.error(err);
     }
     setLoading(false);
+  };
+
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const mb = bytes / 1024 / 1024;
+    if (mb < 1) {
+      const kb = bytes / 1024;
+      return kb.toFixed(2) + ' KB';
+    }
+    return mb.toFixed(2) + ' MB';
   };
 
   // File Card Component (for Main Mode) - Now with working visual rotation
@@ -551,57 +601,131 @@ export default function PDFMergeAdvanced() {
 
   // MAIN MODE: Show Files for Organization (Now with visual rotation)
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-gray-800 mb-2">PDF Merger</h1>
-        <p className="text-gray-600">Merge, Organize, Rotate & Convert — All in Browser</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8 px-4">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-primary/90 p-10 text-white">
+            <h1 className="text-4xl md:text-5xl font-bold text-center mb-3">
+              PDF Merger
+            </h1>
+            <p className="text-center text-white/90 text-lg">
+              Merge multiple PDF files into one
+            </p>
+          </div>
 
-      <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow">
-        <span className="text-gray-600">{files.length} files • {allPages.length} pages</span>
-        <div className="flex gap-3">
-          {files.length > 0 && (
-            <>
-              <button onClick={() => { setAllPages([]); setFiles([]); }} className="text-red-600 hover:bg-red-50 px-4 py-2 rounded flex items-center gap-2">
-                <Trash2 size={18} /> Clear
-              </button>
-              <button onClick={() => handleMerge()} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2">
-                {loading ? <RotateCw className="animate-spin" /> : <Eye size={18} />}
-                Merge & Edit Live
-              </button>
-            </>
-          )}
-        </div>
-      </div>
+          <div className="p-8 md:p-12">
+            {/* File Upload */}
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Select PDF Files
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf"
+                multiple
+                onChange={handleFileInput}
+                className="hidden"
+                id="file-upload"
+                disabled={loading}
+              />
+              <label
+                htmlFor="file-upload"
+                className={`block border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+                  loading
+                    ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
+                    : 'border-primary/90 hover:border-primary/100 hover:bg-primary/10 cursor-pointer'
+                }`}
+              >
+                <Upload className={`mx-auto h-16 w-16 mb-3 ${files.length > 0 ? 'text-primary/90' : 'text-gray-400'}`} />
+                {files.length > 0 ? (
+                  <div>
+                    <p className="text-primary/90 font-semibold text-lg mb-1">
+                      {files.length} file{files.length > 1 ? 's' : ''} selected
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {files.reduce((total, file) => total + file.file.size, 0) > 0
+                        ? formatBytes(files.reduce((total, file) => total + file.file.size, 0))
+                        : '0 Bytes'}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      Click to add more files
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-gray-700 font-medium mb-1">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      PDF files only • Max 100MB each
+                    </p>
+                  </div>
+                )}
+              </label>
+            </div>
 
-      <input ref={fileInputRef} type="file" multiple accept=".pdf,.docx,.xlsx,.jpg,.jpeg,.png,.webp" onChange={handleFileInput} className="hidden" />
+            {/* Merge Button */}
+            <button
+              onClick={() => handleMerge()}
+              disabled={files.length === 0 || loading}
+              className="w-full bg-primary/90 text-white py-4 rounded-xl font-semibold text-lg hover:bg-primary/100 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Merging...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-6 w-6" />
+                  Merge Now
+                </>
+              )}
+            </button>
 
-      {files.length === 0 ? (
-        <div
-          className="border-4 border-dashed border-gray-300 rounded-3xl p-32 cursor-pointer hover:border-blue-500 flex flex-col items-center justify-center"
-          onClick={() => fileInputRef.current?.click()}
-          onDrop={(e) => { e.preventDefault(); processFiles(Array.from(e.dataTransfer.files)); }}
-          onDragOver={(e) => e.preventDefault()}
-        >
-          <Upload size={64} className="mx-auto text-blue-600 mb-6" />
-          <h3 className="text-2xl font-bold text-center">Drop files here</h3>
-          <p className="text-gray-500 text-center">PDF, Images, Word, Excel</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 pb-20">
-          {files.map((file) => (
-            <FileCard key={file.id} file={file} />
-          ))}
-          {/* Add More Button in Main Mode */}
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500"
-          >
-            <Plus size={32} className="text-gray-400" />
-            <p className="text-sm mt-2">Add More</p>
+            {/* Error Message */}
+            {error && (
+              <div className="mt-6 p-5 bg-red-50 border-l-4 border-red-500 rounded-lg">
+                <div className="flex items-start">
+                  <AlertCircle className="h-6 w-6 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-red-800 font-semibold mb-1">Error</h3>
+                    <p className="text-red-700 text-sm">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Success Result */}
+            {result && (
+              <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg shadow-sm">
+                <div className="flex items-center text-green-700 mb-4">
+                  <FileCheck className="h-6 w-6 mr-3" />
+                  <span className="font-bold text-lg">Merge Successful!</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <p className="text-gray-500 text-xs font-medium mb-1">Files Merged</p>
+                    <p className="text-gray-800 font-bold text-xl">{result.filesCount}</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <p className="text-gray-500 text-xs font-medium mb-1">Original Size</p>
+                    <p className="text-gray-800 font-bold text-xl">{formatBytes(result.originalSize)}</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <p className="text-gray-500 text-xs font-medium mb-1">Merged Size</p>
+                    <p className="text-gray-800 font-bold text-xl">{formatBytes(result.mergedSize)}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
