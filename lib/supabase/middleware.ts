@@ -103,7 +103,7 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Check if the user is actually an admin by checking their email
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com'
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'hammadnooralam@gmail.com'
 
     // Get user profile to verify admin status
     const { data: profile, error: profileError } = await supabaseAdmin
@@ -138,7 +138,7 @@ export async function updateSession(request: NextRequest) {
   // If user is authenticated and trying to access admin auth routes
   if (user && isAdminAuthRoute) {
     // Check if the user is an admin to determine where to redirect
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com'
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'hammadnooralam@gmail.com'
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')

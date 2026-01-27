@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 // Specific admin email - ONLY this email has admin access
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'hammadnooralam@gmail.com';
 
 // Create admin client with service role
 const supabaseAdmin = createClient(
