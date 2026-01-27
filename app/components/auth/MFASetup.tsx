@@ -97,7 +97,7 @@ export function MFASetup() {
   if (step === "qr") {
     return (
       <Card className="p-6 max-w-md mx-auto">
-        <h2 className="text-xl font-bold mb-4">Scan QR Code</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">Scan QR Code</h2>
         <p className="text-gray-600 mb-4">
           Scan this QR code with your authenticator app (Google Authenticator,
           Authy, etc.)
@@ -111,7 +111,7 @@ export function MFASetup() {
         </div>
 
         <p className="text-sm text-gray-500 mb-4">
-          Can&apos;t scan? Enter this secret code manually:{" "}
+          Can&apos;t scan? Enter this secret code manually:
           <strong>{secret}</strong>
         </p>
 

@@ -94,7 +94,7 @@ export default function AdminPanel() {
               <span className="text-sm text-gray-600">
                 Admin: {user?.email}
               </span>
-              <Link href="/mfa-setup">
+              <Link href="/mfa-setup" className="text-teal-600 border-2 border-teal-600 hover:bg-teal-100 hover:text-teal-700 rounded-lg p-1">
                 MFA Setup Page
               </Link>
               <Button
