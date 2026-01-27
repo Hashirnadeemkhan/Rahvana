@@ -1,46 +1,138 @@
 // app/context/AuthContext.tsx
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { AuthError, User } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { AuthError, User, Session, Provider } from "@supabase/supabase-js";
+
+// Define types for MFA error metadata
+interface MFAMetadata {
+  factorId?: string;
+  challengeId?: string;
+}
+
+// Define types for MFA error
+interface MFAError {
+  code: string;
+  factorId?: string;
+  challengeId?: string;
+  metadata?: MFAMetadata;
+  message: string;
+}
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   isAdmin: boolean;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  isAuthenticated: boolean;
+  authLevel: string;
+  mfaEnrolled: boolean;
+  mfaPending: boolean;
+  signIn: (
+    email: string,
+    password: string,
+  ) => Promise<{
+    error: AuthError | null;
+    mfaRequired?: boolean;
+    factorId?: string;
+    challengeId?: string;
+  }>;
+  signUp: (
+    email: string,
+    password: string,
+  ) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
+  enableMFA: () => Promise<{
+    success: boolean;
+    qrCode?: string;
+    secret?: string;
+    factorId?: string;
+    error?: string;
+  }>;
+  verifyMFASetup: (
+    factorId: string,
+    code: string,
+  ) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
+  verifyMFALogin: (
+    factorId: string,
+    challengeId: string,
+    code: string,
+  ) => Promise<{
+    success: boolean;
+    user?: User;
+    session?: Session;
+    error?: string;
+  }>;
+  getAuthenticatorAssuranceLevel: () => Promise<{
+    currentLevel: string | null;
+    nextLevel: string | null;
+    error?: string;
+  }>;
+  listMFACheckFactors: () => Promise<{
+    totp: Array<{
+      id: string;
+      friendly_name?: string;
+      factor_type: string;
+      status: string;
+      created_at?: string;
+      updated_at?: string;
+    }>;
+    error?: string;
+  }>;
+  checkMFAStatus: (userId: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
+
+  // MFA auth state
+  const authLevel =
+  (session as { aal?: string })?.aal ?? "aal1";
+
+const mfaEnrolled =
+  Array.isArray(user?.factors) && user.factors.length > 0;
+
+const mfaPending = mfaEnrolled && authLevel === "aal1";
+const isAuthenticated = !!user && !mfaPending;
+
+  // Helper function to safely extract MFA error details
+  const extractMFAErrorDetails = (error: MFAError | AuthError): { factorId?: string; challengeId?: string } => {
+    const typedError = error as MFAError;
+    return {
+      factorId: typedError.factorId || typedError.metadata?.factorId,
+      challengeId: typedError.challengeId || typedError.metadata?.challengeId,
+    };
+  };
 
   // Fetch user profile to check admin status
   const fetchUserProfile = async (userId: string) => {
     try {
       // Use API route to check admin status (which uses service role)
-      const response = await fetch('/api/auth/check-admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId })
+      const response = await fetch("/api/auth/check-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
       });
-      
+
       if (!response.ok) {
         return false;
       }
-      
+
       const data = await response.json();
       return data.isAdmin || false;
     } catch (error) {
-      console.error('Error checking admin status:', error);
+      console.error("Error checking admin status:", error);
       return false;
     }
   };
@@ -48,15 +140,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const getInitialSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
+        setSession(session ?? null);
 
         if (session?.user) {
           const adminStatus = await fetchUserProfile(session.user.id);
           setIsAdmin(adminStatus);
         }
       } catch (_error) {
-        console.error('Error getting initial session:', _error);
+        console.error("Error getting initial session:", _error);
       } finally {
         setIsLoading(false);
       }
@@ -64,49 +159,299 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     getInitialSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      setSession(session ?? null);
 
-        if (session?.user) {
-          const adminStatus = await fetchUserProfile(session.user.id);
-          setIsAdmin(adminStatus);
-        } else {
-          setIsAdmin(false);
-        }
-
-        setIsLoading(false);
+      if (session?.user) {
+        const adminStatus = await fetchUserProfile(session.user.id);
+        setIsAdmin(adminStatus);
+      } else {
+        setIsAdmin(false);
       }
-    );
+
+      setIsLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, [supabase]);
 
+  const enableMFA = async () => {
+    try {
+      const response = await fetch("/api/auth/mfa/enroll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        return { success: false, error: data.error };
+      }
+  
+      return {
+        success: true,
+        qrCode: data.data.qrCode,
+        secret: data.data.secret,
+        factorId: data.data.factorId,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to initialize MFA setup",
+      };
+    }
+  };
+
+  const verifyMFASetup = async (factorId: string, code: string) => {
+    try {
+      const response = await fetch("/api/auth/mfa/verify-enrollment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ factorId, code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to verify MFA setup",
+      };
+    }
+  };
+
+  const verifyMFALogin = async (
+    factorId: string,
+    challengeId: string,
+    code: string,
+  ) => {
+    try {
+      const response = await fetch("/api/auth/mfa/verify-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ factorId, challengeId, code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error };
+      }
+
+      return { success: true, user: data.user, session: data.session };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to verify MFA code",
+      };
+    }
+  };
+
+  const getAuthenticatorAssuranceLevel = async () => {
+    try {
+      const supabase = createClient();
+      const { data, error } =
+        await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+      if (error) {
+        return {
+          currentLevel: "aal1",
+          nextLevel: "aal1",
+          error: error.message,
+        };
+      }
+
+      return {
+        currentLevel: data.currentLevel || "aal1",
+        nextLevel: data.nextLevel || "aal1",
+      };
+    } catch (error) {
+      return {
+        currentLevel: "aal1",
+        nextLevel: "aal1",
+        error: "Failed to get assurance level",
+      };
+    }
+  };
+
+  const listMFACheckFactors = async () => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.mfa.listFactors();
+
+      if (error) {
+        return { totp: [], error: error.message };
+      }
+
+      return {
+        totp: data.totp || [],
+      } as {
+        totp: Array<{
+          id: string;
+          friendly_name?: string;
+          factor_type: string;
+          status: string;
+          created_at?: string;
+          updated_at?: string;
+        }>;
+        error?: string;
+      };
+    } catch (error) {
+      return { totp: [], error: "Failed to list MFA factors" };
+    }
+  };
+
+  // Function to check if user has MFA enabled
+  const checkMFAStatus = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('mfa_enabled')
+        .eq('id', userId)
+        .single();
+        
+      if (error) {
+        console.error('Error checking MFA status:', error);
+        return false;
+      }
+      
+      return data?.mfa_enabled || false;
+    } catch (err) {
+      console.error('Error in checkMFAStatus:', err);
+      return false;
+    }
+  };
+
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      // First, attempt to sign in with email and password
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+  
+      // Check if there's an error
+      if (error) {
+        // Check if it's specifically an MFA required error
+        if (error.code === "mfa_required") {
+          // Extract factor information from the error (if available)
+          const { factorId, challengeId } = extractMFAErrorDetails(error);
+          
+          if (!factorId || !challengeId) {
+            const { totp, error: factorsError } = await listMFACheckFactors();
+            
+            if (factorsError) {
+              return { error: { message: "MFA setup error", code: "mfa_error" } as unknown as AuthError };
+            }
+            
+            if (!totp || totp.length === 0) {
+              return { error: { message: "No MFA factors found", code: "mfa_no_factors" } as unknown as AuthError };
+            }
+            
+            // Create challenge for the first factor
+            const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+              factorId: totp[0].id
+            });
+            
+            if (challengeError) {
+              return { error: challengeError };
+            }
+            
+            return {
+              error: null,
+              mfaRequired: true,
+              factorId: totp[0].id,
+              challengeId: challengeData.id,
+            };
+          }
+          
+          // Return the MFA challenge information
+          return {
+            error: null,
+            mfaRequired: true,
+            factorId,
+            challengeId,
+          };
+        }
+          
+        // For other errors, return as-is
+        return { error };
+      }
+  
+      // Check if user has MFA factors but is only at AAL1
+      if (data?.session) {
+        // Get user factors to see if MFA should be enforced
+        const { totp } = await listMFACheckFactors();
+        
+        if (totp && totp.length > 0) {
+          // Create a challenge for the first factor
+          const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+            factorId: totp[0].id
+          });
+          
+          if (challengeError) {
+            console.error('Error creating MFA challenge:', challengeError);
+            // Continue with normal login if challenge creation fails
+            return { error: null };
+          }
+          
+          // Return with MFA required info
+          return {
+            error: null,
+            mfaRequired: true,
+            factorId: totp[0].id,
+            challengeId: challengeData.id,
+          };
+        }
+      }
+      
+      // Normal login success
+      return { error: null };
+    } catch (err) {
+      console.error('Sign in error:', err);
+      return { error: { message: 'Sign in failed', code: 'sign_in_error' } as unknown as AuthError };
+    }
   };
 
   const signUp = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        return { error: { message: data.error, status: response.status, code: 'SIGNUP_ERROR', name: 'SignUpError' } as unknown as AuthError };
+        return {
+          error: {
+            message: data.error,
+            status: response.status,
+            code: "SIGNUP_ERROR",
+            name: "SignUpError",
+          } as unknown as AuthError,
+        };
       }
 
       return { error: null };
     } catch {
-      return { error: { message: 'An unexpected error occurred', status: 500, code: 'UNEXPECTED_ERROR', name: 'UnexpectedError' } as unknown as AuthError };
+      return {
+        error: {
+          message: "An unexpected error occurred",
+          status: 500,
+          code: "UNEXPECTED_ERROR",
+          name: "UnexpectedError",
+        } as unknown as AuthError,
+      };
     }
   };
 
@@ -117,7 +462,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -129,12 +474,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        session,
         isAdmin,
         isLoading,
+        isAuthenticated,
+        authLevel,
+        mfaEnrolled,
+        mfaPending,
         signIn,
         signUp,
         signOut,
         signInWithGoogle,
+        enableMFA,
+        verifyMFASetup,
+        verifyMFALogin,
+        getAuthenticatorAssuranceLevel,
+        listMFACheckFactors,
+        checkMFAStatus,
       }}
     >
       {children}
@@ -145,7 +501,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

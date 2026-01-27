@@ -9,35 +9,38 @@ import { Card } from "@/components/ui/card";
 
 function AdminLoginPageContent() {
   const router = useRouter();
-  const { signIn, user, isLoading, isAdmin } = useAuth();
+  const { signIn, user, isLoading, isAdmin, verifyMFALogin, mfaPending } = useAuth();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [factorId, setFactorId] = useState("");
+  const [challengeId, setChallengeId] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
   const searchParams = useSearchParams();
-
-  // 🔁 Already logged-in admin → redirect
-  useEffect(() => {
-    const confirmedParam = searchParams.get("confirmed");
-    if (!isLoading && user && isAdmin) {
-      router.replace("/admin");
-    }
-    if (confirmedParam === "true") {
-      setSuccess("Email confirmed successfully! You can now sign in.");
-    }
-  }, [isLoading, user, isAdmin, router, searchParams]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setIsSubmitting(true);
 
-    const { error } = await signIn(email, password);
+    const { error, mfaRequired: isMfaRequired, factorId: fId, challengeId: cId } = await signIn(email, password);
 
     if (error) {
       setError("Invalid admin credentials");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (isMfaRequired && fId && cId) {
+      // MFA is required
+      setMfaRequired(true);
+      setFactorId(fId);
+      setChallengeId(cId);
+      setSuccess("Please enter your authentication code");
       setIsSubmitting(false);
       return;
     }
@@ -46,6 +49,39 @@ function AdminLoginPageContent() {
     // 🔁 Middleware + AuthContext handle kar lenge
     router.replace("/admin");
   };
+
+  const handleMfaSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const { success, error: mfaError } = await verifyMFALogin(factorId, challengeId, mfaCode);
+      
+      if (success) {
+        router.replace("/admin");
+      } else {
+        setError(mfaError || "Invalid authentication code");
+      }
+    } catch {
+      setError("Failed to verify authentication code");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  // 🔁 Already logged-in admin → redirect
+  useEffect(() => {
+    const confirmedParam = searchParams.get("confirmed");
+    // Only redirect if user is logged in, is admin, and MFA is not pending
+    if (!isLoading && user && isAdmin && !mfaPending) {
+      router.replace("/admin");
+    }
+    if (confirmedParam === "true") {
+      setSuccess("Email confirmed successfully! You can now sign in.");
+    }
+  }, [isLoading, user, isAdmin, mfaPending, router, searchParams]);
+
+
 
   // ⏳ Loading state
   if (isLoading) {
@@ -60,7 +96,65 @@ function AdminLoginPageContent() {
     <>
       <Card className="max-w-lg mt-20 mx-auto p-6 bg-white shadow-lg border-0 rounded-2xl">
         <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {mfaRequired ? (
+          <form onSubmit={handleMfaSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Authentication Code
+              </label>
+              <Input
+                type="text"
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value)}
+                placeholder="Enter 6-digit code"
+                maxLength={6}
+                required
+                disabled={isSubmitting}
+                className="h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary"
+              />
+              <p className="text-sm text-slate-500">
+                Enter the code from your authenticator app
+              </p>
+            </div>
+            
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+                <svg
+                  className="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+            
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={isSubmitting || mfaCode.length !== 6}
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Verifying...
+                </div>
+              ) : (
+                "Verify Code"
+              )}
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-700">
               Email Address
@@ -192,6 +286,7 @@ function AdminLoginPageContent() {
             )}
           </Button>
         </form>
+        )}
       </Card>
     </>
   );

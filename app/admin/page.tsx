@@ -1,17 +1,19 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Globe } from "lucide-react";
+import Link from "next/link";
 
 import TranslationQueueTable from "./components/translation-queue/TranslationQueueTable";
 import PoliceVerificationTable from "./components/police-verifications/PoliceVerificationTable";
 import BookAppointmentTable from "./components/book-appointment/BookAppointmentTable";
 import ConsultationRequestsTable from "./components/consultation-requests/ConsultationRequestsTable";
 import AvailabilityGrid from "./components/consultation-requests/AvailabilityGrid";
+import { MFASetup } from "../components/auth/MFASetup";
 
 export default function AdminPanel() {
   const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
@@ -82,15 +84,19 @@ export default function AdminPanel() {
             <div className="flex items-center space-x-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                 <Globe className="h-3.5 w-3.5" />
-                Your Time: {new Date().toLocaleTimeString('en-US', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZoneName: 'short'
+                Your Time:{" "}
+                {new Date().toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  timeZoneName: "short",
                 })}
               </span>
               <span className="text-sm text-gray-600">
                 Admin: {user?.email}
               </span>
+              <Link href="/mfa-setup" className="text-teal-600 border-2 border-teal-600 hover:bg-teal-100 hover:text-teal-700 rounded-lg p-1">
+                MFA Setup Page
+              </Link>
               <Button
                 onClick={handleLogout}
                 variant="outline"
@@ -112,7 +118,6 @@ export default function AdminPanel() {
               Manage appointments, translations, and police verifications
             </p>
           </div>
-
 
           <div className="mb-10">
             <h2 className="text-2xl font-bold mb-4">Availability Management</h2>
