@@ -160,7 +160,9 @@ export async function POST(request: NextRequest) {
       amount: session.amount_total! / 100, // Convert from cents
       currency: session.currency || 'usd',
       status: 'pending',
-      product_type: (sessionParams.metadata?.product_type || '') as any, // Temporary fix for type mismatch
+      product_type: (sessionParams.metadata?.product_type === 'subscription' || sessionParams.metadata?.product_type === 'consultation')
+        ? sessionParams.metadata!.product_type  // Use non-null assertion since we checked above
+        : 'subscription', // Ensure it matches expected type
       product_id: String(sessionParams.metadata?.product_id || ''), // Ensure it's a string
       metadata: {
         product_name: sessionParams.metadata?.product_name || 'Consultation',

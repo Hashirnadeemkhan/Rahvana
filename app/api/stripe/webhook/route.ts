@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe/config';
 import { paymentService } from '@/lib/services/paymentService';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -32,10 +33,11 @@ export async function POST(request: NextRequest) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message);
+  } catch (err: unknown) {
+    console.error('Webhook signature verification failed:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json(
-      { error: `Webhook Error: ${err.message}` },
+      { error: `Webhook Error: ${errorMessage}` },
       { status: 400 }
     );
   }
@@ -66,17 +68,24 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ received: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error handling webhook event:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: error.message },
+      { error: errorMessage },
       { status: 500 }
     );
   }
 }
 
-async function handleCheckoutSessionCompleted(session: any) {
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   console.log('Checkout session completed:', session.id);
+
+  // Check if metadata exists
+  if (!session.metadata) {
+    console.error('No metadata in session');
+    return;
+  }
 
   const userId = session.metadata.user_id;
   const productType = session.metadata.product_type;
@@ -102,7 +111,7 @@ async function handleCheckoutSessionCompleted(session: any) {
   });
 
   // Handle subscription upgrade
-  if (productType === 'subscription') {
+  if (productType === 'subscription' && userId && productId) {
     await paymentService.updateUserSubscription(
       userId,
       productId as 'plus' | 'pro',
@@ -119,7 +128,7 @@ async function handleCheckoutSessionCompleted(session: any) {
   }
 
   // Handle consultation payment
-  if (productType === 'consultation') {
+  if (productType === 'consultation' && userId && productId) {
     // Update consultation booking payment status
     const { error } = await supabase
       .from('consultation_bookings')
@@ -143,7 +152,7 @@ async function handleCheckoutSessionCompleted(session: any) {
   }
 }
 
-async function handlePaymentIntentSucceeded(paymentIntent: any) {
+async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   console.log('Payment intent succeeded:', paymentIntent.id);
 
   const payment = await paymentService.getPaymentByStripeId(paymentIntent.id);
@@ -155,7 +164,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
   }
 }
 
-async function handlePaymentIntentFailed(paymentIntent: any) {
+async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
   console.log('Payment intent failed:', paymentIntent.id);
 
   const payment = await paymentService.getPaymentByStripeId(paymentIntent.id);
