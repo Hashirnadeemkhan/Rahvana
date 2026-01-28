@@ -287,7 +287,7 @@ export function PDFViewer({
     <div className="flex flex-col h-full">
 
       {/* Top Toolbar */}
-      <div className="flex items-center justify-between bg-white border-b px-4 py-2 flex-shrink-0">
+      <div className="flex items-center justify-between bg-white border-b px-4 py-2 shrink-0">
         <div className="flex items-center gap-2">
           <Button onClick={() => setCurrentPage(Math.max(0, currentPage - 1))} disabled={currentPage === 0} variant="ghost" size="sm">
             <ChevronLeft className="h-4 w-4" />
@@ -377,7 +377,7 @@ export function PDFViewer({
             style={{
               cursor:
                 activeTool === "text"
-                  ? "copy"
+                  ? "crosshair"
                   : activeTool === "signature" && isSignatureFloating
                   ? "crosshair"
                   : activeTool === "shapes" && isShapeFloating
@@ -451,7 +451,7 @@ export function PDFViewer({
 
       {/* Shape Toolbar */}
       {selectedShapeObj && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999]">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9999">
           <ShapeFormattingToolbar
             shape={selectedShapeObj}
             onUpdate={updateShapeAnnotation}

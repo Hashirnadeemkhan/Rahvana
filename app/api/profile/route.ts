@@ -22,7 +22,7 @@ export async function GET() {
       .from("user_profiles")
       .select("*")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     console.log("[Profile API] Profile query result:", {
       profile,
@@ -30,8 +30,7 @@ export async function GET() {
       errorCode: profileError?.code
     });
 
-    if (profileError && profileError.code !== "PGRST116") {
-      // PGRST116 is "not found" error
+    if (profileError) {
       console.error("[Profile API] Error fetching profile:", profileError);
       return NextResponse.json(
         { error: "Failed to fetch profile" },

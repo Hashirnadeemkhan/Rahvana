@@ -33,10 +33,17 @@ export async function POST(request: NextRequest) {
       .from('profiles')
       .select('email, role')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
-    if (profileError || !profile) {
+    if (profileError) {
       console.error('Error fetching profile:', profileError);
+      return NextResponse.json(
+        { isAdmin: false },
+        { status: 200 }
+      );
+    }
+
+    if (!profile) {
       return NextResponse.json(
         { isAdmin: false },
         { status: 200 }

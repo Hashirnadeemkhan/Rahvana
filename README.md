@@ -51,8 +51,39 @@ This backend is the **brain** that:
 - Turns form answers → filled government PDFs  
 - Turns priority dates → "You're current!" or "Wait 3 more years"
 
-No manual work. No Photoshop. No typing into PDFs.  
+No manual work. No Photoshop. No typing into PDFs.
 Everything happens automatically when the user clicks "Submit".
 
 Deploy it anywhere (Render, Railway, AWS, etc.) — it just works.
+
+## Stripe Payment Setup
+
+To fix the "No such price: 'price_...'" error, you need to configure your actual Stripe Price IDs in your environment variables.
+
+### Prerequisites
+
+1. A Stripe account (sign up at [stripe.com](https://stripe.com))
+2. Created products and prices in your Stripe dashboard
+
+### Steps to Configure
+
+1. Follow the instructions in [STRIPE_PRICE_SETUP.md](./STRIPE_PRICE_SETUP.md) to get your actual Price IDs
+2. Update your `.env.local` file with the correct values:
+
+```bash
+STRIPE_PRICE_ID_PLUS=your_actual_plus_price_id
+STRIPE_PRICE_ID_PRO=your_actual_pro_price_id
+```
+
+3. Restart your application
+
+### Testing
+
+After updating the environment variables:
+
+1. Run your application: `npm run dev`
+2. Try the checkout process again
+3. Check the browser console and server logs for any remaining errors
+
+For more details about Stripe testing, see [STRIPE_TESTING.md](./STRIPE_TESTING.md).
 
