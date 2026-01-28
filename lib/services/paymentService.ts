@@ -13,7 +13,7 @@ export const paymentService = {
    */
   async createPayment(data: CreatePaymentData): Promise<Payment> {
     // Prepare the insert object conditionally including stripe_payment_id only if provided
-    const insertData = {
+    const insertData: CreatePaymentData & { stripe_payment_id?: string } = {
       user_id: data.user_id,
       stripe_checkout_session_id: data.stripe_checkout_session_id,
       amount: data.amount,
@@ -22,12 +22,8 @@ export const paymentService = {
       product_type: data.product_type,
       product_id: data.product_id,
       metadata: data.metadata || {},
+      ...(data.stripe_payment_id ? { stripe_payment_id: data.stripe_payment_id } : {}),
     };
-
-    // Only include stripe_payment_id if it's provided
-    if (data.stripe_payment_id) {
-      insertData.stripe_payment_id = data.stripe_payment_id;
-    }
 
     const { data: payment, error } = await supabase
       .from('payments')
@@ -152,11 +148,8 @@ export const paymentService = {
     const updateData = {
       subscription_tier: tier,
       subscription_status: 'active',
+      ...(stripeCustomerId ? { stripe_customer_id: stripeCustomerId } : {}),
     };
-
-    if (stripeCustomerId) {
-      updateData.stripe_customer_id = stripeCustomerId;
-    }
 
     // Try updating user_profiles table first
     const { error: profileError } = await supabase
