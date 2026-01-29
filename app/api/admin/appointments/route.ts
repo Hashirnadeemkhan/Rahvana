@@ -5,7 +5,7 @@ import { createServerClient } from '@supabase/ssr';
 // Specific admin emails - ONLY these emails can access admin panel
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'hammadnooralam@gmail.com').split(',').map(email => email.trim());
 
-export async function checkAdminRole(request: NextRequest) {
+async function checkAdminRole(request: NextRequest) {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

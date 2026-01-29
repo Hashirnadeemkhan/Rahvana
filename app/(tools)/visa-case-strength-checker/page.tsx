@@ -1252,7 +1252,6 @@ export default function VisaCaseStrengthChecker() {
             setSessionId(savedSessionId);
             setFormData((prev) => ({
               ...prev,
-              caseType: sessionData.caseType,
               ...sessionData.answers,
             }));
 
@@ -1263,6 +1262,8 @@ export default function VisaCaseStrengthChecker() {
             ).length;
 
             setStep(0);
+            // Scroll to top when restoring session
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {
             // Session doesn't exist or is already completed, remove from localStorage
             localStorage.removeItem("visaCheckerSessionId");
@@ -1651,6 +1652,8 @@ export default function VisaCaseStrengthChecker() {
 
         // Navigate to results page after successful submit
         setStep((prev) => prev + 1);
+        // Scroll to top when results appear
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         const errorData = await submitResponse.text();
         console.error("Submit response error:", errorData);
