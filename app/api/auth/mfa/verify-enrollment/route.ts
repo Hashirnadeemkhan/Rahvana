@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { sendEmail, getMFAEnabledEmailHtml } from "@/lib/email/resend";
 
 export async function POST(request: NextRequest) {
   try {
@@ -84,7 +85,29 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       console.error("Error updating profile with MFA status:", updateError);
-      // Don't fail the operation if profile update fails
+    }
+
+    // Send MFA enabled notification email
+    try {
+      console.log("Attempting to send MFA enabled email to:", user.email);
+      console.log("Environment variables check - RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY, "EMAIL_FROM:", process.env.EMAIL_FROM);
+      
+      const emailResult = await sendEmail({
+        to: user.email!,
+        subject: "Two-Factor Authentication Enabled Successfully - Arachnie",
+        html: getMFAEnabledEmailHtml(),
+      });
+      
+      console.log("Email send result:", emailResult);
+      
+      if (!emailResult.success) {
+        console.error("MFA enabled email failed to send:", emailResult.error);
+      } else {
+        console.log("MFA enabled email sent successfully");
+      }
+    } catch (emailError) {
+      console.error("Exception occurred when sending MFA enabled email:", emailError);
+      // Don't fail the operation if email sending fails
     }
 
     return NextResponse.json({

@@ -85,6 +85,14 @@ interface AuthContextType {
     error?: string;
   }>;
   checkMFAStatus: (userId: string) => Promise<boolean>;
+  disableMFASetup: (
+    factorId: string,
+    code: string,
+  ) => Promise<{
+    success: boolean;
+    message?: string;
+    error?: string;
+  }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -97,17 +105,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   // MFA auth state
-  const authLevel =
-  (session as { aal?: string })?.aal ?? "aal1";
+  const authLevel = (session as { aal?: string })?.aal ?? "aal1";
 
-const mfaEnrolled =
-  Array.isArray(user?.factors) && user.factors.length > 0;
+  const mfaEnrolled = Array.isArray(user?.factors) && user.factors.length > 0;
 
-const mfaPending = mfaEnrolled && authLevel === "aal1";
-const isAuthenticated = !!user && !mfaPending;
+  const mfaPending = mfaEnrolled && authLevel === "aal1";
+  const isAuthenticated = !!user && !mfaPending;
 
   // Helper function to safely extract MFA error details
-  const extractMFAErrorDetails = (error: MFAError | AuthError): { factorId?: string; challengeId?: string } => {
+  const extractMFAErrorDetails = (
+    error: MFAError | AuthError,
+  ): { factorId?: string; challengeId?: string } => {
     const typedError = error as MFAError;
     return {
       factorId: typedError.factorId || typedError.metadata?.factorId,
@@ -184,13 +192,13 @@ const isAuthenticated = !!user && !mfaPending;
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         return { success: false, error: data.error };
       }
-  
+
       return {
         success: true,
         qrCode: data.data.qrCode,
@@ -313,20 +321,43 @@ const isAuthenticated = !!user && !mfaPending;
   const checkMFAStatus = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('mfa_enabled')
-        .eq('id', userId)
+        .from("profiles")
+        .select("mfa_enabled")
+        .eq("id", userId)
         .single();
-        
+
       if (error) {
-        console.error('Error checking MFA status:', error);
+        console.error("Error checking MFA status:", error);
         return false;
       }
-      
+
       return data?.mfa_enabled || false;
     } catch (err) {
-      console.error('Error in checkMFAStatus:', err);
+      console.error("Error in checkMFAStatus:", err);
       return false;
+    }
+  };
+
+  const disableMFASetup = async (factorId: string, code: string) => {
+    try {
+      const response = await fetch("/api/auth/mfa/disable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ factorId, code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error };
+      }
+
+      return { success: true, message: "MFA disabled successfully" };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to verify MFA setup",
+      };
     }
   };
 
@@ -337,34 +368,45 @@ const isAuthenticated = !!user && !mfaPending;
         email,
         password,
       });
-  
+
       // Check if there's an error
       if (error) {
         // Check if it's specifically an MFA required error
         if (error.code === "mfa_required") {
           // Extract factor information from the error (if available)
           const { factorId, challengeId } = extractMFAErrorDetails(error);
-          
+
           if (!factorId || !challengeId) {
             const { totp, error: factorsError } = await listMFACheckFactors();
-            
+
             if (factorsError) {
-              return { error: { message: "MFA setup error", code: "mfa_error" } as unknown as AuthError };
+              return {
+                error: {
+                  message: "MFA setup error",
+                  code: "mfa_error",
+                } as unknown as AuthError,
+              };
             }
-            
+
             if (!totp || totp.length === 0) {
-              return { error: { message: "No MFA factors found", code: "mfa_no_factors" } as unknown as AuthError };
+              return {
+                error: {
+                  message: "No MFA factors found",
+                  code: "mfa_no_factors",
+                } as unknown as AuthError,
+              };
             }
-            
+
             // Create challenge for the first factor
-            const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-              factorId: totp[0].id
-            });
-            
+            const { data: challengeData, error: challengeError } =
+              await supabase.auth.mfa.challenge({
+                factorId: totp[0].id,
+              });
+
             if (challengeError) {
               return { error: challengeError };
             }
-            
+
             return {
               error: null,
               mfaRequired: true,
@@ -372,7 +414,7 @@ const isAuthenticated = !!user && !mfaPending;
               challengeId: challengeData.id,
             };
           }
-          
+
           // Return the MFA challenge information
           return {
             error: null,
@@ -381,28 +423,29 @@ const isAuthenticated = !!user && !mfaPending;
             challengeId,
           };
         }
-          
+
         // For other errors, return as-is
         return { error };
       }
-  
+
       // Check if user has MFA factors but is only at AAL1
       if (data?.session) {
         // Get user factors to see if MFA should be enforced
         const { totp } = await listMFACheckFactors();
-        
+
         if (totp && totp.length > 0) {
           // Create a challenge for the first factor
-          const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-            factorId: totp[0].id
-          });
-          
+          const { data: challengeData, error: challengeError } =
+            await supabase.auth.mfa.challenge({
+              factorId: totp[0].id,
+            });
+
           if (challengeError) {
-            console.error('Error creating MFA challenge:', challengeError);
+            console.error("Error creating MFA challenge:", challengeError);
             // Continue with normal login if challenge creation fails
             return { error: null };
           }
-          
+
           // Return with MFA required info
           return {
             error: null,
@@ -412,12 +455,17 @@ const isAuthenticated = !!user && !mfaPending;
           };
         }
       }
-      
+
       // Normal login success
       return { error: null };
     } catch (err) {
-      console.error('Sign in error:', err);
-      return { error: { message: 'Sign in failed', code: 'sign_in_error' } as unknown as AuthError };
+      console.error("Sign in error:", err);
+      return {
+        error: {
+          message: "Sign in failed",
+          code: "sign_in_error",
+        } as unknown as AuthError,
+      };
     }
   };
 
@@ -491,6 +539,7 @@ const isAuthenticated = !!user && !mfaPending;
         getAuthenticatorAssuranceLevel,
         listMFACheckFactors,
         checkMFAStatus,
+        disableMFASetup,
       }}
     >
       {children}
