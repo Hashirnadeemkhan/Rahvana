@@ -133,7 +133,7 @@ export class VisaCheckerSupabaseService {
     } = await import("./scoring-rules").then((rules) => {
       return rules.ScoringRules.calculateTotalScore(sessionDetails.answers);
     });
-
+    
     // Update session with calculated score
     const { error: updateError } = await supabase
       .from("user_case_sessions")
@@ -148,7 +148,7 @@ export class VisaCheckerSupabaseService {
       .eq("id", sessionId);
 
     if (updateError) {
-      throw new Error(`Failed to update session: ${updateError.message}`);
+      throw new Error(`Failed to update session: ${updateError.message}. Score value: ${totalScore}`);
     }
 
     // Clear existing risk flags for this session

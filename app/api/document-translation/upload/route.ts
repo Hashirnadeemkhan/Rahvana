@@ -20,11 +20,12 @@ export async function POST(request: NextRequest) {
     const userEmail = formData.get("userEmail") as string;
     const userName = formData.get("userName") as string;
     const userNotes = formData.get("userNotes") as string | undefined;
+    const documentType = formData.get("documentType") as string | undefined;
 
     // Validate required fields
-    if (!file || !userEmail || !userName) {
+    if (!file || !userEmail || !userName || !documentType) {
       return NextResponse.json(
-        { error: "Missing required fields: file, userEmail, userName" },
+        { error: "Missing required fields: file, userEmail, userName, documentType" },
         { status: 400 }
       );
     }
@@ -46,9 +47,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Extract document type from file name
+    // Extract file name
     const fileName = file.name;
-    const documentType = fileName.split("_")[0].toLowerCase();
 
     // Validate document type
     const allowedTypes = ["marriage", "birth", "death", "divorce"];
