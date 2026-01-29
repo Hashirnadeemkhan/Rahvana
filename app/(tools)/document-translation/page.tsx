@@ -3,9 +3,17 @@
 import { useState, useRef } from "react";
 import { Upload, AlertCircle, CheckCircle, X, FileText } from "lucide-react";
 import SuccessState from '@/app/components/document-translation/SuccessState';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function DocumentTranslationUpload() {
   const [file, setFile] = useState<File | null>(null);
+  const [documentType, setDocumentType] = useState<string>("");
   const [userNotes, setUserNotes] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -20,6 +28,7 @@ export default function DocumentTranslationUpload() {
   // Reset form
   const reset = () => {
     setFile(null);
+    setDocumentType("");
     setUserNotes("");
     setError(null);
     setUploadSuccess(false);
@@ -50,8 +59,8 @@ export default function DocumentTranslationUpload() {
 
   // Handle upload
   const handleUpload = async () => {
-    if (!file) {
-      setError("Please select a file.");
+    if (!file || !documentType) {
+      setError("Please select a file and document type.");
       return;
     }
 
@@ -63,6 +72,7 @@ export default function DocumentTranslationUpload() {
       formData.append('file', file);
       formData.append('userEmail', 'user@example.com'); // In a real app, get this from user context
       formData.append('userName', 'Test User'); // In a real app, get this from user context
+      formData.append('documentType', documentType);
       if (userNotes) {
         formData.append('userNotes', userNotes);
       }
@@ -84,6 +94,11 @@ export default function DocumentTranslationUpload() {
         message: data.message,
       });
       setUploadSuccess(true);
+      
+      // Scroll to the top when success state appears
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during upload');
     } finally {
@@ -182,6 +197,24 @@ export default function DocumentTranslationUpload() {
                   <X className="w-4 h-4" /> Remove Document
                 </button>
               )}
+
+              {/* Document Type Selection */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Document Type
+                </label>
+                <Select value={documentType} onValueChange={setDocumentType}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select document type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="marriage">Marriage Certificate</SelectItem>
+                    <SelectItem value="birth">Birth Certificate</SelectItem>
+                    <SelectItem value="divorce">Divorce Certificate</SelectItem>
+                    <SelectItem value="death">Death Certificate</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Optional Notes */}
               <div className="mt-4">
