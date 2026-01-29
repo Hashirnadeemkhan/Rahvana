@@ -105,10 +105,17 @@ export default function TranslationRequestDetails({ params }: { params: Promise<
       const data = await response.json();
       
       if (response.ok) {
-        // Update the request status
-        setRequest({...request, status: "USER_CONFIRMED"});
+        // Show success toast
+        toast.success('Translation confirmed successfully!');
+        
+        // Update the request status with a forced update
+        setRequest(prevRequest => ({
+          ...prevRequest!,
+          status: "USER_CONFIRMED"
+        }));
       } else {
         console.error('Error confirming translation:', data.error);
+        toast.error(data.error || 'Failed to confirm translation');
       }
     } catch (error) {
       console.error('Error confirming translation:', error);
@@ -132,10 +139,17 @@ export default function TranslationRequestDetails({ params }: { params: Promise<
       const data = await response.json();
       
       if (response.ok) {
-        // Update the request status
-        setRequest({...request, status: "CHANGES_REQUESTED"});
+        // Show success toast
+        toast.success('Change request submitted successfully!');
+        
+        // Update the request status 
+        setRequest(prevRequest => ({
+          ...prevRequest!,
+          status: "CHANGES_REQUESTED"
+        }));
       } else {
         console.error('Error requesting changes:', data.error);
+        toast.error(data.error || 'Failed to submit change request');
       }
     } catch (error) {
       console.error('Error requesting changes:', error);
