@@ -21,7 +21,7 @@ export default function InitialQuestionsPage() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">

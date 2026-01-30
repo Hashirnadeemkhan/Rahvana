@@ -40,7 +40,7 @@ export function PDFEditor() {
     font: "Arial",
     size: 18,
     color: "#000000",
-    bgColor: "#ffffff",
+    bgColor: "transparent",
     opacity: 100,
     bold: false,
     italic: false,

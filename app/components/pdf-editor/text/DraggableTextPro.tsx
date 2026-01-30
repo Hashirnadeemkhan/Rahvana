@@ -42,8 +42,34 @@ export default function DraggableTextPro({
   isSelected,
 }: DraggableTextProProps) {
   const nodeRef = useRef<HTMLDivElement | null>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(data.text);
+  
+  // Update local state when data changes (unless we are editing)
+  useEffect(() => {
+    if (!isEditing) {
+      setEditText(data.text);
+    }
+  }, [data.text, isEditing]);
+
+  // Auto-enter edit mode if selected and text is "Insert text" (implies new text)
+  useEffect(() => {
+    if (isSelected && data.text === "Insert text" && !isEditing) {
+      setIsEditing(true);
+    }
+  }, [isSelected, data.text]); 
+
+  // Auto-focus and select all text when entering edit mode
+  useEffect(() => {
+    if (isEditing && textAreaRef.current) {
+      textAreaRef.current.focus();
+      // Only select if it's the placeholder
+      if (editText === "Insert text") {
+        textAreaRef.current.select();
+      }
+    }
+  }, [isEditing]);
 
   const textWidth = data.width || 150;
   const textHeight = data.height || 50;
@@ -52,21 +78,39 @@ export default function DraggableTextPro({
   // Click outside to exit editing
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (nodeRef.current && !nodeRef.current.contains(e.target as Node)) {
-        setIsEditing(false);
-      }
+      if (nodeRef.current && nodeRef.current.contains(e.target as Node)) return;
+      if (isEditing) finishEditing();
     };
-    if (isSelected) {
+
+    if (isSelected || isEditing) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isSelected]);
+  }, [isSelected, isEditing, editText]); 
 
-  // Drag
+  const finishEditing = () => {
+      const trimmed = editText.trim();
+      if (trimmed.length === 0) {
+        setEditText(data.text || "Insert text");
+        onUpdate(data.id, { text: data.text || "Insert text" });
+      } else {
+        onUpdate(data.id, { text: trimmed });
+      }
+      setIsEditing(false);
+  };
+
+  // Improved Drag Handler
   const handleDrag = (e: React.MouseEvent) => {
-    if (isEditing) return;
+    // If we are clicking inside the textarea while editing, let the textarea handle it
+    if (isEditing && e.target === textAreaRef.current) return;
+    
     e.stopPropagation();
     e.preventDefault();
+    
+    // Select on click
+    if (!isSelected) {
+      onSelect(data.id);
+    }
 
     const startX = e.clientX;
     const startY = e.clientY;
@@ -114,37 +158,37 @@ export default function DraggableTextPro({
 
       switch (direction) {
         case "top-left":
-          newWidth = Math.max(80, startWidth - deltaX);
-          newHeight = Math.max(30, startHeight - deltaY);
+          newWidth = Math.max(30, startWidth - deltaX);
+          newHeight = Math.max(20, startHeight - deltaY);
           newX = startXPos + deltaX;
           newY = startYPos + deltaY;
           break;
         case "top":
-          newHeight = Math.max(30, startHeight - deltaY);
+          newHeight = Math.max(20, startHeight - deltaY);
           newY = startYPos + deltaY;
           break;
         case "top-right":
-          newWidth = Math.max(80, startWidth + deltaX);
-          newHeight = Math.max(30, startHeight - deltaY);
+          newWidth = Math.max(30, startWidth + deltaX);
+          newHeight = Math.max(20, startHeight - deltaY);
           newY = startYPos + deltaY;
           break;
         case "right":
-          newWidth = Math.max(80, startWidth + deltaX);
+          newWidth = Math.max(30, startWidth + deltaX);
           break;
         case "bottom-right":
-          newWidth = Math.max(80, startWidth + deltaX);
-          newHeight = Math.max(30, startHeight + deltaY);
+          newWidth = Math.max(30, startWidth + deltaX);
+          newHeight = Math.max(20, startHeight + deltaY);
           break;
         case "bottom":
-          newHeight = Math.max(30, startHeight + deltaY);
+          newHeight = Math.max(20, startHeight + deltaY);
           break;
         case "bottom-left":
-          newWidth = Math.max(80, startWidth - deltaX);
-          newHeight = Math.max(30, startHeight + deltaY);
+          newWidth = Math.max(30, startWidth - deltaX);
+          newHeight = Math.max(20, startHeight + deltaY);
           newX = startXPos + deltaX;
           break;
         case "left":
-          newWidth = Math.max(80, startWidth - deltaX);
+          newWidth = Math.max(30, startWidth - deltaX);
           newX = startXPos + deltaX;
           break;
       }
@@ -191,49 +235,41 @@ export default function DraggableTextPro({
   return (
     <div
       ref={nodeRef}
-      className="absolute select-none"
+      className="absolute"
       style={{
         left: `${data.x * scale}px`,
         top: `${data.y * scale}px`,
         transform: `rotate(${rotation}deg)`,
         transformOrigin: "center center",
-        zIndex: isSelected ? 100 : 10,
+        zIndex: isSelected || isEditing ? 100 : 10,
       }}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (!isSelected) onSelect(data.id);
-      }}
+      onMouseDown={handleDrag}
       onDoubleClick={(e) => {
         e.stopPropagation();
-        if (isSelected) setIsEditing(true);
+        setIsEditing(true);
       }}
     >
       <div
         className={`relative ${
-          isSelected ? "ring-1 ring-blue-400 cursor-move" : "hover:ring-1 hover:ring-blue-300 cursor-pointer"
-        } rounded-md transition-all`}
+          isSelected || isEditing 
+            ? "ring-2 ring-blue-500 shadow-md" 
+            : "hover:ring-1 hover:ring-blue-300 cursor-move"
+        } rounded-sm transition-all`}
         style={{
           width: `${textWidth}px`,
           height: `${textHeight}px`,
-          padding: "8px",
+          padding: "4px",
           backgroundColor: data.bgColor || "transparent",
           opacity: (data.opacity || 100) / 100,
-        }}
-        onMouseDown={(e) => {
-          if (!isEditing && isSelected) handleDrag(e);
         }}
       >
         {/* Editable Text */}
         {isEditing ? (
           <textarea
-            autoFocus
+            ref={textAreaRef}
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
-            onBlur={() => {
-              if (editText.trim()) onUpdate(data.id, { text: editText });
-              setIsEditing(false);
-            }}
-            className="w-full h-full bg-transparent outline-none resize-none"
+            className="w-full h-full bg-transparent outline-none resize-none overflow-hidden"
             style={{
               fontSize: data.fontSize,
               color: data.color,
@@ -242,11 +278,12 @@ export default function DraggableTextPro({
               fontStyle: data.italic ? "italic" : "normal",
               textDecoration: data.underline ? "underline" : "none",
               textAlign: data.align || "left",
+              lineHeight: "1.2",
             }}
           />
         ) : (
           <div
-            className="w-full h-full overflow-hidden select-none"
+            className="w-full h-full overflow-hidden select-none whitespace-pre-wrap break-words"
             style={{
               fontSize: data.fontSize,
               color: data.color,
@@ -255,15 +292,15 @@ export default function DraggableTextPro({
               fontStyle: data.italic ? "italic" : "normal",
               textDecoration: data.underline ? "underline" : "none",
               textAlign: data.align || "left",
-              wordWrap: "break-word",
+              lineHeight: "1.2",
             }}
           >
             {data.text || "Insert text"}
           </div>
         )}
 
-        {/* SELECTION HANDLES - Shared Component */}
-        {isSelected && !isEditing && (
+        {/* SELECTION HANDLES - Always show if selected */}
+        {isSelected && (
           <SelectionHandles
             rotation={rotation}
             onResize={handleResize}
