@@ -2,8 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Specific admin email - ONLY this email has admin access
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com';
+// Specific admin emails - ONLY these emails have admin access
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'hammadnooralam@gmail.com').split(',').map(email => email.trim());
 
 // Create admin client with service role
 const supabaseAdmin = createClient(
@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if email matches admin email AND role is admin
-    const isAdmin = profile.email === ADMIN_EMAIL && profile.role === 'admin';
+    // Check if email is in admin emails list AND role is admin
+    const isAdmin = ADMIN_EMAILS.includes(profile.email) && profile.role === 'admin';
 
     return NextResponse.json({
       isAdmin,
