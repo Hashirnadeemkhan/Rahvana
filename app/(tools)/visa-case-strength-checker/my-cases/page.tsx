@@ -152,117 +152,121 @@ export default function MyCases() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-gray-800 py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <header className="mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-primary/90">
+        <header className="mb-12 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3">
             My Visa Cases
           </h1>
-          <p className="mt-2 text-gray-600">
-            Track and manage all your visa case assessments
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Track and manage all your visa case assessments in one place
           </p>
         </header>
 
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-800">All Cases</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
+          <h2 className="text-2xl font-bold text-slate-800">All Cases</h2>
           <Button
             onClick={() => (window.location.href = "/visa-case-strength-checker")}
-            className="bg-primary hover:bg-primary/90 cursor-pointer"
+            className="bg-teal-600 hover:bg-teal-700 text-white py-5 px-6 text-lg"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-5 h-5 mr-2" />
             New Assessment
           </Button>
         </div>
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden text-center py-12">
-            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden text-center py-16">
+            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-6" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">
               Error Loading Cases
             </h3>
-            <p className="text-gray-500 mb-4">{error}</p>
+            <p className="text-lg text-gray-500 mb-6">{error}</p>
             <Button
               onClick={() => window.location.reload()}
-              className="bg-primary hover:bg-primary/90"
+              className="bg-teal-600 hover:bg-teal-700 text-white py-4 px-6 text-lg"
             >
               Try Again
             </Button>
           </div>
         ) : cases.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden text-center py-12">
-            <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden text-center py-16">
+            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-6" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">
               No cases found
             </h3>
-            <p className="text-gray-500">
+            <p className="text-lg text-gray-500 mb-8">
               You haven&apos;t submitted any visa case assessments yet.
             </p>
-            <div className="mt-6">
+            <div>
               <Button
                 onClick={() =>
                   (window.location.href = "/visa-case-strength-checker")
                 }
-                className="bg-primary hover:bg-primary/90"
+                className="bg-teal-600 hover:bg-teal-700 text-white py-4 px-6 text-lg"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-5 h-5 mr-2" />
                 Start Your First Assessment
               </Button>
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Case Type</TableHead>
-                    <TableHead>Submitted Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="border-b-2 border-slate-200">
+                    <TableHead className="text-lg font-bold text-slate-800 py-4">Case Type</TableHead>
+                    <TableHead className="text-lg font-bold text-slate-800 py-4">Submitted Date</TableHead>
+                    <TableHead className="text-lg font-bold text-slate-800 py-4">Status</TableHead>
+                    <TableHead className="text-lg font-bold text-slate-800 py-4 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
 
                 <TableBody>
                   {currentCases.map((userCase) => (
-                    <TableRow key={userCase.sessionId} className="hover:bg-gray-50">
-                      <TableCell>
+                    <TableRow key={userCase.sessionId} className="hover:bg-slate-50 border-b border-slate-100">
+                      <TableCell className="py-5">
                         <div className="flex items-center">
-                          <FileText className="w-5 h-5 text-primary/80 mr-2" />
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                            <FileText className="w-5 h-5 text-teal-600" />
+                          </div>
+                          <div className="text-base font-semibold text-slate-900">
                             {getCaseTypeLabel(userCase.caseType)}
                           </div>
                         </div>
                       </TableCell>
 
-                      <TableCell>
+                      <TableCell className="py-5">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                          <div className="text-sm text-gray-500">
+                          <div className="bg-slate-100 text-slate-800 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                            <Calendar className="w-4 h-4 text-slate-600" />
+                          </div>
+                          <div className="text-base text-slate-700">
                             {formatDate(userCase.createdAt)}
                           </div>
                         </div>
                       </TableCell>
 
-                      <TableCell>
-                        <RiskLevelBadge 
-                          riskLevel={userCase.riskLevel} 
+                      <TableCell className="py-5">
+                        <RiskLevelBadge
+                          riskLevel={userCase.riskLevel}
                           score={userCase.overallScore}
                         />
                       </TableCell>
 
-                      <TableCell className="text-right">
+                      <TableCell className="py-5 text-right">
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="lg"
                           onClick={() =>
                             (window.location.href = `/visa-case-strength-checker/result?sessionId=${userCase.sessionId}`)
                           }
-                          className="text-primary cursor-pointer hover:text-primary/90"
+                          className="text-teal-600 hover:text-teal-700 hover:bg-teal-50 border-slate-300 py-5 px-6 text-base"
                           disabled={!userCase.completed}
                         >
-                          <Eye className="w-4 h-4 mr-1" />
+                          <Eye className="w-5 h-5 mr-2" />
                           {userCase.completed ? "View Details" : "Incomplete"}
                         </Button>
                       </TableCell>
@@ -273,8 +277,8 @@ export default function MyCases() {
                 {/* Pagination - only show if there are cases and multiple pages */}
                 {cases.length > 0 && totalPages > 1 && (
                   <TableRow>
-                    <TableCell colSpan={4}>
-                      <div className="w-full flex justify-center py-4">
+                    <TableCell colSpan={4} className="py-6">
+                      <div className="w-full flex justify-center">
                         <Pagination
                           currentPage={currentPage}
                           totalItems={cases.length}
