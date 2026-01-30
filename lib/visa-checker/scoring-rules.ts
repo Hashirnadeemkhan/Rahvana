@@ -575,15 +575,21 @@ export class ScoringRules {
     const rawTotalScore =
       incomeScore + relationshipScore + documentScore + immigrationScore;
 
+    // Ensure score stays within database limits (DECIMAL(5,2) can handle up to 99.99)
+    // But we cap at 100 as per business logic
     const totalScore = Number.isFinite(rawTotalScore)
       ? Math.min(MAX_TOTAL_SCORE, Math.max(MIN_TOTAL_SCORE, rawTotalScore))
       : MIN_TOTAL_SCORE;
+    
+    // Ensure we never exceed 99.99 to prevent database overflow
+    // This handles edge cases where rounding might push us slightly over 100
+    const finalScore = Math.min(99.99, totalScore);
 
     // Determine risk level
     let riskLevel: "STRONG" | "MODERATE" | "WEAK";
-    if (totalScore > 80) {
+    if (finalScore > 80) {
       riskLevel = "STRONG";
-    } else if (totalScore > 50) {
+    } else if (finalScore > 50) {
       riskLevel = "MODERATE";
     } else {
       riskLevel = "WEAK";
@@ -635,14 +641,14 @@ export class ScoringRules {
     const summaryReasons: string[] = [];
     const improvementSuggestions: string[] = [];
 
-    if (totalScore <= 50) {
+    if (finalScore <= 50) {
       summaryReasons.push(
         "Your case has multiple high-impact issues that could significantly affect visa approval.",
       );
       improvementSuggestions.push(
         "Prioritize resolving high-risk items such as missing critical documents, financial eligibility, or relationship evidence before proceeding.",
       );
-    } else if (totalScore <= 80) {
+    } else if (finalScore <= 80) {
       summaryReasons.push(
         "Your case shows legitimate strengths, but some areas may raise questions during review.",
       );
@@ -659,7 +665,7 @@ export class ScoringRules {
     }
 
     return {
-      totalScore,
+      totalScore: finalScore,
       allRisks,
       riskLevel,
       summaryReasons,

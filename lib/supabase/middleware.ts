@@ -5,6 +5,9 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+// Specific admin emails - ONLY these emails have admin access
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'hammadnooralam@gmail.com').split(',').map(email => email.trim());
+
 // Create admin client with service role for checking admin status
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -102,9 +105,6 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    // Check if the user is actually an admin by checking their email
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com'
-
     // Get user profile to verify admin status
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -112,7 +112,7 @@ export async function updateSession(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (profileError || !profile || profile.email !== ADMIN_EMAIL) {
+    if (profileError || !profile || !ADMIN_EMAILS.includes(profile.email)) {
       // Redirect to unauthorized page or home if not an admin
       const url = request.nextUrl.clone()
       url.pathname = '/'
@@ -137,16 +137,13 @@ export async function updateSession(request: NextRequest) {
 
   // If user is authenticated and trying to access admin auth routes
   if (user && isAdminAuthRoute) {
-    // Check if the user is an admin to determine where to redirect
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com'
-
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('email')
       .eq('id', user.id)
       .single()
 
-    if (!profileError && profile && profile.email === ADMIN_EMAIL) {
+    if (!profileError && profile && ADMIN_EMAILS.includes(profile.email)) {
       // Admin user - redirect to admin panel
       const url = request.nextUrl.clone()
       url.pathname = '/admin'

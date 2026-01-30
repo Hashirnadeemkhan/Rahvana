@@ -1,0 +1,322 @@
+"use client";
+
+import { useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+export function MFASetup() {
+  const [step, setStep] = useState<"initial" | "qr" | "verify" | "complete">(
+    "initial",
+  );
+  const [qrCode, setQrCode] = useState<string>("");
+  const [secret, setSecret] = useState<string>("");
+  const [code, setCode] = useState<string>("");
+  const [factorId, setFactorId] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
+  const [disableOTP, setDisableOTP] = useState<string>("");
+
+  const { enableMFA, verifyMFASetup, disableMFASetup, listMFACheckFactors } =
+    useAuth();
+
+  const handleEnableMFA = async () => {
+    setLoading(true);
+    setError("");
+
+    const result = await enableMFA();
+
+    if (result.success && result.qrCode && result.secret && result.factorId) {
+      setQrCode(result.qrCode);
+      setSecret(result.secret);
+      setFactorId(result.factorId);
+      setStep("qr");
+    } else {
+      setError(result.error || "Failed to enable MFA");
+    }
+
+    setLoading(false);
+  };
+
+  const handleVerifyCode = async () => {
+    if (!code.trim() || !factorId) {
+      setError("Please enter the verification code");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await verifyMFASetup(factorId, code);
+
+      if (result.success) {
+        setStep("complete");
+      } else {
+        setError(result.error || "Invalid verification code");
+      }
+    } catch (err) {
+      setError("Failed to verify MFA setup");
+    }
+
+    setLoading(false);
+  };
+
+  const handleDisableMFA = async () => {
+    if (!disableOTP.trim()) {
+      setError("Please enter the authentication code");
+      return;
+    }
+
+    // Use the listMFACheckFactors function from auth context to get the factorId
+    const { totp } = await listMFACheckFactors();
+    let currentFactorId = factorId;
+
+    // If we don't have factorId from state, try to get it from the list of factors
+    if (!currentFactorId && totp && totp.length > 0) {
+      currentFactorId = totp[0].id;
+    }
+
+    if (!currentFactorId) {
+      setError("Unable to identify MFA factor to disable");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      // Call the disable API
+      const result = await disableMFASetup(currentFactorId, disableOTP);
+
+      if (result.success) {
+        // Close modal and reset state
+        setIsDisableModalOpen(false);
+        setDisableOTP("");
+        setError("");
+        // Reset the MFA setup to initial state
+        setStep("initial");
+      } else {
+        setError(result.error || "Failed to disable MFA");
+      }
+    } catch (err) {
+      setError("Failed to disable MFA");
+    }
+
+    setLoading(false);
+  };
+
+  if (step === "initial") {
+    return (
+      <Card className="p-6 max-w-md mx-auto">
+        <h2 className="text-xl font-bold mb-4">
+          Enable Two-Factor Authentication
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Add an extra layer of security to your account by enabling two-factor
+          authentication.
+        </p>
+
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <Button onClick={handleEnableMFA} disabled={loading} className="w-full">
+          {loading ? "Setting up..." : "Enable 2FA"}
+        </Button>
+
+        <div className="text-center">
+          <button
+            onClick={() => setIsDisableModalOpen(true)}
+            className="text-primary hover:underline text-sm cursor-pointer"
+          >
+            Disable 2FA
+          </button>
+        </div>
+
+        {/* Disable MFA Modal */}
+        {isDisableModalOpen && (
+          <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <h3 className="text-lg font-semibold mb-2">
+                Disable Two-Factor Authentication
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Enter your current 6-digit authentication code to disable 2FA.
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Authentication Code
+                  </label>
+                  <Input
+                    type="text"
+                    value={disableOTP}
+                    onChange={(e) => setDisableOTP(e.target.value)}
+                    placeholder="Enter 6-digit code"
+                    maxLength={6}
+                    disabled={loading}
+                  />
+                </div>
+
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsDisableModalOpen(false);
+                    setDisableOTP("");
+                    setError("");
+                  }}
+                  disabled={loading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDisableMFA}
+                  disabled={loading || disableOTP.length !== 6}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {loading ? "Disabling..." : "Disable 2FA"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Card>
+    );
+  }
+
+  if (step === "qr") {
+    return (
+      <Card className="p-6 mt-20 max-w-md mx-auto">
+        <h2 className="text-xl font-bold text-center">Scan QR Code</h2>
+        <p className="text-gray-600 font-medium">
+          Scan this QR code with Google Authenticator:
+        </p>
+
+        <div className="flex justify-center my-6">
+          <img
+            src={qrCode}
+            alt="Scan this QR code with your authenticator app"
+            className="border-4 border-teal-200 rounded-lg p-4 max-w-xs bg-white shadow-sm"
+          />
+        </div>
+
+        <div className="mb-6">
+          <p className="text-sm text-gray-600 font-medium mb-2">
+            If you can&apos;t scan the QR code, you can manually enter the
+            secret key below:
+          </p>
+
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex-1">
+              <div className="font-mono text-sm bg-gray-100 p-3 rounded border break-all">
+                {secret.match(/.{1,4}/g)?.join(" ")}
+              </div>
+            </div>
+            <button
+              onClick={(e) => {
+                navigator.clipboard.writeText(secret);
+                const button = e.currentTarget as HTMLButtonElement;
+                const originalText = button.textContent;
+                button.textContent = "Copied!";
+                setTimeout(() => {
+                  button.textContent = originalText;
+                }, 2000);
+              }}
+              className="p-3 bg-gray-200 cursor-pointer hover:bg-gray-300 rounded text-sm font-medium transition-colors"
+            >
+              Copy
+            </button>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Don&apos;t have Google Authenticator?
+            </p>
+            <div className="flex gap-4">
+              <a
+                href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium shadow-sm"
+              >
+                Download for Android
+              </a>
+              <a
+                href="https://apps.apple.com/us/app/google-authenticator/id388497605"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium shadow-sm"
+              >
+                Download for iOS
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              <span className="font-medium">Note:</span> Any TOTP-compatible
+              authenticator app will work.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <Input
+            placeholder="Enter 6-digit code"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            maxLength={6}
+          />
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button
+            onClick={handleVerifyCode}
+            disabled={loading || code.length !== 6 || !factorId}
+            className="w-full"
+          >
+            {loading ? "Verifying..." : "Verify Code"}
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  if (step === "complete") {
+    return (
+      <Card className="p-6 max-w-md mx-auto">
+        <h2 className="text-xl font-bold mb-4 text-green-600">
+          ✓ 2FA Enabled Successfully!
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Two-factor authentication has been enabled on your account.
+        </p>
+
+        <Button onClick={() => setStep("initial")} className="w-full">
+          Done
+        </Button>
+      </Card>
+    );
+  }
+
+  return null;
+}
