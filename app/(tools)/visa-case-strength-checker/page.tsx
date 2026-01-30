@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ResultPage } from "./result/ResultPage";
 
@@ -1298,11 +1297,6 @@ export default function VisaCaseStrengthChecker() {
               ...sessionData.answers,
             }));
 
-            const answeredQuestions = Object.keys(sessionData.answers).filter(
-              (key) =>
-                sessionData.answers[key] !== undefined &&
-                sessionData.answers[key] !== "",
-            ).length;
 
             setStep(0);
             // Scroll to top when restoring session
@@ -1378,7 +1372,9 @@ export default function VisaCaseStrengthChecker() {
           // Create updated form data with the new value
           const updatedFormData = { ...formData, [id]: value };
           // Filter out non-question fields before saving
-          const { caseType, ...answers } = updatedFormData;
+          const answers = Object.fromEntries(
+            Object.entries(updatedFormData).filter(([key]) => key !== 'caseType')
+          );
           const answersResponse = await fetch(
             `/api/visa-checker/session/${sessionId}/answers`,
             {
@@ -1442,7 +1438,9 @@ export default function VisaCaseStrengthChecker() {
           localStorage.setItem("visaCheckerSessionId", sessionResult.sessionId);
 
           // Save initial answers, excluding non-question fields
-          const { caseType, ...answers } = formData;
+          const answers = Object.fromEntries(
+            Object.entries(formData).filter(([key]) => key !== 'caseType')
+          );
           const answersResponse = await fetch(
             `/api/visa-checker/session/${sessionResult.sessionId}/answers`,
             {
@@ -1592,7 +1590,9 @@ export default function VisaCaseStrengthChecker() {
     if (sessionId) {
       try {
         // Filter out non-question fields before saving
-        const { caseType, ...answers } = formData;
+        const answers = Object.fromEntries(
+          Object.entries(formData).filter(([key]) => key !== 'caseType')
+        );
         const answersResponse = await fetch(
           `/api/visa-checker/session/${sessionId}/answers`,
           {
@@ -1632,7 +1632,9 @@ export default function VisaCaseStrengthChecker() {
     try {
       setLoading(true);
       // Force save all current answers
-      const { caseType, ...answers } = formData;
+      const answers = Object.fromEntries(
+        Object.entries(formData).filter(([key]) => key !== 'caseType')
+      );
       const answersResponse = await fetch(
         `/api/visa-checker/session/${sessionId}/answers`,
         {
@@ -1689,7 +1691,6 @@ export default function VisaCaseStrengthChecker() {
       );
 
       if (submitResponse.ok) {
-        const responseData = await submitResponse.json();
         // Remove the session from localStorage since it's now completed
         localStorage.removeItem("visaCheckerSessionId");
 

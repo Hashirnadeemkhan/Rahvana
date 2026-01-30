@@ -253,7 +253,7 @@ export function OrganizePagesModal({ isOpen, onClose }: OrganizePagesModalProps)
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="flex items-center justify-between border-b px-6 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white">
           <h2 className="text-2xl font-bold">Organize Pages</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-lg transition">
             <X className="w-6 h-6" />
@@ -286,7 +286,7 @@ export function OrganizePagesModal({ isOpen, onClose }: OrganizePagesModalProps)
                 onDrop={() => handleDrop(index)}
                 onClick={(e) => handleToggleSelect(index, e.shiftKey)}
                 className={cn(
-                  "relative group cursor-move rounded-lg overflow-hidden transition-all hover:scale-105 aspect-[3/4]",
+                  "relative group cursor-move rounded-lg overflow-hidden transition-all hover:scale-105 aspect-3/4",
                   selectedPages.has(index)
                     ? "ring-4 ring-blue-500 shadow-lg"
                     : "hover:shadow-lg border-2 border-gray-200",
