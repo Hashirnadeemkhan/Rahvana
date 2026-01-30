@@ -5,11 +5,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// Define type for payment details
-type PaymentDetails = {
-  sessionId: string;
-  // Add other properties as needed when fetching actual payment details from API
-};
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
