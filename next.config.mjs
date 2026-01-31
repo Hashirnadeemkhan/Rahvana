@@ -1,10 +1,22 @@
-// next.config.js
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config) => {
-    config.resolve.fallback = { canvas: false }
-    return config
+    config.resolve.alias.canvas = false;
+    config.resolve.fallback = { 
+      ...config.resolve.fallback,
+      canvas: false,
+    };
+    return config;
   },
-  turbopack: {},
-}
+  experimental: {
+    turbo: {
+      resolve: {
+        alias: {
+          canvas: './lib/empty.js',
+        },
+      },
+    },
+  },
+};
 
-export default nextConfig
+export default nextConfig;
