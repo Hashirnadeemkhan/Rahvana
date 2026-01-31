@@ -15,7 +15,7 @@ export default function Compress() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CompressionResult | null>(null);
   const [error, setError] = useState('');
-  const [apiUrl] = useState('http://localhost:8000'); // removed setApiUrl since unused
+  const [apiUrl] = useState('http://localhost:8000'); // Use the current origin for deployed version
 
   useEffect(() => {
     setMounted(true);

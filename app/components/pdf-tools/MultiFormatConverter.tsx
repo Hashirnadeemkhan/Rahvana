@@ -1,25 +1,42 @@
-"use client";
+'use client';
 
 import { useState, useRef } from "react";
-import { Upload, FileText, Loader2, Download, X, CheckCircle2 } from "lucide-react";
+import { Upload, FileText, Loader2, Download, X, CheckCircle2, AlertCircle, FileCheck } from "lucide-react";
+
+interface ConversionResult {
+  originalSize: number;
+  convertedSize: number;
+  reduction: string;
+}
 
 export default function PDFConverterApp() {
   const [file, setFile] = useState<File | null>(null);
   const [converting, setConverting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState<ConversionResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    if (selectedFile.size > maxSize) {
-      alert("File too large. Maximum size is 50MB");
+    const validExtensions = ['.txt', '.html', '.htm', '.md', '.markdown', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.docx'];
+    const fileExtension = '.' + selectedFile.name.toLowerCase().split('.').pop();
+
+    if (!validExtensions.includes(fileExtension)) {
+      setError('Unsupported file format. Please select a supported file type.');
+      return;
+    }
+
+    if (selectedFile.size > 100 * 1024 * 1024) {
+      setError('File is too large. Maximum size is 100MB');
       return;
     }
 
     setFile(selectedFile);
+    setError('');
+    setResult(null);
     setSuccess(false);
   };
 
@@ -27,6 +44,8 @@ export default function PDFConverterApp() {
     if (!file) return;
 
     setConverting(true);
+    setError('');
+    setResult(null);
     setSuccess(false);
 
     try {
@@ -67,164 +86,169 @@ export default function PDFConverterApp() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
+      // Calculate result stats
+      const originalSize = file.size;
+      const convertedSize = blob.size;
+      const reduction = originalSize > 0 ? ((originalSize - convertedSize) / originalSize * 100).toFixed(2) : '0';
+
+      setResult({
+        originalSize,
+        convertedSize,
+        reduction
+      });
+
       setSuccess(true);
       setTimeout(() => {
         setFile(null);
         setSuccess(false);
+        setError('');
+        setResult(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
       }, 3000);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Conversion failed";
-      alert(message);
+      setError(message);
     } finally {
       setConverting(false);
     }
   };
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const mb = bytes / 1024 / 1024;
+    if (mb < 1) {
+      const kb = bytes / 1024;
+      return kb.toFixed(2) + ' KB';
+    }
+    return mb.toFixed(2) + ' MB';
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-         
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
-            PDF Converter
-          </h1>
-          <p className="text-slate-600 text-lg">
-            Upload any file and convert it to PDF instantly
-          </p>
-        </div>
-
-        {/* Main Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-          {/* Upload Area */}
-          <div
-            onClick={() => !converting && fileInputRef.current?.click()}
-            className={`p-12 border-b border-slate-200 cursor-pointer transition-all ${
-              !file && !converting ? "hover:bg-slate-50" : ""
-            } ${converting ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".txt,.html,.htm,.md,.markdown,.jpg,.jpeg,.png,.webp,.gif,.bmp,.docx"
-              onChange={handleFileChange}
-              className="hidden"
-              disabled={converting}
-            />
-
-            {!file ? (
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-50 rounded-full mb-4">
-                  <Upload className="w-10 h-10 text-primary/90" />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">
-                  Drop your file here
-                </h3>
-                <p className="text-slate-500 mb-4">
-                  or click to browse
-                </p>
-                <p className="text-sm text-slate-400">
-                  Supports: Text, HTML, Markdown, Images, Word (DOCX)
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900 truncate max-w-xs">
-                      {file.name}
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      {formatFileSize(file.size)}
-                    </p>
-                  </div>
-                </div>
-                {!converting && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setFile(null);
-                      setSuccess(false);
-                      if (fileInputRef.current) fileInputRef.current.value = "";
-                    }}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5 text-slate-400" />
-                  </button>
-                )}
-              </div>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8 px-4">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-primary/90 p-10 text-white">
+            <h1 className="text-4xl md:text-5xl font-bold text-center mb-3">
+              Multi-Format PDF Converter
+            </h1>
+            <p className="text-center text-white/90 text-lg">
+              Convert various file formats to PDF instantly
+            </p>
           </div>
 
-          {/* Status Messages */}
-          {converting && (
-            <div className="px-12 py-6 bg-blue-50 border-b border-blue-100">
-              <div className="flex items-center gap-3">
-                <Loader2 className="w-5 h-5 text-primary/90 animate-spin" />
-                <div>
-                  <p className="font-medium text-blue-900">Converting to PDF...</p>
-                  <p className="text-sm text-primary/90">This may take a moment</p>
-                </div>
-              </div>
+          <div className="p-8 md:p-12">
+            {/* Upload Area */}
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Select File
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.html,.htm,.md,.markdown,.jpg,.jpeg,.png,.webp,.gif,.bmp,.docx"
+                onChange={handleFileChange}
+                className="hidden"
+                id="file-upload"
+                disabled={converting}
+              />
+              <label
+                htmlFor="file-upload"
+                className={`block border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+                  converting
+                    ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
+                    : 'border-primary/90 hover:border-primary/100 hover:bg-primary/10 cursor-pointer'
+                }`}
+              >
+                <Upload className={`mx-auto h-16 w-16 mb-3 ${file ? 'text-primary/90' : 'text-gray-400'}`} />
+                {file ? (
+                  <div>
+                    <p className="text-primary/90 font-semibold text-lg mb-1 truncate max-w-xs mx-auto">
+                      {file.name}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {formatBytes(file.size)}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      Click to change file
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-gray-700 font-medium mb-1">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Supports: Text, HTML, Markdown, Images, Word (DOCX) • Max 100MB
+                    </p>
+                  </div>
+                )}
+              </label>
             </div>
-          )}
 
-          {success && (
-            <div className="px-12 py-6 bg-green-50 border-b border-green-100">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="font-medium text-green-900">PDF downloaded successfully!</p>
-                  <p className="text-sm text-green-700">Ready for next file</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Convert Button */}
-          <div className="p-8">
+            {/* Convert Button */}
             <button
               onClick={handleConvert}
               disabled={!file || converting}
-              className="w-full bg-primary/90 hover:bg-primary disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-600/20 disabled:shadow-none"
+              className="w-full bg-primary/90 text-white py-4 rounded-xl font-semibold text-lg hover:bg-primary/100 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               {converting ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   Converting...
                 </>
               ) : (
                 <>
-                  <Download className="w-5 h-5" />
-                  Convert to PDF
+                  <Download className="mr-2 h-6 w-6" />
+                  Convert Now
                 </>
               )}
             </button>
-          </div>
-        </div>
 
-        {/* Features */}
-        <div className="grid grid-cols-3 gap-6 mt-10">
-          {["Fast", "Secure", "Free"].map((feature) => (
-            <div key={feature} className="text-center">
-              <div className="text-3xl font-bold text-primary/90 mb-1">{feature}</div>
-              <p className="text-sm text-slate-600">
-                {feature === "Fast" && "Instant conversion"}
-                {feature === "Secure" && "Server-side processing"}
-                {feature === "Free" && "No limits or signup"}
-              </p>
-            </div>
-          ))}
+            {/* Error Message */}
+            {error && (
+              <div className="mt-6 p-5 bg-red-50 border-l-4 border-red-500 rounded-lg">
+                <div className="flex items-start">
+                  <AlertCircle className="h-6 w-6 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-red-800 font-semibold mb-1">Error</h3>
+                    <p className="text-red-700 text-sm">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Success Result */}
+            {result && (
+              <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg shadow-sm">
+                <div className="flex items-center text-green-700 mb-4">
+                  <FileCheck className="h-6 w-6 mr-3" />
+                  <span className="font-bold text-lg">Conversion Successful!</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <p className="text-gray-500 text-xs font-medium mb-1">Original Size</p>
+                    <p className="text-gray-800 font-bold text-xl">{formatBytes(result.originalSize)}</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <p className="text-gray-500 text-xs font-medium mb-1">Converted Size</p>
+                    <p className="text-gray-800 font-bold text-xl">{formatBytes(result.convertedSize)}</p>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <p className="text-gray-500 text-xs font-medium mb-1">Space Saved</p>
+                  <div className="flex items-baseline">
+                    <p className="text-green-600 font-bold text-3xl">{result.reduction}%</p>
+                    <p className="text-gray-500 text-sm ml-2">
+                      ({formatBytes(result.originalSize - result.convertedSize)} saved)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

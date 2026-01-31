@@ -14,7 +14,7 @@ export function EditTextModal({ isOpen, onClose }: EditTextModalProps) {
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-6 flex items-center justify-between">
+        <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Lock className="w-6 h-6" />
             <div>
@@ -71,7 +71,7 @@ export function EditTextModal({ isOpen, onClose }: EditTextModalProps) {
           </div>
 
           {/* CTA */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-6 border border-blue-200">
+          <div className="bg-linear-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-6 border border-blue-200">
             <p className="text-sm text-gray-700">
               <span className="font-semibold text-blue-900">Pro tip:</span> Use the Add Text feature in the meantime
               to add new text elements to your PDF.

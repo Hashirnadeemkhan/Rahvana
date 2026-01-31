@@ -2,8 +2,8 @@
 import { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-// Specific admin email - ONLY this email can access admin panel
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khashir657@gmail.com';
+// Specific admin emails - ONLY these emails can access admin panel
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'hammadnooralam@gmail.com').split(',').map(email => email.trim());
 
 async function checkAdminRole(request: NextRequest) {
   const supabase = createServerClient(
@@ -28,7 +28,7 @@ async function checkAdminRole(request: NextRequest) {
     return { isAdmin: false, error: 'Authentication required' };
   }
 
-  if (user.email !== ADMIN_EMAIL) {
+  if (!user.email || !ADMIN_EMAILS.includes(user.email)) {
     return { isAdmin: false, error: 'Admin access required' };
   }
 
@@ -49,7 +49,7 @@ async function checkAdminRole(request: NextRequest) {
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   if (profileError) {
     console.error('Error fetching profile:', profileError);
