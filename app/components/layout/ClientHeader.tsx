@@ -27,5 +27,11 @@ export function ClientHeader() {
     }
   };
 
-  return <SiteHeader isSignedIn={!!user} onToggleAuth={handleAuthToggle} />;
+  return (
+    <SiteHeader
+      isSignedIn={!!user}
+      onToggleAuth={handleAuthToggle}
+      user={user}
+    />
+  );
 }
