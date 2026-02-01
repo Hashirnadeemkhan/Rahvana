@@ -15,12 +15,11 @@ const nextConfig = {
     };
     return config;
   },
-  experimental: {
-    turbo: {
-      resolve: {
-        alias: {
-          canvas: path.join(__dirname, 'lib/mock-canvas.js'),
-        },
+  // Use the new standard 'turbopack' key instead of 'experimental.turbo'
+  turbopack: {
+    resolve: {
+      alias: {
+        canvas: path.join(__dirname, 'lib/mock-canvas.js'),
       },
     },
   },
