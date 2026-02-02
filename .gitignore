@@ -190,9 +190,9 @@ __pycache__/
 nul
 
 # Images / temp
-*.jpg
-*.jpeg
-*.png
+# *.jpg
+# *.jpeg
+# *.png
 
 # ML Models
 *.pth
