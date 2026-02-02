@@ -55,7 +55,7 @@ export default function PricingSection() {
               </li>
             </ul>
             <Link
-              href="/dashboard"
+              href="/"
               className="block w-full px-6 py-4 rounded-lg bg-white border border-slate-200 font-bold hover:border-[#0d9488] transition-colors text-center"
             >
               Get Started Free
@@ -125,7 +125,7 @@ export default function PricingSection() {
             </div> */}
             <h3 className="text-xl font-bold mb-2">Rahvana Pro</h3>
             <div className="text-[24px] font-bold text-slate-500 my-4">
-            Coming Soon{" "}
+              Coming Soon{" "}
               <span className="text-sm text-slate-400 font-normal">
                 Expert Assistance
               </span>

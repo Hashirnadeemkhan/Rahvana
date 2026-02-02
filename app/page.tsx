@@ -17,6 +17,7 @@ import { useWizard } from "./(main)/dashboard/hooks/useWizard";
 import GetInTouch from "@/app/components/HomePage/GetInTouch";
 import Image from "next/image";
 import { StackedCarousel } from "./components/StackedCarousel";
+import Link from "next/link";
 
 const JOURNEYS = [
   // Family & Protection
@@ -581,7 +582,9 @@ function HomePageContent() {
     if (section === "contact") {
       setActiveSection("home");
       setTimeout(() => {
-        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("contact")
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
       return;
     }
@@ -650,19 +653,25 @@ function HomePageContent() {
                       ones.
                     </p>
                     <div className="flex flex-wrap gap-4 mb-10">
-                      <button
-                        onClick={handleStartJourney}
-                        className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
-                      >
-                        Begin Your Journey
-                        <Icons.ArrowRight className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleNavigate("journeys")}
-                        className="inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-slate-200 bg-white hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
-                      >
-                        Explore Journeys
-                      </button>
+                      <Link href={"/visa-category/ir-category"}>
+                        <button
+                          onClick={() => {}}
+                          className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                        >
+                          Begin Your Journey
+                          <Icons.ArrowRight className="w-5 h-5" />
+                        </button>
+                      </Link>
+                      <Link href={"/visa-category/ir-category"}>
+                        <button
+                          onClick={() => {
+                            // setActiveSection("journeys");
+                          }} //() => handleNavigate("journeys")
+                          className="inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-slate-200 bg-white hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
+                        >
+                          Explore Journeys
+                        </button>
+                      </Link>
                     </div>
                     <div className="flex flex-wrap gap-8">
                       {[
