@@ -148,7 +148,7 @@ export function SiteHeader({
         tools: "/?section=tools",
         pricing: "/pricing",
         dashboard: "/user-dashboard",
-        contact: "/contact",
+        contact: "/#contact",
         passport: "/passport",
         pdf: "/pdf-processing",
         signature: "/signature-image-processing",
@@ -361,10 +361,10 @@ export function SiteHeader({
             )} */}
 
             <Link
-              href="/contact"
+              href="/#contact"
               onClick={(e) => handleNav("contact", e)}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                isActive("contact", "/contact")
+                isActive("contact", "/#contact")
                   ? "bg-primary text-white shadow-md shadow-primary/20"
                   : "text-slate-600 hover:bg-slate-100 hover:text-primary"
               }`}

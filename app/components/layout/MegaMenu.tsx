@@ -87,7 +87,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="absolute top-full left-0 w-full max-w-[min(1100px,calc(100vw-2rem))] bg-white rounded-2xl shadow-2xl border border-slate-200/60 overflow-hidden z-50 mt-2 ml-4 lg:ml-0 overflow-y-auto max-h-[80vh] mb-10"
+      className="absolute top-full left-0 w-full max-w-[min(1100px,calc(100vw-2rem))] bg-white rounded-2xl shadow-2xl border border-slate-200/60 overflow-hidden z-50 -mt-4 ml-4 lg:ml-0 overflow-y-auto max-h-[80vh] mb-10"
     >
       <div className="flex flex-col">
         {/* Horizontal Tabs Header */}

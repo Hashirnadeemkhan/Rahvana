@@ -508,6 +508,22 @@ function HomePageContent() {
     if (section) {
       setActiveSection(section);
       window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // Default to "home" if no section param
+      setActiveSection("home");
+      // Handle hash navigation (e.g. #contact)
+      if (typeof window !== "undefined" && window.location.hash) {
+        const id = window.location.hash.substring(1);
+        setTimeout(() => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      } else {
+        // If no hash and no section, scroll to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
   }, [searchParams]);
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -562,6 +578,13 @@ function HomePageContent() {
   const { state, actions, isLoaded } = useWizard();
 
   const handleNavigate = (section: string) => {
+    if (section === "contact") {
+      setActiveSection("home");
+      setTimeout(() => {
+        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      return;
+    }
     setActiveSection(section);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -1142,6 +1165,7 @@ function HomePageContent() {
             {/* GET IN TOUCH */}
             {/* wrap in animation */}
             <motion.div
+              id="contact"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

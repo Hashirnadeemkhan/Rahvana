@@ -28,6 +28,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { VisaEligibilityTool } from "@/app/(tools)/visa-eligibility/components/VisaEligibilityTool";
 
 // Mock Data
 type Journey = {
@@ -1076,6 +1077,7 @@ export default function ExploreJourneys({
   const [videoModalJourney, setVideoModalJourney] = useState<Journey | null>(
     null,
   );
+  const [isVisaWizardOpen, setIsVisaWizardOpen] = useState(false);
 
   const [selectedStationKey, setSelectedStationKey] = useState<string>("uscis");
 
@@ -1124,12 +1126,20 @@ export default function ExploreJourneys({
               <Search className="w-5 h-5 text-primary" />
               Explore Filters
             </h3>
-            <button
-              onClick={() => setIsHelpOpen(true)}
-              className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
-            >
-              <HelpCircle className="w-4 h-4" /> Why these filters?
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setIsVisaWizardOpen(true)}
+                className="text-sm font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-full transition-colors flex items-center gap-2 border border-emerald-200"
+              >
+                <CheckCircle className="w-4 h-4" /> Check Best Visa
+              </button>
+              <button
+                onClick={() => setIsHelpOpen(true)}
+                className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+              >
+                <HelpCircle className="w-4 h-4" /> Why these filters?
+              </button>
+            </div>
           </div>
 
           <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
@@ -1234,6 +1244,17 @@ export default function ExploreJourneys({
                   Comparison table for selected visa journeys.
                 </DialogDescription>
               </DialogHeader>
+
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsVisaWizardOpen(true)}
+                  className="gap-2 bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 hover:text-emerald-800"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Not sure? Check Best Visa
+                </Button>
+              </div>
 
               <div className="mt-6 overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
@@ -1415,6 +1436,14 @@ export default function ExploreJourneys({
                     real video embed.
                   </p>
                 </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isVisaWizardOpen} onOpenChange={setIsVisaWizardOpen}>
+            <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 bg-transparent border-none shadow-none overflow-hidden">
+              <div className="w-full h-full bg-white rounded-xl overflow-hidden shadow-2xl">
+                <VisaEligibilityTool />
               </div>
             </DialogContent>
           </Dialog>
