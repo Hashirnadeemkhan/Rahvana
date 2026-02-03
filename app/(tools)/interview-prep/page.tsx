@@ -1072,6 +1072,37 @@ export default function InterviewPreparation() {
   // Check for existing session on component mount
   useEffect(() => {
     const checkExistingSession = async () => {
+      // Check for sessionId query parameter (for session revisit)
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionIdParam = urlParams.get('sessionId');
+      
+      if (sessionIdParam) {
+        try {
+          setLoading(true);
+          // Get email from localStorage or use a default for now
+          const userEmail = typeof window !== 'undefined' ? localStorage.getItem('userEmail') || 'test@example.com' : 'test@example.com';
+          const response = await fetch(
+            `/api/interview-prep/sessions/${sessionIdParam}?userEmail=${encodeURIComponent(userEmail)}`,
+          );
+          const sessionData = await response.json();
+
+          if (
+            response.ok &&
+            sessionData.session &&
+            sessionData.session.interview_prep_results
+          ) {
+            // Found a completed session, load results directly
+            setSessionId(sessionIdParam);
+            setGeneratedResults(sessionData.session.interview_prep_results.generated_questions);
+            setStep(questionnaireData ? questionnaireData.sections.length + 2 : 3); // Go directly to results page
+            return;
+          }
+        } catch (err) {
+          console.error("Error loading session for revisit:", err);
+        }
+      }
+
+      // Check for saved session in localStorage (for resume functionality)
       const savedSessionId = localStorage.getItem("interviewPrepSessionId");
 
       if (savedSessionId) {
@@ -1109,7 +1140,9 @@ export default function InterviewPreparation() {
       }
     };
 
-    checkExistingSession();
+    if (typeof window !== 'undefined') {
+      checkExistingSession();
+    }
   }, []);
 
   // Load questions from the JSON file
@@ -1603,7 +1636,11 @@ export default function InterviewPreparation() {
         <ResultPage
           sessionId={sessionId}
           results={generatedResults}
-          onRestart={() => setStep(0)}
+          onRestart={() => {
+            setStep(0);
+            setSessionId(null);
+            router.push('/interview-prep');
+          }}
         />
       );
     }
