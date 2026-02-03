@@ -377,14 +377,10 @@ const QuestionStep = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="bg-teal-600 text-white px-3 py-1 rounded font-semibold">
-          {title.substring(0, 3).toUpperCase()}
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-slate-900 mb-3">{title}</h2>
+        <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">{description}</p>
       </div>
-
-      <p className="text-slate-600 mb-6">{description}</p>
 
       <div className="space-y-6">
         {questions.map((question) => {
@@ -404,8 +400,13 @@ const QuestionStep = ({
         })}
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            {error}
+          <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
+            <div className="flex items-start">
+              <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
+            </div>
           </div>
         )}
 
@@ -1036,8 +1037,13 @@ const ReviewStep = ({
         )}
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            {error}
+          <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
+            <div className="flex items-start">
+              <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
+            </div>
           </div>
         )}
 
@@ -1551,6 +1557,8 @@ export default function InterviewPreparation() {
 
         // Increment step to show results on the same page
         setStep((prev) => prev + 1);
+        // Scroll to top when results appear
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         const errorData = await submitResponse.text();
         console.error("Submit response error:", errorData);
