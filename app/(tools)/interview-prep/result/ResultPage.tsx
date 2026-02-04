@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BookOpen, Info, Shuffle, Zap } from "lucide-react";
 import { InterviewPrepOutput, GeneratedQuestion } from "@/lib/interview-prep";
-import { RapidFireMode } from "../../../components/interview-prep/RapidFireMode";
 import { RapidFireModePage } from "../rapid-fire/RapidFireModePage";
 
 interface ResultPageProps {
@@ -399,15 +398,6 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
             </div>
           )}
         </div>
-
-        {/* Rapid Fire Mode Modal */}
-        {showRapidFire && (
-          <RapidFireMode
-            questions={questionsList}
-            onClose={handleRapidFireClose}
-            onScoreUpdate={handleRapidFireScoreUpdate}
-          />
-        )}
       </div>
     );
   }
