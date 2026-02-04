@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ResultPage } from "./result/ResultPage";
+import { createBrowserClient } from "@supabase/ssr";
+import { useAuth } from "@/app/context/AuthContext";
+import { mapProfileToVisaChecker, mapFormToProfile } from "@/lib/autoFill/mapper";
+import type { MasterProfile } from "@/types/profile";
 
 type CaseType = "Spouse";
 
@@ -457,6 +461,7 @@ interface ReviewStepProps {
   onSubmit: () => void;
   onBack: () => void;
   onSaveForLater?: () => void;
+  onSaveToProfile?: () => Promise<void>;
 }
 
 const ReviewStep = ({
@@ -466,6 +471,7 @@ const ReviewStep = ({
   onSubmit,
   onBack,
   onSaveForLater,
+  onSaveToProfile,
 }: ReviewStepProps) => {
   // Helper function to format boolean values
   const formatBoolean = (value: boolean | undefined) => {
@@ -493,6 +499,26 @@ const ReviewStep = ({
           Please review all the information you&apos;ve entered before submitting for analysis.
         </p>
       </div>
+
+
+        {/* Save to Profile Option */}
+        {onSaveToProfile && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="font-semibold text-blue-900">Sync with your Profile</h3>
+              <p className="text-sm text-blue-700 mt-1">
+                Save these details to your main profile to auto-fill future forms.
+              </p>
+            </div>
+            <Button 
+              onClick={onSaveToProfile}
+              variant="outline"
+              className="bg-white hover:bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap"
+            >
+              Update Main Profile
+            </Button>
+          </div>
+        )}
 
       <div className="space-y-8">
         {/* Case Type Section */}
@@ -1262,6 +1288,7 @@ const ReviewStep = ({
         </div>
       </div>
     </div>
+
   );
 };
 
@@ -1275,6 +1302,53 @@ export default function VisaCaseStrengthChecker() {
   const [saveNotification, setSaveNotification] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { user } = useAuth();
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
+  // Auto-fill profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+            const mappedData = mapProfileToVisaChecker(data.profile_details as MasterProfile);
+            
+            setFormData(prev => {
+                const newData = { ...prev };
+                let hasUpdates = false;
+                
+                Object.entries(mappedData).forEach(([key, value]) => {
+                    // Only auto-fill if the field is currently empty/undefined
+                    // This prevents overwriting what the user might have already typed if they revisit
+                    if (newData[key as keyof FormData] === undefined || newData[key as keyof FormData] === "") {
+                         (newData as { [k: string]: string | number | boolean | undefined })[key] = value;
+                         hasUpdates = true;
+                    }
+                });
+                
+                return hasUpdates ? newData : prev;
+            });
+            setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase]);
 
   // Check for existing session on component mount
   useEffect(() => {
@@ -1715,6 +1789,30 @@ export default function VisaCaseStrengthChecker() {
     }
   };
 
+  const handleSaveToProfile = async () => {
+     try {
+       setLoading(true);
+       const profileUpdate = mapFormToProfile(formData);
+       const { error } = await supabase
+         .from('user_profiles')
+         .upsert({
+           id: user?.id,
+           profile_details: profileUpdate,
+           updated_at: new Date().toISOString()
+         }, { onConflict: 'id' });
+
+       if (error) throw error;
+       
+       setSaveNotification("Main profile updated successfully!");
+       setTimeout(() => setSaveNotification(null), 3000);
+     } catch (err) {
+       console.error("Error updating profile:", err);
+       setError("Failed to update profile");
+     } finally {
+       setLoading(false);
+     }
+  };
+
   // Render the appropriate step
   const renderStep = () => {
     if (!questionnaireData) {
@@ -1787,6 +1885,7 @@ export default function VisaCaseStrengthChecker() {
             onSubmit={handleSubmit}
             onBack={prevStep}
             onSaveForLater={handleSaveForLater}
+            onSaveToProfile={user ? handleSaveToProfile : undefined}
           />
         )
       );

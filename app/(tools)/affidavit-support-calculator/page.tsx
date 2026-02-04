@@ -232,6 +232,11 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
 // COMPONENT
 // ============================================================================
 
+import { useAuth } from "@/app/context/AuthContext";
+import { createBrowserClient } from "@supabase/ssr";
+import { mapProfileToGenericForm } from "@/lib/autoFill/mapper";
+import { MasterProfile } from "@/types/profile";
+
 export default function AffidavitSupportCalculator() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -258,6 +263,55 @@ export default function AffidavitSupportCalculator() {
     usedHouseholdRelationships: [],
     usedJointSponsorRelationships: [],
   });
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Auto-fill profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+          const profile = data.profile_details as MasterProfile;
+
+          // Map profile data to form structure
+          const mappedData = mapProfileToGenericForm(profile, {
+            sponsorStatus: formData.sponsorStatus,
+            isMilitary: formData.isMilitary,
+            isMarried: formData.isMarried,
+            numberOfChildren: formData.numberOfChildren,
+            taxDependents: formData.taxDependents,
+            hasPreviousSponsorship: formData.hasPreviousSponsorship,
+            previousSponsoredCount: formData.previousSponsoredCount,
+            annualIncome: formData.annualIncome,
+            assetValue: formData.assetValue,
+            relationshipToApplicant: formData.relationshipToApplicant,
+          });
+
+          setFormData(prev => ({
+            ...prev,
+            ...mappedData
+          }));
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase, formData]);
 
   const [result, setResult] = useState<CalculatorResult | null>(null);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});

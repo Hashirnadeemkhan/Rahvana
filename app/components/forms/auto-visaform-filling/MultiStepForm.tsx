@@ -8,6 +8,10 @@ import { FormStep } from "./FormStep";
 import { ReviewPage } from "./ReviewPage";
 import type { Field as ConfigField } from "@/lib/formConfig/types";
 import { Menu, X } from "lucide-react";
+import { createBrowserClient } from "@supabase/ssr";
+import { useAuth } from "@/app/context/AuthContext";
+import { autoFillForm } from "@/lib/autoFill/mapper";
+import type { MasterProfile } from "@/types/profile";
 
 type ViewType = "form" | "review";
 
@@ -20,14 +24,52 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [view, setView] = useState<ViewType>("form");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { user } = useAuth();
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   // Hooks must always run in the same order
   const config = useMemo(() => getFormConfig(formCode), [formCode]);
 
   // Load initial form data
+
   useEffect(() => {
     if (config) setFormData(config.getInitialFormData());
   }, [config]);
+
+  // Auto-fill from user profile
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user || profileLoaded) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details) {
+           setFormData(prev => {
+             // Use current form structure as template for auto-fill
+             const autoData = autoFillForm(data.profile_details as MasterProfile, prev);
+             return {
+               ...prev,
+               ...autoData // Merge auto-filled data on top of defaults
+             };
+           });
+           setProfileLoaded(true);
+        }
+
+      } catch (err) {
+        console.error("Auto-fill error:", err);
+      }
+    };
+    loadProfile();
+  }, [user, profileLoaded, supabase]);
 
   const sections = useMemo(() => {
     if (!config) return [];

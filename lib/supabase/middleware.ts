@@ -56,12 +56,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Define protected routes (user must be logged in)
-  const protectedRoutes = [
-   
+// Define protected routes (must be logged in)
+const protectedRoutes = [
+  '/dashboard',
+  '/complete-profile',
     '/profile',
     '/settings',
-  ]
+]
 
   // Define admin routes (must be logged in as admin)
   const adminRoutes = ['/admin']
@@ -131,7 +132,7 @@ export async function updateSession(request: NextRequest) {
   // If user is authenticated and trying to access auth routes
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/complete-profile'
     return NextResponse.redirect(url)
   }
 

@@ -167,6 +167,7 @@ export function SiteHeader({
         "courier-registration": "/courier-registration",
         "custom-requirements": "/custom-requirements",
         "interview-prep": "/interview-prep",
+        profile : "/profile"
       };
 
       const targetRoute = routes[id] || "/";
@@ -1255,7 +1256,14 @@ export function SiteHeader({
                     {/* Section 2 */}
                     <div className="py-2 border-b border-gray-50">
                       <button
-                        onClick={() => {}} // Placeholder
+                        onClick={() => handleNav("profile")}
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                      >
+                        <UserIcon className="w-4 h-4" />
+                        My Profile
+                      </button>
+                      <button
+                        onClick={() => handleNav("settings")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Settings className="w-4 h-4" />

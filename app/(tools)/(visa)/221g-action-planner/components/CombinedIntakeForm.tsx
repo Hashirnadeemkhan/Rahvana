@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import Actual221GFormChecker from "./Actual221GFormChecker"
 import { FormData, FormSelections } from "../types/221g"
+import { mapProfileToGenericForm } from "@/lib/autoFill/mapper"
+import { MasterProfile } from "@/types/profile"
+import { useAuth } from "@/app/context/AuthContext"
+import { createBrowserClient } from "@supabase/ssr"
 
 interface CombinedIntakeFormProps {
   onSubmit: (data: FormData, selectedItems: FormSelections) => void;
@@ -67,6 +71,52 @@ export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps
   })
   const [selected221gItems, setSelected221gItems] = useState<FormSelections>({})
   const [showFormChecker, setShowFormChecker] = useState(false)
+  const [profileLoaded, setProfileLoaded] = useState(false)
+  const { user } = useAuth()
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  // Auto-fill profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+          const profile = data.profile_details as MasterProfile;
+
+          // Map profile data to form structure
+          const mappedData = mapProfileToGenericForm(profile, {
+            visaType: formData.visaType,
+            visaTypeOther: formData.visaTypeOther,
+            interviewDate: formData.interviewDate,
+            embassy: formData.embassy,
+            embassyOther: formData.embassyOther,
+            caseNumber: formData.caseNumber,
+            additionalNotes: formData.additionalNotes,
+          });
+
+          setFormData(prev => ({
+            ...prev,
+            ...mappedData
+          }));
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase, formData]);
 
   const steps = [
     { id: 0, title: "Visa Details", description: "Basic information about your visa application" },
