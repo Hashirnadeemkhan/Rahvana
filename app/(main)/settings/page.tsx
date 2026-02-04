@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/app/context/AuthContext";
@@ -32,21 +31,10 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login');
-      return;
-    }
-
-    if (user) {
-      fetchSettings();
-    }
-  }, [user, isLoading, router]);
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Fetch user settings from database
       const { data, error } = await supabase
         .from('user_settings')
@@ -56,14 +44,17 @@ export default function SettingsPage() {
 
       if (error) {
         // If no settings exist yet, use defaults
-        console.error('Error fetching settings:', error);
+        // Check if it's a "Row not found" error (which is normal for new users)
+        if (error.message && !error.message.toLowerCase().includes('not found')) {
+          console.warn('Error fetching settings:', error);
+        }
       } else if (data) {
         setNotifications({
           email: data.email_notifications || true,
           sms: data.sms_notifications || false,
           push: data.push_notifications || true
         });
-        
+
         setAccountSettings({
           twoFactorEnabled: data.two_factor_enabled || false,
           autoBackup: data.auto_backup || true
@@ -74,7 +65,18 @@ export default function SettingsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabase, user?.id]);
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login');
+      return;
+    }
+
+    if (user) {
+      fetchSettings();
+    }
+  }, [user, isLoading, router, fetchSettings]);
 
   const handleNotificationChange = (type: string) => {
     setNotifications(prev => ({
@@ -98,7 +100,7 @@ export default function SettingsPage() {
       // Save settings to database
       const { error } = await supabase
         .from('user_settings')
-        .upsert({
+        .upsert([{
           user_id: user?.id,
           email_notifications: notifications.email,
           sms_notifications: notifications.sms,
@@ -106,7 +108,7 @@ export default function SettingsPage() {
           two_factor_enabled: accountSettings.twoFactorEnabled,
           auto_backup: accountSettings.autoBackup,
           updated_at: new Date().toISOString()
-        }, { onConflict: ['user_id'] });
+        }], { onConflict: 'user_id' });
 
       if (error) {
         throw error;

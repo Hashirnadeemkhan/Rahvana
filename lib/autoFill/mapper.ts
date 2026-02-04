@@ -98,50 +98,58 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
  * Access a nested property safely using dot notation string
  * e.g. getNestedProperty(profile, 'name.first')
  */
-function getNestedProperty(obj: any, path: string): any {
-  return path.split('.').reduce((prev, curr) => prev ? prev[curr] : undefined, obj);
+function getNestedProperty(obj: Record<string, unknown>, path: string): unknown {
+  const keys = path.split('.');
+  let current: unknown = obj;
+
+  for (const key of keys) {
+    if (isObject(current)) {
+      current = current[key];
+    } else {
+      return undefined;
+    }
+  }
+
+  return current;
 }
 
 /**
  * Set a nested property safely using dot notation string
  * Creates intermediate objects if they don't exist
  */
-function setNestedProperty(obj: any, path: string, value: any): void {
-  const keys = path.split('.');
-  let current = obj;
-  
-  for (let i = 0; i < keys.length - 1; i++) {
-    const key = keys[i];
-    if (!current[key]) {
-      current[key] = {};
-    }
-    current = current[key];
-  }
-  
-  current[keys[keys.length - 1]] = value;
+function isObject(obj: unknown): obj is Record<string, unknown> {
+  return obj !== null && typeof obj === 'object';
 }
 
-/**
- * Safe getter that handles different types and returns appropriate form value
- */
-function cleanValueForForm(value: any): string | number | boolean | undefined {
-  if (value === null || value === undefined) return undefined;
-  return value;
+function setNestedProperty(obj: Record<string, unknown>, path: string, value: unknown): void {
+  const keys = path.split('.');
+  let current: Record<string, unknown> = obj as Record<string, unknown>;
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i];
+    if (current[key] == null || typeof current[key] !== 'object') {
+      current[key] = {};
+    }
+    current = current[key] as Record<string, unknown>;
+  }
+
+  const lastKey = keys[keys.length - 1];
+  current[lastKey] = value;
 }
 
 /**
  * UNIVERSAL AUTO-FILL FUNCTION
  * Maps profile data to ANY form structure using the registry.
- * 
+ *
  * @param profile - The user's master profile
  * @param formStructure - The target form's initial state (keys determine what we look for)
  * @returns Updated form data with autofilled values
  */
 export const autoFillForm = (
   profile: MasterProfile | Partial<MasterProfile>,
-  formStructure: Record<string, any>
-): Record<string, any> => {
-  const updatedForm = { ...formStructure };
+  formStructure: Record<string, unknown>
+): Record<string, unknown> => {
+  const updatedForm = { ...formStructure } as Record<string, unknown>;
 
   // 1. Iterate through each field in the target form
   for (const formFieldKey of Object.keys(updatedForm)) {
@@ -151,13 +159,13 @@ export const autoFillForm = (
     }
 
     // 2. Find matching Profile Path from Registry
-    let foundValue: any = undefined;
+    let foundValue: unknown = undefined;
 
     for (const [profilePath, variations] of Object.entries(FIELD_MAPPINGS)) {
       if (variations.includes(formFieldKey)) {
         // Found a match! Get value from profile
-        foundValue = getNestedProperty(profile, profilePath);
-        
+        foundValue = getNestedProperty(profile as Record<string, unknown>, profilePath);
+
         // Special Handling for Income (strip non-numeric if target likely expects number or clean string)
         if (profilePath === 'annualIncome' && foundValue) {
            const clean = String(foundValue).replace(/[^0-9.]/g, "");
@@ -182,10 +190,10 @@ export const autoFillForm = (
  * Allows saving data from any tool back to the central profile.
  */
 export const mapFormToProfile = (
-  formData: Record<string, any>,
+  formData: Record<string, unknown>,
   existingProfile: Partial<MasterProfile> = {}
 ): Partial<MasterProfile> => {
-  const newProfile = { ...existingProfile }; // Shallow copy base
+  const newProfile = { ...existingProfile } as Record<string, unknown>; // Shallow copy base
 
   for (const [formKey, formValue] of Object.entries(formData)) {
     if (formValue === undefined || formValue === "" || formValue === null) continue;
@@ -195,15 +203,15 @@ export const mapFormToProfile = (
       if (variations.includes(formKey)) {
         // Special constraint: Don't overwrite complex objects with simple strings if not intended
         // But our paths are leaf nodes mainly, so safeMap is okay.
-        
+
         // Map value based on expected type (basic inference)
         setNestedProperty(newProfile, profilePath, formValue);
-        break; 
+        break;
       }
     }
   }
 
-  return newProfile;
+  return newProfile as Partial<MasterProfile>;
 };
 
 /**
@@ -214,13 +222,13 @@ export const mapProfileToGenericForm = autoFillForm;
 /**
  * Specialized wrapper for Visa Checker to maintain strict typing if needed
  */
-export const mapProfileToVisaChecker = (profile: MasterProfile | Partial<MasterProfile>): any => {
+export const mapProfileToVisaChecker = (profile: MasterProfile | Partial<MasterProfile>): Record<string, unknown> => {
   // Just use the generic auto-filler against a mapped structure logic
   // Since the visa checker expects a specific return type, we can infer it or just return Record<string, any>
   // The original function did specific logic, but our generic one covers 90%
   // We will re-implement the specific logic using the new system for safety
-  
-  const dummyFormStruct = {
+
+  const dummyFormStruct: Record<string, unknown> = {
      sponsor_dob: "",
      country_of_residence: "",
      intended_us_state_of_residence: "",
@@ -255,7 +263,7 @@ export const mapProfileToVisaChecker = (profile: MasterProfile | Partial<MasterP
      communication_logs: false,
      money_transfer_receipts_available: false,
      driving_license_copy_available: false, // meeting proof
-     
+
      // Docs
      urdu_marriage_certificate: false,
      english_translation_certificate: false,

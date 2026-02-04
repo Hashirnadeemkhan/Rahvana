@@ -10,7 +10,6 @@ import { MasterProfile } from "@/types/profile";
 import { ChevronDown, Loader2, Pencil, Check, X } from "lucide-react";
 import { getProfileCompleteness } from "@/lib/profile/helpers";
 import { FormField, FormSelect, FormCheckbox } from "./form-field";
-import { mapProfileToGenericForm } from "@/lib/autoFill/mapper";
 
 export default function ProfilePage() {
   const { user, isLoading } = useAuth();

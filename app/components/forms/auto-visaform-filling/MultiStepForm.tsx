@@ -55,7 +55,7 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
         if (data?.profile_details) {
            setFormData(prev => {
              // Use current form structure as template for auto-fill
-             const autoData = autoFillForm(data.profile_details as MasterProfile, prev);
+             const autoData = autoFillForm(data.profile_details as MasterProfile, prev) as Record<string, string>;
              return {
                ...prev,
                ...autoData // Merge auto-filled data on top of defaults

@@ -167,7 +167,8 @@ export function SiteHeader({
         "courier-registration": "/courier-registration",
         "custom-requirements": "/custom-requirements",
         "interview-prep": "/interview-prep",
-        profile : "/profile"
+        profile : "/profile",
+        settings: "/settings"
       };
 
       const targetRoute = routes[id] || "/";
