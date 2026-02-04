@@ -3,6 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ToggleSwitch } from "@/app/components/interview-prep/ToggleSwitch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ResultPage } from "./result/ResultPage";
 import { createBrowserClient } from "@supabase/ssr";
@@ -181,6 +189,38 @@ const CaseTypeStep = ({
           Coming Soon
         </span>
       </div>
+
+      {/* COMING SOON: K1 */}
+      <div
+        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
+      >
+        <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <h3 className="font-bold text-xl mb-2 text-slate-500">K1 Visa</h3>
+        <p className="text-base text-slate-500">K1 – Fiance(e) of US Citizen</p>
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-600">
+          Coming Soon
+        </span>
+      </div>
+
+      {/* COMING SOON: B1/B2 */}
+      <div
+        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
+      >
+        <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 className="font-bold text-xl mb-2 text-slate-500">B1/B2 Visa</h3>
+        <p className="text-base text-slate-500">B1 / B2 – Visitor Visa</p>
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-600">
+          Coming Soon
+        </span>
+      </div>
     </div>
 
     {error && (
@@ -294,50 +334,32 @@ const QuestionStep = ({
         );
       case "boolean":
         return (
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id={`${question.id}-yes`}
-                name={question.id}
-                checked={value === true}
-                onChange={() => onChange(question.id, true)}
-                className="h-5 w-5 text-teal-600 border-slate-300 focus:ring-teal-500"
-              />
-              <label htmlFor={`${question.id}-yes`} className="text-lg font-medium text-slate-700">
-                Yes
-              </label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id={`${question.id}-no`}
-                name={question.id}
-                checked={value === false}
-                onChange={() => onChange(question.id, false)}
-                className="h-5 w-5 text-teal-600 border-slate-300 focus:ring-teal-500"
-              />
-              <label htmlFor={`${question.id}-no`} className="text-lg font-medium text-slate-700">
-                No
-              </label>
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-semibold text-slate-800">{question.label}</span>
+            <ToggleSwitch
+              checked={!!value}
+              onChange={(checked) => onChange(question.id, checked)}
+            />
           </div>
         );
       case "select":
         if (Array.isArray(question.options)) {
           return (
-            <select
+            <Select 
               value={typeof value === "string" ? value : ""}
-              onChange={(e) => onChange(question.id, e.target.value)}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+              onValueChange={(newValue) => onChange(question.id, newValue)}
             >
-              <option value="">Select an option</option>
-              {question.options.map((option: string) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full h-14">
+                <SelectValue placeholder={`Select ${question.label.toLowerCase()}`} />
+              </SelectTrigger>
+              <SelectContent>
+                {question.options.map((option: string) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           );
         }
         return null;
@@ -405,9 +427,11 @@ const QuestionStep = ({
 
           return (
             <div key={question.id} className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <label className="block text-lg font-semibold text-slate-800">
-                {modifiedQuestion.label}
-              </label>
+              {question.type !== "boolean" && (
+                <label className="block text-lg font-semibold text-slate-800">
+                  {modifiedQuestion.label}
+                </label>
+              )}
               {renderInput(modifiedQuestion)}
             </div>
           );
@@ -1577,10 +1601,7 @@ export default function VisaCaseStrengthChecker() {
           }
 
           if (question.type === "boolean") {
-            if (fieldValue === undefined || fieldValue === null) {
-              setError(`Please select an option for: ${question.label}`);
-              return;
-            }
+            // Skip validation for boolean questions since false/unselected is a valid state
           } else if (question.type === "select") {
             if (
               fieldValue === undefined ||

@@ -29,6 +29,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { VisaEligibilityTool } from "@/app/(tools)/visa-eligibility/components/VisaEligibilityTool";
+import Link from "next/link";
 
 // Mock Data
 type Journey = {
@@ -1801,9 +1802,11 @@ export default function ExploreJourneys({
 
                 {/* Footer Actions */}
                 <div className="p-6 border-t border-slate-100 flex items-center gap-3 bg-slate-50/50">
-                  <Button className="bg-teal-700 hover:bg-teal-800 text-white shadow-sm shadow-teal-900/10">
-                    Start Journey
-                  </Button>
+                  <Link href="/visa-category/ir-category/ir1-journey">
+                    <Button className="bg-teal-700 hover:bg-teal-800 text-white shadow-sm shadow-teal-900/10">
+                      Start Journey
+                    </Button>
+                  </Link>
                   <Button
                     onClick={() => setIsQuickRoadmapOpen(true)}
                     variant="outline"
@@ -2002,16 +2005,18 @@ function JourneyCard({
       {/* Action Buttons (Only Visible/Highligted when active or hover? Design implies they are always there or show on active) */}
       {/* We'll show them always to match the 'card' look, maybe slightly faded if inactive? */}
       <div className="flex items-center flex-wrap gap-3">
-        <Button
-          className={cn(
-            "h-9 px-4 rounded-lg font-medium shadow-none transition-colors",
-            // isActive
-            "bg-teal-700 text-white hover:bg-teal-800",
-            // : "bg-slate-900 text-white hover:bg-slate-800",
-          )}
-        >
-          Start Journey
-        </Button>
+        <Link href="/visa-category/ir-category/ir1-journey">
+          <Button
+            className={cn(
+              "h-9 px-4 rounded-lg font-medium shadow-none transition-colors",
+              // isActive
+              "bg-teal-700 text-white hover:bg-teal-800",
+              // : "bg-slate-900 text-white hover:bg-slate-800",
+            )}
+          >
+            Start Journey
+          </Button>
+        </Link>
         <Button
           variant="outline"
           className={cn(
