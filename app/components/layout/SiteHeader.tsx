@@ -900,6 +900,14 @@ export function SiteHeader({
                           href: "/visa-eligibility",
                           badge: "Live",
                         },
+                        {
+                          icon: <ShieldCheck className="h-5 w-5" />,
+                          title: "InterviewIQ",
+                          description:
+                            "Prepare smarter and deliver confident answers when it matters most.",
+                          href: "/interview-prep",
+                          badge: "Live",
+                        },
                       ],
                     },
                     {
