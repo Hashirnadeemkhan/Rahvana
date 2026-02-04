@@ -1120,8 +1120,7 @@ export default function VisaFormSelector() {
               </div> */}
 
               {/* Features */}
-              {/* Features */}
-              <div className="bg-linear-to-br from-primary/5 to-primary/10 rounded-xl shadow-sm border border-primary/20 overflow-hidden">
+              {/* <div className="bg-linear-to-br from-primary/5 to-primary/10 rounded-xl shadow-sm border border-primary/20 overflow-hidden">
                 <button
                   onClick={() => setIsFeaturesOpen(!isFeaturesOpen)}
                   className="w-full flex items-center justify-between p-6 text-left"
@@ -1171,7 +1170,7 @@ export default function VisaFormSelector() {
                     </ul>
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </main>
           {/* Form Detail Modal / Drawer */}
