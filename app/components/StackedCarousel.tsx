@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "lucide-react";
+import HydrationSafeButton from "./HydrationSafeButton";
 
 interface Journey {
   category: string;
@@ -79,19 +80,19 @@ export const StackedCarousel = ({
   return (
     <div className="relative w-full max-w-4xl mx-auto h-[450px] flex items-center justify-center">
       {/* Navigation Buttons */}
-      <button
+      <HydrationSafeButton
         onClick={handlePrev}
         className="absolute left-4 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-600 hover:text-rahvana-primary hover:border-rahvana-primary transition-all"
       >
         <Icons.ChevronLeft className="w-6 h-6" />
-      </button>
+      </HydrationSafeButton>
 
-      <button
+      <HydrationSafeButton
         onClick={handleNext}
         className="absolute right-4 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-600 hover:text-rahvana-primary hover:border-rahvana-primary transition-all"
       >
         <Icons.ChevronRight className="w-6 h-6" />
-      </button>
+      </HydrationSafeButton>
 
       {/* Cards Container */}
       <div className="relative w-[350px] h-[400px]">
@@ -149,7 +150,7 @@ export const StackedCarousel = ({
                     </span>
                   )}
 
-                  <button
+                  <HydrationSafeButton
                     onClick={(e) => {
                       e.stopPropagation();
                       if (journey.live) {
@@ -165,7 +166,7 @@ export const StackedCarousel = ({
                     }`}
                   >
                     {journey.live ? "Start Journey" : "Notify Me"}
-                  </button>
+                  </HydrationSafeButton>
                 </div>
               </motion.div>
             );

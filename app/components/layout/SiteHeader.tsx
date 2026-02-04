@@ -56,25 +56,45 @@ const HydrationSafeButton = (
   },
 ) => {
   const { className, ...rest } = props;
+
+  // Filter out problematic attributes that might be added by extensions
+  const filteredRest = { ...rest };
+  const extensionAttributes = ['fdprocessedid', 'data-extension', 'data-extension-id'];
+  extensionAttributes.forEach(attr => {
+    if (filteredRest[attr as keyof typeof filteredRest]) {
+      delete filteredRest[attr as keyof typeof filteredRest];
+    }
+  });
+
   return (
     <button
-      {...rest}
+      {...filteredRest}
       className={className}
-      // <-- THIS IS THE KEY LINE
       suppressHydrationWarning={true}
     />
   );
 };
 
 // --------------------------------------------------------------------------
-//  Global clean-up – runs once, removes any fdprocessedid attrs
+//  Global clean-up – runs once, removes any extension-injected attrs
 // --------------------------------------------------------------------------
 const useExtensionCleanup = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      document
-        .querySelectorAll("[fdprocessedid]")
-        .forEach((el) => el.removeAttribute("fdprocessedid"));
+      // Remove common attributes added by browser extensions
+      const extensionAttrs = [
+        "fdprocessedid",
+        "data-extension",
+        "data-extension-id",
+        "_moz-generated-content-before",
+        "_moz-generated-content-after"
+      ];
+
+      extensionAttrs.forEach(attr => {
+        document
+          .querySelectorAll(`[${attr}]`)
+          .forEach((el) => el.removeAttribute(attr));
+      });
     }, 0);
     return () => clearTimeout(timer);
   }, []);
@@ -262,7 +282,7 @@ export function SiteHeader({
               onMouseEnter={() => handleMenuEnter("journeys")}
               onMouseLeave={handleMenuLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "journeys"
                     ? "bg-slate-100 text-primary"
@@ -273,7 +293,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${activeMenu === "journeys" ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
             </div>
 
             {/* Toolbox */}
@@ -282,7 +302,7 @@ export function SiteHeader({
               onMouseEnter={() => handleMenuEnter("tools")}
               onMouseLeave={handleMenuLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "tools"
                     ? "bg-slate-100 text-primary"
@@ -293,7 +313,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${activeMenu === "tools" ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
             </div>
 
             {/* Guides */}
@@ -302,7 +322,7 @@ export function SiteHeader({
               onMouseEnter={() => handleMenuEnter("guides")}
               onMouseLeave={handleMenuLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "guides"
                     ? "bg-slate-100 text-primary"
@@ -313,7 +333,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${activeMenu === "guides" ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
             </div>
 
             {/* Services */}
@@ -322,7 +342,7 @@ export function SiteHeader({
               onMouseEnter={() => handleMenuEnter("services")}
               onMouseLeave={handleMenuLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "services"
                     ? "bg-slate-100 text-primary"
@@ -333,7 +353,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${activeMenu === "services" ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
             </div>
 
             <Link
