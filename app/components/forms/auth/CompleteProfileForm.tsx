@@ -155,6 +155,7 @@ export default function CompleteProfileForm() {
             naturalizationInfo: formData.naturalizationInfo,
             father: formData.father,
             mother: formData.mother,
+            visaEligibility: formData.visaEligibility,
           });
 
           setFormData(prev => ({
@@ -271,6 +272,17 @@ export default function CompleteProfileForm() {
                 { value: "Separated", label: "Separated" },
                 { value: "Annulled", label: "Annulled" },
               ]}
+            />
+            <FormSelect
+              label="U.S. Citizenship Status"
+              value={formData.citizenshipStatus || "Other"}
+              onChange={(v) => handleChange("citizenshipStatus", v)}
+              options={[
+                { value: "USCitizen", label: "U.S. Citizen" },
+                { value: "LPR", label: "Legal Permanent Resident (Green Card)" },
+                { value: "Other", label: "Other / None" },
+              ]}
+              helpText="Your current legal status in the United States"
             />
           </div>
 

@@ -312,6 +312,25 @@ export default function ProfilePage() {
                   />
                   {isEditing ? (
                     <FormSelect
+                      label="Citizenship Status"
+                      value={formData.citizenshipStatus || "Other"}
+                      onChange={(v: string) => updateStrictField("citizenshipStatus", v)}
+                      options={[
+                        { value: "USCitizen", label: "U.S. Citizen" },
+                        { value: "LPR", label: "Legal Permanent Resident" },
+                        { value: "Other", label: "Other" },
+                      ]}
+                    />
+                  ) : (
+                    <FormField
+                      label="Citizenship Status"
+                      value={formData.citizenshipStatus === 'USCitizen' ? 'U.S. Citizen' : formData.citizenshipStatus === 'LPR' ? 'Green Card Holder' : 'Other'}
+                      onChange={() => {}}
+                      readOnly
+                    />
+                  )}
+                  {isEditing ? (
+                    <FormSelect
                       label="Marital Status"
                       value={formData.maritalStatus || "Single"}
                       onChange={(v: string) => updateStrictField("maritalStatus", v)}
@@ -1400,6 +1419,51 @@ export default function ProfilePage() {
             {sections.visaEligibility && (
               <CardContent className="pt-0 pb-4 px-4 space-y-8">
                  <div>
+                  <h4 className="text-xs font-medium text-slate-600 mb-3 block">Petitioner Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     {isEditing ? (
+                      <FormSelect
+                        label="Petitioner Status"
+                        value={formData.visaEligibility?.petitionerStatus || ""}
+                        onChange={(v: string) => updateNested("visaEligibility", "petitionerStatus", v)}
+                        options={[
+                          { value: "US_CITIZEN", label: "US Citizen" },
+                          { value: "LPR", label: "US Permanent Resident" },
+                          { value: "NONE", label: "None" },
+                        ]}
+                        placeholder="Select status"
+                      />
+                    ) : (
+                      <FormField
+                        label="Petitioner Status"
+                        value={formData.visaEligibility?.petitionerStatus || ""}
+                        onChange={() => {}}
+                        readOnly
+                      />
+                    )}
+                    {isEditing ? (
+                      <FormSelect
+                        label="Petitioner Age Group"
+                        value={formData.visaEligibility?.petitionerAgeGroup || ""}
+                        onChange={(v: string) => updateNested("visaEligibility", "petitionerAgeGroup", v)}
+                        options={[
+                          { value: "UNDER_21", label: "Under 21" },
+                          { value: "OVER_21", label: "21 or older" },
+                        ]}
+                        placeholder="Select age group"
+                      />
+                    ) : (
+                      <FormField
+                        label="Petitioner Age Group"
+                        value={formData.visaEligibility?.petitionerAgeGroup || ""}
+                        onChange={() => {}}
+                        readOnly
+                      />
+                    )}
+                  </div>
+                 </div>
+
+                 <div className="border-t border-slate-100 pt-5">
                   <h4 className="text-xs font-medium text-slate-600 mb-3 block">Status & Intent</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      {isEditing ? (

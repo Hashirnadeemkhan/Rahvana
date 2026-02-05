@@ -260,4 +260,20 @@ export interface MasterProfile {
     intent?: "PERMANENT" | "TEMPORARY";
     sponsorBase?: "FAMILY" | "EMPLOYMENT" | "INVESTMENT" | "HUMANITARIAN";
   };
+  
+  // Visa Case Strength Specifics
+  caseStrength?: {
+      caseType?: string;
+      // We store the exact simplified answers from the tool
+      answers?: Record<string, unknown>;
+      // Or we can just store the result summary if needed, but likely we want the inputs to re-populate
+  };
+
+  // 221g Action Planner Specifics
+  actionPlanner?: {
+      caseStatus?: string;
+      interviewDate?: string;
+      documentsRequested?: string[];
+      questionnaire?: Record<string, unknown>;
+  };
 }

@@ -73,8 +73,7 @@ interface FormData {
   // Passport & Police Documents
   passports_available?: boolean;
   passport_copy_available?: boolean;
-  police_certificate_new?: boolean;
-  police_certificate_old?: boolean;
+  valid_police_clearance_certificate?: boolean;
   // Interview & Medical Documents
   ds260_confirmation?: boolean;
   interview_letter?: boolean;
@@ -1118,8 +1117,7 @@ const ReviewStep = ({
         {/* Passport & Police Documents Section */}
         {(formData.passports_available !== undefined ||
           formData.passport_copy_available !== undefined ||
-          formData.police_certificate_new !== undefined ||
-          formData.police_certificate_old !== undefined) && (
+          formData.valid_police_clearance_certificate !== undefined) && (
           <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
             <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
               <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
@@ -1158,23 +1156,13 @@ const ReviewStep = ({
                   </p>
                 </div>
               )}
-              {formData.police_certificate_new !== undefined && (
+              {formData.valid_police_clearance_certificate !== undefined && (
                 <div>
                   <p className="text-base text-slate-600 mb-1">
-                    Police Certificate (New)
+                    Valid Police Clearance Certificate
                   </p>
                   <p className="text-lg font-semibold">
-                    {formatBoolean(formData.police_certificate_new)}
-                  </p>
-                </div>
-              )}
-              {formData.police_certificate_old !== undefined && (
-                <div>
-                  <p className="text-base text-slate-600 mb-1">
-                    Police Certificate (Old)
-                  </p>
-                  <p className="text-lg font-semibold">
-                    {formatBoolean(formData.police_certificate_old)}
+                    {formatBoolean(formData.valid_police_clearance_certificate)}
                   </p>
                 </div>
               )}
@@ -1437,12 +1425,6 @@ export default function VisaCaseStrengthChecker() {
     }>;
   }
 
-  // Auto-fill from Profile
-  const { user } = useAuth();
-  const supabase = createBrowserClient(
-     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -1518,6 +1500,71 @@ export default function VisaCaseStrengthChecker() {
     setError(null);
   };
 
+  // Define valid question keys to validate against the enum
+  const validQuestionKeys: (keyof FormData)[] = [
+    // Basic Profile
+    'sponsor_dob',
+    'beneficiary_dob',
+    'country_of_residence',
+    'marriage_date',
+    'spousal_relationship_type',
+    'intended_us_state_of_residence',
+    // Education & Employment Background
+    'highest_education_level',
+    'highest_education_field',
+    'current_occupation_role',
+    'industry_sector',
+    'prior_military_service',
+    'specialized_weapons_training',
+    'unofficial_armed_groups',
+    'employer_type',
+    // Relationship Strength
+    'how_did_you_meet',
+    'number_of_in_person_visits',
+    'cohabitation_proof',
+    'shared_financial_accounts',
+    'wedding_photos_available',
+    'communication_logs',
+    'money_transfer_receipts_available',
+    'driving_license_copy_available',
+    // Immigration History
+    'previous_visa_applications',
+    'previous_visa_denial',
+    'overstay_or_violation',
+    'criminal_record',
+    // Financial Profile
+    'sponsor_annual_income',
+    'household_size',
+    'has_tax_returns',
+    'has_employment_letter',
+    'has_paystubs',
+    'joint_sponsor_available',
+    'i864_affidavit_submitted',
+    'i864_supporting_financial_documents',
+    // Core Identity Documents
+    'urdu_marriage_certificate',
+    'english_translation_certificate',
+    'union_council_certificate',
+    'family_registration_certificate',
+    'birth_certificates',
+    // Passport & Police Documents
+    'passports_available',
+    'passport_copy_available',
+    'valid_police_clearance_certificate',
+    // Interview & Medical Documents
+    'ds260_confirmation',
+    'interview_letter',
+    'courier_registration',
+    'medical_report_available',
+    'polio_vaccination_certificate',
+    'covid_vaccination_certificate',
+    'passport_photos_2x2',
+  ];
+
+  const isValidQuestionKey = (key: string): key is keyof FormData => {
+    return validQuestionKeys.includes(key as keyof FormData);
+  };
+
   const handleInputChange = (id: keyof FormData, value: unknown) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
     if (error) {
@@ -1536,9 +1583,11 @@ export default function VisaCaseStrengthChecker() {
         try {
           // Create updated form data with the new value
           const updatedFormData = { ...formData, [id]: value };
-          // Filter out non-question fields before saving
+          // Filter out non-question fields before saving and validate question keys
           const answers = Object.fromEntries(
-            Object.entries(updatedFormData).filter(([key]) => key !== 'caseType')
+            Object.entries(updatedFormData)
+              .filter(([key]) => key !== 'caseType')
+              .filter(([key]) => isValidQuestionKey(key))
           );
           const answersResponse = await fetch(
             `/api/visa-checker/session/${sessionId}/answers`,
@@ -1602,9 +1651,11 @@ export default function VisaCaseStrengthChecker() {
           // Save session ID to localStorage for resume later functionality
           localStorage.setItem("visaCheckerSessionId", sessionResult.sessionId);
 
-          // Save initial answers, excluding non-question fields
+          // Save initial answers, excluding non-question fields and validating question keys
           const answers = Object.fromEntries(
-            Object.entries(formData).filter(([key]) => key !== 'caseType')
+            Object.entries(formData)
+              .filter(([key]) => key !== 'caseType')
+              .filter(([key]) => isValidQuestionKey(key))
           );
           const answersResponse = await fetch(
             `/api/visa-checker/session/${sessionResult.sessionId}/answers`,
@@ -1751,9 +1802,11 @@ export default function VisaCaseStrengthChecker() {
     // Save answers before moving to previous step if we have a session ID
     if (sessionId) {
       try {
-        // Filter out non-question fields before saving
+        // Filter out non-question fields before saving and validate question keys
         const answers = Object.fromEntries(
-          Object.entries(formData).filter(([key]) => key !== 'caseType')
+          Object.entries(formData)
+            .filter(([key]) => key !== 'caseType')
+            .filter(([key]) => isValidQuestionKey(key))
         );
         const answersResponse = await fetch(
           `/api/visa-checker/session/${sessionId}/answers`,
@@ -1793,9 +1846,11 @@ export default function VisaCaseStrengthChecker() {
 
     try {
       setLoading(true);
-      // Force save all current answers
+      // Force save all current answers, filtering out non-question fields and validating question keys
       const answers = Object.fromEntries(
-        Object.entries(formData).filter(([key]) => key !== 'caseType')
+        Object.entries(formData)
+          .filter(([key]) => key !== 'caseType')
+          .filter(([key]) => isValidQuestionKey(key))
       );
       const answersResponse = await fetch(
         `/api/visa-checker/session/${sessionId}/answers`,
@@ -1880,22 +1935,36 @@ export default function VisaCaseStrengthChecker() {
   const handleSaveToProfile = async () => {
      try {
        setLoading(true);
+       
+       // 1. Map to generic profile for cross-tool sharing
        const profileUpdate = mapFormToProfile(formData as unknown as Record<string, unknown>);
+       
+       // 2. Prepare specific caseStrength state
+       const caseStrengthData = {
+          caseType: formData.caseType,
+          answers: formData,
+          lastSessionId: sessionId 
+       };
+
        const { error } = await supabase
          .from('user_profiles')
          .upsert({
            id: user?.id,
-           profile_details: profileUpdate,
+           profile_details: {
+              ...profileUpdate,
+              caseStrength: caseStrengthData
+           },
            updated_at: new Date().toISOString()
          }, { onConflict: 'id' });
 
        if (error) throw error;
        
-       setSaveNotification("Main profile updated successfully!");
-       setTimeout(() => setSaveNotification(null), 3000);
+       // setSaveNotification("Profile updated & results saved!"); // We don't have this state exposed well to ResultPage maybe? 
+       // ResultPage has its own notification logic now.
      } catch (err) {
        console.error("Error updating profile:", err);
        setError("Failed to update profile");
+       throw err; // Re-throw so ResultPage knows it failed
      } finally {
        setLoading(false);
      }

@@ -31,12 +31,16 @@ interface ResultData {
 interface ResultPageProps {
   sessionId?: string;
   onRestart: () => void;
+  onEdit: () => void;
+  onSaveToProfile: () => Promise<void>;
 }
 
-export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
+export function ResultPage({ sessionId, onRestart, onEdit, onSaveToProfile }: ResultPageProps) {
   const [resultData, setResultData] = useState<ResultData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
   useEffect(() => {
     fetchResults();
@@ -328,16 +332,35 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+      <div className="flex flex-col gap-4 justify-center pt-8 max-w-md mx-auto">
+        <Button
+           onClick={onEdit}
+           variant="outline"
+           className="w-full flex items-center justify-center gap-2 py-6 bg-white border-2 border-primary text-primary font-bold rounded-2xl hover:bg-primary/5 transition-all shadow-lg shadow-primary/5"
+        >
+          Edit Information
+        </Button>
+        
+        <Button 
+          onClick={async () => {
+            setSaving(true);
+            await onSaveToProfile();
+            setSaveMessage("Saved to Profile!");
+            setTimeout(() => setSaveMessage(""), 3000);
+            setSaving(false);
+          }}
+          disabled={saving}
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white text-lg py-6 rounded-2xl"
+        >
+          {saving ? "Saving..." : saveMessage || "Save Results to My Profile"}
+        </Button>
+
         <Button
           onClick={onRestart}
-          variant="outline"
-          className="border-teal-600 text-teal-600 hover:bg-teal-50 text-lg py-6 px-8"
+          variant="ghost"
+          className="text-slate-500 hover:text-slate-700 mt-2"
         >
-          Assess Another Case
-        </Button>
-        <Button className="bg-teal-600 hover:bg-teal-700 text-white text-lg py-6 px-8">
-          Save Results
+          Start New Assessment
         </Button>
       </div>
     </div>

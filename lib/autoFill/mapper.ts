@@ -90,7 +90,7 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
   // --- Documents ---
   'documents.hasPassport': ['passports_available', 'has_passport', 'passport_copy_available'],
   'documents.hasBirthCertificate': ['birth_certificates', 'has_birth_certificate'],
-  'documents.hasPoliceCertificate': ['police_certificate_new', 'police_certificate_old', 'has_police_certificate'],
+  'documents.hasPoliceCertificate': ['valid_police_clearance_certificate', 'has_police_certificate'],
   'documents.ds260Confirmation': ['ds260_confirmation'],
   'documents.interviewLetter': ['interview_letter'],
   'documents.courierRegistration': ['courier_registration'],
@@ -392,7 +392,7 @@ export const mapProfileToVisaChecker = (profile: MasterProfile | Partial<MasterP
      has_paystubs: false,
      passports_available: false,
      birth_certificates: false,
-     police_certificate_new: false,
+     valid_police_clearance_certificate: false,
      prior_military_service: false,
      specialized_weapons_training: false,
      unofficial_armed_groups: false,

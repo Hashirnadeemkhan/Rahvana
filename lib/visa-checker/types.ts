@@ -46,7 +46,7 @@ export type QuestionKey =
   | 'passport_copy_available'
   | 'valid_police_clearance_certificate'
   // Interview & Medical Documents
-  | 'ds264_confirmation'
+  | 'ds260_confirmation'
   | 'interview_letter'
   | 'courier_registration'
   | 'medical_report_available'
