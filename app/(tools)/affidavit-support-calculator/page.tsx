@@ -143,6 +143,7 @@ interface CurrencyInputProps {
 }
 
 function formatCurrencyWithCommas(value: number): string {
+  if (value == null || isNaN(value)) return "";
   if (value === 0) return "";
   const parts = value.toFixed(2).split(".");
   const integerPart = parseInt(parts[0]).toLocaleString();
@@ -157,7 +158,9 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
   // Update display value when value prop changes (from parent)
   useEffect(() => {
     if (!isFocused) {
-      if (value === 0) {
+      if (value == null || isNaN(value)) {
+        setDisplayValue("");
+      } else if (value === 0) {
         setDisplayValue("");
       } else {
         setDisplayValue(formatCurrencyWithCommas(value));
@@ -193,7 +196,7 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
     setIsFocused(false);
     // Format with commas when user leaves the field
     const numericValue = parseFloat(displayValue);
-    if (!isNaN(numericValue) && numericValue > 0) {
+    if (!isNaN(numericValue) && numericValue >= 0) {
       setDisplayValue(formatCurrencyWithCommas(numericValue));
     }
   };
@@ -201,7 +204,7 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
   const handleFocus = () => {
     setIsFocused(true);
     // Show raw value without commas for easy editing
-    if (value > 0) {
+    if (value != null && !isNaN(value) && value > 0) {
       setDisplayValue(value.toString());
     } else {
       setDisplayValue("");
@@ -294,9 +297,16 @@ export default function AffidavitSupportCalculator() {
             taxDependents: formData.taxDependents,
             hasPreviousSponsorship: formData.hasPreviousSponsorship,
             previousSponsoredCount: formData.previousSponsoredCount,
+            currentSponsoredApplicant: formData.currentSponsoredApplicant,
+            currentSponsoredSpouse: formData.currentSponsoredSpouse,
+            currentSponsoredChildren: formData.currentSponsoredChildren,
             annualIncome: formData.annualIncome,
+            sponsorDeceased: formData.sponsorDeceased,
             assetValue: formData.assetValue,
             relationshipToApplicant: formData.relationshipToApplicant,
+            isVAWA: formData.isVAWA,
+            isWidow: formData.isWidow,
+            isSpecialImmigrant: formData.isSpecialImmigrant,
           });
 
           setFormData(prev => ({
@@ -1344,7 +1354,7 @@ export default function AffidavitSupportCalculator() {
         </div>
 
         <CurrencyInput
-          value={formData.annualIncome}
+          value={formData.annualIncome || 0}
           onChange={(value) => setFormData({ ...formData, annualIncome: value })}
           placeholder="0.00"
         />
@@ -1439,7 +1449,7 @@ export default function AffidavitSupportCalculator() {
                         </button>
                       </div>
                       <CurrencyInput
-                        value={member.annualIncome}
+                        value={member.annualIncome || 0}
                         onChange={(value) => updateHouseholdMember(member.id, { annualIncome: value })}
                         placeholder="0.00"
                         className="text-sm"
@@ -1514,7 +1524,7 @@ export default function AffidavitSupportCalculator() {
                         </select>
                       </div>
                       <CurrencyInput
-                        value={sponsor.annualIncome}
+                        value={sponsor.annualIncome || 0}
                         onChange={(value) => updateJointSponsor(sponsor.id, { annualIncome: value })}
                         placeholder="0.00"
                         className="text-sm"
@@ -1752,7 +1762,7 @@ export default function AffidavitSupportCalculator() {
                     Total Asset Value
                   </label>
                   <CurrencyInput
-                    value={formData.assetValue}
+                    value={formData.assetValue || 0}
                     onChange={(value) => setFormData({ ...formData, assetValue: value })}
                     placeholder="0.00"
                   />
@@ -2146,7 +2156,7 @@ export default function AffidavitSupportCalculator() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="min-h-[400px]">
+            <div className="min-h-100">
               {currentStep === 1 && renderStep1()}
               {currentStep === 2 && renderStep2()}
               {currentStep === 3 && renderStep3()}

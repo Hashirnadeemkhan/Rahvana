@@ -745,6 +745,7 @@ export default function VisaFormSelector() {
                   ].map((journey) => (
                     <button
                       key={journey.id}
+                      suppressHydrationWarning
                       onClick={() => {
                         if (currentJourney === journey.id) {
                           setCurrentJourney("");
@@ -772,6 +773,7 @@ export default function VisaFormSelector() {
                   {["USCIS", "DOS", "CBP", "SSA"].map((agency) => (
                     <button
                       key={agency}
+                      suppressHydrationWarning
                       onClick={() => toggleFilter("agency", agency)}
                       className={`w-full text-left px-4 py-2 text-sm border rounded-full transition-all duration-200 ${
                         activeFilters.agency.includes(agency)
@@ -795,6 +797,7 @@ export default function VisaFormSelector() {
                     (category) => (
                       <button
                         key={category}
+                        suppressHydrationWarning
                         onClick={() => toggleFilter("category", category)}
                         className={`w-full text-left px-4 py-2 text-sm border rounded-full transition-all duration-200 ${
                           activeFilters.category.includes(category)
@@ -814,6 +817,7 @@ export default function VisaFormSelector() {
                 activeFilters.category.length > 0) && (
                 <button
                   onClick={clearFilters}
+                  suppressHydrationWarning
                   className="w-full flex items-center justify-center gap-2 text-sm font-medium text-[#0d7377] hover:bg-[#e8f6f6] py-2 rounded-lg transition-colors border border-dashed border-gray-300 mt-4"
                 >
                   <X className="w-4 h-4" />
@@ -833,6 +837,7 @@ export default function VisaFormSelector() {
                 </div>
                 <input
                   type="text"
+                  suppressHydrationWarning
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-4 border border-gray-200 rounded-xl text-sm focus:border-[#0d7377] focus:ring-2 focus:ring-[#0d7377]/10 outline-none transition-all shadow-sm"
@@ -842,6 +847,7 @@ export default function VisaFormSelector() {
               <div className="flex gap-4">
                 <button
                   onClick={() => handleViewChange("journey")}
+                  suppressHydrationWarning
                   className={`flex-1 py-3 px-6 rounded-lg font-semibold text-sm transition-all border-2 ${
                     currentView === "journey"
                       ? "bg-[#0d7377] border-[#0d7377] text-white"
@@ -852,6 +858,7 @@ export default function VisaFormSelector() {
                 </button>
                 <button
                   onClick={() => handleViewChange("all")}
+                  suppressHydrationWarning
                   className={`flex-1 py-3 px-6 rounded-lg font-semibold text-sm transition-all border-2 ${
                     currentView === "all"
                       ? "bg-[#0d7377] border-[#0d7377] text-white"
@@ -914,6 +921,7 @@ export default function VisaFormSelector() {
                         return (
                           <button
                             key={index}
+                            suppressHydrationWarning
                             onClick={() =>
                               setCurrentStage(
                                 currentStage === stage.id ? "" : stage.id,
@@ -1017,12 +1025,14 @@ export default function VisaFormSelector() {
                           <div className="flex gap-3">
                             <button
                               onClick={() => setSelectedForm(form)}
+                              suppressHydrationWarning
                               className="flex-1 bg-[#0d7377] text-white font-bold py-3 px-4 rounded-xl hover:bg-[#0a5a5d] transition-all shadow-sm hover:shadow-lg active:scale-95 text-sm flex items-center justify-center gap-2"
                             >
                               Preview
                             </button>
                             <button
                               onClick={() => handleStartForm(form.code)}
+                              suppressHydrationWarning
                               className="flex-1 bg-white border-2 border-gray-100 text-gray-700 font-bold py-3 px-4 rounded-xl hover:border-[#0d7377] hover:text-[#0d7377] transition-all shadow-sm hover:shadow-md active:scale-95 text-sm flex items-center justify-center gap-2"
                             >
                               Start

@@ -78,7 +78,7 @@ export const StackedCarousel = ({
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto h-[450px] flex items-center justify-center">
+    <div className="relative w-full max-w-4xl mx-auto h-112.5 flex items-center justify-center">
       {/* Navigation Buttons */}
       <HydrationSafeButton
         onClick={handlePrev}
@@ -95,7 +95,7 @@ export const StackedCarousel = ({
       </HydrationSafeButton>
 
       {/* Cards Container */}
-      <div className="relative w-[350px] h-[400px]">
+      <div className="relative w-87.5 h-100">
         <AnimatePresence mode="popLayout">
           {items.map((journey, index) => {
             const style = getCardStyle(index);

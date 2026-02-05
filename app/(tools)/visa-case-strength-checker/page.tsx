@@ -109,6 +109,7 @@ const CaseTypeStep = ({
       <div className="mt-4">
         <button
           onClick={() => window.location.href = '/visa-case-strength-checker/my-cases'}
+          suppressHydrationWarning
           className="text-teal-600 hover:text-teal-700 hover:underline text-base font-medium"
         >
           See your cases →
@@ -120,6 +121,7 @@ const CaseTypeStep = ({
       {/* ACTIVE: SPOUSE */}
       <button
         type="button"
+        suppressHydrationWarning
         className={`p-8 border-2 rounded-xl text-center transition-all cursor-pointer ${
           formData.caseType === "Spouse"
             ? "border-teal-600 bg-teal-50 ring-2 ring-teal-200"
@@ -237,6 +239,7 @@ const CaseTypeStep = ({
     <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
       <Button
         onClick={onBack}
+        suppressHydrationWarning
         variant="outline"
         className="bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 py-6 text-lg"
       >
@@ -245,6 +248,7 @@ const CaseTypeStep = ({
 
       <Button
         onClick={onNext}
+        suppressHydrationWarning
         className="bg-teal-600 hover:bg-teal-700 text-white py-6 text-lg"
         disabled={!formData.caseType}
       >
@@ -303,6 +307,7 @@ const QuestionStep = ({
         return (
           <input
             type={question.type}
+            suppressHydrationWarning
             value={
               typeof value === "number"
                 ? value.toString()
@@ -467,6 +472,7 @@ const QuestionStep = ({
             </Button>
             <Button
               onClick={onNext}
+              suppressHydrationWarning
               className="bg-teal-600 hover:bg-teal-700 text-white py-6 text-lg"
             >
               Next →
@@ -1357,7 +1363,7 @@ export default function VisaCaseStrengthChecker() {
                     // Only auto-fill if the field is currently empty/undefined
                     // This prevents overwriting what the user might have already typed if they revisit
                     if (newData[key as keyof FormData] === undefined || newData[key as keyof FormData] === "") {
-                         (newData as { [k: string]: string | number | boolean | undefined })[key] = value;
+                         (newData as { [k: string]: string | number | boolean | undefined })[key] = value as string | number | boolean | undefined;
                          hasUpdates = true;
                     }
                 });
@@ -1430,6 +1436,67 @@ export default function VisaCaseStrengthChecker() {
       questions: QuestionDefinition[];
     }>;
   }
+
+  // Auto-fill from Profile
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      // If we already have data (e.g. from session restore), maybe don't overwrite?
+      // Or only overwrite empty fields?
+      // For now, let's fetch and only merge if we are at the start or simple check.
+      // Actually, standard behavior is: Profile data fills gaps.
+      
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('profile_details')
+        .eq('id', user.id)
+        .single();
+        
+      if (data?.profile_details) {
+         const profile = data.profile_details as MasterProfile;
+         // Use the mapper (generic or specific)
+         const mappedData = mapProfileToVisaChecker(profile);
+         
+         setFormData(prev => {
+            // Merge: Only overwrite if prev is empty/default or we want to force?
+            // Usually we want to overwrite defaults.
+            // But we must respect Case Type if already selected?
+            // The mapper returns a generic record.
+            
+            const newFormData = { ...prev };
+            
+            Object.keys(mappedData).forEach(key => {
+               const val = mappedData[key];
+               // If val is valid and current is empty/undefined, set it.
+               // We cast key to keyof FormData
+               const k = key as keyof FormData;
+               
+               // Check if we should update
+               const currentVal = newFormData[k];
+               const isEmpty = currentVal === "" || currentVal === undefined || currentVal === null || 
+                               (typeof currentVal === 'number' && currentVal === 0) ||
+                               (typeof currentVal === 'boolean' && currentVal === false);
+                               
+               if (val !== undefined && val !== null && isEmpty) {
+                   // specialized assignment to handle type safety if needed, or just cast
+                   (newFormData as any)[k] = val;
+               }
+            });
+            
+            return newFormData;
+         });
+      }
+    };
+    
+    fetchProfile();
+  }, [user, supabase]);
 
   const [questionnaireData, setQuestionnaireData] =
     useState<QuestionnaireData | null>(null);
@@ -1813,7 +1880,7 @@ export default function VisaCaseStrengthChecker() {
   const handleSaveToProfile = async () => {
      try {
        setLoading(true);
-       const profileUpdate = mapFormToProfile(formData);
+       const profileUpdate = mapFormToProfile(formData as unknown as Record<string, unknown>);
        const { error } = await supabase
          .from('user_profiles')
          .upsert({

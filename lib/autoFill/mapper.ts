@@ -6,31 +6,40 @@ import { MasterProfile } from "@/types/profile";
  * Keys are the MasterProfile paths (dot notation), Values are arrays of possible form field names
  */
 export const FIELD_MAPPINGS: Record<string, string[]> = {
+  // --- Application Context (CRITICAL: Primary standardization) ---
+  'visaType': ['visaType', 'caseType', 'visa_type', 'case_type', 'visa_category', 'visaCategory', 'visa_class', 'Visa Type', 'visa-type'],
+  
   // --- Personal ---
-  'name.first': ['first_name', 'given_name', 'applicant_first_name', 'sponsor_first_name', 'givenName', 'firstName'],
-  'name.middle': ['middle_name', 'applicant_middle_name', 'sponsor_middle_name', 'middleName'],
-  'name.last': ['last_name', 'family_name', 'surname', 'applicant_last_name', 'sponsor_last_name', 'lastName'],
-  'dateOfBirth': ['dob', 'date_of_birth', 'birth_date', 'sponsor_dob', 'applicant_dob', 'dateOfBirth', 'beneficiary_dob'],
-  'placeOfBirth.city': ['city_of_birth', 'birth_city'],
-  'placeOfBirth.country': ['country_of_birth', 'birth_country'],
-  'sex': ['sex', 'gender', 'applicant_sex', 'sponsor_sex'],
-  'maritalStatus': ['marital_status', 'civil_status', 'current_marital_status'],
+  'name.first': ['p1_given_name', 'first_name', 'given_name', 'applicant_first_name', 'sponsor_first_name', 'givenName', 'firstName', 'S01-Q001_first'],
+  'name.middle': ['p1_middle_name', 'middle_name', 'applicant_middle_name', 'sponsor_middle_name', 'middleName', 'S01-Q001_middle'],
+  'name.last': ['p1_family_name', 'family_name', 'surname', 'last_name', 'applicant_last_name', 'sponsor_last_name', 'S01-Q001_last', 'S01-Q001'],
+  'dateOfBirth': ['S01-Q006', 'dob', 'date_of_birth', 'birth_date', 'sponsor_dob', 'applicant_dob', 'dateOfBirth', 'beneficiary_dob'],
+  'placeOfBirth.city': ['S01-Q007', 'city_of_birth', 'birth_city'],
+  'placeOfBirth.state': ['S01-Q008', 'state_of_birth', 'province_of_birth', 'birth_state'],
+  'placeOfBirth.country': ['S01-Q009', 'country_of_birth', 'birth_country'],
+  'sex': ['S01-Q004', 'sex', 'gender', 'applicant_sex', 'sponsor_sex', 'applicant_gender', 'Gender'],
+  'nationality': ['nationality', 'country_of_citizenship', 'citizenship_country', 'citizen_of'],
+  'maritalStatus': ['S01-Q005', 'marital_status', 'civil_status', 'current_marital_status'],
 
   // --- Contact ---
-  'phone': ['phone_number', 'telephone', 'contact_number', 'daytime_phone', 'contactNumber', 'mobile'],
-  'email': ['email_address', 'contact_email', 'email'],
-  'currentAddress.street': ['street_address', 'address_line_1', 'current_street', 'mailing_street', 'address'],
-  'currentAddress.city': ['city_name', 'current_city', 'mailing_city', 'city'],
-  'currentAddress.state': ['state_province', 'current_state', 'mailing_state', 'state'],
-  'currentAddress.zipCode': ['zip', 'postal_code', 'zip_code', 'current_zip', 'mailing_zip', 'zipCode'],
-  'currentAddress.country': ['country_name', 'current_country', 'mailing_country', 'country_of_residence', 'beneficiary_country', 'destinationCountry', 'country'],
-  'intendedUSState': ['intended_us_state_of_residence', 'intended_state', 'destination_state'],
+  'phone': ['p4_phone', 'phone_number', 'telephone', 'contact_number', 'daytime_phone', 'contactNumber', 'mobile', 'sponsor_phone', 'contactNumber'],
+  'email': ['p4_email', 'email_address', 'contact_email', 'email', 'sponsor_email'],
+  'currentAddress.street': ['p1_addr1_street', 'street_address', 'address_line_1', 'current_street', 'mailing_street', 'address', 'sponsor_street'],
+  'currentAddress.city': ['p1_addr1_city', 'city_name', 'current_city', 'mailing_city', 'city', 'sponsor_city'],
+  'currentAddress.state': ['p1_addr1_state', 'state_province', 'current_state', 'mailing_state', 'state', 'sponsor_state'],
+  'currentAddress.zipCode': ['p1_addr1_zip', 'zip', 'postal_code', 'zip_code', 'current_zip', 'mailing_zip', 'zipCode', 'sponsor_zip'],
+  'currentAddress.country': ['p1_addr1_country', 'country_name', 'current_country', 'mailing_country', 'country_of_residence', 'beneficiary_country', 'destinationCountry', 'country', 'sponsor_country'],
+  'intendedUSState': ['intended_us_state_of_residence', 'intended_state', 'destination_state', 'state_of_residence'],
 
   // --- Identifiers ---
   'passportNumber': ['passport_number', 'passportNumber', 'passport'],
-  'passportExpiry': ['passport_expiry', 'passportExpiryDate', 'passport_expiration_date'],
+  'passportIssueDate': ['passport_issue_date', 'passportIssueDate', 'passportIssue', 'passport_issue', 'date_of_issue'],
+  'passportExpiry': ['passport_expiry', 'passportExpiryDate', 'passport_expiration_date', 'passport_expiry_date'],
+  'passportCountry': ['passport_country', 'passportCountry', 'country_of_passport', 'issuing_country'],
   'ssn': ['ssn', 'social_security_number'],
-  'alienNumber': ['a_number', 'alien_registration_number'],
+  'alienNumber': ['p1_alien_number', 'a_number', 'alien_registration_number', 'alien_number'],
+  'uscisAccountNumber': ['uscis_account_number', 'uscisAccountNumber', 'uscis_number'],
+  'cnic': ['cnic', 'national_id', 'id_number', 'national_id_number'],
 
   // --- Relationship ---
   'relationship.type': ['relationship_type', 'spousal_relationship_type', 'relationshipType'],
@@ -53,7 +62,7 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
   'employer.name': ['employer', 'employer_name', 'employerName', 'company_name'],
   'industrySector': ['industry_sector', 'industry'],
   'employerType': ['employer_type'],
-  'annualIncome': ['annual_income', 'annualIncome', 'sponsor_annual_income', 'income', 'yearly_income'],
+  'annualIncome': ['p2_income', 'annual_income', 'annualIncome', 'sponsor_annual_income', 'income', 'yearly_income'],
 
   // --- Education ---
   'educationLevel': ['education_level', 'educationLevel', 'highest_education_level', 'highest_education'],
@@ -76,6 +85,7 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
   'financialProfile.jointSponsorAvailable': ['joint_sponsor_available'],
   'financialProfile.i864AffidavitSubmitted': ['i864_affidavit_submitted'],
   'financialProfile.i864SupportingDocs': ['i864_supporting_financial_documents'],
+  'financialProfile.assetValue': ['asset_value', 'assets', 'total_assets'],
 
   // --- Documents ---
   'documents.hasPassport': ['passports_available', 'has_passport', 'passport_copy_available'],
@@ -92,6 +102,87 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
   'documents.unionCouncilCertificate': ['union_council_certificate'],
   'documents.familyRegistrationCertificate': ['family_registration_certificate'],
   'documents.hasPhotos': ['passport_photos_2x2'],
+
+  // --- Parents ---
+  'father.name.first': ['p1_parent1_given_name', 'parent1_given_name', 'father_first_name'],
+  'father.name.middle': ['p1_parent1_middle_name', 'parent1_middle_name', 'father_middle_name'],
+  'father.name.last': ['p1_parent1_family_name', 'parent1_family_name', 'father_last_name'],
+  'father.dateOfBirth': ['p1_parent1_dob', 'parent1_date_of_birth', 'father_dob'],
+  'father.placeOfBirth.city': ['p1_parent1_city_birth', 'parent1_city_birth', 'father_birth_city'],
+  'father.placeOfBirth.country': ['p1_parent1_country_birth', 'parent1_country_birth', 'father_birth_country'],
+  'father.cityOfResidence': ['parent1_city_residence', 'father_current_city'],
+  'father.countryOfResidence': ['p1_parent1_country_res', 'parent1_country_residence', 'father_current_country'],
+
+  'mother.name.first': ['p1_parent2_given_name', 'parent2_given_name', 'mother_first_name'],
+  'mother.name.middle': ['p1_parent2_middle_name', 'parent2_middle_name', 'mother_middle_name'],
+  'mother.name.last': ['p1_parent2_family_name', 'parent2_family_name', 'mother_last_name'],
+  'mother.dateOfBirth': ['p1_parent2_dob', 'parent2_date_of_birth', 'mother_dob'],
+  'mother.placeOfBirth.city': ['p1_parent2_city_birth', 'parent2_city_birth', 'mother_birth_city'],
+  'mother.placeOfBirth.country': ['p1_parent2_country_birth', 'parent2_country_birth', 'mother_birth_country'],
+  'mother.cityOfResidence': ['parent2_city_residence', 'mother_current_city', 'parent2_city_residence'],
+  'mother.countryOfResidence': ['p1_parent2_country_res', 'parent2_country_residence', 'mother_current_country', 'parent2_country_residence'],
+
+  // --- Naturalization ---
+  'citizenshipStatus': ['citizenship_status', 'citizenshipStatus'],
+  'naturalizationInfo.certificateNumber': ['certificate_number', 'naturalization_certificate_number'],
+  'naturalizationInfo.placeOfIssuance': ['certificate_place', 'naturalization_place'],
+  'naturalizationInfo.dateOfIssuance': ['certificate_date', 'naturalization_date'],
+
+  // --- Affidavit Support Calculator ---
+  'sponsorStatus': ['sponsorStatus', 'sponsor_status'],
+  'isMilitary': ['isMilitary', 'is_military', 'military_status'],
+  'isMarried': ['isMarried', 'is_married', 'married_status'],
+  'numberOfChildren': ['numberOfChildren', 'number_of_children', 'num_children'],
+  'taxDependents': ['taxDependents', 'tax_dependents', 'dependents'],
+  'hasPreviousSponsorship': ['hasPreviousSponsorship', 'has_previous_sponsorship', 'previous_sponsorship'],
+  'previousSponsoredCount': ['previousSponsoredCount', 'previous_sponsored_count', 'previous_sponsored'],
+  'currentSponsoredApplicant': ['currentSponsoredApplicant', 'current_sponsored_applicant', 'sponsoring_applicant'],
+  'currentSponsoredSpouse': ['currentSponsoredSpouse', 'current_sponsored_spouse', 'sponsoring_spouse'],
+  'currentSponsoredChildren': ['currentSponsoredChildren', 'current_sponsored_children', 'sponsoring_children'],
+  'sponsorDeceased': ['sponsorDeceased', 'sponsor_deceased', 'deceased_sponsor'],
+  'assetValue': ['assetValue', 'asset_value', 'assets'],
+  'relationshipToApplicant': ['relationshipToApplicant', 'relationship_to_applicant', 'relationship', 'relationship_with_applicant'],
+  'isVAWA': ['isVAWA', 'is_vawa', 'vawa'],
+  'isWidow': ['isWidow', 'is_widow', 'widow'],
+  'isSpecialImmigrant': ['isSpecialImmigrant', 'is_special_immigrant', 'special_immigrant'],
+  
+  // --- Visa Eligibility Tool Mappings (FutureAnswers) ---
+  'visaEligibility.petitionerStatus': ['petitionerStatus'],
+  'visaEligibility.statusOrigin': ['statusOrigin'],
+  'visaEligibility.petitionerAgeGroup': ['petitionerAgeGroup'],
+  'visaEligibility.relationship': ['relationship'], // Overlaps with generic, needs care
+  'visaEligibility.legalStatus': ['legalStatus'],
+  'visaEligibility.applicantAgeGroup': ['applicantAgeGroup'],
+  'visaEligibility.applicantMaritalStatus': ['applicantMaritalStatus'],
+  'visaEligibility.applicantLocation': ['applicantLocation'],
+  'visaEligibility.isLegallyMarried': ['isLegallyMarried'],
+  'visaEligibility.marriageDuration': ['marriageDuration'],
+  'visaEligibility.violationHistory': ['violationHistory'],
+  'visaEligibility.intent': ['intent'],
+  'visaEligibility.sponsorBase': ['sponsorBase'],
+  
+  // --- Sponsor Information (when user is beneficiary) ---
+  'sponsor.name.first': ['sponsor_first_name', 'sponsor_given_name'],
+  'sponsor.name.middle': ['sponsor_middle_name'],
+  'sponsor.name.last': ['sponsor_last_name', 'sponsor_family_name', 'sponsor_surname'],
+  'sponsor.dateOfBirth': ['sponsor_dob', 'sponsor_date_of_birth'],
+  'sponsor.phone': ['sponsor_phone', 'sponsor_phone_number'],
+  'sponsor.email': ['sponsor_email', 'sponsor_email_address'],
+  'sponsor.address.street': ['sponsor_street', 'sponsor_street_address'],
+  'sponsor.address.city': ['sponsor_city'],
+  'sponsor.address.state': ['sponsor_state'],
+  'sponsor.address.zipCode': ['sponsor_zip', 'sponsor_zip_code'],
+  'sponsor.address.country': ['sponsor_country'],
+  
+  // --- Beneficiary Information (when user is sponsor) ---
+  'beneficiary.name.first': ['beneficiary_first_name', 'beneficiary_given_name', 'applicant_first_name'],
+  'beneficiary.name.middle': ['beneficiary_middle_name', 'applicant_middle_name'],
+  'beneficiary.name.last': ['beneficiary_last_name', 'beneficiary_family_name', 'applicant_last_name'],
+  'beneficiary.dateOfBirth': ['beneficiary_dob', 'beneficiary_date_of_birth', 'applicant_dob'],
+  'beneficiary.countryOfResidence': ['beneficiary_country', 'country_of_residence', 'applicant_country'],
+  
+  // --- Full Name Fields (for forms that ask for full name in one field) ---
+  'fullName': ['full_name', 'fullName', 'sponsor_full_name', 'beneficiary_full_name', 'applicant_full_name'],
 };
 
 /**
@@ -153,8 +244,15 @@ export const autoFillForm = (
 
   // 1. Iterate through each field in the target form
   for (const formFieldKey of Object.keys(updatedForm)) {
-    // Skip if field already has a user-entered value (optional optimization, remove if we want to overwrite)
-    if (updatedForm[formFieldKey] !== undefined && updatedForm[formFieldKey] !== "" && updatedForm[formFieldKey] !== null) {
+    // Skip if field already has a meaningful user-entered value (optional optimization, remove if we want to overwrite)
+    // Don't skip default initialization values like 0, false, null, etc., as these should be replaced by profile data on initial load
+    const currentValue = updatedForm[formFieldKey];
+    const isDefaultValue = currentValue === null ||
+                          currentValue === "" ||
+                          (typeof currentValue === 'number' && currentValue === 0) ||
+                          (typeof currentValue === 'boolean' && currentValue === false);
+
+    if (!isDefaultValue) {
       continue;
     }
 
@@ -180,6 +278,47 @@ export const autoFillForm = (
     if (foundValue !== undefined && foundValue !== null) {
       updatedForm[formFieldKey] = foundValue;
     }
+  }
+
+
+
+  // Final Pass: Normalization
+  
+  // Normalize Gender (Book Appointment expects "M" / "F", Profile might have "Male" / "Female")
+  if (updatedForm['gender']) {
+    const g = String(updatedForm['gender']).toLowerCase();
+    if (g === 'male') updatedForm['gender'] = 'M';
+    else if (g === 'female') updatedForm['gender'] = 'F';
+  }
+
+  // Normalize Visa Type for 221g (removes hyphens if target is 221g like "IR1")
+  if (updatedForm['visaType']) {
+     const v = String(updatedForm['visaType']);
+     // If the *target form* seems to use condensed codes (like IR1), we strip hyphen
+     // Ideally we check if formStructure has a known key pattern, but simplistic heuristic:
+     // If the mapped value has a hyphen (IR-1) but the form *might* want (IR1).
+     // Since we don't know the *target's* validation, we keep it as is unless known tool.
+     // However, for Book Appointment, it uses "B-2", "IR-1" etc, so Profile "IR-1" is good.
+     // For 221g, it uses "IR1", "CR1". Profile "IR-1" -> "IR1".
+     
+     // HACK: We can try to provide both formats or check keys. 
+     // For now, let's normalize specific known mis-matches if we can contextually detect them 
+     // or just rely on the user to fix the slight mismatch if auto-fill gets close.
+     // But user asked to fix it.
+     
+     // Let's brute force "IR-1" -> "IR1" simply by checking if the target form has "visaType" key 
+     // and if the profile value contains a hyphen.
+     
+     // BETTER APPROACH: Return the value as is. The tool components should handle "IR-1" vs "IR1".
+     // But wait, user said "221g form mae visa type autofill nh horhi".
+     // 221g uses "IR1". Profile has "IR-1".
+     // We will add a stripping logic if strict match fails? No, mapper doesn't know valid options.
+     
+     // Let's add specific normalization for 221g content if possible, or just standard "IR-1" -> "IR1" conversion
+     // if the form structure has keys that look like 221g fields.
+     if ('officerRequests' in updatedForm) { // 221g specific field
+        updatedForm['visaType'] = v.replace(/-/, ""); // IR-1 -> IR1
+     }
   }
 
   return updatedForm;

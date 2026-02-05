@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import { useAuth } from "@/app/context/AuthContext";
+import { MasterProfile } from "@/types/profile";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle,
@@ -57,6 +60,83 @@ export function VisaEligibilityTool() {
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState<FutureAnswers>({});
   const [selectedVisaCode, setSelectedVisaCode] = useState<string | null>(null);
+  
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('profile_details')
+        .eq('id', user.id)
+        .single();
+        
+      if (data?.profile_details) {
+        const profile = data.profile_details as MasterProfile;
+        const newAnswers: Partial<FutureAnswers> = {};
+
+        // 1. Petitioner Status
+        if (profile.citizenshipStatus === 'USCitizen') newAnswers.petitionerStatus = 'US_CITIZEN';
+        else if (profile.citizenshipStatus === 'LPR') newAnswers.petitionerStatus = 'LPR';
+
+        // 2. Petitioner Age (Derive from DOB)
+        if (profile.dateOfBirth) {
+           const birthDate = new Date(profile.dateOfBirth);
+           const ageDiffMs = Date.now() - birthDate.getTime();
+           const ageDate = new Date(ageDiffMs);
+           const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+           newAnswers.petitionerAgeGroup = age >= 21 ? 'OVER_21' : 'UNDER_21';
+        }
+
+        // 3. Relationship
+        if (profile.visaType) {
+           if (['IR-1', 'CR-1', 'K-3'].includes(profile.visaType)) newAnswers.relationship = 'SPOUSE';
+           else if (['IR-5'].includes(profile.visaType)) newAnswers.relationship = 'PARENT';
+           else if (['IR-2', 'F1', 'F2A', 'F2B', 'F3'].includes(profile.visaType)) newAnswers.relationship = 'CHILD';
+           else if (['F4'].includes(profile.visaType)) newAnswers.relationship = 'SIBLING';
+           else if (['K-1'].includes(profile.visaType)) newAnswers.relationship = 'FIANCE';
+        }
+
+        // 4. Marriage Duration (Derive from marriage date)
+        if (profile.relationship?.marriageDate) {
+           const marriageDate = new Date(profile.relationship.marriageDate);
+           const diffMs = Date.now() - marriageDate.getTime();
+           const diffYears = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+           newAnswers.marriageDuration = diffYears >= 2 ? 'MORE_THAN_2' : 'LESS_THAN_2';
+           newAnswers.isLegallyMarried = 'YES';
+        }
+
+        // 5. Applicant Location
+        const beneficiaryCountry = profile.beneficiary?.countryOfResidence || profile.currentAddress?.country;
+        if (beneficiaryCountry) {
+           const isUS = beneficiaryCountry.toLowerCase().includes('united states') || beneficiaryCountry.toLowerCase() === 'usa' || beneficiaryCountry.toLowerCase() === 'us';
+           newAnswers.applicantLocation = isUS ? 'INSIDE_US' : 'OUTSIDE_US';
+        }
+
+        // 6. Applicant Age
+        const benDob = profile.beneficiary?.dateOfBirth;
+        if (benDob) {
+           const birthDate = new Date(benDob);
+           const ageDiffMs = Date.now() - birthDate.getTime();
+           const ageDate = new Date(ageDiffMs);
+           const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+           newAnswers.applicantAgeGroup = age >= 21 ? 'OVER_21' : 'UNDER_21';
+        }
+
+        if (Object.keys(newAnswers).length > 0) {
+           setAnswers(prev => ({ ...prev, ...newAnswers }));
+        }
+      }
+    };
+    
+    fetchProfile();
+  }, [user, supabase]);
 
   const totalSteps = 5; // 4 Sections + 1 Result
   const progress = (step / totalSteps) * 100;

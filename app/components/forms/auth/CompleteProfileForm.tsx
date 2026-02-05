@@ -23,10 +23,27 @@ export default function CompleteProfileForm() {
     dateOfBirth: "",
     placeOfBirth: { city: "", country: "" },
     sex: "Male",
+    nationality: "",
     maritalStatus: "Single",
     phone: "",
     email: user?.email || "",
     currentAddress: { street: "", city: "", state: "", zipCode: "", country: "" },
+    mailingAddress: { street: "", city: "", state: "", zipCode: "", country: "" },
+    sameAsCurrentAddress: true,
+    visaType: "",
+    visaCategory: "",
+    sponsor: {
+      name: { first: "", last: "", middle: "" },
+      dateOfBirth: "",
+      phone: "",
+      email: "",
+      address: { street: "", city: "", state: "", zipCode: "", country: "" }
+    },
+    beneficiary: {
+      name: { first: "", last: "", middle: "" },
+      dateOfBirth: "",
+      countryOfResidence: ""
+    },
     relationship: { 
       type: "", 
       startDate: "",
@@ -65,7 +82,33 @@ export default function CompleteProfileForm() {
     employer: { name: "" },
     educationLevel: "", 
     educationField: "",
-    annualIncome: ""
+    annualIncome: "",
+    passportNumber: "",
+    passportIssueDate: "",
+    passportExpiry: "",
+    passportCountry: "",
+    ssn: "",
+    alienNumber: "",
+    uscisAccountNumber: "",
+    cnic: "",
+    citizenshipStatus: "Other",
+    naturalizationInfo: {
+      certificateNumber: "",
+      placeOfIssuance: "",
+      dateOfIssuance: ""
+    },
+    father: {
+      name: { first: "", last: "", middle: "" },
+      dateOfBirth: "",
+      placeOfBirth: { city: "", country: "" },
+      isDeceased: false
+    },
+    mother: {
+      name: { first: "", last: "", middle: "" },
+      dateOfBirth: "",
+      placeOfBirth: { city: "", country: "" },
+      isDeceased: false
+    }
   });
 
   const supabase = createBrowserClient(
@@ -103,6 +146,15 @@ export default function CompleteProfileForm() {
             passportNumber: formData.passportNumber,
             passportExpiry: formData.passportExpiry,
             intendedUSState: formData.intendedUSState,
+            ssn: formData.ssn,
+            alienNumber: formData.alienNumber,
+            uscisAccountNumber: formData.uscisAccountNumber,
+            mailingAddress: formData.mailingAddress,
+            sameAsCurrentAddress: formData.sameAsCurrentAddress,
+            citizenshipStatus: formData.citizenshipStatus,
+            naturalizationInfo: formData.naturalizationInfo,
+            father: formData.father,
+            mother: formData.mother,
           });
 
           setFormData(prev => ({
@@ -180,6 +232,13 @@ export default function CompleteProfileForm() {
                 { value: "Female", label: "Female" },
               ]}
             />
+            <FormField
+              label="Nationality"
+              value={formData.nationality || ""}
+              onChange={(v) => handleChange("nationality", v)}
+              placeholder="Pakistani"
+              helpText="Country of citizenship"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -215,7 +274,31 @@ export default function CompleteProfileForm() {
             />
           </div>
 
-          <FormSection title="Passport Details" description="Optional but recommended">
+          <FormSection title="Legal Identifiers" description="Critical for identifying you in government systems">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                label="SSN (if any)"
+                value={formData.ssn || ""}
+                onChange={(v) => handleChange("ssn", v)}
+                placeholder="000-00-0000"
+              />
+              <FormField
+                label="A-Number (if any)"
+                value={formData.alienNumber || ""}
+                onChange={(v) => handleChange("alienNumber", v)}
+                placeholder="A-123456789"
+                helpText="Alien Registration Number"
+              />
+              <FormField
+                label="USCIS Account #"
+                value={formData.uscisAccountNumber || ""}
+                onChange={(v) => handleChange("uscisAccountNumber", v)}
+                placeholder="123456789012"
+              />
+            </div>
+          </FormSection>
+
+          <FormSection title="Passport Details" description="As shown on your travel document">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 label="Passport Number"
@@ -224,10 +307,35 @@ export default function CompleteProfileForm() {
                 placeholder="AB1234567"
               />
               <FormField
+                label="Passport Issue Date"
+                value={formData.passportIssueDate || ""}
+                onChange={(v) => handleChange("passportIssueDate", v)}
+                type="date"
+                helpText="Date your passport was issued"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
                 label="Passport Expiry Date"
                 value={formData.passportExpiry || ""}
                 onChange={(v) => handleChange("passportExpiry", v)}
                 type="date"
+              />
+              <FormField
+                label="Passport Issuing Country"
+                value={formData.passportCountry || ""}
+                onChange={(v) => handleChange("passportCountry", v)}
+                placeholder="Pakistan"
+                helpText="Country that issued your passport"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="CNIC / National ID (if applicable)"
+                value={formData.cnic || ""}
+                onChange={(v) => handleChange("cnic", v)}
+                placeholder="12345-1234567-1"
+                helpText="Your national ID number"
               />
             </div>
           </FormSection>
@@ -303,6 +411,60 @@ export default function CompleteProfileForm() {
               placeholder="Where do you plan to live?"
               helpText="If applicable"
             />
+          </FormSection>
+
+          <FormSection title="Mailing Address">
+            <FormCheckbox
+              id="sameAsCurrent"
+              label="Mailing address is the same as physical address"
+              checked={formData.sameAsCurrentAddress || false}
+              onCheckedChange={(checked) => {
+                setFormData(prev => ({
+                   ...prev, 
+                   sameAsCurrentAddress: checked,
+                   mailingAddress: checked ? prev.currentAddress : prev.mailingAddress
+                }));
+              }}
+            />
+            
+            {!formData.sameAsCurrentAddress && (
+              <div className="space-y-4 mt-4 p-4 bg-slate-50 rounded-lg border border-slate-100">
+                <FormField
+                  label="Street Address"
+                  value={formData.mailingAddress?.street || ""}
+                  onChange={(v) => handleNestedChange("mailingAddress", "street", v)}
+                  placeholder="PO Box 123"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="City"
+                    value={formData.mailingAddress?.city || ""}
+                    onChange={(v) => handleNestedChange("mailingAddress", "city", v)}
+                    placeholder="New York"
+                  />
+                  <FormField
+                    label="State / Province"
+                    value={formData.mailingAddress?.state || ""}
+                    onChange={(v) => handleNestedChange("mailingAddress", "state", v)}
+                    placeholder="NY"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="Zip / Postal Code"
+                    value={formData.mailingAddress?.zipCode || ""}
+                    onChange={(v) => handleNestedChange("mailingAddress", "zipCode", v)}
+                    placeholder="10001"
+                  />
+                  <FormField
+                    label="Country"
+                    value={formData.mailingAddress?.country || ""}
+                    onChange={(v) => handleNestedChange("mailingAddress", "country", v)}
+                    placeholder="United States"
+                  />
+                </div>
+              </div>
+            )}
           </FormSection>
         </div>
       )
@@ -450,10 +612,301 @@ export default function CompleteProfileForm() {
       )
     },
     {
+      title: "Family Background",
+      description: "Information about your parents (Required for most forms)",
+      render: () => (
+        <div className="space-y-8">
+          <FormSection title="Father's Details">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                label="Father's First Name"
+                value={formData.father?.name?.first || ""}
+                onChange={(v) => handleNestedChange("father", "name", { ...formData.father?.name, first: v })}
+                placeholder="First Name"
+              />
+              <FormField
+                label="Father's Middle Name"
+                value={formData.father?.name?.middle || ""}
+                onChange={(v) => handleNestedChange("father", "name", { ...formData.father?.name, middle: v })}
+                placeholder="Middle Name"
+              />
+              <FormField
+                label="Father's Last Name"
+                value={formData.father?.name?.last || ""}
+                onChange={(v) => handleNestedChange("father", "name", { ...formData.father?.name, last: v })}
+                placeholder="Last Name"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Date of Birth"
+                value={formData.father?.dateOfBirth || ""}
+                onChange={(v) => handleNestedChange("father", "dateOfBirth", v)}
+                type="date"
+              />
+              <div className="flex items-end pb-2">
+                <FormCheckbox
+                  id="fatherDeceased"
+                  label="Person is deceased"
+                  checked={formData.father?.isDeceased || false}
+                  onCheckedChange={(v) => handleNestedChange("father", "isDeceased", v)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="City of Birth"
+                value={formData.father?.placeOfBirth?.city || ""}
+                onChange={(v) => handleNestedChange("father", "placeOfBirth", { ...formData.father?.placeOfBirth, city: v })}
+                placeholder="City"
+              />
+              <FormField
+                label="Country of Birth"
+                value={formData.father?.placeOfBirth?.country || ""}
+                onChange={(v) => handleNestedChange("father", "placeOfBirth", { ...formData.father?.placeOfBirth, country: v })}
+                placeholder="Country"
+              />
+            </div>
+            {!formData.father?.isDeceased && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  label="Current City of Residence"
+                  value={formData.father?.cityOfResidence || ""}
+                  onChange={(v) => handleNestedChange("father", "cityOfResidence", v)}
+                  placeholder="City"
+                />
+                <FormField
+                  label="Current Country of Residence"
+                  value={formData.father?.countryOfResidence || ""}
+                  onChange={(v) => handleNestedChange("father", "countryOfResidence", v)}
+                  placeholder="Country"
+                />
+              </div>
+            )}
+          </FormSection>
+
+          <FormSection title="Mother's Details">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                label="Mother's First Name"
+                value={formData.mother?.name?.first || ""}
+                onChange={(v) => handleNestedChange("mother", "name", { ...formData.mother?.name, first: v })}
+                placeholder="First Name"
+              />
+              <FormField
+                label="Mother's Middle Name"
+                value={formData.mother?.name?.middle || ""}
+                onChange={(v) => handleNestedChange("mother", "name", { ...formData.mother?.name, middle: v })}
+                placeholder="Middle Name"
+              />
+              <FormField
+                label="Mother's Last Name"
+                value={formData.mother?.name?.last || ""}
+                onChange={(v) => handleNestedChange("mother", "name", { ...formData.mother?.name, last: v })}
+                placeholder="Last Name"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Date of Birth"
+                value={formData.mother?.dateOfBirth || ""}
+                onChange={(v) => handleNestedChange("mother", "dateOfBirth", v)}
+                type="date"
+              />
+              <div className="flex items-end pb-2">
+                <FormCheckbox
+                  id="motherDeceased"
+                  label="Person is deceased"
+                  checked={formData.mother?.isDeceased || false}
+                  onCheckedChange={(v) => handleNestedChange("mother", "isDeceased", v)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="City of Birth"
+                value={formData.mother?.placeOfBirth?.city || ""}
+                onChange={(v) => handleNestedChange("mother", "placeOfBirth", { ...formData.mother?.placeOfBirth, city: v })}
+                placeholder="City"
+              />
+              <FormField
+                label="Country of Birth"
+                value={formData.mother?.placeOfBirth?.country || ""}
+                onChange={(v) => handleNestedChange("mother", "placeOfBirth", { ...formData.mother?.placeOfBirth, country: v })}
+                placeholder="Country"
+              />
+            </div>
+             {!formData.mother?.isDeceased && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  label="Current City of Residence"
+                  value={formData.mother?.cityOfResidence || ""}
+                  onChange={(v) => handleNestedChange("mother", "cityOfResidence", v)}
+                  placeholder="City"
+                />
+                <FormField
+                  label="Current Country of Residence"
+                  value={formData.mother?.countryOfResidence || ""}
+                  onChange={(v) => handleNestedChange("mother", "countryOfResidence", v)}
+                  placeholder="Country"
+                />
+              </div>
+            )}
+          </FormSection>
+        </div>
+      )
+    },
+    {
+      title: "Visa Application Context",
+      description: "Optional: Helps us auto-fill your visa application forms",
+      render: () => (
+        <div className="space-y-5">
+          <div className="bg-slate-50 border border-slate-200 rounded-md px-3 py-2.5 mb-4">
+            <p className="text-xs text-slate-600">
+              This information is optional but helps us auto-fill visa forms. Skip if you're not currently applying for a visa.
+            </p>
+          </div>
+
+          <FormSection title="Visa Type">
+            <FormSelect
+              label="What type of visa are you applying for?"
+              value={formData.visaType || ""}
+              onChange={(v) => handleChange("visaType", v)}
+              options={[
+                { value: "IR-1", label: "IR-1 - Immediate Relative (Spouse of US Citizen, married 2+ years)" },
+                { value: "CR-1", label: "CR-1 - Conditional Resident (Spouse of US Citizen, married <2 years)" },
+                { value: "K-1", label: "K-1 - Fiancé(e) Visa" },
+                { value: "IR-5", label: "IR-5 - Parent of US Citizen" },
+                { value: "IR-2", label: "IR-2 - Unmarried Child of US Citizen" },
+                { value: "F-1", label: "F-1 - Student Visa" },
+                { value: "H-1B", label: "H-1B - Specialty Occupation" },
+                { value: "B1/B2", label: "B1/B2 - Visitor Visa" },
+                { value: "Other", label: "Other" },
+              ]}
+              placeholder="Select visa type"
+            />
+          </FormSection>
+
+          <FormSection title="Sponsor Information" description="If someone is sponsoring your visa application">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                label="Sponsor's First Name"
+                value={formData.sponsor?.name?.first || ""}
+                onChange={(v) => handleNestedChange("sponsor", "name", { ...formData.sponsor?.name, first: v })}
+                placeholder="First Name"
+              />
+              <FormField
+                label="Sponsor's Middle Name"
+                value={formData.sponsor?.name?.middle || ""}
+                onChange={(v) => handleNestedChange("sponsor", "name", { ...formData.sponsor?.name, middle: v })}
+                placeholder="Middle Name"
+              />
+              <FormField
+                label="Sponsor's Last Name"
+                value={formData.sponsor?.name?.last || ""}
+                onChange={(v) => handleNestedChange("sponsor", "name", { ...formData.sponsor?.name, last: v })}
+                placeholder="Last Name"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Sponsor's Date of Birth"
+                value={formData.sponsor?.dateOfBirth || ""}
+                onChange={(v) => handleNestedChange("sponsor", "dateOfBirth", v)}
+                type="date"
+              />
+              <FormField
+                label="Sponsor's Phone"
+                value={formData.sponsor?.phone || ""}
+                onChange={(v) => handleNestedChange("sponsor", "phone", v)}
+                placeholder="+1 (555) 000-0000"
+              />
+            </div>
+          </FormSection>
+
+          <FormSection title="Beneficiary Information" description="If you are sponsoring someone else's visa">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                label="Beneficiary's First Name"
+                value={formData.beneficiary?.name?.first || ""}
+                onChange={(v) => handleNestedChange("beneficiary", "name", { ...formData.beneficiary?.name, first: v })}
+                placeholder="First Name"
+              />
+              <FormField
+                label="Beneficiary's Middle Name"
+                value={formData.beneficiary?.name?.middle || ""}
+                onChange={(v) => handleNestedChange("beneficiary", "name", { ...formData.beneficiary?.name, middle: v })}
+                placeholder="Middle Name"
+              />
+              <FormField
+                label="Beneficiary's Last Name"
+                value={formData.beneficiary?.name?.last || ""}
+                onChange={(v) => handleNestedChange("beneficiary", "name", { ...formData.beneficiary?.name, last: v })}
+                placeholder="Last Name"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Beneficiary's Date of Birth"
+                value={formData.beneficiary?.dateOfBirth || ""}
+                onChange={(v) => handleNestedChange("beneficiary", "dateOfBirth", v)}
+                type="date"
+              />
+              <FormField
+                label="Beneficiary's Country of Residence"
+                value={formData.beneficiary?.countryOfResidence || ""}
+                onChange={(v) => handleNestedChange("beneficiary", "countryOfResidence", v)}
+                placeholder="Country"
+              />
+            </div>
+          </FormSection>
+        </div>
+      )
+    },
+    {
       title: "Immigration & Documents",
       description: "Your immigration history and document readiness",
       render: () => (
         <div className="space-y-5">
+           <FormSection title="Citizenship Status">
+            <FormSelect
+              label="What is your current US immigration status?"
+              value={formData.citizenshipStatus || "Other"}
+              onChange={(v) => handleChange("citizenshipStatus", v)}
+              options={[
+                { value: "USCitizen", label: "U.S. Citizen" },
+                { value: "LPR", label: "Lawful Permanent Resident (Green Card Holder)" },
+                { value: "Other", label: "Other / None" },
+              ]}
+            />
+
+            {formData.citizenshipStatus === "USCitizen" && (
+              <div className="mt-4 p-4 bg-rahvana-primary-pale/30 rounded-lg border border-rahvana-primary-pale space-y-4">
+                <p className="text-xs font-semibold text-rahvana-primary uppercase tracking-wider">Naturalization Details</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="Certificate Number"
+                    value={formData.naturalizationInfo?.certificateNumber || ""}
+                    onChange={(v) => handleNestedChange("naturalizationInfo", "certificateNumber", v)}
+                    placeholder="Naturalization Certificate #"
+                  />
+                  <FormField
+                    label="Date of Issuance"
+                    value={formData.naturalizationInfo?.dateOfIssuance || ""}
+                    onChange={(v) => handleNestedChange("naturalizationInfo", "dateOfIssuance", v)}
+                    type="date"
+                  />
+                </div>
+                <FormField
+                  label="Place of Issuance"
+                  value={formData.naturalizationInfo?.placeOfIssuance || ""}
+                  onChange={(v) => handleNestedChange("naturalizationInfo", "placeOfIssuance", v)}
+                  placeholder="City, State"
+                />
+              </div>
+            )}
+          </FormSection>
+
           <FormSection title="Immigration History">
             <div className="space-y-3 bg-slate-50 rounded-md px-4 py-3 border border-slate-200">
               <FormCheckbox
@@ -564,6 +1017,80 @@ export default function CompleteProfileForm() {
           </FormSection>
         </div>
       )
+    },
+    {
+      title: "Legal & Eligibility Details",
+      description: "Advanced details for visa eligibility assessment",
+      render: () => (
+        <div className="space-y-5">
+           <FormSection title="Status & Intent">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormSelect
+                label="How did you obtain your status?"
+                value={formData.visaEligibility?.statusOrigin || ""}
+                onChange={(v) => handleNestedChange("visaEligibility", "statusOrigin", v)}
+                options={[
+                  { value: "BIRTH", label: "By Birth" },
+                  { value: "NATURALIZED", label: "Naturalized" },
+                  { value: "GREEN_CARD", label: "Green Card Holder" },
+                ]}
+                placeholder="Select origin"
+              />
+              <FormSelect
+                label="Intent of Stay"
+                value={formData.visaEligibility?.intent || ""}
+                onChange={(v) => handleNestedChange("visaEligibility", "intent", v)}
+                options={[
+                  { value: "PERMANENT", label: "Permanent (Immigrant)" },
+                  { value: "TEMPORARY", label: "Temporary (Non-Immigrant)" },
+                ]}
+                placeholder="Select intent"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+               <FormSelect
+                label="Sponsorship Base"
+                value={formData.visaEligibility?.sponsorBase || ""}
+                onChange={(v) => handleNestedChange("visaEligibility", "sponsorBase", v)}
+                options={[
+                  { value: "FAMILY", label: "Family-Based" },
+                  { value: "EMPLOYMENT", label: "Employment-Based" },
+                  { value: "INVESTMENT", label: "Investment" },
+                  { value: "HUMANITARIAN", label: "Humanitarian" },
+                ]}
+                placeholder="Select base"
+              />
+               <FormSelect
+                label="Legal Relationship Status"
+                value={formData.visaEligibility?.legalStatus || ""}
+                onChange={(v) => handleNestedChange("visaEligibility", "legalStatus", v)}
+                options={[
+                  { value: "MARRIAGE_REGISTERED", label: "Registered Marriage" },
+                  { value: "BIOLOGICAL", label: "Biological" },
+                  { value: "ADOPTIVE", label: "Adoptive" },
+                  { value: "STEP", label: "Step-Child/Parent" },
+                ]}
+                placeholder="For parent/child cases"
+              />
+            </div>
+           </FormSection>
+
+           <FormSection title="History & Violations">
+             <div className="space-y-3">
+               <FormSelect
+                  label="Any history of visa violations?"
+                  value={formData.visaEligibility?.violationHistory || ""}
+                  onChange={(v) => handleNestedChange("visaEligibility", "violationHistory", v)}
+                  options={[
+                    { value: "NO", label: "No" },
+                    { value: "YES", label: "Yes" },
+                    { value: "NOT_SURE", label: "Not Sure" },
+                  ]}
+                />
+             </div>
+           </FormSection>
+        </div>
+      )
     }
   ];
 
@@ -662,7 +1189,7 @@ export default function CompleteProfileForm() {
           <Button
             onClick={nextStep}
             disabled={loading}
-            className="h-9 px-4 text-sm min-w-[120px]"
+            className="h-9 px-4 text-sm min-w-30"
           >
             {loading ? (
               <>
