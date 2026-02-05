@@ -35,6 +35,7 @@ interface ActionPlanResultsProps {
   formData: import('../types/221g').FormData | null;
   selectedItems: import('../types/221g').FormSelections | null;
   onBackToForm: () => void;
+  onSaveToProfile: () => Promise<void>;
 }
 
 interface UploadedFile {
@@ -48,11 +49,14 @@ export default function ActionPlanResults({
   actionPlan,
   formData,
   selectedItems,
-  onBackToForm
+  onBackToForm,
+  onSaveToProfile
 }: ActionPlanResultsProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
   // Document management
   const [uploadedDocs, setUploadedDocs] = useState<Record<string, UploadedFile[]>>({});
@@ -581,6 +585,22 @@ export default function ActionPlanResults({
                 >
                   <FileTextIcon className="w-5 h-5 mr-2" />
                   Preview Cover Letter
+                </Button>
+                
+                 <Button
+                  variant="secondary"
+                  size="lg"
+                  className="text-lg px-8 bg-blue-100 hover:bg-blue-200 text-blue-800"
+                  disabled={saving}
+                  onClick={async () => {
+                    setSaving(true);
+                    await onSaveToProfile();
+                    setSaveMessage("Saved!");
+                    setTimeout(() => setSaveMessage(""), 3000);
+                    setSaving(false);
+                  }}
+                >
+                   {saving ? "Saving..." : saveMessage || "Save Results to Profile"}
                 </Button>
               </div>
 

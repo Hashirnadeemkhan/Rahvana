@@ -461,14 +461,7 @@ const QuestionStep = ({
             ← Previous
           </Button>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={() => onSaveForLater && onSaveForLater()}
-              variant="outline"
-              className="py-6 text-lg border-slate-300 hover:bg-slate-100"
-              type="button"
-            >
-              Save for Later
-            </Button>
+      
             <Button
               onClick={onNext}
               suppressHydrationWarning
@@ -1286,15 +1279,7 @@ const ReviewStep = ({
             ← Previous
           </Button>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={() => onSaveForLater && onSaveForLater()}
-              variant="outline"
-              className="py-6 text-lg border-slate-300 hover:bg-slate-100"
-              type="button"
-              disabled={loading}
-            >
-              Save for Later
-            </Button>
+      
             <Button
               onClick={onSubmit}
               disabled={loading}
@@ -1328,7 +1313,7 @@ export default function VisaCaseStrengthChecker() {
   const { user } = useAuth();
   const [profileLoaded, setProfileLoaded] = useState(false);
 
-  // Auto-fill profile data
+  // Auto-fill profile data & Restore saved session
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
@@ -1341,15 +1326,34 @@ export default function VisaCaseStrengthChecker() {
           .single();
 
         if (data?.profile_details && !profileLoaded) {
-            const mappedData = mapProfileToVisaChecker(data.profile_details as MasterProfile);
+            const profile = data.profile_details as MasterProfile;
+            
+            // 1. Check for specific Saved Case Strength Session
+            if (profile.caseStrength?.lastSessionId && profile.caseStrength?.answers) {
+                 // Restore specific tool state
+                 setFormData(profile.caseStrength.answers as FormData);
+                 setSessionId(profile.caseStrength.lastSessionId);
+                 setProfileLoaded(true);
+                 
+                 // If we have a sessionId, we assume the user might have completed or wants to see results
+                 // But strictly speaking, sessionId just means a session exists.
+                 // The user wants "Direct Result" like Visa Eligibility.
+                 // In Visa Eligibility, we check if enough data exists.
+                 // Here, if we have a saved sessionId, it implies we saved result state?
+                 // Let's perform a check: if we have answers and sessionId, try to jump to results.
+                 // Note: questionnaireData might not be loaded yet, so we can't set step to length+2 reliably here.
+                 // We will set a flag or rely on the other useEffect.
+                 return; 
+            }
+
+            // 2. Fallback: Generic Auto-fill
+            const mappedData = mapProfileToVisaChecker(profile);
             
             setFormData(prev => {
                 const newData = { ...prev };
                 let hasUpdates = false;
                 
                 Object.entries(mappedData).forEach(([key, value]) => {
-                    // Only auto-fill if the field is currently empty/undefined
-                    // This prevents overwriting what the user might have already typed if they revisit
                     if (newData[key as keyof FormData] === undefined || newData[key as keyof FormData] === "") {
                          (newData as { [k: string]: string | number | boolean | undefined })[key] = value as string | number | boolean | undefined;
                          hasUpdates = true;
@@ -1367,118 +1371,6 @@ export default function VisaCaseStrengthChecker() {
 
     fetchProfile();
   }, [user, profileLoaded, supabase]);
-
-  // Check for existing session on component mount
-  useEffect(() => {
-    const checkExistingSession = async () => {
-      const savedSessionId = localStorage.getItem("visaCheckerSessionId");
-
-      if (savedSessionId) {
-        try {
-          setLoading(true);
-          const response = await fetch(
-            `/api/visa-checker/session/${savedSessionId}`,
-          );
-          const sessionData = await response.json();
-
-          if (response.ok && sessionData.completed === false) {
-            // Found an incomplete session, restore it
-            setSessionId(savedSessionId);
-            setFormData((prev) => ({
-              ...prev,
-              ...sessionData.answers,
-            }));
-
-
-            setStep(0);
-            // Scroll to top when restoring session
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else {
-            // Session doesn't exist or is already completed, remove from localStorage
-            localStorage.removeItem("visaCheckerSessionId");
-          }
-        } catch (err) {
-          console.error("Error restoring session:", err);
-          localStorage.removeItem("visaCheckerSessionId");
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    checkExistingSession();
-  }, []);
-
-  // Load questions from the JSON file
-  interface QuestionDefinition {
-    id: string;
-    label: string;
-    type: string;
-    options?: string | string[];
-    risk_tag?: string;
-  }
-
-  interface QuestionnaireData {
-    sections: Array<{
-      title: string;
-      questions: QuestionDefinition[];
-    }>;
-  }
-
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
-      
-      // If we already have data (e.g. from session restore), maybe don't overwrite?
-      // Or only overwrite empty fields?
-      // For now, let's fetch and only merge if we are at the start or simple check.
-      // Actually, standard behavior is: Profile data fills gaps.
-      
-      const { data } = await supabase
-        .from('user_profiles')
-        .select('profile_details')
-        .eq('id', user.id)
-        .single();
-        
-      if (data?.profile_details) {
-         const profile = data.profile_details as MasterProfile;
-         // Use the mapper (generic or specific)
-         const mappedData = mapProfileToVisaChecker(profile);
-         
-         setFormData(prev => {
-            // Merge: Only overwrite if prev is empty/default or we want to force?
-            // Usually we want to overwrite defaults.
-            // But we must respect Case Type if already selected?
-            // The mapper returns a generic record.
-            
-            const newFormData = { ...prev };
-            
-            Object.keys(mappedData).forEach(key => {
-               const val = mappedData[key];
-               // If val is valid and current is empty/undefined, set it.
-               // We cast key to keyof FormData
-               const k = key as keyof FormData;
-               
-               // Check if we should update
-               const currentVal = newFormData[k];
-               const isEmpty = currentVal === "" || currentVal === undefined || currentVal === null || 
-                               (typeof currentVal === 'number' && currentVal === 0) ||
-                               (typeof currentVal === 'boolean' && currentVal === false);
-                               
-               if (val !== undefined && val !== null && isEmpty) {
-                   // specialized assignment to handle type safety if needed, or just cast
-                   (newFormData as any)[k] = val;
-               }
-            });
-            
-            return newFormData;
-         });
-      }
-    };
-    
-    fetchProfile();
-  }, [user, supabase]);
 
   const [questionnaireData, setQuestionnaireData] =
     useState<QuestionnaireData | null>(null);
@@ -1499,6 +1391,17 @@ export default function VisaCaseStrengthChecker() {
     setFormData((prev) => ({ ...prev, caseType }));
     setError(null);
   };
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Auto-jump to results if session restored
+  useEffect(() => {
+    if (sessionId && questionnaireData && step !== questionnaireData.sections.length + 2 && !isEditing) {
+       // Only jump if we have substantial data? 
+       // For now, if sessionId is present (restored from profile), we jump.
+       setStep(questionnaireData.sections.length + 2);
+    }
+  }, [sessionId, questionnaireData, step, isEditing]);
 
   // Define valid question keys to validate against the enum
   const validQuestionKeys: (keyof FormData)[] = [
@@ -1651,6 +1554,11 @@ export default function VisaCaseStrengthChecker() {
           // Save session ID to localStorage for resume later functionality
           localStorage.setItem("visaCheckerSessionId", sessionResult.sessionId);
 
+          /* 
+             User requested removal of "Save for Later" logic that was causing errors.
+             We are now using Profile-based persistence.
+             The following block was causing invalid enum errors.
+             
           // Save initial answers, excluding non-question fields and validating question keys
           const answers = Object.fromEntries(
             Object.entries(formData)
@@ -1676,6 +1584,7 @@ export default function VisaCaseStrengthChecker() {
               await answersResponse.text(),
             );
           }
+          */
         } else {
           throw new Error(sessionResult.error || "Failed to create session");
         }
@@ -2040,8 +1949,8 @@ export default function VisaCaseStrengthChecker() {
             error={error}
             loading={loading}
             onSubmit={handleSubmit}
+            onSubmit={handleSubmit}
             onBack={prevStep}
-            onSaveForLater={handleSaveForLater}
             onSaveToProfile={user ? handleSaveToProfile : undefined}
           />
         )
@@ -2057,7 +1966,23 @@ export default function VisaCaseStrengthChecker() {
           </div>
         );
       }
-      return <ResultPage sessionId={sessionId} onRestart={() => setStep(0)} />;
+      return <ResultPage 
+        sessionId={sessionId} 
+        onRestart={() => {
+           setSessionId('');
+           setStep(0);
+           setFormData({} as FormData);
+           setSessionId(null);
+           setIsEditing(false);
+           localStorage.removeItem("visaCheckerSessionId");
+        }}
+        onEdit={() => {
+           setIsEditing(true);
+           // Go back to first question step (Case Type is 0, First Q is 1)
+           setStep(1); 
+        }}
+        onSaveToProfile={handleSaveToProfile}
+      />;
     }
 
     return (

@@ -31,12 +31,7 @@ function ResultPageInner() {
             <p className="text-slate-600 mb-6">
               No session ID provided. Please start a new assessment.
             </p>
-            <button
-              onClick={handleRestart}
-              className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-            >
-              Start New Assessment
-            </button>
+  
           </div>
         </div>
       </div>

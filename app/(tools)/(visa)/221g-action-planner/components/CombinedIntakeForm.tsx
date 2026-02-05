@@ -19,6 +19,8 @@ import { createBrowserClient } from "@supabase/ssr"
 
 interface CombinedIntakeFormProps {
   onSubmit: (data: FormData, selectedItems: FormSelections) => void;
+  initialData?: FormData | null;
+  initialSelections?: FormSelections | null;
 }
 
 const VISA_TYPES = [
@@ -52,9 +54,9 @@ const OFFICER_REQUESTS = [
   { value: "other", label: "Other (please specify)" },
 ]
 
-export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps) {
+export default function CombinedIntakeForm({ onSubmit, initialData, initialSelections }: CombinedIntakeFormProps) {
   const [currentStep, setCurrentStep] = useState(0)
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormData>(initialData || {
     visaType: "",
     visaTypeOther: "",
     interviewDate: "",
@@ -69,7 +71,7 @@ export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps
     caseNumber: "",
     additionalNotes: "",
   })
-  const [selected221gItems, setSelected221gItems] = useState<FormSelections>({})
+  const [selected221gItems, setSelected221gItems] = useState<FormSelections>(initialSelections || {})
   const [showFormChecker, setShowFormChecker] = useState(false)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const { user } = useAuth()
@@ -80,6 +82,10 @@ export default function CombinedIntakeForm({ onSubmit }: CombinedIntakeFormProps
 
   // Auto-fill profile data
   useEffect(() => {
+    // If we were initialized with saved data, don't overwrite with generic profile data automatically
+    // unless the user explicitly wants to (feature for later?)
+    if (initialData) return;
+    
     const fetchProfile = async () => {
       if (!user) return;
 

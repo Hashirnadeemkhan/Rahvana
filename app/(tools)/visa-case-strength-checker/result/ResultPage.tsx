@@ -355,13 +355,7 @@ export function ResultPage({ sessionId, onRestart, onEdit, onSaveToProfile }: Re
           {saving ? "Saving..." : saveMessage || "Save Results to My Profile"}
         </Button>
 
-        <Button
-          onClick={onRestart}
-          variant="ghost"
-          className="text-slate-500 hover:text-slate-700 mt-2"
-        >
-          Start New Assessment
-        </Button>
+    
       </div>
     </div>
   );
