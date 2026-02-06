@@ -940,9 +940,9 @@ export function SiteHeader({
                           title: "BulletinBuddy",
                           description:
                             "Check your priority date progress against the Visa Bulletin.",
-                          href: "#",
-                          badge: "Soon",
-                          disabled: true,
+                          href: "/visa-checker",
+                          badge: "Live",
+                          disabled: false,
                         },
                       ],
                     },
