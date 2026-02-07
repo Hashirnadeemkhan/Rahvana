@@ -33,10 +33,13 @@ import {
   Settings,
   Tag,
   FileCheck,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
+import { useTheme } from "next-themes";
 
 interface HeaderProps {
   activeSection?: string;
@@ -114,6 +117,7 @@ export function SiteHeader({
   // Run cleanup once
   useExtensionCleanup();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -190,8 +194,10 @@ export function SiteHeader({
   return (
     <header
       className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-white shadow-lg py-2" : "bg-white py-4"
-      } border-b border-slate-100/50`}
+        scrolled
+          ? "bg-background/80 backdrop-blur-md shadow-lg py-2"
+          : "bg-background py-4"
+      } border-b border-border`}
     >
       {/* ------------------------------------------------------------------ */}
       {/* Desktop navigation */}
@@ -201,7 +207,7 @@ export function SiteHeader({
         <div className="flex items-center gap-4">
           {/* Mobile Menu Trigger */}
           <HydrationSafeButton
-            className="md:hidden text-slate-800 p-1 hover:bg-slate-50 rounded-md transition-colors"
+            className="md:hidden text-foreground p-1 hover:bg-muted rounded-md transition-colors"
             onClick={() => setIsMenuOpen(true)}
             aria-label="Open menu"
           >
@@ -248,7 +254,7 @@ export function SiteHeader({
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 isActive("home", "/")
                   ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-primary"
               }`}
             >
               Home
@@ -263,8 +269,8 @@ export function SiteHeader({
               <button
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "journeys"
-                    ? "bg-slate-100 text-primary"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-primary"
                 }`}
               >
                 Explore Journeys
@@ -283,8 +289,8 @@ export function SiteHeader({
               <button
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "tools"
-                    ? "bg-slate-100 text-primary"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-primary"
                 }`}
               >
                 Toolbox
@@ -303,8 +309,8 @@ export function SiteHeader({
               <button
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "guides"
-                    ? "bg-slate-100 text-primary"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-primary"
                 }`}
               >
                 Guides
@@ -323,8 +329,8 @@ export function SiteHeader({
               <button
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "services"
-                    ? "bg-slate-100 text-primary"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                    ? "bg-muted text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-primary"
                 }`}
               >
                 Services
@@ -1187,14 +1193,27 @@ export function SiteHeader({
         </div>
 
         {/* Right side – Search + Login */}
+
         <div className="flex items-center gap-3">
+          {/* Theme Toggle (Logged Out / Shared) */}
+          <HydrationSafeButton
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="bg-transparent hover:bg-primary/10 p-2 rounded-md relative text-muted-foreground hover:text-primary"
+            aria-label="Toggle Theme"
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-2 left-2" />
+          </HydrationSafeButton>
+
           <HydrationSafeButton
             variant="outline"
             size="icon"
             aria-label="Search"
-            className="bg-transparent hover:bg-primary/10 p-2 rounded-md"
+            className="bg-transparent hover:bg-primary/10 p-2 rounded-md text-muted-foreground hover:text-primary"
           >
-            <Bell className="h-5 w-5 text-gray-600" aria-hidden="true" />
+            <Bell className="h-5 w-5" aria-hidden="true" />
           </HydrationSafeButton>
 
           {/* LOGIN / PROFILE toggle */}
@@ -1214,71 +1233,84 @@ export function SiteHeader({
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute right-0 top-full mt-2 w-72 max-h-[80vh] overflow-y-auto rounded-xl shadow-xl border border-gray-100 bg-white z-50 transform origin-top-right"
+                    className="absolute right-0 top-full mt-2 w-72 max-h-[80vh] overflow-y-auto rounded-xl shadow-xl border border-border bg-card z-50 transform origin-top-right"
                   >
                     {/* Header */}
-                    <div className="px-5 py-4 border-b border-gray-50 bg-slate-50/50">
-                      <h3 className="font-bold text-slate-900">
+                    <div className="px-5 py-4 border-b border-border bg-muted/30">
+                      <h3 className="font-bold text-foreground">
                         {user?.user_metadata?.full_name ||
                           user?.user_metadata?.name ||
                           "Valued User"}
                       </h3>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-muted-foreground">
                         {user?.email || "No email available"}
                       </p>
                     </div>
 
                     {/* Section 1 */}
-                    <div className="py-2 border-b border-gray-50">
+                    <div className="py-2 border-b border-border">
                       <button
                         onClick={() => handleNav("dashboard")}
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Layout className="w-4 h-4" />
                         My Dashboard
                       </button>
                       <button
                         onClick={() => handleNav("document-vault")}
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Folder className="w-4 h-4" />
                         Document Vault
                       </button>
                       <button
                         onClick={() => handleNav("services")}
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Tag className="w-4 h-4" />
                         My Services
                       </button>
                       <button
                         onClick={() => {}} // Placeholder
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Lock className="w-4 h-4" />
                         Portal Locker
                       </button>
+
+                      <button
+                        onClick={() =>
+                          setTheme(theme === "dark" ? "light" : "dark")
+                        }
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
+                      >
+                        <div className="relative w-4 h-4">
+                          <Sun className="absolute w-4 h-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                          <Moon className="absolute w-4 h-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        </div>
+                        <span>Switch Theme</span>
+                      </button>
                     </div>
 
                     {/* Section 2 */}
-                    <div className="py-2 border-b border-gray-50">
+                    <div className="py-2 border-b border-border">
                       <button
                         onClick={() => {}} // Placeholder
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Settings className="w-4 h-4" />
                         Account Settings
                       </button>
                       <button
                         onClick={() => handleNav("view-security-questions")}
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Shield className="w-4 h-4" />
                         Security & Login
                       </button>
                       <button
                         onClick={() => {}} // Placeholder
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <HelpCircle className="w-4 h-4" />
                         Help Center
@@ -1292,7 +1324,7 @@ export function SiteHeader({
                           onToggleAuth?.();
                           setActiveMenu(null);
                         }}
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-red-600 hover:bg-red-50 transition-colors text-sm font-medium"
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-sm font-medium"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -1325,8 +1357,8 @@ export function SiteHeader({
           />
 
           {/* Sidebar Content */}
-          <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+          <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-background shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
+            <div className="flex items-center justify-between p-5 border-b border-border">
               {/* <Link
                 href="/"
                 onClick={(e) => handleNav("home", e)}
@@ -1359,7 +1391,7 @@ export function SiteHeader({
                 </svg>
               </Link>
               <HydrationSafeButton
-                className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+                className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
                 onClick={() => setIsMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -1385,8 +1417,8 @@ export function SiteHeader({
                   onClick={() => handleNav("home")}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                     isActive("home", "/")
-                      ? "bg-[#0d9488]/10 text-[#0d9488]"
-                      : "text-slate-600 hover:bg-slate-50"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   <span className="font-bold">Home</span>
@@ -1403,7 +1435,7 @@ export function SiteHeader({
                           : [...prev, section],
                       );
                     }}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-all"
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-muted-foreground hover:bg-muted transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <Briefcase className="w-5 h-5 opacity-60" />
@@ -1421,8 +1453,8 @@ export function SiteHeader({
                         onClick={() => handleNav("ir1-journey")}
                         className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
                           isActive("ir1-journey")
-                            ? "text-[#0d9488] font-semibold bg-[#0d9488]/5"
-                            : "text-slate-500 hover:text-[#0d9488] hover:bg-slate-50"
+                            ? "text-primary font-semibold bg-primary/5"
+                            : "text-muted-foreground hover:text-primary hover:bg-muted"
                         }`}
                       >
                         IR Category
@@ -1442,7 +1474,7 @@ export function SiteHeader({
                           : [...prev, section],
                       );
                     }}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-all"
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-muted-foreground hover:bg-muted transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <Zap className="w-5 h-5 opacity-60" />
@@ -1462,8 +1494,8 @@ export function SiteHeader({
                         onClick={() => handleNav("services")}
                         className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
                           isActive("services")
-                            ? "text-[#0d9488] font-semibold bg-[#0d9488]/5"
-                            : "text-slate-500 hover:text-[#0d9488] hover:bg-slate-50"
+                            ? "text-primary font-semibold bg-primary/5"
+                            : "text-muted-foreground hover:text-primary hover:bg-muted"
                         }`}
                       >
                         Consultancy
@@ -1483,7 +1515,7 @@ export function SiteHeader({
                           : [...prev, section],
                       );
                     }}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-all"
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-muted-foreground hover:bg-muted transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <FileText className="w-5 h-5 opacity-60" />
@@ -1496,7 +1528,7 @@ export function SiteHeader({
                     />
                   </HydrationSafeButton>
                   {expandedSections.includes("tools") && (
-                    <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
+                    <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-border pl-4">
                       {[
                         { id: "passport", label: "Passport Photo" },
                         { id: "pdf", label: "PDF Processing" },
@@ -1523,8 +1555,8 @@ export function SiteHeader({
                           onClick={() => handleNav(item.id)}
                           className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
                             isActive(item.id)
-                              ? "text-[#0d9488] font-semibold bg-[#0d9488]/5"
-                              : "text-slate-500 hover:text-[#0d9488] hover:bg-slate-50"
+                              ? "text-primary font-semibold bg-primary/5"
+                              : "text-muted-foreground hover:text-primary hover:bg-muted"
                           }`}
                         >
                           {item.label}
@@ -1539,8 +1571,8 @@ export function SiteHeader({
                   onClick={() => handleNav("pricing")}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                     isActive("pricing")
-                      ? "bg-[#0d9488]/10 text-[#0d9488]"
-                      : "text-slate-600 hover:bg-slate-50"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   <span className="font-bold">Pricing</span>
@@ -1561,8 +1593,8 @@ export function SiteHeader({
                   onClick={() => handleNav("contact")}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                     isActive("contact")
-                      ? "bg-[#0d9488]/10 text-[#0d9488]"
-                      : "text-slate-600 hover:bg-slate-50"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   <span className="font-bold">Contact</span>

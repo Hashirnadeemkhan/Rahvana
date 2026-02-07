@@ -105,32 +105,32 @@ export default function PoliceVerificationPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gray-50">
-      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col min-h-[600px]">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-background">
+      <div className="w-full max-w-4xl bg-card rounded-3xl shadow-xl overflow-hidden flex flex-col min-h-[600px] border border-border">
         {/* Header */}
-        <div className="p-8 pb-6 border-b border-gray-100 bg-white sticky top-0 z-10">
-          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+        <div className="p-8 pb-6 border-b border-border bg-card sticky top-0 z-10">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
               <ShieldCheck className="text-primary" size={28} />
             </div>
             Police Verification Guide
           </h1>
-          <p className="text-gray-500 mt-2 ml-14">
+          <p className="text-muted-foreground mt-2 ml-14">
             Follow our step-by-step guide to complete your police verification
             process.
           </p>
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-8 overflow-y-auto bg-white">
+        <div className="flex-1 p-8 overflow-y-auto bg-card">
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="step1" {...fadeIn} className="space-y-6">
                 <div className="space-y-2">
-                  <h2 className="text-xl font-semibold text-gray-800">
+                  <h2 className="text-xl font-semibold text-foreground">
                     Select Your Province
                   </h2>
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Please choose the province where you are applying for
                     verification.
                   </p>
@@ -144,7 +144,7 @@ export default function PoliceVerificationPage() {
                       className={`group relative p-6 rounded-2xl border-2 text-left transition-all duration-200 hover:shadow-md ${
                         province === p.id
                           ? "border-primary bg-primary/5"
-                          : "border-gray-100 hover:border-primary/30 hover:bg-gray-50"
+                          : "border-border hover:border-primary/30 hover:bg-muted"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
@@ -152,7 +152,7 @@ export default function PoliceVerificationPage() {
                           className={`p-3 rounded-full ${
                             province === p.id
                               ? "bg-primary/10 text-primary"
-                              : "bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary"
+                              : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
                           }`}
                         >
                           <MapPin size={24} />
@@ -168,7 +168,7 @@ export default function PoliceVerificationPage() {
                       </div>
                       <h3
                         className={`text-lg font-semibold ${
-                          province === p.id ? "text-primary" : "text-gray-700"
+                          province === p.id ? "text-primary" : "text-foreground"
                         }`}
                       >
                         {p.label}
@@ -196,7 +196,7 @@ export default function PoliceVerificationPage() {
                     onGenerateLetter={() => setIsLetterModalOpen(true)}
                     onApply={() =>
                       router.push(
-                        `/police-verification/apply?province=${province}`
+                        `/police-verification/apply?province=${province}`,
                       )
                     }
                   />
@@ -208,7 +208,7 @@ export default function PoliceVerificationPage() {
                     }
                     onApply={() =>
                       router.push(
-                        `/police-verification/apply?province=${province}`
+                        `/police-verification/apply?province=${province}`,
                       )
                     }
                   />
@@ -220,7 +220,7 @@ export default function PoliceVerificationPage() {
                     }
                     onApply={() =>
                       router.push(
-                        `/police-verification/apply?province=${province}`
+                        `/police-verification/apply?province=${province}`,
                       )
                     }
                   />
@@ -232,7 +232,7 @@ export default function PoliceVerificationPage() {
                     }
                     onApply={() =>
                       router.push(
-                        `/police-verification/apply?province=${province}`
+                        `/police-verification/apply?province=${province}`,
                       )
                     }
                   />
@@ -242,10 +242,10 @@ export default function PoliceVerificationPage() {
                       <AlertCircle className="text-orange-500" size={48} />
                     </div>
                     <div className="space-y-2 max-w-md">
-                      <h2 className="text-2xl font-bold text-gray-800">
+                      <h2 className="text-2xl font-bold text-foreground">
                         Instructions Not Available
                       </h2>
-                      <p className="text-gray-500">
+                      <p className="text-muted-foreground">
                         We are currently updating our database for {province}.
                         Detailed instructions will be available soon.
                       </p>
@@ -500,21 +500,21 @@ function SindhInstructions({
     <div className="flex flex-col h-full relative pb-24">
       <div className="space-y-2 mb-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-foreground">
             {currentSet.title}
           </h2>
-          <span className="text-sm font-semibold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+          <span className="text-sm font-semibold text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
             Part {currentStepIndex + 1} of {instructionSets.length}
           </span>
         </div>
-        <p className="text-gray-500">{currentSet.description}</p>
+        <p className="text-muted-foreground">{currentSet.description}</p>
       </div>
 
       <div className="space-y-4 overflow-y-auto px-1">
         {currentSet.steps.map((step, index) => (
           <div
             key={index}
-            className="flex gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:shadow-sm hover:border-primary/10 transition-all"
+            className="flex gap-4 p-4 rounded-2xl border border-border bg-muted/20 hover:bg-card hover:shadow-sm hover:border-primary/30 transition-all"
           >
             <div className="shrink-0">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
@@ -522,11 +522,11 @@ function SindhInstructions({
               </div>
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              <h3 className="font-semibold text-foreground flex items-center gap-2">
                 {step.title}
                 <step.icon size={18} className="text-primary" />
               </h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 {step.description}
               </p>
             </div>
@@ -534,12 +534,12 @@ function SindhInstructions({
         ))}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-white border-t border-gray-100 flex items-center justify-between md:absolute md:rounded-b-3xl">
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-card border-t border-border flex items-center justify-between md:absolute md:rounded-b-3xl">
         <div className="w-1/3 flex justify-start">
           {!isFirstStep && (
             <button
               onClick={prevStep}
-              className="flex items-center gap-2 text-gray-500 hover:text-primary font-medium transition-colors px-4 py-2 hover:bg-gray-50 rounded-lg"
+              className="flex items-center gap-2 text-muted-foreground hover:text-primary font-medium transition-colors px-4 py-2 hover:bg-muted rounded-lg"
             >
               <ChevronLeft size={20} /> Back
             </button>
@@ -705,10 +705,10 @@ function PunjabInstructions({
     <div className="flex flex-col h-full relative pb-24">
       <div className="space-y-2 mb-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-foreground">
             {currentSet.title}
           </h2>
-          <span className="text-sm font-semibold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+          <span className="text-sm font-semibold text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
             Part {currentStepIndex + 1} of {instructionSets.length}
           </span>
         </div>
@@ -718,18 +718,18 @@ function PunjabInstructions({
       <div className="space-y-4 overflow-y-auto px-1">
         {currentSet.steps.map((step, index) => (
           <div key={index}>
-            <div className="flex gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:shadow-sm hover:border-primary/10 transition-all">
+            <div className="flex gap-4 p-4 rounded-2xl border border-border bg-muted/20 hover:bg-card hover:shadow-sm hover:border-primary/30 transition-all">
               <div className="shrink-0">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                   {index + 1}
                 </div>
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
                   {step.title}
                   <step.icon size={18} className="text-primary" />
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>
@@ -753,7 +753,7 @@ function PunjabInstructions({
         ))}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-white border-t border-gray-100 flex items-center justify-between md:absolute md:rounded-b-3xl">
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-card border-t border-border flex items-center justify-between md:absolute md:rounded-b-3xl">
         <div className="w-1/3 flex justify-start">
           <button
             onClick={() => prevStep()}
@@ -815,8 +815,8 @@ function PKMLocator({ province }: { province: string }) {
     province === "Punjab"
       ? pkmCenters
       : province === "Balochistan"
-      ? balochistanCenters
-      : kpkCenters;
+        ? balochistanCenters
+        : kpkCenters;
 
   const getBrowserLocation = () => {
     setLoading(true);
@@ -836,10 +836,10 @@ function PKMLocator({ province }: { province: string }) {
       },
       () => {
         setError(
-          "Unable to retrieve your location. Please check permissions or enter manually."
+          "Unable to retrieve your location. Please check permissions or enter manually.",
         );
         setLoading(false);
-      }
+      },
     );
   };
 
@@ -855,7 +855,7 @@ function PKMLocator({ province }: { province: string }) {
       const centers = findNearestCenters(
         location.lat,
         location.lng,
-        centersData
+        centersData,
       );
       setNearestCenters(centers);
     } else {
@@ -865,12 +865,12 @@ function PKMLocator({ province }: { province: string }) {
         const centers = findNearestCenters(
           fallbackLocation.lat,
           fallbackLocation.lng,
-          centersData
+          centersData,
         );
         setNearestCenters(centers);
       } else {
         setError(
-          `Could not find "${searchQuery}" in ${province}. Please try entering a city name like "Peshawar" or "Multan".`
+          `Could not find "${searchQuery}" in ${province}. Please try entering a city name like "Peshawar" or "Multan".`,
         );
       }
     }
@@ -1100,10 +1100,10 @@ function BalochistanInstructions({
     <div className="flex flex-col h-full relative pb-24">
       <div className="space-y-2 mb-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-foreground">
             {currentSet.title}
           </h2>
-          <span className="text-sm font-semibold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+          <span className="text-sm font-semibold text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
             Part {currentStepIndex + 1} of {instructionSets.length}
           </span>
         </div>
@@ -1120,11 +1120,11 @@ function BalochistanInstructions({
                 </div>
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
                   {step.title}
                   <step.icon size={18} className="text-primary" />
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>
@@ -1321,10 +1321,10 @@ function KPKInstructions({
     <div className="flex flex-col h-full relative pb-24">
       <div className="space-y-2 mb-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-foreground">
             {currentSet.title}
           </h2>
-          <span className="text-sm font-semibold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+          <span className="text-sm font-semibold text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
             Part {currentStepIndex + 1} of {instructionSets.length}
           </span>
         </div>
@@ -1341,11 +1341,11 @@ function KPKInstructions({
                 </div>
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
                   {step.title}
                   <step.icon size={18} className="text-primary" />
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>
@@ -1458,7 +1458,7 @@ function LetterModal({
     } else if (cleaned.length > 12) {
       formatted = `${cleaned.slice(0, 5)}-${cleaned.slice(
         5,
-        12
+        12,
       )}-${cleaned.slice(12, 13)}`;
     }
     return formatted;
@@ -1476,7 +1476,7 @@ function LetterModal({
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     let newValue = value;
@@ -1538,25 +1538,25 @@ function LetterModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white w-full max-w-2xl my-auto rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+        className="bg-card w-full max-w-2xl my-auto rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-border"
       >
-        <div className="p-6 md:p-8 overflow-y-auto bg-white">
+        <div className="p-6 md:p-8 overflow-y-auto bg-card">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="text-2xl font-bold text-foreground">
               Generate Letter
             </h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-primary/30 rounded-full transition-colors bg-primary/10"
             >
-              <X size={24} className="text-gray-500 " />
+              <X size={24} className="text-muted-foreground" />
             </button>
           </div>
 
           <form className="space-y-4 text-left">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-600">
+                <label className="text-sm font-semibold text-muted-foreground">
                   Full Name
                 </label>
                 <input
@@ -1565,18 +1565,18 @@ function LetterModal({
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Enter full name"
-                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                  className="w-full p-3 rounded-xl border border-input bg-background/50 focus:border-primary outline-none transition-all"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-600">
+                <label className="text-sm font-semibold text-muted-foreground">
                   Relation
                 </label>
                 <select
                   name="relation"
                   value={formData.relation}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                  className="w-full p-3 rounded-xl border border-input bg-background/50 focus:border-primary outline-none transition-all"
                 >
                   <option value="S/O">S/O</option>
                   <option value="D/O">D/O</option>
@@ -1586,7 +1586,7 @@ function LetterModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-600">
+              <label className="text-sm font-semibold text-muted-foreground">
                 Father/Guardian/Husband Name
               </label>
               <input
@@ -1595,12 +1595,12 @@ function LetterModal({
                 value={formData.guardianName}
                 onChange={handleChange}
                 placeholder="Enter guardian name"
-                className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                className="w-full p-3 rounded-xl border border-input bg-background/50 focus:border-primary outline-none transition-all"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-600">
+              <label className="text-sm font-semibold text-muted-foreground">
                 CNIC Number
                 {errors.cnic && (
                   <span className="text-red-500 text-xs ml-2">
@@ -1615,16 +1615,16 @@ function LetterModal({
                 onChange={handleChange}
                 placeholder="42101-1234567-1"
                 maxLength={15}
-                className={`w-full p-3 rounded-xl border outline-none transition-all ${
+                className={`w-full p-3 rounded-xl border bg-background/50 outline-none transition-all ${
                   errors.cnic
                     ? "border-red-500 focus:ring-1 focus:ring-red-500"
-                    : "border-gray-200 focus:border-primary"
+                    : "border-input focus:border-primary"
                 }`}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-600">
+              <label className="text-sm font-semibold text-muted-foreground">
                 Full Residential Address
               </label>
               <textarea
@@ -1632,20 +1632,20 @@ function LetterModal({
                 value={formData.address}
                 onChange={handleChange}
                 placeholder="Enter your complete address"
-                className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all min-h-[100px]"
+                className="w-full p-3 rounded-xl border border-input bg-background/50 focus:border-primary outline-none transition-all min-h-[100px]"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-600">
+                <label className="text-sm font-semibold text-muted-foreground">
                   Purpose
                 </label>
                 <select
                   name="purpose"
                   value={formData.purpose}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                  className="w-full p-3 rounded-xl border border-input bg-background/50 focus:border-primary outline-none transition-all"
                 >
                   <option value="Study">Study</option>
                   <option value="Immigration">Immigration</option>
@@ -1653,7 +1653,7 @@ function LetterModal({
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-600">
+                <label className="text-sm font-semibold text-muted-foreground">
                   District/Region
                 </label>
                 <input
@@ -1662,14 +1662,14 @@ function LetterModal({
                   value={formData.district}
                   onChange={handleChange}
                   placeholder="e.g. Karachi Central"
-                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                  className="w-full p-3 rounded-xl border border-input bg-background/50 focus:border-primary outline-none transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-600">
+                <label className="text-sm font-semibold text-muted-foreground">
                   Email Address
                   {errors.email && (
                     <span className="text-red-500 text-xs ml-2">
@@ -1683,15 +1683,15 @@ function LetterModal({
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter email"
-                  className={`w-full p-3 rounded-xl border outline-none transition-all ${
+                  className={`w-full p-3 rounded-xl border bg-background/50 outline-none transition-all ${
                     errors.email
                       ? "border-red-500 focus:ring-1 focus:ring-red-500"
-                      : "border-gray-200 focus:border-primary"
+                      : "border-input focus:border-primary"
                   }`}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-600">
+                <label className="text-sm font-semibold text-muted-foreground">
                   Phone Number
                 </label>
                 <input
@@ -1700,7 +1700,7 @@ function LetterModal({
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Enter phone number"
-                  className="w-full p-3 rounded-xl border border-gray-200 focus:border-primary outline-none transition-all"
+                  className="w-full p-3 rounded-xl border border-input bg-background/50 focus:border-primary outline-none transition-all"
                 />
               </div>
             </div>
@@ -1714,7 +1714,7 @@ function LetterModal({
                   !formData.fullName ||
                   !formData.cnic
                 }
-                className="flex-1 py-4 bg-gray-100 text-gray-800 font-bold rounded-2xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-4 bg-muted text-muted-foreground font-bold rounded-2xl hover:bg-muted/80 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Eye size={20} /> Preview
               </button>
@@ -1791,11 +1791,13 @@ function PreviewModal({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
+        className="bg-card w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] border border-border"
       >
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+        <div className="p-6 border-b border-border flex items-center justify-between bg-card sticky top-0 z-10">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold text-gray-800">Letter Preview</h2>
+            <h2 className="text-xl font-bold text-foreground">
+              Letter Preview
+            </h2>
             <button
               onClick={downloadPDF}
               className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-sm"

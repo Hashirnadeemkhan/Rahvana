@@ -115,7 +115,7 @@ export function MFASetup() {
         <h2 className="text-xl font-bold mb-4">
           Enable Two-Factor Authentication
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground mb-6">
           Add an extra layer of security to your account by enabling two-factor
           authentication.
         </p>
@@ -146,13 +146,13 @@ export function MFASetup() {
               <h3 className="text-lg font-semibold mb-2">
                 Disable Two-Factor Authentication
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Enter your current 6-digit authentication code to disable 2FA.
               </p>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Authentication Code
                   </label>
                   <Input
@@ -203,7 +203,7 @@ export function MFASetup() {
     return (
       <Card className="p-6 mt-20 max-w-md mx-auto">
         <h2 className="text-xl font-bold text-center">Scan QR Code</h2>
-        <p className="text-gray-600 font-medium">
+        <p className="text-muted-foreground font-medium">
           Scan this QR code with Google Authenticator:
         </p>
 
@@ -211,19 +211,19 @@ export function MFASetup() {
           <img
             src={qrCode}
             alt="Scan this QR code with your authenticator app"
-            className="border-4 border-teal-200 rounded-lg p-4 max-w-xs bg-white shadow-sm"
+            className="border-4 border-muted/20 rounded-lg p-4 max-w-xs bg-white shadow-sm"
           />
         </div>
 
         <div className="mb-6">
-          <p className="text-sm text-gray-600 font-medium mb-2">
+          <p className="text-sm text-muted-foreground font-medium mb-2">
             If you can&apos;t scan the QR code, you can manually enter the
             secret key below:
           </p>
 
           <div className="flex justify-between items-center gap-2">
             <div className="flex-1">
-              <div className="font-mono text-sm bg-gray-100 p-3 rounded border break-all">
+              <div className="font-mono text-sm bg-muted p-3 rounded border border-border break-all">
                 {secret.match(/.{1,4}/g)?.join(" ")}
               </div>
             </div>
@@ -237,14 +237,14 @@ export function MFASetup() {
                   button.textContent = originalText;
                 }, 2000);
               }}
-              className="p-3 bg-gray-200 cursor-pointer hover:bg-gray-300 rounded text-sm font-medium transition-colors"
+              className="p-3 bg-muted cursor-pointer hover:bg-muted/80 rounded text-sm font-medium transition-colors"
             >
               Copy
             </button>
           </div>
 
           <div className="mt-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">
+            <p className="text-sm font-medium text-foreground mb-2">
               Don&apos;t have Google Authenticator?
             </p>
             <div className="flex gap-4">
@@ -260,15 +260,15 @@ export function MFASetup() {
                 href="https://apps.apple.com/us/app/google-authenticator/id388497605"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium shadow-sm"
+                className="px-4 py-2 bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors text-sm font-medium shadow-sm"
               >
                 Download for iOS
               </a>
             </div>
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800">
+          <div className="mt-4 p-3 bg-blue-50/10 rounded-lg border border-blue-200/20">
+            <p className="text-sm text-blue-600">
               <span className="font-medium">Note:</span> Any TOTP-compatible
               authenticator app will work.
             </p>
@@ -307,7 +307,7 @@ export function MFASetup() {
         <h2 className="text-xl font-bold mb-4 text-green-600">
           ✓ 2FA Enabled Successfully!
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground mb-6">
           Two-factor authentication has been enabled on your account.
         </p>
 
