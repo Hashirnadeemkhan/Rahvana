@@ -170,6 +170,8 @@ export function SiteHeader({
         dashboard: "/user-dashboard",
         contact: "/#contact",
         passport: "/passport",
+        "passport-guide": "/guides/passport-guide",
+        "visa-strength-guide": "/guides/visa-strength-guide",
         pdf: "/pdf-processing",
         signature: "/signature-image-processing",
         iv: "/iv-tool",
@@ -1115,6 +1117,20 @@ export function SiteHeader({
                         },
                       ],
                     },
+                    {
+                      id: "case-strategy",
+                      label: "Case Strategy",
+                      items: [
+                        {
+                          icon: <ShieldCheck className="h-5 w-5" />,
+                          title: "Visa Strength Guide",
+                          description:
+                            "Master the IR-1/CR-1 process and assess your case strength today.",
+                          href: "/guides/visa-strength-guide",
+                          badge: "Live",
+                        },
+                      ],
+                    },
                   ]}
                   footerLink={{ label: "Browse all guides", href: "#" }}
                 />
@@ -1563,6 +1579,51 @@ export function SiteHeader({
                           id: "document-translation",
                           label: "Document Translation",
                         },
+                      ].map((item) => (
+                        <HydrationSafeButton
+                          key={item.id}
+                          onClick={() => handleNav(item.id)}
+                          className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
+                            isActive(item.id)
+                              ? "text-[#0d9488] font-semibold bg-[#0d9488]/5"
+                              : "text-slate-500 hover:text-[#0d9488] hover:bg-slate-50"
+                          }`}
+                        >
+                          {item.label}
+                        </HydrationSafeButton>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Guides Section */}
+                <div className="mt-2">
+                  <HydrationSafeButton
+                    onClick={() => {
+                      const section = "guides";
+                      setExpandedSections((prev) =>
+                        prev.includes(section)
+                          ? prev.filter((s) => s !== section)
+                          : [...prev, section],
+                      );
+                    }}
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Folder className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">Guides</span>
+                    </div>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        expandedSections.includes("guides") ? "rotate-180" : ""
+                      }`}
+                    />
+                  </HydrationSafeButton>
+                  {expandedSections.includes("guides") && (
+                    <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
+                      {[
+                        { id: "passport-guide", label: "Passport Guide" },
+                        { id: "visa-strength-guide", label: "Visa Strength Guide" },
                       ].map((item) => (
                         <HydrationSafeButton
                           key={item.id}

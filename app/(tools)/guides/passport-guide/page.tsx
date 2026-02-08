@@ -347,7 +347,7 @@ export default function PassportGuidePage() {
             </div>
 
             <div className="space-y-1.5">
-              {sections.map((section, idx) => {
+              {sections.map((section) => {
                 const isActive = activeTab === section.id;
                 const isCompleted = completedSections.includes(section.id);
                 const Icon = section.icon;
