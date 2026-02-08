@@ -10,24 +10,8 @@ export function PhotoGuideSection() {
   const [hovering, setHovering] = useState(false);
 
   return (
-    <section className="py-16 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#0d7377]/10 text-[#0d7377] rounded-full text-sm font-medium mb-4">
-            <Camera className="w-4 h-4" />
-            Passport Photo Guide
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 text-balance">
-            Get Your Photo{" "}
-            <span className="text-[#0d7377]">Right First Time</span>
-          </h2>
-          <p className="text-slate-500 mt-3 max-w-xl mx-auto">
-            Most passport rejections happen due to incorrect photos. Use our
-            comparison tool and zoom lens to understand the requirements.
-          </p>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
+    <div className="max-w-6xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Compare Section */}
           <div>
             <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
@@ -139,6 +123,5 @@ export function PhotoGuideSection() {
           </div>
         </div>
       </div>
-    </section>
-  );
+    );
 }
