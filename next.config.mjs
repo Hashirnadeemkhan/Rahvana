@@ -29,6 +29,14 @@
 
 // next.config.js
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
+  },
   webpack: (config) => {
     config.resolve.fallback = { canvas: false }
     return config

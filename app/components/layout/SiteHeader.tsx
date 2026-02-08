@@ -1047,31 +1047,48 @@ export function SiteHeader({
                           title: "PCC Playbook — Sindh",
                           description:
                             "Sindh police certificate guide: requirements, steps, timelines, and common mistakes.",
-                          href: "/police-verification", // Assuming this links to custom requirements or similar
+                          href: "/guides/police-verification", // Assuming this links to custom requirements or similar
                         },
                         {
                           icon: <Shield className="h-5 w-5" />,
                           title: "PCC Playbook — Punjab",
                           description:
                             "Punjab police certificate guide (service coming soon).",
-                          href: "/police-verification",
+                          href: "/guides/police-verification",
                         },
                         {
                           icon: <Shield className="h-5 w-5" />,
                           title: "PCC Playbook — KPK",
                           description:
                             "KPK police certificate guide (service coming soon).",
-                          href: "/police-verification",
+                          href: "/guides/police-verification",
                         },
                         {
                           icon: <Shield className="h-5 w-5" />,
                           title: "PCC Playbook — Balochistan",
                           description:
                             "Balochistan police certificate guide (service coming soon).",
-                          href: "/police-verification",
+                          href: "/guides/police-verification",
+                        },
+                        {
+                          icon: <Globe className="h-5 w-5" />,
+                          title: "Passport Guide",
+                          description:
+                            "Complete guide to obtaining or renewing your Pakistani passport.",
+                          href: "/guides/passport-guide",
+                          badge: "Live",
+                        },
+                        {
+                          icon: <Shield className="h-5 w-5" />,
+                          title: "PCC Reference Guide",
+                          description:
+                            "Comprehensive overview of Police Character Certificates for all provinces.",
+                          href: "/guides/police-certificate",
+                          badge: "Live",
                         },
                       ],
                     },
+                  
                     {
                       id: "embassy-logistics",
                       label: "Embassy Logistics",
@@ -1081,7 +1098,7 @@ export function SiteHeader({
                           title: "Courier & Passport Delivery Guide",
                           description:
                             "Register, choose delivery options, and troubleshoot common courier issues.",
-                          href: "/courier-registration",
+                          href: "/guides/courier-registration",
                         },
                       ],
                     },
@@ -1094,7 +1111,7 @@ export function SiteHeader({
                           title: "Customs & Declarations Guide",
                           description:
                             "What to declare, what to avoid, and common pitfalls when traveling.",
-                          href: "/custom-requirements", // Placeholder
+                          href: "/guides/custom-requirements", // Placeholder
                         },
                       ],
                     },
@@ -1354,7 +1371,7 @@ export function SiteHeader({
           />
 
           {/* Sidebar Content */}
-          <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
+          <div className="absolute top-0 left-0 bottom-0 w-70 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               {/* <Link
                 href="/"
