@@ -58,7 +58,7 @@ export default function DraggableTextPro({
     if (isSelected && data.text === "Insert text" && !isEditing) {
       setIsEditing(true);
     }
-  }, [isSelected, data.text]);
+  }, [isSelected, data.text, isEditing]);
 
   // Auto-focus and select all text when entering edit mode
   useEffect(() => {
@@ -69,6 +69,7 @@ export default function DraggableTextPro({
         textAreaRef.current.select();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]);
 
   const textWidth = data.width || 150;
