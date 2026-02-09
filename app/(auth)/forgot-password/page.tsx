@@ -183,7 +183,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-[480px]">
         {/* Card */}
-        <div className="bg-card rounded-2xl shadow-xl shadow-sm border border-border overflow-hidden">
+        <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
           {/* Header */}
           <div className="px-8 pt-10 pb-2 text-center">
             {/* Lock Icon */}

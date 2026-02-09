@@ -1,27 +1,28 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useMemo } from 'react';
-import { useAuth } from '@/app/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useDocumentVaultStore } from '@/lib/document-vault/store';
+import { useEffect, useState, useMemo } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useDocumentVaultStore } from "@/lib/document-vault/store";
 import {
   getDocumentsByCategory,
   getCategoryDisplayName,
-} from '@/lib/document-vault/personalization-engine';
-import { ALL_DOCUMENTS } from '@/lib/document-vault/document-definitions';
-import type { UploadedDocument } from '@/lib/document-vault/types';
-import { DocumentCard } from '@/app/components/document-vault/DocumentCard';
-import { DocumentPreviewModal } from '@/app/components/document-vault/DocumentPreviewModal';
-import { DocumentUploadModal } from '@/app/components/document-vault/DocumentUploadModal';
-import { DocumentWizard } from '@/app/components/document-vault/DocumentWizard';
-import { ConfigurationWizard } from '@/app/components/document-vault/ConfigurationWizard';
-import { LiveConfigPanel } from '@/app/components/document-vault/LiveConfigPanel';
-import { NotificationBell } from '@/app/components/document-vault/NotificationCenter';
-import { NotificationTestPanel } from '@/app/components/document-vault/NotificationTestPanel';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+} from "@/lib/document-vault/personalization-engine";
+import { ALL_DOCUMENTS } from "@/lib/document-vault/document-definitions";
+import type { UploadedDocument } from "@/lib/document-vault/types";
+import { DocumentCard } from "@/app/components/document-vault/DocumentCard";
+import { DocumentPreviewModal } from "@/app/components/document-vault/DocumentPreviewModal";
+import { DocumentUploadModal } from "@/app/components/document-vault/DocumentUploadModal";
+import { DocumentWizard } from "@/app/components/document-vault/DocumentWizard";
+import { ConfigurationWizard } from "@/app/components/document-vault/ConfigurationWizard";
+import { LiveConfigPanel } from "@/app/components/document-vault/LiveConfigPanel";
+import { NotificationBell } from "@/app/components/document-vault/NotificationCenter";
+import { NotificationTestPanel } from "@/app/components/document-vault/NotificationTestPanel";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
   FileText,
   AlertCircle,
@@ -30,8 +31,9 @@ import {
   Download,
   Bell,
   Trash2,
-} from 'lucide-react';
-import { toast } from 'sonner';
+  BookOpen,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export default function DocumentVaultPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -63,23 +65,25 @@ export default function DocumentVaultPage() {
   // Calculate stats - must be before any conditional returns
   const stats = useMemo(() => {
     // Only count required documents, not optional ones
-    const requiredDocs = requiredDocuments.filter(doc => doc.required);
+    const requiredDocs = requiredDocuments.filter((doc) => doc.required);
     const total = requiredDocs.length;
-    const uploaded = requiredDocs.filter(
-      rd => uploadedDocuments.some(
-        (ud) => ud.documentDefId === rd.id && ud.status === 'UPLOADED'
-      )
+    const uploaded = requiredDocs.filter((rd) =>
+      uploadedDocuments.some(
+        (ud) => ud.documentDefId === rd.id && ud.status === "UPLOADED",
+      ),
     ).length;
     const missing = requiredDocs.filter(
       (rd) =>
         !uploadedDocuments.some(
-          (ud) => ud.documentDefId === rd.id && ud.status !== 'MISSING'
-        )
+          (ud) => ud.documentDefId === rd.id && ud.status !== "MISSING",
+        ),
     ).length;
     const expiring = uploadedDocuments.filter(
-      (d) => d.status === 'NEEDS_ATTENTION'
+      (d) => d.status === "NEEDS_ATTENTION",
     ).length;
-    const expired = uploadedDocuments.filter((d) => d.status === 'EXPIRED').length;
+    const expired = uploadedDocuments.filter(
+      (d) => d.status === "EXPIRED",
+    ).length;
 
     return {
       total,
@@ -90,22 +94,27 @@ export default function DocumentVaultPage() {
       percentComplete: total > 0 ? Math.round((uploaded / total) * 100) : 0,
     };
   }, [uploadedDocuments, requiredDocuments]);
-  const documentsByCategory = useMemo(() => config ? getDocumentsByCategory(config, true) : {}, [config]);
+  const documentsByCategory = useMemo(
+    () => (config ? getDocumentsByCategory(config, true) : {}),
+    [config],
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
     if (user && !initialized) {
       setIsInitializing(true);
-      initialize(user.id).then(() => {
-        setInitialized(true);
-        setIsInitializing(false);
-      }).catch(() => {
-        setIsInitializing(false);
-      });
+      initialize(user.id)
+        .then(() => {
+          setInitialized(true);
+          setIsInitializing(false);
+        })
+        .catch(() => {
+          setIsInitializing(false);
+        });
     }
   }, [user, authLoading, router, initialized, initialize]);
 
@@ -165,72 +174,87 @@ export default function DocumentVaultPage() {
     try {
       const response = await fetch(`/api/documents/${documentId}/download`);
       if (!response.ok) {
-        throw new Error('Download failed');
+        throw new Error("Download failed");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = response.headers.get('content-disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'document';
+      a.download =
+        response.headers
+          .get("content-disposition")
+          ?.split("filename=")[1]
+          ?.replace(/"/g, "") || "document";
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success('Document downloaded');
+      toast.success("Document downloaded");
     } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download document');
+      console.error("Download error:", error);
+      toast.error("Failed to download document");
     }
   };
 
-  const handleExportSingle = async (documentId: string, hasCompressed: boolean) => {
+  const handleExportSingle = async (
+    documentId: string,
+    hasCompressed: boolean,
+  ) => {
     try {
-      toast.info(hasCompressed ? 'Preparing ZIP with original + compressed...' : 'Preparing export...');
+      toast.info(
+        hasCompressed
+          ? "Preparing ZIP with original + compressed..."
+          : "Preparing export...",
+      );
       const response = await fetch(`/api/documents/${documentId}/export`);
 
       if (!response.ok) {
-        throw new Error('Export failed');
+        throw new Error("Export failed");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       // Get filename from Content-Disposition header
-      const disposition = response.headers.get('content-disposition');
+      const disposition = response.headers.get("content-disposition");
       const filenameMatch = disposition?.match(/filename="(.+?)"/);
-      a.download = filenameMatch ? filenameMatch[1] : 'document-export';
+      a.download = filenameMatch ? filenameMatch[1] : "document-export";
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success(hasCompressed ? 'ZIP exported with original + NVC-compliant compressed version' : 'Document exported');
+      toast.success(
+        hasCompressed
+          ? "ZIP exported with original + NVC-compliant compressed version"
+          : "Document exported",
+      );
     } catch (error) {
-      console.error('Export error:', error);
-      toast.error('Failed to export document');
+      console.error("Export error:", error);
+      toast.error("Failed to export document");
     }
   };
 
   const handleDelete = async (documentId: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) return;
+    if (!confirm("Are you sure you want to delete this document?")) return;
 
     try {
       const response = await fetch(`/api/documents/${documentId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error('Delete failed');
+        throw new Error("Delete failed");
       }
 
-      toast.success('Document deleted');
+      toast.success("Document deleted");
       setInitialized(false); // Trigger re-initialization to reload data
     } catch (error) {
-      console.error('Delete error:', error);
-      toast.error('Failed to delete document');
+      console.error("Delete error:", error);
+      toast.error("Failed to delete document");
     }
   };
 
@@ -241,50 +265,56 @@ export default function DocumentVaultPage() {
 
   const handleExport = async () => {
     try {
-      toast.info('Preparing export...');
-      const response = await fetch('/api/documents/export?structureByCategory=true');
+      toast.info("Preparing export...");
+      const response = await fetch(
+        "/api/documents/export?structureByCategory=true",
+      );
 
       if (!response.ok) {
-        throw new Error('Export failed');
+        throw new Error("Export failed");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `document-vault-export-${new Date().toISOString().split('T')[0]}.zip`;
+      a.download = `document-vault-export-${new Date().toISOString().split("T")[0]}.zip`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success('Export completed');
+      toast.success("Export completed");
     } catch (error) {
-      console.error('Export error:', error);
-      toast.error('Failed to export documents');
+      console.error("Export error:", error);
+      toast.error("Failed to export documents");
     }
   };
 
   const handleDeleteAll = async () => {
-    if (!confirm('⚠️ Are you sure you want to delete ALL documents? This action cannot be undone!')) {
+    if (
+      !confirm(
+        "⚠️ Are you sure you want to delete ALL documents? This action cannot be undone!",
+      )
+    ) {
       return;
     }
 
-    if (!confirm('⚠️ Final confirmation: Delete ALL uploaded documents?')) {
+    if (!confirm("⚠️ Final confirmation: Delete ALL uploaded documents?")) {
       return;
     }
 
     try {
-      toast.loading('Deleting all documents...', { id: 'delete-all' });
+      toast.loading("Deleting all documents...", { id: "delete-all" });
 
       // Get all uploaded document IDs
-      const documentIds = uploadedDocuments.map(doc => doc.id);
+      const documentIds = uploadedDocuments.map((doc) => doc.id);
 
       // Delete each document
       let deleted = 0;
       for (const docId of documentIds) {
         const response = await fetch(`/api/documents/${docId}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
 
         if (response.ok) {
@@ -292,15 +322,17 @@ export default function DocumentVaultPage() {
         }
       }
 
-      toast.success(`✅ Deleted ${deleted} documents successfully!`, { id: 'delete-all' });
+      toast.success(`✅ Deleted ${deleted} documents successfully!`, {
+        id: "delete-all",
+      });
 
       // Reload data
       if (user) {
         await initialize(user.id);
       }
     } catch (error) {
-      console.error('Delete all error:', error);
-      toast.error('Failed to delete all documents', { id: 'delete-all' });
+      console.error("Delete all error:", error);
+      toast.error("Failed to delete all documents", { id: "delete-all" });
     }
   };
 
@@ -316,6 +348,12 @@ export default function DocumentVaultPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/document-vault/guide">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Read Guide
+              </Link>
+            </Button>
             <NotificationBell />
             <Button
               variant="outline"
@@ -354,7 +392,9 @@ export default function DocumentVaultPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Uploaded</p>
-                <p className="text-xl font-bold text-green-600">{stats.uploaded}</p>
+                <p className="text-xl font-bold text-green-600">
+                  {stats.uploaded}
+                </p>
               </div>
               <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
@@ -363,8 +403,12 @@ export default function DocumentVaultPage() {
           <Card className="p-3 bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-red-700 dark:text-white font-medium">Missing</p>
-                <p className="text-xl font-bold text-red-600 dark:text-white">{stats.missing}</p>
+                <p className="text-xs text-red-700 dark:text-white font-medium">
+                  Missing
+                </p>
+                <p className="text-xl font-bold text-red-600 dark:text-white">
+                  {stats.missing}
+                </p>
               </div>
               <AlertCircle className="w-6 h-6 text-red-600 dark:text-white" />
             </div>
@@ -412,9 +456,7 @@ export default function DocumentVaultPage() {
                   >
                     <Badge
                       variant={
-                        notif.severity === 'error'
-                          ? 'destructive'
-                          : 'secondary'
+                        notif.severity === "error" ? "destructive" : "secondary"
                       }
                       className="mr-2 text-xs"
                     >
@@ -439,44 +481,54 @@ export default function DocumentVaultPage() {
         {/* Right Content - Documents */}
         <div className="lg:col-span-8 xl:col-span-9">
           <div className="space-y-6">
-        {Object.entries(documentsByCategory).map(([category, docs]) => (
-          <div key={category}>
-            <h2 className="text-2xl font-bold mb-4">
-              {getCategoryDisplayName(category)}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {docs.map((doc) => {
-                const uploadedDoc = uploadedDocuments.find(
-                  (ud) => ud.documentDefId === doc.id
-                );
+            {Object.entries(documentsByCategory).map(([category, docs]) => (
+              <div key={category}>
+                <h2 className="text-2xl font-bold mb-4">
+                  {getCategoryDisplayName(category)}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {docs.map((doc) => {
+                    const uploadedDoc = uploadedDocuments.find(
+                      (ud) => ud.documentDefId === doc.id,
+                    );
 
-                return (
-                  <DocumentCard
-                    key={doc.id}
-                    documentDef={doc}
-                    uploadedDoc={uploadedDoc}
-                    onUpload={() => openUploadModal(doc.id)}
-                    onPreview={
-                      uploadedDoc ? () => handlePreview(uploadedDoc) : undefined
-                    }
-                    onDownload={
-                      uploadedDoc ? () => handleDownload(uploadedDoc.id) : undefined
-                    }
-                    onDelete={
-                      uploadedDoc ? () => handleDelete(uploadedDoc.id) : undefined
-                    }
-                    onExport={
-                      uploadedDoc
-                        ? () => handleExportSingle(uploadedDoc.id, uploadedDoc.hasCompressedVersion || false)
-                        : undefined
-                    }
-                    onOpenWizard={() => openWizard(doc.id)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        ))}
+                    return (
+                      <DocumentCard
+                        key={doc.id}
+                        documentDef={doc}
+                        uploadedDoc={uploadedDoc}
+                        onUpload={() => openUploadModal(doc.id)}
+                        onPreview={
+                          uploadedDoc
+                            ? () => handlePreview(uploadedDoc)
+                            : undefined
+                        }
+                        onDownload={
+                          uploadedDoc
+                            ? () => handleDownload(uploadedDoc.id)
+                            : undefined
+                        }
+                        onDelete={
+                          uploadedDoc
+                            ? () => handleDelete(uploadedDoc.id)
+                            : undefined
+                        }
+                        onExport={
+                          uploadedDoc
+                            ? () =>
+                                handleExportSingle(
+                                  uploadedDoc.id,
+                                  uploadedDoc.hasCompressedVersion || false,
+                                )
+                            : undefined
+                        }
+                        onOpenWizard={() => openWizard(doc.id)}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -515,7 +567,10 @@ export default function DocumentVaultPage() {
             setPreviewOpen(false);
             setPreviewDoc(null);
           }}
-          documentDef={selectedDoc || ALL_DOCUMENTS.find(d => d.id === previewDoc.documentDefId)!}
+          documentDef={
+            selectedDoc ||
+            ALL_DOCUMENTS.find((d) => d.id === previewDoc.documentDefId)!
+          }
           uploadedDoc={previewDoc}
         />
       )}

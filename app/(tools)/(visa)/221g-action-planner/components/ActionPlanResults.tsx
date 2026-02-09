@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -78,7 +78,7 @@ export default function ActionPlanResults({
   });
 
   // Ref for tracking document scrolling (for UI)
-  const documentSectionsRef = useRef<Record<string, HTMLElement | null>>({});
+  // const documentSectionsRef = useRef<Record<string, HTMLElement | null>>({});
 
   // Restore progress from localStorage on mount
   useEffect(() => {
@@ -538,7 +538,7 @@ export default function ActionPlanResults({
 
               {/* Packet Builder */}
               <Card className="max-w-4xl mx-auto mb-8 text-left">
-                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-primary/10">
+                <CardHeader className="bg-linear-to-r from-blue-500/10 to-primary/10">
                   <CardTitle className="text-2xl font-bold text-foreground">
                     Submission Packet Builder
                   </CardTitle>
