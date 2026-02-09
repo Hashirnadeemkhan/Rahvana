@@ -73,20 +73,7 @@ async function uploadToStorage(
   }
 }
 
-/**
- * Delete file from Supabase Storage
- */
-async function deleteFromStorage(storagePath: string): Promise<boolean> {
-  try {
-    const supabase = getStorageSupabase();
-    const { error } = await supabase.storage
-      .from('document-vault')
-      .remove([storagePath]);
-    return !error;
-  } catch {
-    return false;
-  }
-}
+
 
 /**
  * Compress PDF file using Python backend

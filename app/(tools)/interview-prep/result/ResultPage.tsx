@@ -13,20 +13,27 @@ interface ResultPageProps {
   onRestart: () => void;
 }
 
-export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) => {
+export const ResultPage = ({
+  sessionId,
+  results,
+  onRestart,
+}: ResultPageProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedQuestion, setSelectedQuestion] = useState<GeneratedQuestion | null>(null);
+  const [selectedQuestion, setSelectedQuestion] =
+    useState<GeneratedQuestion | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [showRapidFire, setShowRapidFire] = useState(false);
+
   const [showRapidFirePage, setShowRapidFirePage] = useState(false);
-  const [rapidFireScore, setRapidFireScore] = useState<number | null>(null);
+
   const [questionsList, setQuestionsList] = useState<GeneratedQuestion[]>([]);
-  const [mode, setMode] = useState<'prep' | 'rapid'>('prep');
+  const [mode, setMode] = useState<"prep" | "rapid">("prep");
 
   // Shuffle algorithm
-  const shuffleQuestions = (questions: GeneratedQuestion[]): GeneratedQuestion[] => {
+  const shuffleQuestions = (
+    questions: GeneratedQuestion[],
+  ): GeneratedQuestion[] => {
     const shuffled = [...questions];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -37,43 +44,38 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
 
   const handleShuffle = () => {
     if (results?.questions) {
-      const applicableQuestions = results.questions.filter((q: GeneratedQuestion) => q.applicable);
+      const applicableQuestions = results.questions.filter(
+        (q: GeneratedQuestion) => q.applicable,
+      );
       const shuffled = shuffleQuestions(applicableQuestions);
       setQuestionsList(shuffled);
     }
   };
 
   const handleRapidFirePageStart = () => {
-    setMode('rapid');
+    setMode("rapid");
     setShowRapidFirePage(true);
   };
 
-  const handleRapidFireClose = () => {
-    setShowRapidFire(false);
-    setRapidFireScore(null);
-  };
-
   const handleRapidFirePageExit = () => {
-    setMode('prep');
+    setMode("prep");
     setShowRapidFirePage(false);
   };
 
   const handleSwitchToPrep = () => {
-    setMode('prep');
+    setMode("prep");
     setShowRapidFirePage(false);
-  };
-
-  const handleRapidFireScoreUpdate = (score: number) => {
-    setRapidFireScore(score);
   };
 
   useEffect(() => {
     if (results === undefined || results === null) {
-      setError('No results found. Please try again.');
+      setError("No results found. Please try again.");
       setLoading(false);
     } else if (results?.questions) {
       // Initialize with original order
-      const applicableQuestions = results.questions.filter((q: GeneratedQuestion) => q.applicable);
+      const applicableQuestions = results.questions.filter(
+        (q: GeneratedQuestion) => q.applicable,
+      );
       setQuestionsList(applicableQuestions);
     }
   }, [results]);
@@ -91,7 +93,9 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
     return (
       <div className="text-center py-8">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-        <p className="mt-4 text-slate-600">Generating your interview preparation materials...</p>
+        <p className="mt-4 text-slate-600">
+          Generating your interview preparation materials...
+        </p>
       </div>
     );
   }
@@ -100,14 +104,17 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
     return (
       <div className="text-center py-8">
         <p className="text-red-600">Error: {error}</p>
-        <Button onClick={onRestart} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white">
+        <Button
+          onClick={onRestart}
+          className="mt-4 bg-teal-600 hover:bg-teal-700 text-white"
+        >
           Restart
         </Button>
       </div>
     );
   }
 
-  if (mode === 'rapid' && showRapidFirePage) {
+  if (mode === "rapid" && showRapidFirePage) {
     return (
       <RapidFireModePage
         sessionId={sessionId}
@@ -120,49 +127,48 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
 
   if (results && results.questions) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 p-6">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-teal-50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
             <div className="flex justify-center gap-4 mb-4">
-              <Button 
-                onClick={() => setMode('prep')}
-                variant={mode === 'prep' ? 'default' : 'outline'}
-                className={mode === 'prep' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+              <Button
+                onClick={() => setMode("prep")}
+                variant={mode === "prep" ? "default" : "outline"}
+                className={
+                  mode === "prep" ? "bg-teal-600 hover:bg-teal-700" : ""
+                }
               >
                 <BookOpen className="h-4 w-4 mr-2" />
                 Prep Mode
               </Button>
-              <Button 
-                onClick={() => setMode('rapid')}
-                variant={mode === 'rapid' ? 'default' : 'outline'}
-                className={mode === 'rapid' ? 'bg-orange-600 hover:bg-orange-700' : ''}
+              <Button
+                onClick={() => setMode("rapid")}
+                variant={mode === "rapid" ? "default" : "outline"}
+                className={
+                  mode === "rapid" ? "bg-orange-600 hover:bg-orange-700" : ""
+                }
               >
                 <Zap className="h-4 w-4 mr-2" />
                 Rapid Fire Mode
               </Button>
             </div>
-            
+
             <h2 className="text-3xl font-bold text-slate-900 mb-2">
-              {mode === 'prep' ? 'Interview Preparation Flashcards' : 'Rapid Fire Practice'}
+              {mode === "prep"
+                ? "Interview Preparation Flashcards"
+                : "Rapid Fire Practice"}
             </h2>
             <p className="text-slate-600">
-              {mode === 'prep' 
-                ? 'Click any question to view answers and guidance' 
-                : 'Practice under time pressure with 10-second questions'}
+              {mode === "prep"
+                ? "Click any question to view answers and guidance"
+                : "Practice under time pressure with 10-second questions"}
             </p>
-            {rapidFireScore !== null && mode === 'prep' && (
-              <div className="mt-4 p-3 bg-teal-100 rounded-lg inline-block">
-                <p className="text-teal-800 font-medium">
-                  Rapid Fire Score: {rapidFireScore}%
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Action Button - Only show in prep mode */}
-          {mode === 'prep' && (
+          {mode === "prep" && (
             <div className="flex justify-center gap-4 mb-6">
-              <Button 
+              <Button
                 onClick={handleShuffle}
                 variant="outline"
                 className="flex items-center gap-2"
@@ -175,7 +181,7 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
 
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Questions Sidebar - Only in prep mode */}
-            {mode === 'prep' && !sidebarCollapsed && (
+            {mode === "prep" && !sidebarCollapsed && (
               <div className="lg:w-2/5">
                 <div className="bg-white rounded-xl shadow-lg p-6 h-[calc(90vh-1rem)] sticky top-6">
                   <div className="flex justify-between items-center mb-4">
@@ -183,31 +189,40 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                       <BookOpen className="w-5 h-5 text-teal-600" />
                       Questions ({questionsList.length})
                     </h3>
-                    <button 
+                    <button
                       onClick={() => setSidebarCollapsed(true)}
                       className="text-slate-500 hover:text-slate-700"
                       aria-label="Collapse sidebar"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </button>
                   </div>
                   <ScrollArea className="h-[calc(100%-4rem)] pr-4">
                     <div className="space-y-3">
-                      {questionsList
-                        .map((item: GeneratedQuestion, index: number) => (
+                      {questionsList.map(
+                        (item: GeneratedQuestion, index: number) => (
                           <div
                             key={index}
                             onClick={() => handleQuestionSelect(item)}
                             className={`w-full cursor-pointer p-4 rounded-lg transition-all duration-200 border ${
                               selectedQuestion?.id === item.id
-                                ? 'bg-teal-100 border-2 border-teal-500 shadow-md'
-                                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 hover:border-slate-300'
+                                ? "bg-teal-100 border-2 border-teal-500 shadow-md"
+                                : "bg-slate-50 hover:bg-slate-100 border-slate-200 hover:border-slate-300"
                             }`}
                           >
                             <div className="flex items-start gap-3">
-                              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-medium mt-1">
+                              <span className="shrink-0 w-6 h-6 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center font-medium mt-1">
                                 {index + 1}
                               </span>
                               <div className="flex-1 min-w-0">
@@ -222,46 +237,58 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                               </div>
                             </div>
                           </div>
-                        ))}
+                        ),
+                      )}
                     </div>
                   </ScrollArea>
                 </div>
               </div>
             )}
-            
+
             {/* Expand button when sidebar is collapsed - Only in prep mode */}
-            {mode === 'prep' && sidebarCollapsed && (
+            {mode === "prep" && sidebarCollapsed && (
               <div className="lg:w-1/12">
-                <button 
+                <button
                   onClick={() => setSidebarCollapsed(false)}
                   className="bg-white rounded-xl shadow-lg p-3 h-fit sticky top-6 text-slate-500 hover:text-slate-700"
                   aria-label="Expand sidebar"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               </div>
             )}
 
             {/* Flashcard Area - Only in prep mode */}
-            {mode === 'prep' && (
-              <div className={`${sidebarCollapsed ? 'lg:w-11/12' : 'lg:w-3/5'}`}>
+            {mode === "prep" && (
+              <div
+                className={`${sidebarCollapsed ? "lg:w-11/12" : "lg:w-3/5"}`}
+              >
                 <div className="bg-white rounded-xl shadow-lg p-8 min-h-[calc(90vh-2rem)] flex items-center justify-center">
                   {selectedQuestion ? (
                     <div className="w-full max-w-2xl">
-                      <div 
+                      <div
                         className={`relative w-full h-full min-h-[575px] cursor-pointer transition-transform duration-700 ease-out-cubic ${
-                          isFlipped ? 'transform rotate-y-180' : ''
+                          isFlipped ? "transform rotate-y-180" : ""
                         }`}
-                        style={{ 
-                          transformStyle: 'preserve-3d',
-                          perspective: '1000px'
+                        style={{
+                          transformStyle: "preserve-3d",
+                          perspective: "1000px",
                         }}
                         onClick={handleCardClick}
                       >
                         {/* Front of Card - Question */}
-                        <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl p-8 flex flex-col justify-between text-white shadow-xl">
+                        <div className="absolute inset-0 backface-hidden bg-linear-to-br from-teal-500 to-teal-700 rounded-2xl p-8 flex flex-col justify-between text-white shadow-xl">
                           <div>
                             <div className="flex justify-between items-start mb-6">
                               <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
@@ -269,10 +296,16 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                               </span>
                               {selectedQuestion.tooltip && (
                                 <div className="group relative">
-                                  <Info size={20} className="text-white/80 hover:text-white" />
+                                  <Info
+                                    size={20}
+                                    className="text-white/80 hover:text-white"
+                                  />
                                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block w-64 bg-slate-800 text-white text-xs rounded-lg p-3 z-50 shadow-xl border border-slate-700">
                                     <div className="text-teal-300 font-medium mb-1 flex items-center gap-1">
-                                      <Info size={14} className="text-teal-300" />
+                                      <Info
+                                        size={14}
+                                        className="text-teal-300"
+                                      />
                                       Tip
                                     </div>
                                     <p>{selectedQuestion.tooltip}</p>
@@ -286,7 +319,9 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                             </h3>
                           </div>
                           <div className="text-center">
-                            <p className="text-teal-100 text-sm mb-2">Click card to reveal answer</p>
+                            <p className="text-teal-100 text-sm mb-2">
+                              Click card to reveal answer
+                            </p>
                             <div className="flex justify-center">
                               <div className="w-8 h-8 border-2 border-white/50 rounded-full animate-bounce flex items-center justify-center">
                                 <div className="w-2 h-2 bg-white/80 rounded-full"></div>
@@ -296,7 +331,7 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                         </div>
 
                         {/* Back of Card - Answer & Guidance */}
-                        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-8 flex flex-col text-white shadow-xl">
+                        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-linear-to-br from-teal-600 to-teal-800 rounded-2xl p-8 flex flex-col text-white shadow-xl">
                           <div className="flex justify-between items-start mb-6">
                             <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
                               Answer & Guidance
@@ -338,9 +373,11 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                               )}
                             </div>
                           </ScrollArea>
-                          
+
                           <div className="text-center mt-4">
-                            <p className="text-slate-300 text-sm">Click card to flip back</p>
+                            <p className="text-slate-300 text-sm">
+                              Click card to flip back
+                            </p>
                             <div className="flex justify-center mt-2">
                               <div className="w-8 h-8 border-2 border-slate-300 rounded-full animate-bounce flex items-center justify-center">
                                 <div className="w-2 h-2 bg-slate-300 rounded-full"></div>
@@ -353,8 +390,13 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
                   ) : (
                     <div className="text-center text-slate-500">
                       <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-xl font-medium mb-2">Select a Question</h3>
-                      <p>Choose any question from the sidebar to view detailed answers and guidance</p>
+                      <h3 className="text-xl font-medium mb-2">
+                        Select a Question
+                      </h3>
+                      <p>
+                        Choose any question from the sidebar to view detailed
+                        answers and guidance
+                      </p>
                     </div>
                   )}
                 </div>
@@ -362,18 +404,22 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
             )}
 
             {/* Rapid Fire Mode */}
-            {mode === 'rapid' && (
+            {mode === "rapid" && (
               <div className="w-full">
                 <div className="bg-white rounded-xl shadow-lg p-8 min-h-[calc(90vh-2rem)]">
                   <div className="text-center py-12">
                     <Zap className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-                    <h3 className="text-2xl font-bold text-slate-900 mb-4">Rapid Fire Mode</h3>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                      Rapid Fire Mode
+                    </h3>
                     <p className="text-slate-600 mb-8 max-w-2xl mx-auto">
-                      Test your interview readiness under time pressure. Questions will appear one by one with a 10-second timer. 
-                      After time expires, answers will be revealed automatically.
+                      Test your interview readiness under time pressure.
+                      Questions will appear one by one with a 10-second timer.
+                      After time expires, answers will be revealed
+                      automatically.
                     </p>
                     <div className="flex gap-4 justify-center">
-                      <Button 
+                      <Button
                         onClick={handleRapidFirePageStart}
                         className="bg-orange-600 hover:bg-orange-700 px-8 py-3 text-lg"
                       >
@@ -387,10 +433,10 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
             )}
           </div>
 
-          {mode === 'prep' && (
+          {mode === "prep" && (
             <div className="mt-8 text-center">
-              <Button 
-                onClick={onRestart} 
+              <Button
+                onClick={onRestart}
                 className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-6 cursor-pointer text-lg"
               >
                 Start New Interview Prep
@@ -405,7 +451,10 @@ export const ResultPage = ({ sessionId, results, onRestart }: ResultPageProps) =
   return (
     <div className="text-center py-8">
       <p className="text-slate-600">No results found. Please try again.</p>
-      <Button onClick={onRestart} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white">
+      <Button
+        onClick={onRestart}
+        className="mt-4 bg-teal-600 hover:bg-teal-700 text-white"
+      >
         Restart
       </Button>
     </div>

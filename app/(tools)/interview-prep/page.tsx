@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { ResultPage } from "./result/ResultPage";
 import { InterviewPrepOutput } from "../../../lib/interview-prep/types";
-import { OptionCard } from "@/app/components/interview-prep/OptionCard";
+
 import { ToggleSwitch } from "@/app/components/interview-prep/ToggleSwitch";
 
 type CaseType = "Spouse";
@@ -1193,6 +1193,39 @@ export default function InterviewPreparation() {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
+  // Load questions from the JSON file
+  interface QuestionDefinition {
+    key: string;
+    label: string;
+    type: string;
+    options?: string | string[];
+    required?: boolean;
+  }
+
+  interface QuestionnaireData {
+    sections: Array<{
+      id: string;
+      title: string;
+      description: string;
+      questions: QuestionDefinition[];
+    }>;
+  }
+
+  const [questionnaireData, setQuestionnaireData] =
+    useState<QuestionnaireData | null>(null);
+
+  useEffect(() => {
+    if (!questionnaireData) {
+      import("../../../data/interview-intake-questionnaire.json")
+        .then((data) =>
+          setQuestionnaireData(data.default || (data as QuestionnaireData)),
+        )
+        .catch((err) =>
+          console.error("Error loading questionnaire data:", err),
+        );
+    }
+  }, [questionnaireData]);
+
   // Check for existing session on component mount
   useEffect(() => {
     const checkExistingSession = async () => {
@@ -1274,39 +1307,6 @@ export default function InterviewPreparation() {
     if (typeof window !== "undefined") {
       checkExistingSession();
     }
-  }, []);
-
-  // Load questions from the JSON file
-  interface QuestionDefinition {
-    key: string;
-    label: string;
-    type: string;
-    options?: string | string[];
-    required?: boolean;
-  }
-
-  interface QuestionnaireData {
-    sections: Array<{
-      id: string;
-      title: string;
-      description: string;
-      questions: QuestionDefinition[];
-    }>;
-  }
-
-  const [questionnaireData, setQuestionnaireData] =
-    useState<QuestionnaireData | null>(null);
-
-  useEffect(() => {
-    if (!questionnaireData) {
-      import("../../../data/interview-intake-questionnaire.json")
-        .then((data) =>
-          setQuestionnaireData(data.default || (data as QuestionnaireData)),
-        )
-        .catch((err) =>
-          console.error("Error loading questionnaire data:", err),
-        );
-    }
   }, [questionnaireData]);
 
   const handleCaseTypeChange = (caseType: CaseType) => {
@@ -1334,7 +1334,11 @@ export default function InterviewPreparation() {
           const updatedFormData = { ...formData };
           (updatedFormData as Record<string, unknown>)[id as string] = value;
           // Filter out non-question fields before saving
-          const { caseType, visaCategory, ...answers } = updatedFormData;
+          const {
+            caseType: _caseType,
+            visaCategory: _visaCategory,
+            ...answers
+          } = updatedFormData;
           const answersResponse = await fetch(
             `/api/interview-prep/sessions/${sessionId}`,
             {
@@ -1444,7 +1448,11 @@ export default function InterviewPreparation() {
           );
 
           // Save initial answers, excluding non-question fields
-          const { caseType, visaCategory, ...answers } = formData;
+          const {
+            caseType: _caseType,
+            visaCategory: _visaCategory,
+            ...answers
+          } = formData;
           const answersResponse = await fetch(
             `/api/interview-prep/sessions/${sessionResult.session.id}`,
             {
@@ -1584,7 +1592,11 @@ export default function InterviewPreparation() {
     if (sessionId) {
       try {
         // Filter out non-question fields before saving
-        const { caseType, visaCategory, ...answers } = formData;
+        const {
+          caseType: _caseType,
+          visaCategory: _visaCategory,
+          ...answers
+        } = formData;
         const answersResponse = await fetch(
           `/api/interview-prep/sessions/${sessionId}`,
           {

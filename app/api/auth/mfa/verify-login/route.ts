@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the MFA code
-    const { data, error } = await supabase.auth.mfa.verify({
+    const { error } = await supabase.auth.mfa.verify({
       factorId,
       challengeId,
       code,

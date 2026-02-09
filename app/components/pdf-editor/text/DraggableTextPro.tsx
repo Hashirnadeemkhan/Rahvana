@@ -45,7 +45,7 @@ export default function DraggableTextPro({
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(data.text);
-  
+
   // Update local state when data changes (unless we are editing)
   useEffect(() => {
     if (!isEditing) {
@@ -58,7 +58,7 @@ export default function DraggableTextPro({
     if (isSelected && data.text === "Insert text" && !isEditing) {
       setIsEditing(true);
     }
-  }, [isSelected, data.text]); 
+  }, [isSelected, data.text]);
 
   // Auto-focus and select all text when entering edit mode
   useEffect(() => {
@@ -86,27 +86,28 @@ export default function DraggableTextPro({
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isSelected, isEditing, editText]); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSelected, isEditing, editText]);
 
   const finishEditing = () => {
-      const trimmed = editText.trim();
-      if (trimmed.length === 0) {
-        setEditText(data.text || "Insert text");
-        onUpdate(data.id, { text: data.text || "Insert text" });
-      } else {
-        onUpdate(data.id, { text: trimmed });
-      }
-      setIsEditing(false);
+    const trimmed = editText.trim();
+    if (trimmed.length === 0) {
+      setEditText(data.text || "Insert text");
+      onUpdate(data.id, { text: data.text || "Insert text" });
+    } else {
+      onUpdate(data.id, { text: trimmed });
+    }
+    setIsEditing(false);
   };
 
   // Improved Drag Handler
   const handleDrag = (e: React.MouseEvent) => {
     // If we are clicking inside the textarea while editing, let the textarea handle it
     if (isEditing && e.target === textAreaRef.current) return;
-    
+
     e.stopPropagation();
     e.preventDefault();
-    
+
     // Select on click
     if (!isSelected) {
       onSelect(data.id);
@@ -193,7 +194,12 @@ export default function DraggableTextPro({
           break;
       }
 
-      onUpdate(data.id, { width: newWidth, height: newHeight, x: newX, y: newY });
+      onUpdate(data.id, {
+        width: newWidth,
+        height: newHeight,
+        x: newX,
+        y: newY,
+      });
     };
 
     const handleMouseUp = () => {
@@ -251,8 +257,8 @@ export default function DraggableTextPro({
     >
       <div
         className={`relative ${
-          isSelected || isEditing 
-            ? "ring-2 ring-blue-500 shadow-md" 
+          isSelected || isEditing
+            ? "ring-2 ring-blue-500 shadow-md"
             : "hover:ring-1 hover:ring-blue-300 cursor-move"
         } rounded-sm transition-all`}
         style={{

@@ -9,7 +9,6 @@ import {
   Plus,
   CheckCircle,
   AlertTriangle,
-  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -98,12 +97,12 @@ export default function MyCases() {
     const fetchUserCases = async () => {
       try {
         setLoading(true);
-        const userEmail = 'guest@example.com';
-        
+        const userEmail = "guest@example.com";
+
         const response = await fetch(
-          `/api/visa-checker/results?email=${encodeURIComponent(userEmail)}`
+          `/api/visa-checker/results?email=${encodeURIComponent(userEmail)}`,
         );
-        
+
         const data = await response.json();
 
         if (response.ok) {
@@ -164,7 +163,9 @@ export default function MyCases() {
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
           <h2 className="text-2xl font-bold text-slate-800">All Cases</h2>
           <Button
-            onClick={() => (window.location.href = "/visa-case-strength-checker")}
+            onClick={() =>
+              (window.location.href = "/visa-case-strength-checker")
+            }
             className="bg-teal-600 hover:bg-teal-700 text-white py-5 px-6 text-lg"
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -217,16 +218,27 @@ export default function MyCases() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-b-2 border-slate-200">
-                    <TableHead className="text-lg font-bold text-slate-800 py-4">Case Type</TableHead>
-                    <TableHead className="text-lg font-bold text-slate-800 py-4">Submitted Date</TableHead>
-                    <TableHead className="text-lg font-bold text-slate-800 py-4">Status</TableHead>
-                    <TableHead className="text-lg font-bold text-slate-800 py-4 text-right">Actions</TableHead>
+                    <TableHead className="text-lg font-bold text-slate-800 py-4">
+                      Case Type
+                    </TableHead>
+                    <TableHead className="text-lg font-bold text-slate-800 py-4">
+                      Submitted Date
+                    </TableHead>
+                    <TableHead className="text-lg font-bold text-slate-800 py-4">
+                      Status
+                    </TableHead>
+                    <TableHead className="text-lg font-bold text-slate-800 py-4 text-right">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
 
                 <TableBody>
                   {currentCases.map((userCase) => (
-                    <TableRow key={userCase.sessionId} className="hover:bg-slate-50 border-b border-slate-100">
+                    <TableRow
+                      key={userCase.sessionId}
+                      className="hover:bg-slate-50 border-b border-slate-100"
+                    >
                       <TableCell className="py-5">
                         <div className="flex items-center">
                           <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center mr-3">

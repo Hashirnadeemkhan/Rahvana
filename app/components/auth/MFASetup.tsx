@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -58,7 +59,7 @@ export function MFASetup() {
       } else {
         setError(result.error || "Invalid verification code");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to verify MFA setup");
     }
 
@@ -102,7 +103,7 @@ export function MFASetup() {
       } else {
         setError(result.error || "Failed to disable MFA");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to disable MFA");
     }
 
@@ -208,9 +209,11 @@ export function MFASetup() {
         </p>
 
         <div className="flex justify-center my-6">
-          <img
+          <Image
             src={qrCode}
             alt="Scan this QR code with your authenticator app"
+            width={200}
+            height={200}
             className="border-4 border-muted/20 rounded-lg p-4 max-w-xs bg-white shadow-sm"
           />
         </div>

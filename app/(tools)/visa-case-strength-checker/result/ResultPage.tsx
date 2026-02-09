@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { AlertCircle, AlertTriangle, Info } from "lucide-react";
 
 interface RiskFlag {
   flagCode: string;
-  severity: 'HIGH' | 'MEDIUM' | 'LOW';
+  severity: "HIGH" | "MEDIUM" | "LOW";
   pointsDeducted: number;
   explanation: string;
   improvementSuggestions: string;
@@ -19,7 +19,7 @@ interface RiskFlag {
 interface ResultData {
   sessionId: string;
   overallScore: number;
-  riskLevel: 'STRONG' | 'MODERATE' | 'WEAK' | 'PENDING';
+  riskLevel: "STRONG" | "MODERATE" | "WEAK" | "PENDING";
   riskFlags: RiskFlag[];
   summaryReasons: string[];
   improvementSuggestions: string[];
@@ -38,27 +38,27 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchResults();
-  }, [sessionId]);
-
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/visa-checker/results/${sessionId}`);
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch results');
+        throw new Error(data.error || "Failed to fetch results");
       }
-      
+
       setResultData(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load results');
+      setError(err instanceof Error ? err.message : "Failed to load results");
     } finally {
       setLoading(false);
     }
-  };
+  }, [sessionId]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults]);
 
   if (loading) {
     return (
@@ -86,14 +86,16 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
         </CardContent>
       </Card>
     );
-  }  
+  }
 
   if (error) {
     return (
       <Card className="max-w-4xl mx-auto">
         <CardContent className="p-8 text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-slate-900 mb-2">Error Loading Results</h3>
+          <h3 className="text-xl font-semibold text-slate-900 mb-2">
+            Error Loading Results
+          </h3>
           <p className="text-slate-600 mb-6">{error}</p>
           <Button onClick={fetchResults} variant="outline">
             Try Again
@@ -109,45 +111,34 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
 
   const getRiskColor = (level: string) => {
     switch (level) {
-      case 'STRONG': return 'text-green-600 bg-green-50 border-green-200';
-      case 'MODERATE': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'WEAK': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-slate-600 bg-slate-50 border-slate-200';
-    }
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'HIGH': return 'text-red-600 bg-red-50';
-      case 'MEDIUM': return 'text-yellow-600 bg-yellow-50';
-      case 'LOW': return 'text-blue-600 bg-blue-50';
-      default: return 'text-slate-600 bg-slate-50';
-    }
-  };
-
-  const getPriorityLabel = (priority: number) => {
-    switch (priority) {
-      case 1: return 'High Priority';
-      case 2: return 'Medium Priority';
-      case 3: return 'Low Priority';
-      default: return 'Low Priority';
+      case "STRONG":
+        return "text-green-600 bg-green-50 border-green-200";
+      case "MODERATE":
+        return "text-yellow-600 bg-yellow-50 border-yellow-200";
+      case "WEAK":
+        return "text-red-600 bg-red-50 border-red-200";
+      default:
+        return "text-slate-600 bg-slate-50 border-slate-200";
     }
   };
 
   // Group risk flags by priority (using severity as proxy if priority not available)
   const groupedFlags = {
-    high: resultData.riskFlags.filter(f => f.severity === 'HIGH'),
-    medium: resultData.riskFlags.filter(f => f.severity === 'MEDIUM'),
-    low: resultData.riskFlags.filter(f => f.severity === 'LOW')
+    high: resultData.riskFlags.filter((f) => f.severity === "HIGH"),
+    medium: resultData.riskFlags.filter((f) => f.severity === "MEDIUM"),
+    low: resultData.riskFlags.filter((f) => f.severity === "LOW"),
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-10">
       {/* Header Section */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-slate-900">Case Strength Analysis Complete</h1>
+        <h1 className="text-4xl font-bold text-slate-900">
+          Case Strength Analysis Complete
+        </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Your visa case has been analyzed. Here&apos;s your detailed assessment with actionable insights.
+          Your visa case has been analyzed. Here&apos;s your detailed assessment
+          with actionable insights.
         </p>
       </div>
 
@@ -155,8 +146,12 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
       <Card className="border-2 border-slate-200 bg-white">
         <CardHeader>
           <CardTitle className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-2xl font-bold text-slate-900">Overall Assessment</span>
-            <Badge className={`${getRiskColor(resultData.riskLevel)} text-xl px-6 py-3 font-bold`}>
+            <span className="text-2xl font-bold text-slate-900">
+              Overall Assessment
+            </span>
+            <Badge
+              className={`${getRiskColor(resultData.riskLevel)} text-xl px-6 py-3 font-bold`}
+            >
               {resultData.riskLevel}
             </Badge>
           </CardTitle>
@@ -164,7 +159,9 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
         <CardContent className="space-y-8">
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <span className="text-lg text-slate-700 font-medium">Overall Score</span>
+              <span className="text-lg text-slate-700 font-medium">
+                Overall Score
+              </span>
               <span className="text-4xl font-bold text-slate-900">
                 {Math.round(resultData.overallScore)}/100
               </span>
@@ -173,48 +170,64 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
               value={resultData.overallScore}
               className="h-4"
               indicatorClassName={
-                resultData.overallScore >= 80 ? 'bg-green-500' :
-                resultData.overallScore >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                resultData.overallScore >= 80
+                  ? "bg-green-500"
+                  : resultData.overallScore >= 50
+                    ? "bg-yellow-500"
+                    : "bg-red-500"
               }
             />
             <div className="text-center text-slate-600 mt-2">
-              {resultData.overallScore >= 80 ? 'Strong Case' :
-               resultData.overallScore >= 50 ? 'Moderate Case' : 'Needs Improvement'}
+              {resultData.overallScore >= 80
+                ? "Strong Case"
+                : resultData.overallScore >= 50
+                  ? "Moderate Case"
+                  : "Needs Improvement"}
             </div>
           </div>
 
           <div className="p-6 bg-slate-50 rounded-xl border border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-800 mb-3">Summary of Findings</h3>
+            <h3 className="text-lg font-semibold text-slate-800 mb-3">
+              Summary of Findings
+            </h3>
             <ul className="list-disc pl-6 space-y-2">
               {resultData.summaryReasons?.map((reason, idx) => (
-                <li key={idx} className="text-slate-700 text-base">{reason}</li>
+                <li key={idx} className="text-slate-700 text-base">
+                  {reason}
+                </li>
               ))}
             </ul>
           </div>
 
           <div className="text-center text-slate-500 text-sm">
-            Completed on {resultData.completedAt ? new Date(resultData.completedAt).toLocaleDateString() : new Date().toLocaleDateString()}
+            Completed on{" "}
+            {resultData.completedAt
+              ? new Date(resultData.completedAt).toLocaleDateString()
+              : new Date().toLocaleDateString()}
           </div>
         </CardContent>
       </Card>
 
       {/* Improvement Suggestions Section */}
-      {resultData.improvementSuggestions && resultData.improvementSuggestions.length > 0 && (
-        <Card className="border-2 border-slate-200 bg-white">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-slate-900">
-              Improvement Suggestions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc pl-6 space-y-3">
-              {resultData.improvementSuggestions.map((suggestion, idx) => (
-                <li key={idx} className="text-slate-700 text-base">{suggestion}</li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+      {resultData.improvementSuggestions &&
+        resultData.improvementSuggestions.length > 0 && (
+          <Card className="border-2 border-slate-200 bg-white">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-slate-900">
+                Improvement Suggestions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc pl-6 space-y-3">
+                {resultData.improvementSuggestions.map((suggestion, idx) => (
+                  <li key={idx} className="text-slate-700 text-base">
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Risk Flags by Priority */}
       <div className="space-y-8">
@@ -229,23 +242,34 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
                 High Priority Issues (Must Address)
               </CardTitle>
               <p className="text-red-700 text-lg">
-                These are critical issues that significantly impact your case strength
+                These are critical issues that significantly impact your case
+                strength
               </p>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 {groupedFlags.high.map((flag, index) => (
-                  <div key={index} className="bg-white p-6 rounded-xl border border-red-200 shadow-sm">
+                  <div
+                    key={index}
+                    className="bg-white p-6 rounded-xl border border-red-200 shadow-sm"
+                  >
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
-                      <h4 className="font-bold text-xl text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
+                      <h4 className="font-bold text-xl text-slate-900">
+                        {formatFlagCode(flag.flagCode)}
+                      </h4>
                       <Badge className="bg-red-500 text-white text-sm px-3 py-1">
                         {flag.severity} RISK
                       </Badge>
                     </div>
-                    <p className="text-slate-700 text-base mb-4">{flag.explanation}</p>
+                    <p className="text-slate-700 text-base mb-4">
+                      {flag.explanation}
+                    </p>
                     <div className="flex gap-3 text-base text-red-700">
                       <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                      <span><span className="font-medium">Action needed:</span> {flag.improvementSuggestions}</span>
+                      <span>
+                        <span className="font-medium">Action needed:</span>{" "}
+                        {flag.improvementSuggestions}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -271,17 +295,27 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
             <CardContent>
               <div className="space-y-6">
                 {groupedFlags.medium.map((flag, index) => (
-                  <div key={index} className="bg-white p-6 rounded-xl border border-yellow-200 shadow-sm">
+                  <div
+                    key={index}
+                    className="bg-white p-6 rounded-xl border border-yellow-200 shadow-sm"
+                  >
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
-                      <h4 className="font-bold text-xl text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
+                      <h4 className="font-bold text-xl text-slate-900">
+                        {formatFlagCode(flag.flagCode)}
+                      </h4>
                       <Badge className="bg-yellow-500 text-white text-sm px-3 py-1">
                         {flag.severity} RISK
                       </Badge>
                     </div>
-                    <p className="text-slate-700 text-base mb-4">{flag.explanation}</p>
+                    <p className="text-slate-700 text-base mb-4">
+                      {flag.explanation}
+                    </p>
                     <div className="flex gap-3 text-base text-yellow-700">
                       <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                      <span><span className="font-medium">Consider:</span> {flag.improvementSuggestions}</span>
+                      <span>
+                        <span className="font-medium">Consider:</span>{" "}
+                        {flag.improvementSuggestions}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -307,17 +341,27 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
             <CardContent>
               <div className="space-y-6">
                 {groupedFlags.low.map((flag, index) => (
-                  <div key={index} className="bg-white p-6 rounded-xl border border-blue-200 shadow-sm">
+                  <div
+                    key={index}
+                    className="bg-white p-6 rounded-xl border border-blue-200 shadow-sm"
+                  >
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
-                      <h4 className="font-bold text-xl text-slate-900">{formatFlagCode(flag.flagCode)}</h4>
+                      <h4 className="font-bold text-xl text-slate-900">
+                        {formatFlagCode(flag.flagCode)}
+                      </h4>
                       <Badge className="bg-blue-500 text-white text-sm px-3 py-1">
                         {flag.severity} RISK
                       </Badge>
                     </div>
-                    <p className="text-slate-700 text-base mb-4">{flag.explanation}</p>
+                    <p className="text-slate-700 text-base mb-4">
+                      {flag.explanation}
+                    </p>
                     <div className="flex gap-3 text-base text-blue-700">
                       <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                      <span><span className="font-medium">Suggestion:</span> {flag.improvementSuggestions}</span>
+                      <span>
+                        <span className="font-medium">Suggestion:</span>{" "}
+                        {flag.improvementSuggestions}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -347,7 +391,7 @@ export function ResultPage({ sessionId, onRestart }: ResultPageProps) {
 // Helper function to format flag codes into readable text
 function formatFlagCode(code: string): string {
   return code
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 }

@@ -1,20 +1,13 @@
 "use client";
 
 import { Suspense } from "react";
-import { useState, useEffect } from "react";
+
 import { useSearchParams } from "next/navigation";
 import { ResultPage } from "./ResultPage";
 
 function ResultPageInner() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
-  const [showResult, setShowResult] = useState(false);
-
-  useEffect(() => {
-    if (sessionId) {
-      setShowResult(true);
-    }
-  }, [sessionId]);
 
   const handleRestart = () => {
     window.location.href = "/visa-case-strength-checker";

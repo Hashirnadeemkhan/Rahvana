@@ -13,7 +13,6 @@ import PoliceVerificationTable from "./components/police-verifications/PoliceVer
 import BookAppointmentTable from "./components/book-appointment/BookAppointmentTable";
 import ConsultationRequestsTable from "./components/consultation-requests/ConsultationRequestsTable";
 import AvailabilityGrid from "./components/consultation-requests/AvailabilityGrid";
-import { MFASetup } from "../components/auth/MFASetup";
 
 export default function AdminPanel() {
   const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
