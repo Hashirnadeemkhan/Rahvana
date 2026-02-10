@@ -272,7 +272,7 @@ interface QuestionStepProps {
   onChange: (id: keyof FormData, value: unknown) => void;
   onNext: () => void;
   onBack: () => void;
-  onSaveForLater?: () => void;
+  onSaveForLater?: () => void; // eslint-disable-line @typescript-eslint/no-unused-vars
 }
 
 const QuestionStep = ({
@@ -482,7 +482,7 @@ interface ReviewStepProps {
   loading: boolean;
   onSubmit: () => void;
   onBack: () => void;
-  onSaveForLater?: () => void;
+  onSaveForLater?: () => void; // eslint-disable-line @typescript-eslint/no-unused-vars
   onSaveToProfile?: () => Promise<void>;
 }
 

@@ -13,7 +13,7 @@ export function PhotoGuideSection() {
   return (
     <div className="max-w-6xl mx-auto space-y-12">
       {/* Lens Section (Zoom & Inspect) */}
-      <div className="bg-white rounded-[2rem] overflow-hidden">
+      <div className="bg-white rounded-4xl overflow-hidden">
         <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
           <div className="w-10 h-10 rounded-xl bg-[#0d7377]/10 flex items-center justify-center">
             <Search className="w-5 h-5 text-[#0d7377]" />
@@ -21,7 +21,7 @@ export function PhotoGuideSection() {
           Zoom & Inspect Details
         </h3>
         
-        <div className="grid lg:grid-cols-2 gap-8 items-center bg-slate-900 rounded-[2.5rem] p-6 lg:p-10 relative overflow-hidden">
+        <div className="grid lg:grid-cols-2 gap-8 items-center bg-slate-900 rounded-3xl p-6 lg:p-10 relative overflow-hidden">
           {/* Decorative glow */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#14a0a6]/10 blur-[100px] rounded-full" />
           
@@ -94,7 +94,7 @@ export function PhotoGuideSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="p-6 rounded-[2rem] bg-linear-to-br from-[#0d7377] to-[#14a0a6] text-white shadow-2xl relative overflow-hidden group"
+              className="p-6 rounded-4xl bg-linear-to-br from-[#0d7377] to-[#14a0a6] text-white shadow-2xl relative overflow-hidden group"
             >
               <div className="absolute -top-4 -right-4 p-4 opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
                 <Sparkles className="w-24 h-24" />
@@ -143,13 +143,13 @@ export function PhotoGuideSection() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8 items-center">
-          <div className="lg:col-span-2 p-4 border rounded-[2.5rem] bg-slate-50 border-slate-200 shadow-inner">
+          <div className="lg:col-span-2 p-4 border rounded-3xl bg-slate-50 border-slate-200 shadow-inner">
             <Compare
               firstImage="/testing.jpg"
               secondImage="/passport-photo.jpg"
               firstImageClassName="object-cover"
               secondImageClassname="object-cover"
-              className="h-[400px] w-full rounded-[2rem]"
+              className="h-100 w-full rounded-4xl"
               slideMode="hover"
               initialSliderPercentage={50}
             />

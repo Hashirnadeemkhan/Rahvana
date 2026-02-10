@@ -1032,7 +1032,7 @@ function HomePageContent() {
                         const step = i + 1;
                         const isActive = activeStep === step;
                         return (
-                          <HydrationSafeButton
+                          <motion.div
                             key={step}
                             onClick={() => setActiveStep(step)}
                             variants={{
@@ -1053,11 +1053,15 @@ function HomePageContent() {
                               translate: "-50% -50%",
                             }}
                           >
-                            <span className="sr-only">Step {step}</span>
-                            {React.createElement(LIFECYCLE_STEPS[i].icon, {
-                              className: "w-6 h-6",
-                            })}
-                          </HydrationSafeButton>
+                            <HydrationSafeButton
+                               className="w-full h-full rounded-full flex items-center justify-center p-0 bg-transparent border-0"
+                            > 
+                                <span className="sr-only">Step {step}</span>
+                                {React.createElement(LIFECYCLE_STEPS[i].icon, {
+                                    className: "w-6 h-6 pointer-events-none",
+                                })}
+                            </HydrationSafeButton>
+                          </motion.div>
                         );
                       })}
                     </motion.div>
