@@ -397,7 +397,12 @@ export const RapidFireModePage = ({
                 <div className="w-40 h-40 rounded-full border-8 border-teal-200 flex items-center justify-center bg-gradient-to-br from-teal-50 to-teal-100">
                   <div className="text-center">
                     <span className="text-4xl font-bold text-teal-700">
-                      {Math.round(score / (shuffledQuestions.length - skippedQuestions) * 10)}%
+                      {Math.round(
+                        (score /
+                          (shuffledQuestions.length - skippedQuestions)) *
+                          10,
+                      )}
+                      %
                     </span>
                     <div className="text-sm text-teal-600 font-medium mt-1">
                       Readiness Score
@@ -497,6 +502,12 @@ export const RapidFireModePage = ({
               <h3 className="text-lg font-semibold text-slate-900 mb-4">
                 Performance Review
               </h3>
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  <span className="font-medium">Note:</span> Click on any of the
+                  color-coded tabs to review the Q&A.
+                </p>
+              </div>
               <div className="flex gap-1 mb-4">
                 {shuffledQuestions.map((_, index) => {
                   const response = questionResponses.find(
@@ -666,7 +677,11 @@ export const RapidFireModePage = ({
                 <Zap className="w-4 h-4 mr-2" />
                 Switch to Prep Mode
               </Button>
-              <Button onClick={onExit} variant="outline" className="cursor-pointer">
+              <Button
+                onClick={onExit}
+                variant="outline"
+                className="cursor-pointer"
+              >
                 Exit
               </Button>
             </div>

@@ -37,6 +37,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
+import { UserProfile } from "@/app/context/AuthContext";
 
 interface HeaderProps {
   activeSection?: string;
@@ -44,6 +45,7 @@ interface HeaderProps {
   isSignedIn?: boolean;
   onToggleAuth?: () => void;
   user?: User | null;
+  profile?: UserProfile | null;
 }
 
 // --------------------------------------------------------------------------
@@ -110,6 +112,7 @@ export function SiteHeader({
   isSignedIn = false,
   onToggleAuth,
   user,
+  profile,
 }: HeaderProps = {}) {
   // Run cleanup once
   useExtensionCleanup();
@@ -148,6 +151,7 @@ export function SiteHeader({
         tools: "/?section=tools",
         pricing: "/pricing",
         dashboard: "/user-dashboard",
+        mfa: "/mfa-setup",
         contact: "/#contact",
         passport: "/passport",
         pdf: "/pdf-processing",
@@ -1219,8 +1223,8 @@ export function SiteHeader({
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-gray-50 bg-slate-50/50">
                       <h3 className="font-bold text-slate-900">
-                        {user?.user_metadata?.full_name ||
-                          user?.user_metadata?.name ||
+                        {profile?.full_name ||
+                          profile?.username ||
                           "Valued User"}
                       </h3>
                       <p className="text-sm text-slate-500">
