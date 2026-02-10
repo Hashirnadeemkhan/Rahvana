@@ -13,7 +13,6 @@ import PoliceVerificationTable from "./components/police-verifications/PoliceVer
 import BookAppointmentTable from "./components/book-appointment/BookAppointmentTable";
 import ConsultationRequestsTable from "./components/consultation-requests/ConsultationRequestsTable";
 import AvailabilityGrid from "./components/consultation-requests/AvailabilityGrid";
-import { MFASetup } from "../components/auth/MFASetup";
 
 export default function AdminPanel() {
   const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
@@ -41,10 +40,12 @@ export default function AdminPanel() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-600">Checking authorization...</p>
+          <p className="mt-4 text-muted-foreground">
+            Checking authorization...
+          </p>
         </div>
       </div>
     );
@@ -52,13 +53,13 @@ export default function AdminPanel() {
 
   if (!user || !isAdmin) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="text-red-600">Access Denied</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               You do not have permission to access the admin panel.
             </p>
             <Button onClick={() => router.push("/admin-login")}>
@@ -71,13 +72,13 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Admin Header */}
-      <header className="bg-white shadow">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">
+              <h1 className="text-xl font-bold text-foreground">
                 Admin Dashboard
               </h1>
             </div>
@@ -91,10 +92,13 @@ export default function AdminPanel() {
                   timeZoneName: "short",
                 })}
               </span>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted-foreground">
                 Admin: {user?.email}
               </span>
-              <Link href="/mfa-setup" className="text-teal-600 border-2 border-teal-600 hover:bg-teal-100 hover:text-teal-700 rounded-lg p-1">
+              <Link
+                href="/mfa-setup"
+                className="text-teal-600 border-2 border-teal-600 hover:bg-teal-100 hover:text-teal-700 rounded-lg p-1"
+              >
                 MFA Setup Page
               </Link>
               <Button
@@ -113,8 +117,8 @@ export default function AdminPanel() {
       <main className="p-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
+            <p className="text-muted-foreground">
               Manage appointments, translations, and police verifications
             </p>
           </div>

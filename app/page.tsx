@@ -614,7 +614,7 @@ function HomePageContent() {
   // The original app didn't do this, just showed the link. We'll keep it simple.
 
   return (
-    <div className="min-h-screen bg-background font-sans text-slate-800">
+    <div className="min-h-screen bg-background font-sans text-foreground">
       {/* <Header 
                     activeSection={activeSection} 
                     onNavigate={handleNavigate}
@@ -626,7 +626,7 @@ function HomePageContent() {
         {activeSection === "home" && (
           <div className="flex flex-col">
             {/* HERO SECTION */}
-            <section className="relative py-20 lg:py-32 overflow-hidden bg-white">
+            <section className="relative py-20 lg:py-32 overflow-hidden bg-background">
               <div className="container mx-auto px-6">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                   <motion.div
@@ -640,14 +640,14 @@ function HomePageContent() {
                       <Icons.ShieldCheck className="w-4 h-4" />
                       Trusted by families worldwide
                     </div>
-                    <h1 className="text-4xl lg:text-6xl font-bold leading-tight text-slate-900 mb-6">
+                    <h1 className="text-4xl lg:text-6xl font-bold leading-tight text-foreground mb-6">
                       Your Immigration Journey,
                       <br />
                       <span className="bg-linear-to-r from-rahvana-primary to-rahvana-primary-light bg-clip-text text-fill-transparent">
                         Simplified
                       </span>
                     </h1>
-                    <p className="text-lg text-slate-600 leading-relaxed mb-8">
+                    <p className="text-lg text-muted-foreground leading-relaxed mb-8">
                       Navigate the complexities of U.S. immigration with
                       confidence. Rahvana provides step-by-step guidance, smart
                       tools, and expert support to help you reunite with loved
@@ -668,7 +668,7 @@ function HomePageContent() {
                           onClick={() => {
                             // setActiveSection("journeys");
                           }} //() => handleNavigate("journeys")
-                          className="inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-slate-200 bg-white hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
+                          className="inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-border bg-background hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
                         >
                           Explore Journeys
                         </HydrationSafeButton>
@@ -687,7 +687,7 @@ function HomePageContent() {
                           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-rahvana-primary-pale text-rahvana-primary">
                             <item.icon className="w-5 h-5" />
                           </div>
-                          <span className="text-sm font-medium text-slate-600">
+                          <span className="text-sm font-medium text-muted-foreground">
                             {item.text}
                           </span>
                         </div>
@@ -721,7 +721,7 @@ function HomePageContent() {
 
             {/* JOURNEYS SECTION */}
             <section
-              className="relative py-24 bg-slate-50 overflow-hidden"
+              className="relative py-24 bg-muted/30 overflow-hidden"
               id="journeys"
             >
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
@@ -758,7 +758,7 @@ function HomePageContent() {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-5xl font-bold text-slate-900 mb-4"
+                    className="text-3xl md:text-5xl font-bold text-foreground mb-4"
                   >
                     Explore Immigration Journeys
                   </motion.h2>
@@ -767,7 +767,7 @@ function HomePageContent() {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                     viewport={{ once: true }}
-                    className="text-lg text-slate-600"
+                    className="text-lg text-muted-foreground"
                   >
                     Select your visa category to access personalized guidance,
                     document checklists, and timeline tracking.
@@ -787,7 +787,7 @@ function HomePageContent() {
                       className={`px-6 py-3 rounded-full text-sm font-semibold transition-all border ${
                         journeyTab === tab
                           ? "bg-rahvana-primary border-rahvana-primary text-white shadow-md"
-                          : "bg-white border-slate-200 text-slate-600 hover:border-rahvana-primary hover:text-rahvana-primary"
+                          : "bg-background border-border text-muted-foreground hover:border-rahvana-primary hover:text-rahvana-primary"
                       }`}
                     >
                       {tab.charAt(0).toUpperCase() +
@@ -807,7 +807,7 @@ function HomePageContent() {
             </section>
 
             {/* QUICK TOOLS SECTION */}
-            <section className="relative py-24 bg-white" id="tools">
+            <section className="relative py-24 bg-background" id="tools">
               <div className="container mx-auto px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <motion.span
@@ -819,10 +819,10 @@ function HomePageContent() {
                     <Icons.Wrench className="w-4 h-4" />
                     Power Tools
                   </motion.span>
-                  <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">
+                  <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
                     Quick Tools at Your Fingertips
                   </h2>
-                  <p className="text-lg text-slate-600">
+                  <p className="text-lg text-muted-foreground">
                     Powerful tools designed to streamline your immigration
                     process and keep you informed.
                   </p>
@@ -868,16 +868,16 @@ function HomePageContent() {
                       transition={{ delay: i * 0.1 }}
                       viewport={{ once: true }}
                       onClick={() => setShowComingSoon(true)}
-                      className="group relative bg-slate-50 rounded-2xl p-8 border border-slate-200 transition-all hover:border-rahvana-primary/30 hover:shadow-xl cursor-pointer overflow-hidden"
+                      className="group relative bg-muted/30 rounded-2xl p-8 border border-border transition-all hover:border-rahvana-primary/30 hover:shadow-xl cursor-pointer overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-linear-to-tr from-rahvana-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       <div className="w-14 h-14 rounded-xl bg-linear-to-br from-rahvana-primary to-rahvana-primary-light flex items-center justify-center text-white mb-6 transform group-hover:scale-110 transition-transform">
                         <tool.icon className="w-7 h-7" />
                       </div>
-                      <h3 className="text-xl font-bold text-slate-900 mb-2">
+                      <h3 className="text-xl font-bold text-foreground mb-2">
                         {tool.title}
                       </h3>
-                      <p className="text-slate-600 text-sm leading-relaxed mb-6">
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-6">
                         {tool.desc}
                       </p>
                       <div className="flex items-center gap-2 text-sm font-bold text-rahvana-primary group-hover:gap-3 transition-all">
@@ -898,7 +898,7 @@ function HomePageContent() {
             </section>
 
             {/* CONSULTATION BANNER */}
-            <section className="py-24 bg-white">
+            <section className="py-24 bg-background">
               <div className="container mx-auto px-6">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -924,7 +924,7 @@ function HomePageContent() {
                       </p>
                       <HydrationSafeButton
                         onClick={() => setShowComingSoon(true)}
-                        className="inline-flex items-center px-10 py-5 bg-white text-rahvana-primary text-lg font-bold rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all"
+                        className="inline-flex items-center px-10 py-5 bg-background text-rahvana-primary text-lg font-bold rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all"
                       >
                         Book a Consultation
                       </HydrationSafeButton>
@@ -945,7 +945,7 @@ function HomePageContent() {
             </section>
 
             {/* HOW RAHVANA WORKS SECTION */}
-            <section className="py-24 bg-slate-50" id="how-it-works">
+            <section className="py-24 bg-muted/30" id="how-it-works">
               <div className="container mx-auto px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <motion.span
@@ -957,10 +957,10 @@ function HomePageContent() {
                     <Icons.TrendingUp className="w-4 h-4" />
                     Your Journey
                   </motion.span>
-                  <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">
+                  <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
                     How Rahvana Works
                   </h2>
-                  <p className="text-lg text-slate-600">
+                  <p className="text-lg text-muted-foreground">
                     From preparation to arrival, we guide you through every step
                     of your immigration journey.
                     {/* A streamlined, 6-step process designed to remove stress and
@@ -989,7 +989,7 @@ function HomePageContent() {
                         strokeWidth="0.2"
                         strokeDasharray="1 2"
                         fill="none"
-                        className="text-slate-200"
+                        className="text-border"
                       />
 
                       {/* Animated Drawing Circle */}
@@ -1045,7 +1045,7 @@ function HomePageContent() {
                             className={`absolute w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 z-10 ${
                               isActive
                                 ? "bg-rahvana-primary text-white shadow-xl ring-8 ring-rahvana-primary/10"
-                                : "bg-white text-slate-400 border border-slate-200 hover:border-rahvana-primary hover:text-rahvana-primary hover:scale-110 shadow-md"
+                                : "bg-card text-muted-foreground border border-border hover:border-rahvana-primary hover:text-rahvana-primary hover:scale-110 shadow-md"
                             }`}
                             style={{
                               left: `${(50 + 40 * Math.sin((angle * Math.PI) / 180)).toFixed(3)}%`,
@@ -1074,17 +1074,17 @@ function HomePageContent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="bg-white rounded-3xl p-8 shadow-xl border border-slate-100"
+                        className="bg-card rounded-3xl p-8 shadow-xl border border-border"
                       >
                         <div className="flex items-center gap-4 mb-6">
                           <div className="w-12 h-12 rounded-full bg-rahvana-primary text-white flex items-center justify-center text-xl font-bold">
                             0{activeStep}
                           </div>
-                          <h3 className="text-2xl font-bold text-slate-900">
+                          <h3 className="text-2xl font-bold text-foreground">
                             {LIFECYCLE_STEPS[activeStep - 1].title}
                           </h3>
                         </div>
-                        <p className="text-slate-600 leading-relaxed mb-8 text-lg">
+                        <p className="text-muted-foreground leading-relaxed mb-8 text-lg">
                           {LIFECYCLE_STEPS[activeStep - 1].desc}
                         </p>
                         <ul className="space-y-4">
@@ -1092,7 +1092,7 @@ function HomePageContent() {
                             (item, i) => (
                               <li
                                 key={i}
-                                className="flex items-center gap-3 text-slate-700 font-medium bg-slate-50 p-3 rounded-xl border border-slate-100"
+                                className="flex items-center gap-3 text-foreground font-medium bg-muted/50 p-3 rounded-xl border border-border"
                               >
                                 <Icons.Check className="w-5 h-5 text-rahvana-primary" />
                                 {item}
@@ -1108,7 +1108,7 @@ function HomePageContent() {
             </section>
 
             {/* FAQ SECTION */}
-            <section className="py-24 bg-white" id="faq">
+            <section className="py-24 bg-background" id="faq">
               <div className="container mx-auto px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <motion.span
@@ -1120,7 +1120,7 @@ function HomePageContent() {
                     <Icons.HelpCircle className="w-4 h-4" />
                     Common Questions
                   </motion.span>
-                  <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">
+                  <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
                     Frequently Asked Questions
                   </h2>
                 </div>
@@ -1136,21 +1136,21 @@ function HomePageContent() {
                       className={`rounded-2xl border transition-all ${
                         openFAQ === i
                           ? "border-rahvana-primary bg-rahvana-primary-pale/30 shadow-md"
-                          : "border-slate-200 bg-white hover:border-rahvana-primary/30"
+                          : "border-border bg-card hover:border-rahvana-primary/30"
                       }`}
                     >
                       <HydrationSafeButton
                         onClick={() => setOpenFAQ(openFAQ === i ? null : i)}
                         className="w-full px-8 py-6 text-left flex items-center justify-between"
                       >
-                        <span className="text-lg font-bold text-slate-900 pr-8">
+                        <span className="text-lg font-bold text-foreground pr-8">
                           {faq.q}
                         </span>
                         <div
                           className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
                             openFAQ === i
                               ? "bg-rahvana-primary border-rahvana-primary text-white rotate-45"
-                              : "border-slate-200 text-slate-400 group-hover:border-rahvana-primary group-hover:text-rahvana-primary"
+                              : "border-border text-muted-foreground group-hover:border-rahvana-primary group-hover:text-rahvana-primary"
                           }`}
                         >
                           <Icons.Plus className="w-4 h-4" />
@@ -1164,7 +1164,7 @@ function HomePageContent() {
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                           >
-                            <div className="px-8 pb-6 text-slate-600 leading-relaxed border-t border-rahvana-primary/10 pt-4">
+                            <div className="px-8 pb-6 text-muted-foreground leading-relaxed border-t border-rahvana-primary/10 pt-4">
                               {faq.a}
                             </div>
                           </motion.div>
@@ -1203,21 +1203,21 @@ function HomePageContent() {
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-slate-100"
+                    className="relative w-full max-w-md bg-card rounded-3xl p-8 shadow-2xl border border-border"
                   >
                     <HydrationSafeButton
                       onClick={() => setShowComingSoon(false)}
-                      className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+                      className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <Icons.X className="w-6 h-6" />
                     </HydrationSafeButton>
                     <div className="w-16 h-16 rounded-2xl bg-rahvana-primary-pale text-rahvana-primary flex items-center justify-center mx-auto mb-6">
                       <Icons.Rocket className="w-8 h-8" />
                     </div>
-                    <h3 className="text-2xl font-bold text-center text-slate-900 mb-2">
+                    <h3 className="text-2xl font-bold text-center text-foreground mb-2">
                       Coming Soon!
                     </h3>
-                    <p className="text-slate-600 text-center mb-8">
+                    <p className="text-muted-foreground text-center mb-8">
                       Want early access? Join the waitlist and be the first to
                       know when this feature launches.
                     </p>
@@ -1236,7 +1236,7 @@ function HomePageContent() {
                         type="email"
                         placeholder="Enter your email"
                         required
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-rahvana-primary focus:ring-4 focus:ring-rahvana-primary/10 transition-all font-medium"
+                        className="w-full px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-rahvana-primary focus:ring-4 focus:ring-rahvana-primary/10 transition-all font-medium bg-background text-foreground"
                       />
                       <HydrationSafeButton
                         type="submit"

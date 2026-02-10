@@ -102,12 +102,12 @@ function AdminLoginPageContent() {
 
   return (
     <>
-      <Card className="max-w-lg mt-20 mx-auto p-6 bg-white shadow-lg border-0 rounded-2xl">
+      <Card className="max-w-lg mt-20 mx-auto p-6 bg-card shadow-lg border-border rounded-2xl">
         <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
         {mfaRequired ? (
           <form onSubmit={handleMfaSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-foreground">
                 Authentication Code
               </label>
               <Input
@@ -118,9 +118,9 @@ function AdminLoginPageContent() {
                 maxLength={6}
                 required
                 disabled={isSubmitting}
-                className="h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary"
+                className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
               />
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-muted-foreground">
                 Enter the code from your authenticator app
               </p>
             </div>
@@ -164,7 +164,7 @@ function AdminLoginPageContent() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-foreground">
                 Email Address
               </label>
               <Input
@@ -174,13 +174,13 @@ function AdminLoginPageContent() {
                 placeholder="you@example.com"
                 required
                 disabled={isSubmitting}
-                className="h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary"
+                className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-slate-700">
+                <label className="block text-sm font-medium text-foreground">
                   Password
                 </label>
               </div>
@@ -192,12 +192,12 @@ function AdminLoginPageContent() {
                   placeholder="Enter your password"
                   required
                   disabled={isSubmitting}
-                  className="h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary pr-12"
+                  className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary pr-12"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? (
                     <svg

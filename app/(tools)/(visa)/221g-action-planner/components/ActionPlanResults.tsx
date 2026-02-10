@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   CheckCircledIcon,
   InfoCircledIcon,
@@ -20,20 +20,20 @@ import {
   DownloadIcon,
   CheckIcon,
   Cross2Icon,
-  HamburgerMenuIcon
-} from '@radix-ui/react-icons';
-import { AlertTriangle, FileCheck, Calendar } from 'lucide-react';
+  HamburgerMenuIcon,
+} from "@radix-ui/react-icons";
+import { AlertTriangle, FileCheck, Calendar } from "lucide-react";
 
-import { ActionPlan } from '../utils/actionPlanGenerator';
-import { ClassificationResult } from '../utils/classifier';
-import { generatePDFPacket,generateCoverLetter } from '../utils/PdfGenerator';
-import DocumentChecklist from './DocumentChecklist';
+import { ActionPlan } from "../utils/actionPlanGenerator";
+import { ClassificationResult } from "../utils/classifier";
+import { generatePDFPacket, generateCoverLetter } from "../utils/PdfGenerator";
+import DocumentChecklist from "./DocumentChecklist";
 
 interface ActionPlanResultsProps {
   classification: ClassificationResult | null;
   actionPlan: ActionPlan | null;
-  formData: import('../types/221g').FormData | null;
-  selectedItems: import('../types/221g').FormSelections | null;
+  formData: import("../types/221g").FormData | null;
+  selectedItems: import("../types/221g").FormSelections | null;
   onBackToForm: () => void;
   onSaveToProfile: () => Promise<void>;
 }
@@ -41,7 +41,7 @@ interface ActionPlanResultsProps {
 interface UploadedFile {
   file: File;
   uploadDate: Date;
-  quality: 'excellent' | 'good' | 'needs-review';
+  quality: "excellent" | "good" | "needs-review";
 }
 
 export default function ActionPlanResults({
@@ -59,27 +59,34 @@ export default function ActionPlanResults({
   const [saveMessage, setSaveMessage] = useState("");
 
   // Document management
-  const [uploadedDocs, setUploadedDocs] = useState<Record<string, UploadedFile[]>>({});
-  const [docQualityChecks, setDocQualityChecks] = useState<Record<string, {
-    passed: boolean;
-    issues: string[];
-  }>>({});
+  const [uploadedDocs, setUploadedDocs] = useState<
+    Record<string, UploadedFile[]>
+  >({});
+  const [docQualityChecks, setDocQualityChecks] = useState<
+    Record<
+      string,
+      {
+        passed: boolean;
+        issues: string[];
+      }
+    >
+  >({});
 
   // Packet generation
   const [coverLetterData, setCoverLetterData] = useState({
-    applicantName: '',
-    caseNumber: formData?.caseNumber || '',
-    interviewDate: formData?.interviewDate || '',
-    embassy: formData?.embassy || 'islamabad',
-    additionalNotes: ''
+    applicantName: "",
+    caseNumber: formData?.caseNumber || "",
+    interviewDate: formData?.interviewDate || "",
+    embassy: formData?.embassy || "islamabad",
+    additionalNotes: "",
   });
 
   // Ref for tracking document scrolling (for UI)
-  const documentSectionsRef = useRef<Record<string, HTMLElement | null>>({});
+  // const documentSectionsRef = useRef<Record<string, HTMLElement | null>>({});
 
   // Restore progress from localStorage on mount
   useEffect(() => {
-    const savedProgress = localStorage.getItem('221gActionPlanProgress');
+    const savedProgress = localStorage.getItem("221gActionPlanProgress");
     if (savedProgress) {
       try {
         const progressState = JSON.parse(savedProgress);
@@ -87,16 +94,15 @@ export default function ActionPlanResults({
         setCompletedSteps(progressState.completedSteps || []);
         setUploadedDocs(progressState.uploadedDocs || {});
         setDocQualityChecks(progressState.docQualityChecks || {});
-        setCoverLetterData(prev => ({
+        setCoverLetterData((prev) => ({
           ...prev,
-          ...progressState.coverLetterData
+          ...progressState.coverLetterData,
         }));
       } catch (error) {
-        console.error('Error restoring progress:', error);
+        console.error("Error restoring progress:", error);
       }
     }
   }, []);
-
 
   if (!actionPlan || !classification) {
     return (
@@ -108,7 +114,9 @@ export default function ActionPlanResults({
 
   const currentStep = actionPlan.stages[currentStepIndex];
   const totalSteps = actionPlan.stages.length;
-  const progressPercentage = Math.round((completedSteps.length / totalSteps) * 100);
+  const progressPercentage = Math.round(
+    (completedSteps.length / totalSteps) * 100,
+  );
   const allStepsCompleted = completedSteps.length === totalSteps;
 
   const handleMarkComplete = () => {
@@ -121,10 +129,13 @@ export default function ActionPlanResults({
   };
 
   const handleRevertStep = (stepIndex: number) => {
-    setCompletedSteps(prev => prev.filter(step => step !== stepIndex));
+    setCompletedSteps((prev) => prev.filter((step) => step !== stepIndex));
   };
 
-  const handleDocumentStatusChange = (documentId: string, status: 'missing' | 'in-progress' | 'ready' | 'submitted') => {
+  const handleDocumentStatusChange = (
+    documentId: string,
+    status: "missing" | "in-progress" | "ready" | "submitted",
+  ) => {
     // This function can be used to update document statuses in the future
     // For now, we're just logging the change
     console.log(`Document ${documentId} status changed to ${status}`);
@@ -137,30 +148,33 @@ export default function ActionPlanResults({
       completedSteps,
       uploadedDocs,
       docQualityChecks,
-      coverLetterData
+      coverLetterData,
     };
 
-    localStorage.setItem('221gActionPlanProgress', JSON.stringify(progressState));
+    localStorage.setItem(
+      "221gActionPlanProgress",
+      JSON.stringify(progressState),
+    );
     onBackToForm();
   };
 
   const handleFileUpload = (docId: string, files: FileList) => {
-    const newFiles: UploadedFile[] = Array.from(files).map(file => ({
+    const newFiles: UploadedFile[] = Array.from(files).map((file) => ({
       file,
       uploadDate: new Date(),
-      quality: checkFileQuality(file)
+      quality: checkFileQuality(file),
     }));
 
-    setUploadedDocs(prev => ({
+    setUploadedDocs((prev) => ({
       ...prev,
-      [docId]: [...(prev[docId] || []), ...newFiles]
+      [docId]: [...(prev[docId] || []), ...newFiles],
     }));
 
     performQualityCheck(docId, newFiles);
   };
 
   const handleRemoveFile = (docId: string, fileIndex: number) => {
-    setUploadedDocs(prev => {
+    setUploadedDocs((prev) => {
       const currentFiles = prev[docId] || [];
       const updatedFiles = currentFiles.filter((_, idx) => idx !== fileIndex);
 
@@ -172,25 +186,27 @@ export default function ActionPlanResults({
 
       return {
         ...prev,
-        [docId]: updatedFiles
+        [docId]: updatedFiles,
       };
     });
   };
 
-  const checkFileQuality = (file: File): 'excellent' | 'good' | 'needs-review' => {
+  const checkFileQuality = (
+    file: File,
+  ): "excellent" | "good" | "needs-review" => {
     const sizeMB = file.size / (1024 * 1024);
-    const isPDF = file.type === 'application/pdf';
+    const isPDF = file.type === "application/pdf";
 
-    if (isPDF && sizeMB < 10 && sizeMB > 0.1) return 'excellent';
-    if (sizeMB > 20) return 'needs-review';
-    return 'good';
+    if (isPDF && sizeMB < 10 && sizeMB > 0.1) return "excellent";
+    if (sizeMB > 20) return "needs-review";
+    return "good";
   };
 
   const performQualityCheck = (docId: string, files: UploadedFile[]) => {
     const issues: string[] = [];
 
     files.forEach(({ file, quality }) => {
-      if (quality === 'needs-review') {
+      if (quality === "needs-review") {
         if (file.size > 20 * 1024 * 1024) {
           issues.push(`File ${file.name} is too large (> 20MB)`);
         }
@@ -200,12 +216,12 @@ export default function ActionPlanResults({
       }
     });
 
-    setDocQualityChecks(prev => ({
+    setDocQualityChecks((prev) => ({
       ...prev,
       [docId]: {
         passed: issues.length === 0,
-        issues
-      }
+        issues,
+      },
     }));
   };
 
@@ -214,23 +230,28 @@ export default function ActionPlanResults({
       await generatePDFPacket({
         coverLetterData,
         selectedItems: selectedItems || {},
-        uploadedDocs
+        uploadedDocs,
       });
     } catch (error) {
-      console.error('Error generating PDF packet:', error);
-      alert('There was an error generating your PDF packet. Please try again or contact support if the issue persists.');
+      console.error("Error generating PDF packet:", error);
+      alert(
+        "There was an error generating your PDF packet. Please try again or contact support if the issue persists.",
+      );
     }
   };
 
   const isStepCompleted = (index: number) => completedSteps.includes(index);
-  const isStepAccessible = (index: number) => index === 0 || completedSteps.includes(index - 1);
+  const isStepAccessible = (index: number) =>
+    index === 0 || completedSteps.includes(index - 1);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <div className={`${sidebarCollapsed ? 'w-20' : 'w-80'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300 shadow-lg`}>
+      <div
+        className={`${sidebarCollapsed ? "w-20" : "w-80"} bg-card border-r border-border flex flex-col transition-all duration-300 shadow-lg`}
+      >
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-border">
           <Button
             variant="ghost"
             size="sm"
@@ -244,15 +265,15 @@ export default function ActionPlanResults({
           {!sidebarCollapsed && (
             <>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                   Journey Progress
                 </h2>
-                <span className="text-sm font-bold text-teal-600">
+                <span className="text-sm font-bold text-primary">
                   {progressPercentage}%
                 </span>
               </div>
               <Progress value={progressPercentage} className="h-2 mb-2" />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 {completedSteps.length} of {totalSteps} steps completed
               </p>
             </>
@@ -278,34 +299,52 @@ export default function ActionPlanResults({
               return (
                 <button
                   key={index}
-                  onClick={() => (isAccessible || isCompleted) && setCurrentStepIndex(index)}
+                  onClick={() =>
+                    (isAccessible || isCompleted) && setCurrentStepIndex(index)
+                  }
                   disabled={!isAccessible && !isCompleted}
                   className={`w-full text-left p-3 rounded-lg transition-all ${
                     isCurrent
-                      ? 'bg-teal-50 border-l-4 border-teal-500 shadow-sm'
+                      ? "bg-primary/10 border-l-4 border-primary shadow-sm"
                       : isCompleted
-                      ? 'bg-green-50 border-l-4 border-green-500'
-                      : 'hover:bg-gray-50 border-l-4 border-transparent'
-                  } ${!isAccessible && !isCompleted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        ? "bg-green-500/10 border-l-4 border-green-500"
+                        : "hover:bg-muted border-l-4 border-transparent"
+                  } ${!isAccessible && !isCompleted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   {!sidebarCollapsed && (
                     <div className="flex items-start space-x-3">
-                      <div className={`mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-                        isCompleted ? 'bg-green-500' : isCurrent ? 'bg-teal-500' : 'bg-gray-300'
-                      }`}>
+                      <div
+                        className={`mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                          isCompleted
+                            ? "bg-green-500"
+                            : isCurrent
+                              ? "bg-primary"
+                              : "bg-muted"
+                        }`}
+                      >
                         {isCompleted ? (
                           <CheckIcon className="w-4 h-4 text-white" />
                         ) : (
-                          <span className="text-xs font-semibold text-white">{index + 1}</span>
+                          <span className="text-xs font-semibold text-white">
+                            {index + 1}
+                          </span>
                         )}
                       </div>
                       <div className="flex-1">
-                        <p className={`text-sm font-medium ${
-                          isCurrent ? 'text-teal-700' : isCompleted ? 'text-green-700' : 'text-gray-600'
-                        }`}>
+                        <p
+                          className={`text-sm font-medium ${
+                            isCurrent
+                              ? "text-primary"
+                              : isCompleted
+                                ? "text-green-600"
+                                : "text-muted-foreground"
+                          }`}
+                        >
                           {stage.title}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5">{stage.timeframe}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {stage.timeframe}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -317,7 +356,7 @@ export default function ActionPlanResults({
 
         {/* Back Button */}
         {!sidebarCollapsed && (
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-border">
             <Button
               variant="outline"
               onClick={handleBackToForm}
@@ -343,13 +382,13 @@ export default function ActionPlanResults({
                   </Badge>
                   <Badge variant="outline" className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    {currentStep?.timeframe || 'Timeframe not specified'}
+                    {currentStep?.timeframe || "Timeframe not specified"}
                   </Badge>
                 </div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                  {currentStep?.title || 'Untitled Step'}
+                <h1 className="text-4xl font-bold text-foreground mb-2">
+                  {currentStep?.title || "Untitled Step"}
                 </h1>
-                <p className="text-lg text-gray-600">
+                <p className="text-lg text-muted-foreground">
                   Complete these actions to move forward with your case
                 </p>
               </div>
@@ -363,8 +402,8 @@ export default function ActionPlanResults({
 
                 <TabsContent value="actions" className="mt-6">
                   <Card>
-                    <CardHeader className="bg-teal-50">
-                      <CardTitle className="text-lg font-semibold text-teal-900 flex items-center">
+                    <CardHeader className="bg-primary/10">
+                      <CardTitle className="text-lg font-semibold text-primary flex items-center">
                         <CheckCircledIcon className="w-5 h-5 mr-2" />
                         Required Actions
                       </CardTitle>
@@ -372,11 +411,18 @@ export default function ActionPlanResults({
                     <CardContent className="pt-6">
                       <div className="space-y-4">
                         {currentStep?.actions?.map((action, idx) => (
-                          <div key={idx} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
-                              <span className="text-sm font-bold text-teal-600">{idx + 1}</span>
+                          <div
+                            key={idx}
+                            className="flex items-start space-x-4 p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                              <span className="text-sm font-bold text-primary">
+                                {idx + 1}
+                              </span>
                             </div>
-                            <p className="text-gray-800 leading-relaxed flex-1">{action}</p>
+                            <p className="text-foreground leading-relaxed flex-1">
+                              {action}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -386,8 +432,8 @@ export default function ActionPlanResults({
 
                 <TabsContent value="documents" className="mt-6">
                   <Card>
-                    <CardHeader className="bg-amber-50">
-                      <CardTitle className="text-lg font-semibold text-amber-900 flex items-center">
+                    <CardHeader className="bg-amber-500/10">
+                      <CardTitle className="text-lg font-semibold text-amber-700 flex items-center">
                         <FileTextIcon className="w-5 h-5 mr-2" />
                         Required Documents
                       </CardTitle>
@@ -406,9 +452,9 @@ export default function ActionPlanResults({
                 </TabsContent>
 
                 <TabsContent value="tips" className="mt-6">
-                  <Card className="border-blue-200 bg-blue-50">
+                  <Card className="border-blue-500/20 bg-blue-500/10">
                     <CardHeader>
-                      <CardTitle className="text-lg font-semibold text-blue-900 flex items-center">
+                      <CardTitle className="text-lg font-semibold text-blue-700 flex items-center">
                         <InfoCircledIcon className="w-5 h-5 mr-2" />
                         Tips & Best Practices
                       </CardTitle>
@@ -416,9 +462,14 @@ export default function ActionPlanResults({
                     <CardContent>
                       <ul className="space-y-3">
                         {currentStep?.tips?.map((tip, idx) => (
-                          <li key={idx} className="flex items-start space-x-3 p-3 bg-white rounded-lg">
+                          <li
+                            key={idx}
+                            className="flex items-start space-x-3 p-3 bg-card rounded-lg"
+                          >
                             <span className="text-blue-500 text-xl">💡</span>
-                            <span className="text-blue-900 leading-relaxed">{tip}</span>
+                            <span className="text-blue-700 leading-relaxed">
+                              {tip}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -428,10 +479,13 @@ export default function ActionPlanResults({
               </Tabs>
 
               {/* Navigation */}
-              <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-between pt-6 border-t border-border">
                 <Button
                   variant="outline"
-                  onClick={() => currentStepIndex > 0 && setCurrentStepIndex(currentStepIndex - 1)}
+                  onClick={() =>
+                    currentStepIndex > 0 &&
+                    setCurrentStepIndex(currentStepIndex - 1)
+                  }
                   disabled={currentStepIndex === 0}
                   size="lg"
                 >
@@ -439,13 +493,21 @@ export default function ActionPlanResults({
                   Previous
                 </Button>
 
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   Step {currentStepIndex + 1} of {totalSteps}
                 </div>
 
                 <Button
-                  onClick={completedSteps.includes(currentStepIndex) ? () => handleRevertStep(currentStepIndex) : handleMarkComplete}
-                  className={completedSteps.includes(currentStepIndex) ? "bg-gray-500 hover:bg-gray-600 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"}
+                  onClick={
+                    completedSteps.includes(currentStepIndex)
+                      ? () => handleRevertStep(currentStepIndex)
+                      : handleMarkComplete
+                  }
+                  className={
+                    completedSteps.includes(currentStepIndex)
+                      ? "bg-gray-500 hover:bg-gray-600 text-white"
+                      : "bg-teal-500 hover:bg-teal-600 text-white"
+                  }
                   size="lg"
                 >
                   {completedSteps.includes(currentStepIndex) ? (
@@ -473,48 +535,77 @@ export default function ActionPlanResults({
                   Congratulations! 🎉
                 </h1>
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                  You&apos;ve completed all preparation steps. Now let&apos;s create your submission packet.
+                  You&apos;ve completed all preparation steps. Now let&apos;s
+                  create your submission packet.
                 </p>
               </div>
 
               {/* Packet Builder */}
               <Card className="max-w-4xl mx-auto mb-8 text-left">
-                <CardHeader className="bg-linear-to-r from-blue-50 to-teal-50">
-                  <CardTitle className="text-2xl font-bold text-gray-900">
+                <CardHeader className="bg-linear-to-r from-blue-500/10 to-primary/10">
+                  <CardTitle className="text-2xl font-bold text-foreground">
                     Submission Packet Builder
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="block text-sm font-medium mb-2">Applicant Name *</Label>
+                      <Label className="block text-sm font-medium mb-2">
+                        Applicant Name *
+                      </Label>
                       <Input
                         value={coverLetterData.applicantName}
-                        onChange={(e) => setCoverLetterData({...coverLetterData, applicantName: e.target.value})}
+                        onChange={(e) =>
+                          setCoverLetterData({
+                            ...coverLetterData,
+                            applicantName: e.target.value,
+                          })
+                        }
                         placeholder="Full name as on passport"
                       />
                     </div>
                     <div>
-                      <Label className="block text-sm font-medium mb-2">Case Number *</Label>
+                      <Label className="block text-sm font-medium mb-2">
+                        Case Number *
+                      </Label>
                       <Input
                         value={coverLetterData.caseNumber}
-                        onChange={(e) => setCoverLetterData({...coverLetterData, caseNumber: e.target.value})}
+                        onChange={(e) =>
+                          setCoverLetterData({
+                            ...coverLetterData,
+                            caseNumber: e.target.value,
+                          })
+                        }
                         placeholder="From 221(g) letter"
                       />
                     </div>
                     <div>
-                      <Label className="block text-sm font-medium mb-2">Interview Date *</Label>
+                      <Label className="block text-sm font-medium mb-2">
+                        Interview Date *
+                      </Label>
                       <Input
                         type="date"
                         value={coverLetterData.interviewDate}
-                        onChange={(e) => setCoverLetterData({...coverLetterData, interviewDate: e.target.value})}
+                        onChange={(e) =>
+                          setCoverLetterData({
+                            ...coverLetterData,
+                            interviewDate: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
-                      <Label className="block text-sm font-medium mb-2">Embassy *</Label>
+                      <Label className="block text-sm font-medium mb-2">
+                        Embassy *
+                      </Label>
                       <Input
                         value={coverLetterData.embassy}
-                        onChange={(e) => setCoverLetterData({...coverLetterData, embassy: e.target.value})}
+                        onChange={(e) =>
+                          setCoverLetterData({
+                            ...coverLetterData,
+                            embassy: e.target.value,
+                          })
+                        }
                         placeholder="e.g., islamabad"
                         disabled
                       />
@@ -522,10 +613,17 @@ export default function ActionPlanResults({
                   </div>
 
                   <div>
-                    <Label className="block text-sm font-medium mb-2">Additional Notes (Optional)</Label>
+                    <Label className="block text-sm font-medium mb-2">
+                      Additional Notes (Optional)
+                    </Label>
                     <Textarea
                       value={coverLetterData.additionalNotes}
-                      onChange={(e) => setCoverLetterData({...coverLetterData, additionalNotes: e.target.value})}
+                      onChange={(e) =>
+                        setCoverLetterData({
+                          ...coverLetterData,
+                          additionalNotes: e.target.value,
+                        })
+                      }
                       placeholder="Any additional information for the consular officer"
                       rows={4}
                     />
@@ -534,7 +632,8 @@ export default function ActionPlanResults({
                   <Alert>
                     <FileCheck className="h-4 w-4" />
                     <AlertDescription>
-                      Your packet will include: Cover letter, Document index, and all uploaded documents
+                      Your packet will include: Cover letter, Document index,
+                      and all uploaded documents
                     </AlertDescription>
                   </Alert>
                 </CardContent>
@@ -546,7 +645,10 @@ export default function ActionPlanResults({
                   onClick={handleDownloadPacket}
                   size="lg"
                   className="bg-teal-600 hover:bg-teal-700 text-lg px-8"
-                  disabled={!coverLetterData.applicantName || !coverLetterData.caseNumber}
+                  disabled={
+                    !coverLetterData.applicantName ||
+                    !coverLetterData.caseNumber
+                  }
                 >
                   <DownloadIcon className="w-5 h-5 mr-2" />
                   Generate Packet (PDF)
@@ -556,10 +658,16 @@ export default function ActionPlanResults({
                   size="lg"
                   className="text-lg px-8"
                   onClick={async () => {
-                    const { generateRequiredDocumentsList } = await import('../utils/documentDefinitions');
-                    const docs = generateRequiredDocumentsList(selectedItems || {});
-                    const coverLetter = generateCoverLetter(coverLetterData, docs);
-                    const printWindow = window.open('', '_blank');
+                    const { generateRequiredDocumentsList } =
+                      await import("../utils/documentDefinitions");
+                    const docs = generateRequiredDocumentsList(
+                      selectedItems || {},
+                    );
+                    const coverLetter = generateCoverLetter(
+                      coverLetterData,
+                      docs,
+                    );
+                    const printWindow = window.open("", "_blank");
                     if (printWindow) {
                       printWindow.document.write(`
                         <!DOCTYPE html>
@@ -574,7 +682,7 @@ export default function ActionPlanResults({
                           </head>
                           <body>
                             <h1>Cover Letter Preview</h1>
-                            <pre>${coverLetter.replace(/\n/g, '<br>')}</pre>
+                            <pre>${coverLetter.replace(/\n/g, "<br>")}</pre>
                           </body>
                         </html>
                       `);
@@ -605,26 +713,28 @@ export default function ActionPlanResults({
               </div>
 
               {/* Next Steps */}
-              <Card className="max-w-3xl mx-auto bg-yellow-50 border-yellow-200">
+              <Card className="max-w-3xl mx-auto bg-yellow-500/10 border-yellow-500/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center text-yellow-800">
+                  <CardTitle className="flex items-center text-yellow-700">
                     <AlertTriangle className="w-5 h-5 mr-2" />
                     Important: Next Steps After Download
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="text-left space-y-2 text-yellow-900">
+                  <ul className="text-left space-y-2 text-yellow-700">
                     <li className="flex items-start">
                       <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />
                       Review the complete packet for accuracy and completeness
                     </li>
                     <li className="flex items-start">
                       <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />
-                      Submit via your embassy&apos;s specified method (courier/email/in-person)
+                      Submit via your embassy&apos;s specified method
+                      (courier/email/in-person)
                     </li>
                     <li className="flex items-start">
                       <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />
-                      Keep proof of submission (tracking number, receipt, confirmation email)
+                      Keep proof of submission (tracking number, receipt,
+                      confirmation email)
                     </li>
                     <li className="flex items-start">
                       <CheckCircledIcon className="w-5 h-5 mr-2 mt-0.5 shrink-0" />

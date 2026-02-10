@@ -101,7 +101,9 @@ const CaseTypeStep = ({
 }: CaseTypeStepProps) => (
   <div className="space-y-8">
     <div className="text-center mb-8">
-      <h2 className="text-3xl font-bold text-slate-900 mb-3">Select Case Type</h2>
+      <h2 className="text-3xl font-bold text-slate-900 mb-3">
+        Select Case Type
+      </h2>
       <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
         Please select the type of visa case you want to assess.
       </p>
@@ -123,112 +125,192 @@ const CaseTypeStep = ({
         suppressHydrationWarning
         className={`p-8 border-2 rounded-xl text-center transition-all cursor-pointer ${
           formData.caseType === "Spouse"
-            ? "border-teal-600 bg-teal-50 ring-2 ring-teal-200"
-            : "border-slate-200 hover:border-teal-400 hover:bg-slate-50"
+            ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+            : "border-border hover:border-primary/50 hover:bg-muted/50"
         }`}
         onClick={() => onCaseTypeChange("Spouse")}
       >
-        <div className="mx-auto bg-teal-100 text-teal-800 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        <div className="mx-auto bg-primary/10 text-primary w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-slate-800">Spouse Visa</h3>
-        <p className="text-base text-slate-600">
+        <h3 className="font-bold text-xl mb-2 text-foreground">Spouse Visa</h3>
+        <p className="text-base text-muted-foreground">
           IR-1 / CR-1 – Spouse of U.S. Citizen
         </p>
       </button>
 
       {/* COMING SOON: PARENT */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
-        <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      <div className="p-8 border-2 rounded-xl text-center bg-muted/30 border-border opacity-70">
+        <div className="mx-auto bg-muted text-muted-foreground w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-slate-500">Parent Visa</h3>
-        <p className="text-base text-slate-500">IR-5 – Parent of U.S. Citizen</p>
-        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-600">
+        <h3 className="font-bold text-xl mb-2 text-muted-foreground">
+          Parent Visa
+        </h3>
+        <p className="text-base text-muted-foreground">
+          IR-5 – Parent of U.S. Citizen
+        </p>
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-muted text-muted-foreground">
           Coming Soon
         </span>
       </div>
 
       {/* COMING SOON: CHILD */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
-        <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+      <div className="p-8 border-2 rounded-xl text-center bg-muted/30 border-border opacity-70">
+        <div className="mx-auto bg-muted text-muted-foreground w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-slate-500">Child Visa</h3>
-        <p className="text-base text-slate-500">
+        <h3 className="font-bold text-xl mb-2 text-muted-foreground">
+          Child Visa
+        </h3>
+        <p className="text-base text-muted-foreground">
           IR-2 – Unmarried Child of U.S. Citizen
         </p>
-        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-600">
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-muted text-muted-foreground">
           Coming Soon
         </span>
       </div>
 
       {/* COMING SOON: FAMILY */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
-        <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      <div className="p-8 border-2 rounded-xl text-center bg-muted/30 border-border opacity-70">
+        <div className="mx-auto bg-muted text-muted-foreground w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-slate-500">Family Visa</h3>
-        <p className="text-base text-slate-500">
+        <h3 className="font-bold text-xl mb-2 text-muted-foreground">
+          Family Visa
+        </h3>
+        <p className="text-base text-muted-foreground">
           F1 / F2A / F2B / F3 / F4 – Family Preference Visas
         </p>
-        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-600">
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-muted text-muted-foreground">
           Coming Soon
         </span>
       </div>
 
       {/* COMING SOON: K1 */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
-        <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      <div className="p-8 border-2 rounded-xl text-center bg-muted/30 border-border opacity-70">
+        <div className="mx-auto bg-muted text-muted-foreground w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-slate-500">K1 Visa</h3>
-        <p className="text-base text-slate-500">K1 – Fiance(e) of US Citizen</p>
-        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-600">
+        <h3 className="font-bold text-xl mb-2 text-muted-foreground">
+          K1 Visa
+        </h3>
+        <p className="text-base text-muted-foreground">
+          K1 – Fiance(e) of US Citizen
+        </p>
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-muted text-muted-foreground">
           Coming Soon
         </span>
       </div>
 
       {/* COMING SOON: B1/B2 */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
-        <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <div className="p-8 border-2 rounded-xl text-center bg-muted/30 border-border opacity-70">
+        <div className="mx-auto bg-muted text-muted-foreground w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-slate-500">B1/B2 Visa</h3>
-        <p className="text-base text-slate-500">B1 / B2 – Visitor Visa</p>
-        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-600">
+        <h3 className="font-bold text-xl mb-2 text-muted-foreground">
+          B1/B2 Visa
+        </h3>
+        <p className="text-base text-muted-foreground">
+          B1 / B2 – Visitor Visa
+        </p>
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-muted text-muted-foreground">
           Coming Soon
         </span>
       </div>
     </div>
 
     {error && (
-      <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
+      <div className="p-4 bg-destructive/10 border-l-4 border-destructive rounded-lg text-destructive">
         <div className="flex items-start">
-          <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          <svg
+            className="h-5 w-5 text-destructive mt-0.5 mr-3"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clipRule="evenodd"
+            />
           </svg>
           <span>{error}</span>
         </div>
@@ -240,7 +322,7 @@ const CaseTypeStep = ({
         onClick={onBack}
         suppressHydrationWarning
         variant="outline"
-        className="bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 py-6 text-lg"
+        className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-6 text-lg"
       >
         ← Back
       </Button>
@@ -322,7 +404,7 @@ const QuestionStep = ({
                   : e.target.value,
               )
             }
-            className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+            className="w-full p-3 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-ring transition-colors bg-background"
             placeholder={`Enter ${question.label.toLowerCase()}`}
           />
         );
@@ -331,7 +413,7 @@ const QuestionStep = ({
           <textarea
             value={typeof value === "string" ? value : ""}
             onChange={(e) => onChange(question.id, e.target.value)}
-            className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+            className="w-full p-3 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-ring transition-colors bg-background"
             placeholder={`Enter details for ${question.label.toLowerCase()}`}
             rows={4}
           />
@@ -339,7 +421,9 @@ const QuestionStep = ({
       case "boolean":
         return (
           <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold text-slate-800">{question.label}</span>
+            <span className="text-lg font-semibold text-foreground">
+              {question.label}
+            </span>
             <ToggleSwitch
               checked={!!value}
               onChange={(checked) => onChange(question.id, checked)}
@@ -349,12 +433,14 @@ const QuestionStep = ({
       case "select":
         if (Array.isArray(question.options)) {
           return (
-            <Select 
+            <Select
               value={typeof value === "string" ? value : ""}
               onValueChange={(newValue) => onChange(question.id, newValue)}
             >
               <SelectTrigger className="w-full h-14">
-                <SelectValue placeholder={`Select ${question.label.toLowerCase()}`} />
+                <SelectValue
+                  placeholder={`Select ${question.label.toLowerCase()}`}
+                />
               </SelectTrigger>
               <SelectContent>
                 {question.options.map((option: string) => (
@@ -375,8 +461,10 @@ const QuestionStep = ({
   return (
     <div className="space-y-8">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-3">{title}</h2>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">{description}</p>
+        <h2 className="text-3xl font-bold text-foreground mb-3">{title}</h2>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          {description}
+        </p>
       </div>
 
       <div className="space-y-8">
@@ -430,7 +518,10 @@ const QuestionStep = ({
           }
 
           return (
-            <div key={question.id} className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div
+              key={question.id}
+              className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200"
+            >
               {question.type !== "boolean" && (
                 <label className="block text-lg font-semibold text-slate-800">
                   {modifiedQuestion.label}
@@ -442,10 +533,18 @@ const QuestionStep = ({
         })}
 
         {error && (
-          <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
+          <div className="p-4 bg-destructive/10 border-l-4 border-destructive rounded-lg text-destructive">
             <div className="flex items-start">
-              <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              <svg
+                className="h-5 w-5 text-destructive mt-0.5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span>{error}</span>
             </div>
@@ -456,7 +555,7 @@ const QuestionStep = ({
           <Button
             onClick={onBack}
             variant="outline"
-            className="bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 py-6 text-lg"
+            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-6 text-lg"
           >
             ← Previous
           </Button>
@@ -518,7 +617,8 @@ const ReviewStep = ({
           Review Your Information
         </h2>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Please review all the information you&apos;ve entered before submitting for analysis.
+          Please review all the information you&apos;ve entered before
+          submitting for analysis.
         </p>
       </div>
 
@@ -572,7 +672,9 @@ const ReviewStep = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-base text-slate-600 mb-1">Selected Type</p>
-              <p className="text-lg font-semibold capitalize">{formData.caseType}</p>
+              <p className="text-lg font-semibold capitalize">
+                {formData.caseType}
+              </p>
             </div>
           </div>
         </div>
@@ -585,9 +687,9 @@ const ReviewStep = ({
           formData.marriage_date ||
           formData.spousal_relationship_type ||
           formData.intended_us_state_of_residence) && (
-          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-              <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
+          <div className="bg-muted/30 rounded-xl p-6 border border-border">
+            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-3">
+              <div className="bg-primary/20 text-primary w-10 h-10 rounded-full flex items-center justify-center">
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -607,7 +709,9 @@ const ReviewStep = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {formData.sponsor_dob && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Sponsor DOB</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Sponsor DOB
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatDate(formData.sponsor_dob)}
                   </p>
@@ -615,7 +719,9 @@ const ReviewStep = ({
               )}
               {formData.beneficiary_dob && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Beneficiary DOB</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Beneficiary DOB
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatDate(formData.beneficiary_dob)}
                   </p>
@@ -623,13 +729,17 @@ const ReviewStep = ({
               )}
               {formData.country_of_residence && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Country of Residence</p>
-                  <p className="text-lg font-semibold">{formData.country_of_residence}</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Country of Residence
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {formData.country_of_residence}
+                  </p>
                 </div>
               )}
               {formData.spousal_relationship_type && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Spousal Relationship Type
                   </p>
                   <p className="text-lg font-semibold">
@@ -639,7 +749,7 @@ const ReviewStep = ({
               )}
               {formData.intended_us_state_of_residence && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Intended US State of Residence
                   </p>
                   <p className="text-lg font-semibold">
@@ -649,9 +759,9 @@ const ReviewStep = ({
               )}
             </div>
 
-            <div className="mt-6 bg-white rounded-xl p-6 border border-slate-200">
-              <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-                <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
+            <div className="mt-6 bg-card rounded-xl p-6 border border-border">
+              <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-3">
+                <div className="bg-primary/20 text-primary w-10 h-10 rounded-full flex items-center justify-center">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -677,7 +787,7 @@ const ReviewStep = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {formData.highest_education_level && (
                   <div>
-                    <p className="text-base text-slate-600 mb-1">
+                    <p className="text-base text-muted-foreground mb-1">
                       Highest Education Level
                     </p>
                     <p className="text-lg font-semibold">
@@ -687,7 +797,7 @@ const ReviewStep = ({
                 )}
                 {formData.highest_education_field && (
                   <div>
-                    <p className="text-base text-slate-600 mb-1">
+                    <p className="text-base text-muted-foreground mb-1">
                       Highest Education Field
                     </p>
                     <p className="text-lg font-semibold">
@@ -697,7 +807,7 @@ const ReviewStep = ({
                 )}
                 {formData.current_occupation_role && (
                   <div>
-                    <p className="text-base text-slate-600 mb-1">
+                    <p className="text-base text-muted-foreground mb-1">
                       Current Occupation Role
                     </p>
                     <p className="text-lg font-semibold">
@@ -707,13 +817,17 @@ const ReviewStep = ({
                 )}
                 {formData.industry_sector && (
                   <div>
-                    <p className="text-base text-slate-600 mb-1">Industry Sector</p>
-                    <p className="text-lg font-semibold">{formData.industry_sector}</p>
+                    <p className="text-base text-muted-foreground mb-1">
+                      Industry Sector
+                    </p>
+                    <p className="text-lg font-semibold">
+                      {formData.industry_sector}
+                    </p>
                   </div>
                 )}
                 {formData.prior_military_service !== undefined && (
                   <div>
-                    <p className="text-base text-slate-600 mb-1">
+                    <p className="text-base text-muted-foreground mb-1">
                       Prior Military Service
                     </p>
                     <p className="text-lg font-semibold">
@@ -723,7 +837,7 @@ const ReviewStep = ({
                 )}
                 {formData.specialized_weapons_training !== undefined && (
                   <div>
-                    <p className="text-base text-slate-600 mb-1">
+                    <p className="text-base text-muted-foreground mb-1">
                       Specialized Weapons Training
                     </p>
                     <p className="text-lg font-semibold">
@@ -733,7 +847,7 @@ const ReviewStep = ({
                 )}
                 {formData.unofficial_armed_groups !== undefined && (
                   <div>
-                    <p className="text-base text-slate-600 mb-1">
+                    <p className="text-base text-muted-foreground mb-1">
                       Unofficial Armed Groups
                     </p>
                     <p className="text-lg font-semibold">
@@ -743,8 +857,12 @@ const ReviewStep = ({
                 )}
                 {formData.employer_type && (
                   <div>
-                    <p className="text-base text-slate-600 mb-1">Employer Type</p>
-                    <p className="text-lg font-semibold">{formData.employer_type}</p>
+                    <p className="text-base text-muted-foreground mb-1">
+                      Employer Type
+                    </p>
+                    <p className="text-lg font-semibold">
+                      {formData.employer_type}
+                    </p>
                   </div>
                 )}
               </div>
@@ -761,9 +879,9 @@ const ReviewStep = ({
           formData.communication_logs !== undefined ||
           formData.money_transfer_receipts_available !== undefined ||
           formData.driving_license_copy_available !== undefined) && (
-          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-              <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
+          <div className="bg-muted/30 rounded-xl p-6 border border-border">
+            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-3">
+              <div className="bg-primary/20 text-primary w-10 h-10 rounded-full flex items-center justify-center">
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -783,13 +901,17 @@ const ReviewStep = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {formData.how_did_you_meet && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">How Did You Meet</p>
-                  <p className="text-lg font-semibold">{formData.how_did_you_meet}</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    How Did You Meet
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {formData.how_did_you_meet}
+                  </p>
                 </div>
               )}
               {formData.number_of_in_person_visits !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Number of In-Person Visits
                   </p>
                   <p className="text-lg font-semibold">
@@ -799,7 +921,9 @@ const ReviewStep = ({
               )}
               {formData.cohabitation_proof !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Cohabitation Proof</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Cohabitation Proof
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.cohabitation_proof)}
                   </p>
@@ -807,7 +931,7 @@ const ReviewStep = ({
               )}
               {formData.shared_financial_accounts !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Shared Financial Accounts
                   </p>
                   <p className="text-lg font-semibold">
@@ -817,7 +941,7 @@ const ReviewStep = ({
               )}
               {formData.wedding_photos_available !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Wedding Photos Available
                   </p>
                   <p className="text-lg font-semibold">
@@ -827,7 +951,9 @@ const ReviewStep = ({
               )}
               {formData.communication_logs !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Communication Logs</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Communication Logs
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.communication_logs)}
                   </p>
@@ -835,7 +961,7 @@ const ReviewStep = ({
               )}
               {formData.money_transfer_receipts_available !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Money Transfer Receipts Available
                   </p>
                   <p className="text-lg font-semibold">
@@ -845,7 +971,7 @@ const ReviewStep = ({
               )}
               {formData.driving_license_copy_available !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Driving License Copy Available
                   </p>
                   <p className="text-lg font-semibold">
@@ -862,9 +988,9 @@ const ReviewStep = ({
           formData.previous_visa_denial !== undefined ||
           formData.overstay_or_violation !== undefined ||
           formData.criminal_record !== undefined) && (
-          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-              <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
+          <div className="bg-muted/30 rounded-xl p-6 border border-border">
+            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-3">
+              <div className="bg-primary/20 text-primary w-10 h-10 rounded-full flex items-center justify-center">
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -884,7 +1010,7 @@ const ReviewStep = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {formData.previous_visa_applications !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Previous Visa Applications
                   </p>
                   <p className="text-lg font-semibold">
@@ -894,7 +1020,9 @@ const ReviewStep = ({
               )}
               {formData.previous_visa_denial !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Previous Visa Denial</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Previous Visa Denial
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.previous_visa_denial)}
                   </p>
@@ -902,7 +1030,7 @@ const ReviewStep = ({
               )}
               {formData.overstay_or_violation !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Overstay or Violation
                   </p>
                   <p className="text-lg font-semibold">
@@ -912,7 +1040,9 @@ const ReviewStep = ({
               )}
               {formData.criminal_record !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Criminal Record</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Criminal Record
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.criminal_record)}
                   </p>
@@ -931,9 +1061,9 @@ const ReviewStep = ({
           formData.joint_sponsor_available !== undefined ||
           formData.i864_affidavit_submitted !== undefined ||
           formData.i864_supporting_financial_documents !== undefined) && (
-          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-              <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
+          <div className="bg-muted/30 rounded-xl p-6 border border-border">
+            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-3">
+              <div className="bg-primary/20 text-primary w-10 h-10 rounded-full flex items-center justify-center">
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -953,7 +1083,7 @@ const ReviewStep = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {formData.sponsor_annual_income && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Sponsor Annual Income
                   </p>
                   <p className="text-lg font-semibold">
@@ -963,13 +1093,19 @@ const ReviewStep = ({
               )}
               {formData.household_size && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Household Size</p>
-                  <p className="text-lg font-semibold">{formData.household_size}</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Household Size
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {formData.household_size}
+                  </p>
                 </div>
               )}
               {formData.has_tax_returns !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Has Tax Returns</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Has Tax Returns
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.has_tax_returns)}
                   </p>
@@ -977,7 +1113,7 @@ const ReviewStep = ({
               )}
               {formData.has_employment_letter !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Has Employment Letter
                   </p>
                   <p className="text-lg font-semibold">
@@ -987,7 +1123,9 @@ const ReviewStep = ({
               )}
               {formData.has_paystubs !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Has Paystubs</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Has Paystubs
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.has_paystubs)}
                   </p>
@@ -995,7 +1133,7 @@ const ReviewStep = ({
               )}
               {formData.joint_sponsor_available !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Joint Sponsor Available
                   </p>
                   <p className="text-lg font-semibold">
@@ -1005,7 +1143,7 @@ const ReviewStep = ({
               )}
               {formData.i864_affidavit_submitted !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     I-864 Affidavit Submitted
                   </p>
                   <p className="text-lg font-semibold">
@@ -1015,7 +1153,7 @@ const ReviewStep = ({
               )}
               {formData.i864_supporting_financial_documents !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     I-864 Supporting Financial Documents
                   </p>
                   <p className="text-lg font-semibold">
@@ -1035,9 +1173,9 @@ const ReviewStep = ({
           formData.union_council_certificate !== undefined ||
           formData.family_registration_certificate !== undefined ||
           formData.birth_certificates !== undefined) && (
-          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-              <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
+          <div className="bg-muted/30 rounded-xl p-6 border border-border">
+            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-3">
+              <div className="bg-primary/20 text-primary w-10 h-10 rounded-full flex items-center justify-center">
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -1057,7 +1195,7 @@ const ReviewStep = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {formData.urdu_marriage_certificate !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Urdu Marriage Certificate
                   </p>
                   <p className="text-lg font-semibold">
@@ -1067,7 +1205,7 @@ const ReviewStep = ({
               )}
               {formData.english_translation_certificate !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     English Translation Certificate
                   </p>
                   <p className="text-lg font-semibold">
@@ -1077,7 +1215,7 @@ const ReviewStep = ({
               )}
               {formData.union_council_certificate !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Union Council Certificate
                   </p>
                   <p className="text-lg font-semibold">
@@ -1087,7 +1225,7 @@ const ReviewStep = ({
               )}
               {formData.family_registration_certificate !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Family Registration Certificate
                   </p>
                   <p className="text-lg font-semibold">
@@ -1097,7 +1235,9 @@ const ReviewStep = ({
               )}
               {formData.birth_certificates !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Birth Certificates</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Birth Certificates
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.birth_certificates)}
                   </p>
@@ -1133,7 +1273,9 @@ const ReviewStep = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {formData.passports_available !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Passports Available</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Passports Available
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.passports_available)}
                   </p>
@@ -1141,7 +1283,7 @@ const ReviewStep = ({
               )}
               {formData.passport_copy_available !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Passport Copy Available
                   </p>
                   <p className="text-lg font-semibold">
@@ -1171,9 +1313,9 @@ const ReviewStep = ({
           formData.polio_vaccination_certificate !== undefined ||
           formData.covid_vaccination_certificate !== undefined ||
           formData.passport_photos_2x2 !== undefined) && (
-          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-              <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
+          <div className="bg-muted/30 rounded-xl p-6 border border-border">
+            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-3">
+              <div className="bg-primary/20 text-primary w-10 h-10 rounded-full flex items-center justify-center">
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -1193,7 +1335,9 @@ const ReviewStep = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {formData.ds260_confirmation !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">DS-260 Confirmation</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    DS-260 Confirmation
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.ds260_confirmation)}
                   </p>
@@ -1201,7 +1345,9 @@ const ReviewStep = ({
               )}
               {formData.interview_letter !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Interview Letter</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Interview Letter
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.interview_letter)}
                   </p>
@@ -1209,7 +1355,9 @@ const ReviewStep = ({
               )}
               {formData.courier_registration !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">Courier Registration</p>
+                  <p className="text-base text-muted-foreground mb-1">
+                    Courier Registration
+                  </p>
                   <p className="text-lg font-semibold">
                     {formatBoolean(formData.courier_registration)}
                   </p>
@@ -1217,7 +1365,7 @@ const ReviewStep = ({
               )}
               {formData.medical_report_available !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Medical Report Available
                   </p>
                   <p className="text-lg font-semibold">
@@ -1227,7 +1375,7 @@ const ReviewStep = ({
               )}
               {formData.polio_vaccination_certificate !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Polio Vaccination Certificate
                   </p>
                   <p className="text-lg font-semibold">
@@ -1237,7 +1385,7 @@ const ReviewStep = ({
               )}
               {formData.covid_vaccination_certificate !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     COVID Vaccination Certificate
                   </p>
                   <p className="text-lg font-semibold">
@@ -1247,7 +1395,7 @@ const ReviewStep = ({
               )}
               {formData.passport_photos_2x2 !== undefined && (
                 <div>
-                  <p className="text-base text-slate-600 mb-1">
+                  <p className="text-base text-muted-foreground mb-1">
                     Passport Photos (2x2)
                   </p>
                   <p className="text-lg font-semibold">
@@ -1260,10 +1408,18 @@ const ReviewStep = ({
         )}
 
         {error && (
-          <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
+          <div className="p-4 bg-destructive/10 border-l-4 border-destructive rounded-lg text-destructive">
             <div className="flex items-start">
-              <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              <svg
+                className="h-5 w-5 text-destructive mt-0.5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span>{error}</span>
             </div>
@@ -1274,7 +1430,7 @@ const ReviewStep = ({
           <Button
             onClick={onBack}
             variant="outline"
-            className="bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 py-6 text-lg"
+            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-6 text-lg"
           >
             ← Previous
           </Button>
@@ -1283,7 +1439,7 @@ const ReviewStep = ({
             <Button
               onClick={onSubmit}
               disabled={loading}
-              className="bg-teal-600 hover:bg-teal-700 text-white py-6 text-lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg"
             >
               {loading ? "Submitting..." : "Submit for Analysis →"}
             </Button>
@@ -1827,7 +1983,7 @@ export default function VisaCaseStrengthChecker() {
         // Navigate to results page after successful submit
         setStep((prev) => prev + 1);
         // Scroll to top when results appear
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         const errorData = await submitResponse.text();
         console.error("Submit response error:", errorData);
@@ -1916,31 +2072,29 @@ export default function VisaCaseStrengthChecker() {
       const sectionIndex = step - 1;
       const section = questionnaireData.sections[sectionIndex];
 
-      return (
-        renderWithNotification(
-          <QuestionStep
-            title={section.title}
-            description={`Please answer the following questions for ${section.title}`}
-            questions={section.questions.map((q: QuestionDefinition) => ({
-              id: q.id as keyof FormData,
-              label: q.label,
-              type: q.type as
-                | "text"
-                | "textarea"
-                | "number"
-                | "date"
-                | "boolean"
-                | "select",
-              options: q.options || undefined,
-            }))}
-            formData={formData}
-            error={error}
-            onChange={handleInputChange}
-            onNext={nextStep}
-            onBack={prevStep}
-            onSaveForLater={handleSaveForLater}
-          />
-        )
+      return renderWithNotification(
+        <QuestionStep
+          title={section.title}
+          description={`Please answer the following questions for ${section.title}`}
+          questions={section.questions.map((q: QuestionDefinition) => ({
+            id: q.id as keyof FormData,
+            label: q.label,
+            type: q.type as
+              | "text"
+              | "textarea"
+              | "number"
+              | "date"
+              | "boolean"
+              | "select",
+            options: q.options || undefined,
+          }))}
+          formData={formData}
+          error={error}
+          onChange={handleInputChange}
+          onNext={nextStep}
+          onBack={prevStep}
+          onSaveForLater={handleSaveForLater}
+        />,
       );
     }
 
@@ -1965,7 +2119,7 @@ export default function VisaCaseStrengthChecker() {
       if (!sessionId) {
         return (
           <div className="text-center py-8">
-            <p className="text-slate-600">Loading results...</p>
+            <p className="text-muted-foreground">Loading results...</p>
           </div>
         );
       }
@@ -2012,18 +2166,20 @@ export default function VisaCaseStrengthChecker() {
     return (
       <div className="mb-8">
         <div className="flex justify-between items-center mb-3">
-          <span className="text-sm font-medium text-slate-700">
+          <span className="text-sm font-medium text-muted-foreground">
             Step {step} of {totalSteps}
           </span>
-          <span className="text-sm font-medium text-slate-700">
+          <span className="text-sm font-medium text-muted-foreground">
             {progressPercentage}% Complete
           </span>
         </div>
 
-        <div className="w-full bg-slate-200 rounded-full h-3">
+        <div className="w-full bg-secondary rounded-full h-3">
           <div
-            className="bg-teal-600 h-3 rounded-full transition-all duration-500 ease-in-out"
-            style={{ width: `${progressPercentage > 100 ? 100 : progressPercentage}%` }}
+            className="bg-primary h-3 rounded-full transition-all duration-500 ease-in-out"
+            style={{
+              width: `${progressPercentage > 100 ? 100 : progressPercentage}%`,
+            }}
           ></div>
         </div>
 
@@ -2041,13 +2197,16 @@ export default function VisaCaseStrengthChecker() {
                   key={index}
                   className={`p-3 rounded-lg text-center text-xs font-medium transition-all ${
                     isActive
-                      ? "bg-teal-600 text-white border-2 border-teal-600"
+                      ? "bg-primary text-primary-foreground border-2 border-primary"
                       : isCompleted
-                      ? "bg-teal-100 text-teal-800 border-2 border-teal-200"
-                      : "bg-slate-100 text-slate-500 border-2 border-slate-200"
+                        ? "bg-primary/20 text-primary border-2 border-primary/30"
+                        : "bg-muted text-muted-foreground border-2 border-border"
                   }`}
                 >
-                  <div className="font-semibold truncate">{section.title.substring(0, 20)}{section.title.length > 20 ? '...' : ''}</div>
+                  <div className="font-semibold truncate">
+                    {section.title.substring(0, 20)}
+                    {section.title.length > 20 ? "..." : ""}
+                  </div>
                   <div className="text-[10px] mt-1">Step {index + 1}</div>
                 </div>
               );
@@ -2058,10 +2217,10 @@ export default function VisaCaseStrengthChecker() {
           <div
             className={`p-3 rounded-lg text-center text-xs font-medium transition-all ${
               step === sections.length + 1
-                ? "bg-teal-600 text-white border-2 border-teal-600"
+                ? "bg-primary text-primary-foreground border-2 border-primary"
                 : step > sections.length + 1
-                ? "bg-teal-100 text-teal-800 border-2 border-teal-200"
-                : "bg-slate-100 text-slate-500 border-2 border-slate-200"
+                  ? "bg-primary/20 text-primary border-2 border-primary/30"
+                  : "bg-muted text-muted-foreground border-2 border-border"
             }`}
           >
             <div className="font-semibold">Review</div>
@@ -2072,8 +2231,8 @@ export default function VisaCaseStrengthChecker() {
           <div
             className={`p-3 rounded-lg text-center text-xs font-medium transition-all ${
               step === sections.length + 2
-                ? "bg-teal-600 text-white border-2 border-teal-600"
-                : "bg-slate-100 text-slate-500 border-2 border-slate-200"
+                ? "bg-primary text-primary-foreground border-2 border-primary"
+                : "bg-muted text-muted-foreground border-2 border-border"
             }`}
           >
             <div className="font-semibold">Results</div>
@@ -2087,17 +2246,17 @@ export default function VisaCaseStrengthChecker() {
   return (
     <div className="container mx-auto py-8 max-w-4xl">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">
+        <h1 className="text-4xl font-bold text-foreground mb-3 tracking-tight">
           Visa Case Strength Checker
         </h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Assess your IR-1/CR-1 visa case strength with our guided questionnaire
         </p>
       </div>
 
       {renderProgressSections()}
 
-      <Card className="p-8 shadow-lg border border-slate-200">{renderStep()}</Card>
+      <Card className="p-8 shadow-lg border border-border">{renderStep()}</Card>
     </div>
   );
 }
