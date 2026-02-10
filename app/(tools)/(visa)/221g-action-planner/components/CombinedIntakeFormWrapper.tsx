@@ -13,8 +13,18 @@ const DynamicCombinedIntakeForm = dynamic(
 
 interface CombinedIntakeFormWrapperProps {
   onSubmit: (data: import('../types/221g').FormData, selected221gItems: import('../types/221g').FormSelections) => void;
+  initialData?: import('../types/221g').FormData | null;
+  initialSelections?: import('../types/221g').FormSelections | null;
 }
 
-export default function CombinedIntakeFormWrapper({ onSubmit }: CombinedIntakeFormWrapperProps) {
-  return <DynamicCombinedIntakeForm onSubmit={onSubmit} />;
+export default function CombinedIntakeFormWrapper({ 
+    onSubmit, 
+    initialData, 
+    initialSelections 
+}: CombinedIntakeFormWrapperProps) {
+  return <DynamicCombinedIntakeForm 
+    onSubmit={onSubmit} 
+    initialData={initialData} 
+    initialSelections={initialSelections} 
+  />;
 }

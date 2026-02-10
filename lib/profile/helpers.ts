@@ -129,7 +129,7 @@ function formatPhoneNumber(phone: string): string {
  * Removes empty strings and null values
  */
 export function sanitizeProfileData(profile: Partial<MasterProfile>): Partial<MasterProfile> {
-  const sanitized: any = {};
+  const sanitized: Record<string, unknown> = {};
   
   for (const [key, value] of Object.entries(profile)) {
     if (value === null || value === '' || value === undefined) {
@@ -137,7 +137,7 @@ export function sanitizeProfileData(profile: Partial<MasterProfile>): Partial<Ma
     }
     
     if (typeof value === 'object' && !Array.isArray(value)) {
-      const sanitizedObj = sanitizeProfileData(value as any);
+      const sanitizedObj = sanitizeProfileData(value as Partial<MasterProfile>);
       if (Object.keys(sanitizedObj).length > 0) {
         sanitized[key] = sanitizedObj;
       }
@@ -150,7 +150,7 @@ export function sanitizeProfileData(profile: Partial<MasterProfile>): Partial<Ma
     }
   }
   
-  return sanitized;
+  return sanitized as Partial<MasterProfile>;
 }
 
 /**

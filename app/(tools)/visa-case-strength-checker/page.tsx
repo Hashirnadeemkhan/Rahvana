@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { ResultPage } from "./result/ResultPage";
 import { createBrowserClient } from "@supabase/ssr";
 import { useAuth } from "@/app/context/AuthContext";
 import { mapProfileToVisaChecker, mapFormToProfile } from "@/lib/autoFill/mapper";
-import type { MasterProfile } from "@/types/profile";
+import type { MasterProfile, QuestionnaireData, QuestionDefinition, QuestionnaireSection } from "@/types/profile";
 
 type CaseType = "Spouse";
 
@@ -1331,7 +1331,10 @@ export default function VisaCaseStrengthChecker() {
             // 1. Check for specific Saved Case Strength Session
             if (profile.caseStrength?.lastSessionId && profile.caseStrength?.answers) {
                  // Restore specific tool state
-                 setFormData(profile.caseStrength.answers as FormData);
+                  setFormData({
+                    caseType: (profile.caseStrength.caseType as CaseType) || "",
+                    ...profile.caseStrength.answers
+                  } as FormData);
                  setSessionId(profile.caseStrength.lastSessionId);
                  setProfileLoaded(true);
                  
@@ -1378,9 +1381,10 @@ export default function VisaCaseStrengthChecker() {
   useEffect(() => {
     if (!questionnaireData) {
       import("../../../data/visa-case-strength-checker.json")
-        .then((data) =>
-          setQuestionnaireData(data.default || (data as QuestionnaireData)),
-        )
+        .then((m) => {
+          const data = m.default || m;
+          setQuestionnaireData(data as QuestionnaireData);
+        })
         .catch((err) =>
           console.error("Error loading questionnaire data:", err),
         );
@@ -1949,7 +1953,6 @@ export default function VisaCaseStrengthChecker() {
             error={error}
             loading={loading}
             onSubmit={handleSubmit}
-            onSubmit={handleSubmit}
             onBack={prevStep}
             onSaveToProfile={user ? handleSaveToProfile : undefined}
           />
@@ -2027,7 +2030,7 @@ export default function VisaCaseStrengthChecker() {
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {sections.map(
             (
-              section: { title: string; questions: QuestionDefinition[] },
+              section: QuestionnaireSection,
               index: number,
             ) => {
               const isActive = index === currentSectionIndex;

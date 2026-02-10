@@ -27,7 +27,6 @@ import {
 
 import { HeroSection } from "./components/hero-section";
 import { StrategicIndicators } from "./components/strategic-indicators";
-import { TestimonialsSection } from "../passport-guide/components/testimonials-section";
 
 const PILLARS = [
   {
@@ -251,8 +250,6 @@ export default function VisaStrengthGuidePage() {
               </div>
            </div>
         </section>
-
-        <TestimonialsSection />
 
         <footer className="text-center text-sm text-slate-400 py-12 border-t border-slate-200 mt-20">
           <div className="flex items-center justify-center gap-6 mb-4">

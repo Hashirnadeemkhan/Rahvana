@@ -94,6 +94,7 @@ interface FormSelectProps {
   readOnly?: boolean;
   placeholder?: string;
   className?: string;
+  helpText?: string;
 }
 
 export function FormSelect({
@@ -106,6 +107,7 @@ export function FormSelect({
   readOnly = false,
   placeholder,
   className,
+  helpText,
 }: FormSelectProps) {
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
@@ -131,6 +133,9 @@ export function FormSelect({
           </option>
         ))}
       </select>
+      {helpText && (
+        <p className="text-xs text-slate-400">{helpText}</p>
+      )}
     </div>
   );
 }

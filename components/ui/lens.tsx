@@ -1,8 +1,6 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-
 interface LensProps {
   children: React.ReactNode;
   zoomFactor?: number;
@@ -39,7 +37,7 @@ export const Lens = ({
   // Extract src if the child is an img
   const getSrc = () => {
     if (React.isValidElement(children)) {
-      return (children.props as any).src;
+      return (children.props as { src?: string }).src;
     }
     return "";
   };

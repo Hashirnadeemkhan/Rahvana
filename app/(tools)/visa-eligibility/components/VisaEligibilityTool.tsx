@@ -123,7 +123,7 @@ export function VisaEligibilityTool() {
         }
 
         // 2. Petitioner Age (Derive from DOB)
-        if (!newAnswers.petitionerAgeGroup && (profile.dateOfBirth || profile.age)) {
+        if (!newAnswers.petitionerAgeGroup && profile.dateOfBirth) {
            // Handle direct age if available (legacy?) or calc from DOB
            if (profile.dateOfBirth) {
              const birthDate = new Date(profile.dateOfBirth);

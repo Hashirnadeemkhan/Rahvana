@@ -264,6 +264,7 @@ export interface MasterProfile {
   // Visa Case Strength Specifics
   caseStrength?: {
       caseType?: string;
+      lastSessionId?: string;
       // We store the exact simplified answers from the tool
       answers?: Record<string, unknown>;
       // Or we can just store the result summary if needed, but likely we want the inputs to re-populate
@@ -273,7 +274,27 @@ export interface MasterProfile {
   actionPlanner?: {
       caseStatus?: string;
       interviewDate?: string;
+      lastSessionId?: string;
       documentsRequested?: string[];
       questionnaire?: Record<string, unknown>;
   };
+}
+
+export interface QuestionDefinition {
+  id: string;
+  label: string;
+  type: "text" | "textarea" | "number" | "date" | "boolean" | "select";
+  options?: string | string[];
+  risk_tag?: string;
+}
+
+export interface QuestionnaireSection {
+  id: string;
+  title: string;
+  description?: string;
+  questions: QuestionDefinition[]; 
+}
+
+export interface QuestionnaireData {
+  sections: QuestionnaireSection[];
 }

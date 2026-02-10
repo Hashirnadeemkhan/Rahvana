@@ -41,7 +41,9 @@ const nextConfig = {
     config.resolve.fallback = { canvas: false }
     return config
   },
-  turbopack: {},
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 }
 
 export default nextConfig

@@ -8,60 +8,287 @@ import {
   Clock,
   AlertCircle,
   CheckCircle,
-  ChevronRight,
-  ExternalLink,
-  FileText,
+  Camera,
+  ChevronDown,
+  BookOpen,
   Users,
+  FileText,
+  Globe2,
+  MapPin,
+  Search,
+  Lightbulb,
   TrendingUp,
+  AlertTriangle,
   Home,
   Sparkles,
-  BookOpen,
-  Lightbulb,
-  Globe2,
-  RefreshCw,
-  Search,
-  MapPin,
-  Camera,
+  ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import { HeroSection } from "./components/hero-section";
 import { PhotoGuideSection } from "./components/photo-guide-section";
-import { TestimonialsSection } from "./components/testimonials-section";
+import { LocationGuideSection } from "./components/location-guide-section";
+
+const mrpGuidelines2026: Record<string, Record<string, Record<string, number>>> = {
+  normal: {
+    "36": { "5": 5500, "10": 7700 },
+    "72": { "5": 10000, "10": 15000 },
+    "100": { "5": 12000, "10": 18000 },
+  },
+  urgent: {
+    "36": { "5": 8500, "10": 12200 },
+    "72": { "5": 14500, "10": 21000 },
+    "100": { "5": 19000, "10": 27000 },
+  },
+  fasttrack: {
+    "36": { "5": 12500, "10": 18000 },
+    "72": { "5": 20000, "10": 30000 },
+    "100": { "5": 24000, "10": 36000 },
+  },
+};
+
+const ePassportGuidelines2026: Record<string, Record<string, Record<string, number>>> = {
+  normal: {
+    "36": { "5": 9000, "10": 13500 },
+    "72": { "5": 16500, "10": 24750 },
+    "100": { "5": 20000, "10": 30000 }, // Estimated
+  },
+  urgent: {
+    "36": { "5": 15000, "10": 22500 },
+    "72": { "5": 27000, "10": 40500 },
+    "100": { "5": 35000, "10": 50000 }, // Estimated
+  },
+  fasttrack: {
+    "36": { "5": 20000, "10": 30000 },
+    "72": { "5": 35000, "10": 55000 },
+    "100": { "5": 45000, "10": 70000 }, // Estimated
+  },
+};
+
+const sectionThemes: Record<string, { bg: string, border: string, accent: string, iconBg: string, hover: string }> = {
+  understanding: { bg: "bg-indigo-50/30", border: "border-indigo-100", accent: "text-indigo-600", iconBg: "bg-indigo-100/50", hover: "hover:border-indigo-300 hover:bg-indigo-50/50" },
+  eligibility: { bg: "bg-cyan-50/30", border: "border-cyan-100", accent: "text-cyan-600", iconBg: "bg-cyan-100/50", hover: "hover:border-cyan-300 hover:bg-cyan-50/50" },
+  documents: { bg: "bg-emerald-50/30", border: "border-emerald-100", accent: "text-emerald-600", iconBg: "bg-emerald-100/50", hover: "hover:border-emerald-300 hover:bg-emerald-50/50" },
+  photos: { bg: "bg-sky-50/30", border: "border-sky-100", accent: "text-sky-600", iconBg: "bg-sky-100/50", hover: "hover:border-sky-300 hover:bg-sky-50/50" },
+  process: { bg: "bg-teal-50/30", border: "border-teal-100", accent: "text-[#0d7377]", iconBg: "bg-teal-100/50", hover: "hover:border-teal-300 hover:bg-teal-50/50" },
+  time: { bg: "bg-cyan-50/30", border: "border-cyan-100", accent: "text-cyan-600", iconBg: "bg-cyan-100/50", hover: "hover:border-cyan-300 hover:bg-cyan-50/50" },
+  fees: { bg: "bg-[#e8f6f6]/30", border: "border-[#14a0a6]/20", accent: "text-[#0d7377]", iconBg: "bg-[#0d7377]/10", hover: "hover:border-[#0d7377]/30 hover:bg-[#0d7377]/5" },
+  locations: { bg: "bg-indigo-50/30", border: "border-indigo-100", accent: "text-indigo-600", iconBg: "bg-indigo-100/50", hover: "hover:border-indigo-300 hover:bg-indigo-50/50" },
+  tips: { bg: "bg-rose-50/30", border: "border-rose-100", accent: "text-rose-600", iconBg: "bg-rose-100/50", hover: "hover:border-rose-300 hover:bg-rose-50/50" },
+};
+
+const sections = [
+  {
+    id: "understanding",
+    title: "Understanding Pakistani Passport",
+    icon: BookOpen,
+    description: "Learn about the types of passports and why you need one.",
+    content: [
+      {
+        heading: "What is a Pakistani Passport?",
+        text: "A Pakistani passport is an official document issued by the Directorate General of Immigration & Passports (DGIP) for international travel. It serves as proof of Pakistani citizenship and identity.",
+      },
+      {
+        heading: "When is it required?",
+        text: "Required for all international travel, including applying for visas to countries like the US. It must be valid for at least 6 months beyond your intended stay for most visas.",
+      },
+      {
+        heading: "Types of Passports",
+        text: "• Ordinary MRP: Common Machine Readable Passport for citizens.\n• e-Passport: Advanced with biometric chip for faster clearance.\n• Official/Diplomatic: Issued to government officials and diplomats.",
+      },
+    ],
+  },
+  {
+    id: "eligibility",
+    title: "Eligibility Criteria",
+    icon: Users,
+    description: "Check if you qualify to apply for a Pakistani passport.",
+    content: [
+      {
+        heading: "Who Can Apply?",
+        text: "Every Pakistani citizen, including newborns. No minimum age.",
+      },
+      {
+        heading: "Special Requirements",
+        text: "• Overseas Pakistanis: Can renew online (Full Process).\n• Govt Employees: Need NOC valid for <90 days.\n• Dual Nationals: Must provide copy of foreign passport.",
+      },
+      {
+        heading: "Special Cases",
+        text: "• Minors under 18 (require both parents).\n• Lost/Damaged cases (require FIR/Affidavit).\n• Name or status changes (require updated CNIC).",
+      },
+    ],
+  },
+  {
+    id: "documents",
+    title: "Required Documents",
+    icon: FileText,
+    description: "Complete checklist of documents needed for your application.",
+    content: [
+      {
+        heading: "For Adults (New/Renewal)",
+        text: "• Original CNIC/NICOP/Smart CNIC + copy\n• Previous passport + copy (renewal only)\n• NOC for govt employees (valid <90 days)\n• For married women: CNIC with updated marital status",
+      },
+      {
+        heading: "For Minors",
+        text: "• Original B-Form/CRC/Smart Card + copy\n• Parents' CNIC/NICOP + copies\n• Guardianship certificate if not parents\n• Both parents must accompany",
+      },
+      {
+        heading: "For Lost",
+        text: "• Police FIR + copy\n• Affidavit on Rs. 50 stamp paper\n• Previous passport copy if available",
+      },
+      {
+        heading: "For Damaged",
+        text: "• Original damaged passport\n• Police FIR if theft/damage by others\n• Signed Affidavit on stamp paper",
+      },
+      {
+        heading: "General: Payment",
+        text: "• Fee payment proof (Challan/PSID/e-Payment)",
+      },
+      {
+        heading: "General: Photos (Visit)",
+        text: "• No physical photos needed; captured live at the office.",
+      },
+      {
+        heading: "General: Photos (Online)",
+        text: "• Digital photo (45mm x 35mm, white background)\n• Specs: No glasses; Headscarf allowed for women but ears must be visible.",
+      },
+      {
+        heading: "General: Biometrics (Online)",
+        text: "• 600 DPI high-quality fingerprint scan required.",
+      },
+    ],
+  },
+  {
+    id: "photos",
+    title: "Photo Specifications",
+    icon: Camera,
+    description: "Visual guide to meeting mandatory photo requirements.",
+    content: [],
+  },
+  {
+    id: "process",
+    title: "Application Process",
+    icon: Globe2,
+    description: "Step-by-step guide to applying online or in-person.",
+    content: [
+      {
+        heading: "Hybrid Process (New/Lost/Damaged)",
+        text: "• Register/Pay fee online via [DGIP Portal](https://onlinemrp.dgip.gov.pk/) or 'Passport Fee Asaan' app.\n• Book appointment (optional/select cities).\n• Visit RPO/EPO for mandatory biometrics, photo capture and interview.\n• Tracking & Pickup.",
+      },
+      {
+        heading: "Full Online Process (Renewals Only)",
+        text: "Only available for category 'Renewal' (if valid or expired for <12 months).\n\n• Visit [DGIP Online Portal](https://onlinemrp.dgip.gov.pk/).\n• Upload digital photo & fingerprint form.\n• Pay fee online.\n• Receive passport via delivery.\n• Note: Not available for lost/damaged cases or data changes.",
+      },
+      {
+        heading: "Standard In-Person Visit (Full Office Flow)",
+        text: "• Visit your Regional Passport Office (RPO) without initial online steps.\n• Submit documents at counter.\n• Complete biometrics & photo session.\n• Interview with Assistant Director.\n• Pickup on given date.",
+      },
+      {
+        heading: "Minor Applicants Process",
+        text: "• For minors, the interview stage can be deferred if documents are pre-attested by a Grade-17 Gazetted officer.\n• Both parents must accompany the minor for the visit.",
+      },
+    ],
+  },
+  {
+    id: "time",
+    title: "Processing Time",
+    icon: Clock,
+    description: "Expected timelines for different categories.",
+    content: [
+      { heading: "Normal", text: "10 working days." },
+      { heading: "Urgent", text: "4 working days." },
+      {
+        heading: "Fast Track",
+        text: "2 working days (select cities only). Backlog cleared in 2025.",
+      },
+      {
+        heading: "Delivery Note",
+        text: "Delivery via courier typically takes an additional 2-3 working days.",
+      },
+    ],
+  },
+  {
+    id: "fees",
+    title: "Fee Structure",
+    icon: DollarSign,
+    description: "Calculate fees based on pages, validity, and urgency.",
+    content: [
+      {
+        heading: "Payment Methods",
+        text: "Online via card, Passport Fee Asaan app, or bank challan (PSID). No refunds.",
+      },
+      {
+        heading: "Additional Charges",
+        text: "Service charges ~Rs. 1,000 incl. taxes. e-Passport has separate fees.",
+      },
+    ],
+  },
+  {
+    id: "locations",
+    title: "Passport Offices Locations",
+    icon: MapPin,
+    description: "Find nearest RPO or EPO.",
+    content: [
+      {
+        heading: "Official Office Directory",
+        text: "You can find the complete list of Regional Passport Offices (RPOs) and Executive Passport Offices (EPOs) across Pakistan and abroad at the [Official DGIP Office List](https://dgip.gov.pk/contactus/offices.php)."
+      }
+    ],
+  },
+  {
+    id: "tips",
+    title: "Critical Tips & Common Mistakes",
+    icon: AlertTriangle,
+    description: "Crucial warnings and best practices to avoid rejection.",
+    content: [
+      {
+        heading: "Expert Tips",
+        text: "• Renew your passport **7-12 months** before expiry to avoid travel issues.\n• For **Lost** cases, be prepared for penalty fees (Double fee for 1st loss, Quadruple for 2nd).\n• Avoid unauthorized agents; use only the [Official DGIP Site](https://onlinemrp.dgip.gov.pk/).",
+      },
+      {
+        heading: "Critical Warnings",
+        text: "• Never share your tracking ID with third parties.\n• Ensure your CNIC is valid (not expired) before applying.\n• Incomplete or falsified documentation will lead to immediate rejection & legal action.",
+      },
+    ],
+  },
+];
+
 
 export default function PassportGuidePage() {
-  const [pages, setPages] = React.useState<"36" | "72" | "100">("36");
-  const [validity, setValidity] = React.useState<"5" | "10">("5");
+  const [passportType, setPassportType] = React.useState<"mrp" | "e-passport">("mrp");
+  
+  const currentGuidelines = passportType === "e-passport" ? ePassportGuidelines2026 : mrpGuidelines2026;
+  const [pages, setPages] = React.useState<"36" | "72" | "100" | null>(null);
+  const [validity, setValidity] = React.useState<"5" | "10" | null>(null);
   const [urgency, setUrgency] = React.useState<
-    "normal" | "urgent" | "fasttrack"
-  >("normal");
+    "normal" | "urgent" | "fasttrack" | null
+  >(null);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [activeTab, setActiveTab] = React.useState<string>("understanding");
   const [completedSections, setCompletedSections] = React.useState<string[]>([]);
+  const [checkedItems, setCheckedItems] = React.useState<string[]>([]);
+  const [journeyConfig, setJourneyConfig] = React.useState<{
+    type: "new" | "renewal" | "lost" | "damaged" | null;
+    method: "online" | "in-person" | null;
+    age: "adult" | "minor" | null;
+  }>({
+    type: null,
+    method: null,
+    age: null,
+  });
+  const [showJourneyForm, setShowJourneyForm] = React.useState(true);
+  const [collapsedSections, setCollapsedSections] = React.useState<string[]>([]);
 
-
-  const feeGuidelines2026: Record<string, Record<string, Record<string, number>>> = {
-    normal: {
-      "36": { "5": 5500, "10": 7700 },
-      "72": { "5": 10000, "10": 15000 },
-      "100": { "5": 12000, "10": 18000 },
-    },
-    urgent: {
-      "36": { "5": 8500, "10": 12200 },
-      "72": { "5": 14500, "10": 21000 },
-      "100": { "5": 19000, "10": 27000 },
-    },
-    fasttrack: {
-      "36": { "5": 12500, "10": 18000 },
-      "72": { "5": 20000, "10": 30000 },
-      "100": { "5": 24000, "10": 36000 },
-    },
+  const toggleSectionCollapse = (id: string) => {
+    setCollapsedSections(prev => 
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    );
   };
+
 
   const getRequiredFee = () => {
-    return feeGuidelines2026[urgency][pages][validity];
-  };
-
-  const toggleSection = (section: string) => {
-    setActiveTab(activeTab === section ? "" : section);
+    if (!urgency || !pages || !validity) return 0;
+    const guidelines = passportType === "e-passport" ? ePassportGuidelines2026 : mrpGuidelines2026;
+    return guidelines[urgency][pages][validity];
   };
 
   const markComplete = (section: string) => {
@@ -70,244 +297,107 @@ export default function PassportGuidePage() {
     }
   };
 
-  const progressPercentage = (completedSections.length / 10) * 100;
+  const toggleChecked = (id: string) => {
+    setCheckedItems(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+  const filteredSections = sections.filter(section => {
+    if (showJourneyForm) return true;
+    if (section.id === "photos" && journeyConfig.method === "in-person") return false;
+    return true;
+  });
 
-  const sections = [
-    {
-      id: "understanding",
-      title: "Understanding Pakistani Passport",
-      icon: BookOpen,
-      description:
-        "Learn about the types of passports and why you need one.",
-      content: [
-        {
-          heading: "What is a Pakistani Passport?",
-          text: "A Pakistani passport is an official document issued by the Directorate General of Immigration & Passports (DGIP) for international travel. It serves as proof of Pakistani citizenship and identity.",
-        },
-        {
-          heading: "When is it required?",
-          text: "Required for all international travel, including applying for visas to countries like the US. It must be valid for at least 6 months beyond your intended stay for most visas.",
-        },
-        {
-          heading: "Types of Passports",
-          text: "Ordinary MRP (Machine Readable Passport): Common for citizens. e-Passport: Advanced with biometric chip. Official/Diplomatic: For government officials.",
-        },
-      ],
-    },
-    {
-      id: "eligibility",
-      title: "Eligibility Criteria",
-      icon: Users,
-      description:
-        "Check if you qualify to apply for a Pakistani passport.",
-      content: [
-        {
-          heading: "Who Can Apply?",
-          text: "Every Pakistani citizen, including newborns. No minimum age.",
-        },
-        {
-          heading: "Special Requirements",
-          text: "Government employees need NOC from department (issued within 90 days). Overseas Pakistanis can renew online.",
-        },
-        {
-          heading: "Special Cases",
-          text: "Minors under 18, lost/damaged passports, name changes (e.g., after marriage).",
-        },
-      ],
-    },
-    {
-      id: "documents",
-      title: "Required Documents",
-      icon: FileText,
-      description:
-        "Complete checklist of documents needed for your application.",
-      content: [
-        {
-          heading: "For Adults (New/Renewal)",
-          text: "Original CNIC/NICOP + photocopy. Previous passport + photocopy of first 4 pages. NOC for government employees. For married women: Updated marital status on CNIC.",
-        },
-        {
-          heading: "For Minors",
-          text: "Original B-Form/CRC/Smart Card + photocopy. Parents' CNIC/NICOP + photocopies. Guardianship proof if applicable.",
-        },
-        {
-          heading: "For Lost/Damaged",
-          text: "FIR (police report) + copy. Affidavit. Damaged passport if available.",
-        },
-        {
-          heading: "General",
-          text: "Photos: White background, no glasses (NADRA guidelines). Fingerprint form scanned at 600 DPI.",
-        },
-      ],
-    },
-    {
-      id: "photos",
-      title: "Photo Specifications",
-      icon: Camera,
-      description: "Visual guide to meeting mandatory photo requirements.",
-      content: [], // Handled by component injection in the main loop
-    },
-    {
-      id: "process",
-      title: "Application Process",
-      icon: Globe2,
-      description: "Step-by-step guide to applying online or in-person.",
-      content: [
-        {
-          heading: "Online Process (Renewal/Mainly Overseas)",
-          text: "1. Visit onlinemrp.dgip.gov.pk. 2. Register with CNIC/email/mobile. 3. Select category. 4. Upload details/photo/documents. 5. Pay fee online. 6. Submit and get token.",
-        },
-        {
-          heading: "In-Person Process (New/Renewal)",
-          text: "1. Pre-apply online (optional). 2. Visit RPO/EPO. 3. Submit documents at counter. 4. Biometrics/photo/data entry. 5. Interview. 6. Collect on given date.",
-        },
-        {
-          heading: "Overseas",
-          text: "Apply at embassy/consulate or online for renewal.",
-        },
-      ],
-    },
-    {
-      id: "fees",
-      title: "Fee Structure",
-      icon: DollarSign,
-      description:
-        "Calculate fees based on pages, validity, and urgency.",
-      content: [
-        {
-          heading: "Payment Methods",
-          text: "Online via card, Passport Fee Asaan app, or bank challan (PSID). No refunds.",
-        },
-        {
-          heading: "Additional Charges",
-          text: "Service charges ~Rs. 1,000 incl. taxes. e-Passport has separate fees.",
-        },
-      ],
-    },
-    {
-      id: "time",
-      title: "Processing Time",
-      icon: Clock,
-      description: "Expected timelines for different categories.",
-      content: [
-        { heading: "Normal", text: "10-21 working days." },
-        { heading: "Urgent", text: "4-7 working days." },
-        {
-          heading: "Fast Track",
-          text: "2 working days (select cities). Backlog cleared in 2025.",
-        },
-      ],
-    },
-    {
-      id: "locations",
-      title: "Passport Offices Locations",
-      icon: MapPin,
-      description: "Find nearest RPO or EPO.",
-      content: [
-        {
-          heading: "Search Tips",
-          text: "Use the search bar to filter by city or province.",
-        },
-      ],
-    },
-    {
-      id: "tracking",
-      title: "Tracking Your Application",
-      icon: Search,
-      description: "How to check status.",
-      content: [
-        {
-          heading: "Methods",
-          text: "Online: onlinetracking.dgip.gov.pk with token + DOB. SMS: Token to 9988. App: Passport Fee Asaan.",
-        },
-      ],
-    },
-    {
-      id: "updates",
-      title: "Recent Updates & Reforms",
-      icon: RefreshCw,
-      description: "Latest changes as of 2026.",
-      content: [
-        {
-          heading: "Key Updates",
-          text: "24/7 services in major cities. Fast Track in 47+ cities. e-Passport nationwide. Backlog eliminated. SHIKRA monitoring system (Jan 2026).",
-        },
-      ],
-    },
-    {
-      id: "tips",
-      title: "Tips & Common Mistakes",
-      icon: Lightbulb,
-      description: "Avoid pitfalls and best practices.",
-      content: [
-        {
-          heading: "Tips",
-          text: "Complete documents. Follow photo/fingerprint guidelines. Renew before expiry (6 months validity for travel). Avoid agents; use official site.",
-        },
-        {
-          heading: "Common Mistakes",
-          text: "Incomplete docs, wrong fees, expired CNIC.",
-        },
-      ],
-    },
-  ];
+  const getFilteredContent = (sectionId: string, content: any[]) => {
+    if (showJourneyForm) return content;
 
-  const offices = [
-    {
-      province: "Islamabad",
-      city: "Islamabad HQ",
-      address: "DGIP Headquarter, G-8/1 Mauve Area, Islamabad.",
-      phone: "051-111-344-777",
-    },
-    {
-      province: "Islamabad",
-      city: "Islamabad RPO G-10 (24/7)",
-      address: "Plot Number 18, Sector G-10/4, Islamabad.",
-      phone: "051-9239308",
-    },
-    {
-      province: "Punjab",
-      city: "Lahore-I (Garden Town) (24/7)",
-      address: "4-A, Sher Shah Block, New Garden Town, Lahore.",
-      phone: "042-9201836",
-    },
-    {
-      province: "Punjab",
-      city: "Rawalpindi",
-      address:
-        "Opposite Station High School No.3, Railway Workshop Road.",
-      phone: "051-9237253",
-    },
-    {
-      province: "Khyber Pakhtunkhwa",
-      city: "Peshawar",
-      address: "Phase-5, Hayatabad, Peshawar.",
-      phone: "091-9217616-7",
-    },
-    {
-      province: "Sindh",
-      city: "Karachi (Saddar) (24/7)",
-      address: "Shahrah-e-Iraq, Saddar, Karachi.",
-      phone: "021-99203092",
-    },
-    {
-      province: "Balochistan",
-      city: "Quetta",
-      address: "Arbab Barkat Ali Road, near FC Hospital, Quetta.",
-      phone: "081-9201757",
-    },
-  ];
+    if (sectionId === "documents") {
+      let filtered = content;
+      
+      // Filter by Type
+      if (journeyConfig.type === "renewal") {
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("new") || c.heading.toLowerCase().includes("renewal"));
+      }
+      if (journeyConfig.type === "new") {
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("renewal") || c.heading.toLowerCase().includes("new"));
+      }
+      if (journeyConfig.type === "lost") {
+        filtered = filtered.filter(c => c.heading.toLowerCase().includes("lost") || c.heading.toLowerCase().includes("general"));
+      }
+      if (journeyConfig.type === "damaged") {
+        filtered = filtered.filter(c => c.heading.toLowerCase().includes("damaged") || c.heading.toLowerCase().includes("general"));
+      }
+      
+      // Filter by Age
+      if (journeyConfig.age === "adult") {
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("minor") && !c.heading.toLowerCase().includes("b-form") && !c.heading.toLowerCase().includes("crc"));
+      }
+      if (journeyConfig.age === "minor") {
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("adult"));
+      }
 
-  const filteredOffices = offices.filter(
-    (office) =>
-      office.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      office.province.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      // Filter by Method (For General items)
+      if (journeyConfig.method === "online") {
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("(visit)"));
+      }
+      if (journeyConfig.method === "in-person") {
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("(online)"));
+      }
+
+      return filtered;
+    }
+
+    if (sectionId === "process") {
+      let filtered = content;
+      
+      if (journeyConfig.type === "new" || journeyConfig.type === "lost" || journeyConfig.type === "damaged") {
+        // New, Lost, and Damaged always allow Hybrid or Full Office visit
+        filtered = filtered.filter(c => c.heading.toLowerCase().includes("hybrid") || c.heading.toLowerCase().includes("standard"));
+      } else if (journeyConfig.type === "renewal") {
+        // Renewals depend on the selected method
+        if (journeyConfig.method === "online") {
+          filtered = filtered.filter(c => c.heading.toLowerCase().includes("online"));
+        } else {
+          filtered = filtered.filter(c => c.heading.toLowerCase().includes("standard"));
+        }
+      }
+
+      // Age-based filtering for process
+      if (journeyConfig.age !== "minor") {
+        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("minor"));
+      }
+
+      return filtered;
+    }
+
+    if (sectionId === "time") {
+      if (!urgency) return content;
+      return content.filter(c => c.heading.toLowerCase().includes(urgency.toLowerCase()) || c.heading.toLowerCase().includes("delivery"));
+    }
+
+    return content;
+  };
+
+  const totalCheckItems = React.useMemo(() => {
+    let count = 0;
+    filteredSections.forEach(s => {
+      if (s.id === "photos") count += 1;
+      else if (s.id === "locations") count += 0;
+      else count += getFilteredContent(s.id, s.content).length;
+    });
+    return count || 1;
+  }, [filteredSections, journeyConfig, showJourneyForm]);
+
+  const progressPercentage = (checkedItems.length / totalCheckItems) * 100;
 
 
 
 
-  const activeSectionData = sections.find(s => s.id === activeTab) || sections[0];
+
+  const activeSectionData = filteredSections.find(s => s.id === activeTab) || filteredSections[0];
+  const activeContent = getFilteredContent(activeSectionData.id, activeSectionData.content);
 
 
   return (
@@ -329,244 +419,521 @@ export default function PassportGuidePage() {
           </span>
         </nav>
 
+        {showJourneyForm && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12 bg-white rounded-[2.5rem] border border-slate-200 shadow-xl overflow-hidden p-8 lg:p-12 relative"
+          >
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+              <Sparkles className="w-32 h-32 text-[#0d7377]" />
+            </div>
+            
+            <div className="max-w-3xl">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Personalize Your Passport Journey</h2>
+              <p className="text-slate-600 mb-10">Select your case details to get a tailored guide with exactly what you need.</p>
 
+              <div className="grid sm:grid-cols-3 gap-6 mb-10">
+                {/* Application Type */}
+                <div className="space-y-3">
+                  <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Purpose</label>
+                  <div className="flex flex-col gap-2">
+                    {["new", "renewal", "lost", "damaged"].map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setJourneyConfig({ ...journeyConfig, type: t as any })}
+                        className={cn(
+                          "px-4 py-2.5 rounded-xl border text-left transition-all",
+                          journeyConfig.type === t 
+                            ? "bg-[#0d7377] border-[#0d7377] text-white shadow-lg" 
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:border-[#0d7377]"
+                        )}
+                      >
+                        {t.charAt(0).toUpperCase() + t.slice(1)} Passport
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
+                {/* Method */}
+                <div className="space-y-3">
+                  <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Method</label>
+                  <div className="flex flex-col gap-2">
+                    {["online", "in-person"].map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setJourneyConfig({ ...journeyConfig, method: m as any })}
+                        className={cn(
+                          "px-4 py-3 rounded-xl border text-left transition-all",
+                          journeyConfig.method === m 
+                            ? "bg-[#0d7377] border-[#0d7377] text-white shadow-lg" 
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:border-[#0d7377]"
+                        )}
+                      >
+                        {m === "online" ? "Apply Online" : "Visit Office"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-        {/* Central Guide Hub */}
-        <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl overflow-hidden mb-12 flex flex-col lg:flex-row min-h-175">
-          {/* Sidebar Navigation */}
-          <div className="w-full lg:w-[320px] bg-slate-50 border-r border-slate-200 p-6 overflow-y-auto">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2.5 bg-[#0d7377] rounded-2xl shadow-lg shadow-[#0d7377]/20">
-                <BookOpen className="w-5 h-5 text-white" />
+                {/* Age */}
+                <div className="space-y-3">
+                  <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Applicant</label>
+                  <div className="flex flex-col gap-2">
+                    {["adult", "minor"].map((a) => (
+                      <button
+                        key={a}
+                        onClick={() => setJourneyConfig({ ...journeyConfig, age: a as any })}
+                        className={cn(
+                          "px-4 py-3 rounded-xl border text-left transition-all",
+                          journeyConfig.age === a 
+                            ? "bg-[#0d7377] border-[#0d7377] text-white shadow-lg" 
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:border-[#0d7377]"
+                        )}
+                      >
+                        {a === "adult" ? "Adult (18+)" : "Minor (<18)"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div>
-                <h2 className="font-bold text-slate-900 leading-none">Process Steps</h2>
-                <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-1.5 font-sans">Sequence Navigation</p>
+
+              <button
+                disabled={!journeyConfig.type || !journeyConfig.method || !journeyConfig.age}
+                onClick={() => setShowJourneyForm(false)}
+                className="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-slate-200"
+              >
+                Start My Tailored Guide
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+
+
+
+        {/* Checklist Journey Hub */}
+        {!showJourneyForm && (
+          <div className="grid lg:grid-cols-3 gap-8 mb-12 items-start">
+            {/* Left Column: Progress & Quick Info */}
+            <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
+              <div className="bg-white rounded-[2rem] border border-slate-200 p-8 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-slate-900">Your Journey Progress</h3>
+                  <span className="text-sm font-bold text-[#0d7377] bg-[#0d7377]/10 px-3 py-1 rounded-full">
+                    {Math.round(progressPercentage)}%
+                  </span>
+                </div>
+                <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-6">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPercentage}%` }}
+                    className="h-full bg-linear-to-r from-[#0d7377] to-[#14a0a6]"
+                  />
+                </div>
+                <div className="space-y-4">
+                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                     <div>
+                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Applying For</p>
+                       <p className="text-sm font-bold text-slate-700 capitalize">{journeyConfig.type} Passport</p>
+                     </div>
+                     <Sparkles className="w-4 h-4 text-[#0d7377]/30" />
+                   </div>
+                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Method</p>
+                     <p className="text-sm font-bold text-slate-700 capitalize">
+                       {(journeyConfig.type === "new" && journeyConfig.method === "online") 
+                         ? "Hybrid (Digital + Office)" 
+                         : journeyConfig.method === "online" 
+                           ? "Online Renewal" 
+                           : "In-Person Office Visit"}
+                     </p>
+                   </div>
+
+                   {/* Plan Selection Toggles in Sidebar */}
+                   <div className="pt-4 space-y-4 border-t border-slate-100">
+                     <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Configure Your Plan</p>
+                     
+                     <div className="space-y-2">
+                       <label className="text-[10px] font-bold text-slate-400 uppercase">Passport Type</label>
+                       <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl">
+                         {[
+                           { id: "mrp", label: "MRP" },
+                           { id: "e-passport", label: "e-Passport" }
+                         ].map((t) => (
+                           <button
+                             key={t.id}
+                             onClick={() => setPassportType(t.id as any)}
+                             className={cn(
+                               "py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all",
+                               passportType === t.id 
+                                 ? "bg-[#0d7377] text-white shadow-sm" 
+                                 : "text-slate-500 hover:text-slate-700"
+                             )}
+                           >
+                             {t.label}
+                           </button>
+                         ))}
+                       </div>
+                     </div>
+
+                     <div className="space-y-2">
+                       <label className="text-[10px] font-bold text-slate-400 uppercase">Processing Speed</label>
+                       <div className="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl">
+                         {["normal", "urgent", "fasttrack"].map((t) => (
+                           <button
+                             key={t}
+                             onClick={() => setUrgency(t as any)}
+                             className={cn(
+                               "py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all",
+                               urgency === t 
+                                 ? "bg-[#0d7377] text-white shadow-sm" 
+                                 : "text-slate-500 hover:text-slate-700"
+                             )}
+                           >
+                             {t === "fasttrack" ? "Fast" : t}
+                           </button>
+                         ))}
+                       </div>
+                     </div>
+
+                     <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase">Pages</label>
+                          <select 
+                            value={pages || ""} 
+                            onChange={(e) => setPages(e.target.value as any)}
+                            className="w-full bg-slate-100 border-none rounded-xl py-2 px-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-[#0d7377]/20 outline-none"
+                          >
+                            <option value="" disabled>Select</option>
+                            <option value="36">36 Pgs</option>
+                            <option value="72">72 Pgs</option>
+                            <option value="100">100 Pgs</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase">Validity</label>
+                          <select 
+                            value={validity || ""} 
+                            onChange={(e) => setValidity(e.target.value as any)}
+                            className="w-full bg-slate-100 border-none rounded-xl py-2 px-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-[#0d7377]/20 outline-none"
+                          >
+                            <option value="" disabled>Select</option>
+                            <option value="5">5 Years</option>
+                            <option value="10">10 Years</option>
+                          </select>
+                        </div>
+                     </div>
+                   </div>
+
+                   <button 
+                    onClick={() => setShowJourneyForm(true)}
+                    className="w-full py-3 text-[10px] font-bold text-slate-400 hover:text-[#0d7377] transition-colors border border-dashed border-slate-200 rounded-xl mt-4"
+                  >
+                    Reset All Parameters
+                  </button>
+                </div>
+              </div>
+
+              {/* Fee Quick Preview */}
+              <div className="bg-[#e8f6f6] rounded-[2rem] p-8 text-[#0d7377] shadow-xl">
+                 <div className="flex items-center gap-3 mb-6">
+                   <div className="p-2 bg-[#0d7377]/10 rounded-xl">
+                     <DollarSign className="w-5 h-5 text-[#0d7377]" />
+                   </div>
+                   <h3 className="font-bold">Estimated Fee</h3>
+                 </div>
+                 <p className="text-3xl font-black mb-1">
+                    {(!urgency || !pages || !validity) ? "Rs. --" : `Rs. ${getRequiredFee().toLocaleString()}`}
+                 </p>
+                 <p className="text-[10px] text-[#0d7377]/60 uppercase tracking-widest mb-6">
+                    {(!urgency || !pages || !validity) ? "Input Details Above" : `${pages} Pages • ${validity} Years • ${urgency}`}
+                 </p>
+                 <Link href="#fees" className="block text-center py-3 bg-[#0d7377]/10 hover:bg-[#0d7377]/20 rounded-xl text-xs font-bold transition-all text-[#0d7377]">
+                   View Full Fee Breakdown
+                 </Link>
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              {sections.map((section) => {
-                const isActive = activeTab === section.id;
-                const isCompleted = completedSections.includes(section.id);
-                const Icon = section.icon;
+            {/* Middle/Right Column: Checklist Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Journey Dashboard / Case Summary */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-slate-900 rounded-[2.5rem] p-8 lg:p-10 text-white relative overflow-hidden shadow-2xl"
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                  <Sparkles className="w-32 h-32" />
+                </div>
+                <div className="relative z-10">
+                  <p className="text-[#14a0a6] text-[10px] font-black uppercase tracking-[0.2em] mb-3">System Synchronized</p>
+                  <h2 className="text-2xl md:text-3xl font-black mb-8 leading-tight">
+                    Your Personalized <span className="text-[#14a0a6]">Journey Dashboard</span>
+                  </h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                      { label: "Category", value: `${journeyConfig.type?.toUpperCase()} PASSPORT` },
+                      { label: "Applicant", value: journeyConfig.age === "adult" ? "ADULT (18+)" : "MINOR (<18)" },
+                      { 
+                        label: "Submission", 
+                        value: (journeyConfig.type === "new" && journeyConfig.method === "online")
+                          ? "HYBRID (WEB + OFFICE)" 
+                          : journeyConfig.method === "online" 
+                            ? "ONLINE PORTAL" 
+                            : "OFFICE VISIT" 
+                      }
+                    ].map((item, idx) => (
+                      <div key={idx} className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#14a0a6] flex items-center justify-center shrink-0">
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-white/50 font-bold uppercase tracking-wider">{item.label}</p>
+                          <p className="text-xs font-black text-white">{item.value}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
+                  <div className="mt-8 flex items-center gap-2 text-[10px] font-medium text-white/40 italic">
+                    <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                    Irrelevant information hides automatically based on your case.
+                  </div>
+                </div>
+              </motion.div>
+              {filteredSections.map((section, sIdx) => {
+                const isDocSection = section.id === "documents";
+                const content = getFilteredContent(section.id, section.content);
+                const theme = sectionThemes[section.id] || sectionThemes.process;
+                
+                const isCollapsed = collapsedSections.includes(section.id);
+                
                 return (
-                  <button
+                  <motion.div 
                     key={section.id}
-                    onClick={() => setActiveTab(section.id)}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: sIdx * 0.1 }}
                     className={cn(
-                      "w-full flex items-center gap-3 p-4 rounded-2xl transition-all duration-300 group relative",
-                      isActive 
-                        ? "bg-white shadow-md shadow-slate-200/50 border border-slate-200" 
-                        : "hover:bg-slate-200/50"
+                      "bg-white rounded-[2rem] border overflow-hidden shadow-sm flex flex-col transition-all duration-300",
+                      theme.border,
+                      !isCollapsed && theme.bg
                     )}
                   >
-                    {isActive && (
-                      <motion.div 
-                        layoutId="activeTabGlow"
-                        className="absolute left-0 w-1 h-6 bg-[#0d7377] rounded-full"
-                      />
-                    )}
-                    <div className={cn(
-                      "p-2 rounded-xl transition-colors shrink-0",
-                      isActive ? "bg-[#0d7377] text-white" : "bg-slate-200 text-slate-500 group-hover:bg-slate-300 group-hover:text-slate-700"
-                    )}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="text-left flex-1 min-w-0">
-                      <p className={cn(
-                        "text-sm font-semibold truncate",
-                        isActive ? "text-[#0d7377]" : "text-slate-700"
-                      )}>{section.title}</p>
-                      {isCompleted && <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 uppercase tracking-tighter mt-0.5"><CheckCircle className="w-3 h-3" /> Reviewed</span>}
-                    </div>
-                  </button>
+                    <button 
+                      onClick={() => toggleSectionCollapse(section.id)}
+                      className={cn(
+                        "w-full text-left p-6 lg:p-8 border-b flex items-center justify-between group transition-colors",
+                        isCollapsed ? "bg-slate-50/50 border-slate-100 hover:bg-slate-100/50" : cn("border-transparent", theme.bg)
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "p-3 rounded-2xl shadow-sm border transition-transform group-hover:scale-110",
+                          isCollapsed ? "bg-white border-slate-100" : theme.iconBg,
+                          !isCollapsed && "border-transparent"
+                        )}>
+                          <section.icon className={cn("w-5 h-5", theme.accent)} />
+                        </div>
+                        <div>
+                          <h3 className={cn("font-bold transition-colors", theme.accent)}>{section.title}</h3>
+                          <p className="text-xs text-slate-500">{section.description}</p>
+                        </div>
+                      </div>
+                      <motion.div
+                        animate={{ rotate: isCollapsed ? 0 : 180 }}
+                        className={cn(
+                          "p-2 rounded-xl bg-white border text-slate-400 transition-colors",
+                          !isCollapsed ? theme.border : "border-slate-200",
+                          "group-hover:" + theme.accent
+                        )}
+                      >
+                        <ChevronDown className="w-5 h-5" />
+                      </motion.div>
+                    </button>
+
+                    <AnimatePresence>
+                      {!isCollapsed && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-6 lg:p-8">
+                            {section.id === "photos" ? (
+                              <PhotoGuideSection />
+                            ) : section.id === "locations" ? (
+                              <LocationGuideSection />
+                            ) : section.id === "fees" ? (
+                              <div className="space-y-6">
+                                <div className="bg-linear-to-br from-[#0d7377] to-[#14a0a6] p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                                  <div className="absolute top-0 right-0 p-6 opacity-10">
+                                    <DollarSign className="w-24 h-24" />
+                                  </div>
+                                  <div className="relative z-10">
+                                    <p className="text-white/70 text-sm font-medium uppercase tracking-wider mb-1">
+                                      {(!urgency || !pages || !validity) ? "Fee Projection" : "Tailored Quote"}
+                                    </p>
+                                    <h4 className="text-4xl font-black mb-4">
+                                      {(!urgency || !pages || !validity) ? "Rs. Pending" : `Rs. ${(getRequiredFee() * (journeyConfig.type === "lost" ? 2 : 1)).toLocaleString()}`}
+                                    </h4>
+                                    {journeyConfig.type === "lost" && (
+                                      <p className="text-[10px] text-white/80 font-bold mb-4 bg-white/10 p-2 rounded-lg">
+                                        ⚠️ Note: Lost cases attract a 100% penalty for first loss (Double Fee).
+                                      </p>
+                                    )}
+                                    {(!urgency || !pages || !validity) ? (
+                                      <p className="text-xs text-white/60 italic font-medium">Please select your processing speed, page count, and validity in the sidebar to calculate exact fees.</p>
+                                    ) : (
+                                      <div className="flex flex-wrap gap-2">
+                                        <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold uppercase">{passportType}</span>
+                                        <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold uppercase">{urgency}</span>
+                                        <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold uppercase">{pages} Pages</span>
+                                        <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold uppercase">{validity} Years</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="grid gap-4">
+                                  <div className="p-5 rounded-2xl border border-emerald-100 bg-emerald-50/30">
+                                    <h5 className="font-bold text-emerald-900 text-sm mb-2 flex items-center gap-2">
+                                      <CheckCircle className="w-4 h-4" /> 
+                                      Official Payment Methods
+                                    </h5>
+                                    <p className="text-xs text-emerald-800 leading-relaxed">
+                                      {journeyConfig.method === "online" ? (
+                                        "Since you're applying Online, you must pay via Credit/Debit card (Visa/Mastercard) directly on the portal. Ensure your card has international sessions enabled."
+                                      ) : (
+                                        "For In-Person visits, generating a PSID via the 'Passport Fee Asaan' app is recommended. You can then pay at any bank branch or ATM before your appointment."
+                                      )}
+                                    </p>
+                                  </div>
+                                  
+                                  {journeyConfig.type === "lost" && (
+                                    <div className="p-5 rounded-2xl border border-red-100 bg-red-50 text-red-900">
+                                      <h5 className="font-bold text-sm mb-2 flex items-center gap-2">
+                                        <AlertCircle className="w-4 h-4" />
+                                        Lost Passport Note
+                                      </h5>
+                                      <p className="text-xs leading-relaxed opacity-80">
+                                        Lost cases require a police report (FIR) and may incur a penalty fee (usually double for 1st loss) which is collected at the RPO.
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  <div className="p-5 rounded-2xl border border-slate-100 bg-slate-50">
+                                    <h5 className="font-bold text-slate-900 text-sm mb-2">Important Note</h5>
+                                    <p className="text-xs text-slate-500 leading-relaxed">
+                                      Fees are non-refundable. For e-Passport (now available), fees start from Rs. 9,000 for 36 pages. Lost cases may have higher charges depending on the number of times lost.
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : section.id === "time" ? (
+                              <div className="space-y-4">
+                                <div className="grid gap-4">
+                                  {content.map((item: any, idx: number) => {
+                                    const isActive = urgency === item.heading.toLowerCase().replace(" ", "");
+                                    return (
+                                      <div 
+                                        key={idx}
+                                        className={cn(
+                                          "p-5 rounded-2xl border transition-all",
+                                          isActive 
+                                            ? "bg-[#0d7377]/5 border-[#0d7377] shadow-sm scale-[1.02]" 
+                                            : "bg-white border-slate-100 opacity-60"
+                                        )}
+                                      >
+                                        <div className="flex items-center justify-between mb-2">
+                                          <h5 className={cn("font-bold text-sm", isActive ? "text-[#0d7377]" : "text-slate-900")}>
+                                            {item.heading}
+                                          </h5>
+                                        </div>
+                                        <p className="text-xs text-slate-500">{item.text}</p>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                {!urgency && (
+                                  <div className="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select processing speed in sidebar to see your schedule</p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="space-y-4">
+                                {content.map((item: any, idx: number) => {
+                                  const itemId = `${section.id}-${idx}`;
+                                  const isChecked = checkedItems.includes(itemId);
+                                  
+                                  return (
+                                    <div 
+                                      key={idx}
+                                      onClick={() => toggleChecked(itemId)}
+                                      className={cn(
+                                        "group flex items-start gap-4 p-5 rounded-2xl border transition-all cursor-pointer",
+                                        isChecked 
+                                          ? "bg-emerald-50/50 border-emerald-200 shadow-sm" 
+                                          : cn("bg-white border-slate-100", theme.hover)
+                                      )}
+                                    >
+                                      <div className={cn(
+                                        "mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all",
+                                        isChecked 
+                                          ? "bg-emerald-500 border-emerald-500 text-white" 
+                                          : cn("border-slate-200 group-hover:", theme.accent.replace('text-', 'border-'))
+                                      )}>
+                                        {isChecked && <CheckCircle className="w-4 h-4" />}
+                                      </div>
+                                      <div className="flex-1">
+                                        <h4 className={cn(
+                                          "font-bold text-sm mb-1 transition-colors",
+                                          isChecked ? "text-emerald-900" : "text-slate-900"
+                                        )}>{item.heading}</h4>
+                                        <p className={cn(
+                                          "text-xs leading-relaxed transition-colors whitespace-pre-line",
+                                          isChecked ? "text-emerald-700/80" : "text-slate-500"
+                                        )}>
+                                          {item.text.split(/(\[.*?\]\(.*?\))/g).map((part: string, i: number) => {
+                                            const match = part.match(/\[(.*?)\]\((.*?)\)/);
+                                            if (match) {
+                                              return (
+                                                <a 
+                                                  key={i} 
+                                                  href={match[2]} 
+                                                  target="_blank" 
+                                                  rel="noopener noreferrer"
+                                                  className="text-[#0d7377] font-bold hover:underline inline-flex items-center gap-0.5"
+                                                  onClick={(e) => e.stopPropagation()}
+                                                >
+                                                  {match[1]}
+                                                  <ExternalLink className="w-2 h-2" />
+                                                </a>
+                                              );
+                                            }
+                                            return part;
+                                          })}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
                 );
               })}
             </div>
-
-            {/* Progress Card within Sidebar */}
-            <div className="mt-8 p-5 bg-linear-to-br from-[#0d7377] to-[#0a5a5d] rounded-3xl text-white">
-              <div className="flex items-center justify-between mb-3 text-sm font-bold uppercase tracking-wider opacity-90">
-                <span>Success Rate</span>
-                <span>{Math.round(progressPercentage)}%</span>
-              </div>
-              <div className="h-2 bg-white/20 rounded-full overflow-hidden mb-3">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progressPercentage}%` }}
-                  className="h-full bg-white"
-                />
-              </div>
-              <p className="text-[11px] leading-relaxed opacity-80">Complete all steps to minimize your passport rejection chances.</p>
-            </div>
           </div>
-
-          {/* Detailed Content Area */}
-          <div className="flex-1 bg-white flex flex-col">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="p-8 lg:p-12 flex-1 scroll-smooth"
-              >
-                {/* Section Header */}
-                <div className="flex items-start justify-between mb-10 pb-8 border-b border-slate-100">
-                  <div className="max-w-2xl">
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-[#0d7377] mb-3 block">
-                      Sequence {sections.findIndex(s => s.id === activeTab) + 1} of {sections.length}
-                    </span>
-                    <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">{activeSectionData.title}</h2>
-                    <p className="text-lg text-slate-500 leading-relaxed font-medium">{activeSectionData.description}</p>
-                  </div>
-                  <div className="hidden sm:block p-4 bg-slate-50 rounded-3xl border border-slate-100">
-                    {React.createElement(activeSectionData.icon, { className: "w-8 h-8 text-[#0d7377]" })}
-                  </div>
-                </div>
-
-                {/* Section Specific Content Layouts */}
-                <div className="grid gap-10">
-                  {activeTab === "photos" ? (
-                    <div className="-mt-16">
-                      <PhotoGuideSection />
-                    </div>
-                  ) : activeTab === "fees" ? (
-                    <div className="grid lg:grid-cols-2 gap-8 items-start">
-                      <div className="space-y-6">
-                        {activeSectionData.content.map((item, idx) => (
-                          <div key={idx} className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                            <h4 className="font-bold text-slate-900 mb-2">{item.heading}</h4>
-                            <p className="text-slate-600 text-sm leading-relaxed">{item.text}</p>
-                          </div>
-                        ))}
-                        <div className="p-6 bg-amber-50 border border-amber-100 rounded-2xl flex gap-4">
-                          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                          <p className="text-sm text-amber-900 leading-relaxed">
-                            <strong>Note:</strong> Service charges (~Rs. 1,000) and delivery fees are extra. Fast Track is only available in 47+ major cities.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden p-6 ring-8 ring-slate-50">
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="p-2 bg-[#0d7377] rounded-xl">
-                            <TrendingUp className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-slate-900">Fee Calculator</h3>
-                            <p className="text-xs text-slate-500">Live Estimate per MRP 2026</p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-500 ml-1">Urgency Level</label>
-                            <select value={urgency} onChange={(e) => setUrgency(e.target.value as "normal" | "urgent" | "fasttrack")} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#0d7377] outline-none">
-                              <option value="normal">Normal (10-21 days)</option>
-                              <option value="urgent">Urgent (4-7 days)</option>
-                              <option value="fasttrack">Fast Track (2 days)</option>
-                            </select>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-slate-500 ml-1">Page Count</label>
-                              <select value={pages} onChange={(e) => setPages(e.target.value as "36" | "72" | "100")} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#0d7377] outline-none">
-                                <option value="36">36 Pages</option>
-                                <option value="72">72 Pages</option>
-                                <option value="100">100 Pages</option>
-                              </select>
-                            </div>
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-bold text-slate-500 ml-1">Years Valid</label>
-                              <select value={validity} onChange={(e) => setValidity(e.target.value as "5" | "10")} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#0d7377] outline-none">
-                                <option value="5">5 Years</option>
-                                <option value="10">10 Years</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div className="pt-4 mt-4 border-t border-slate-100">
-                             <div className="bg-slate-900 rounded-2xl p-6 text-center shadow-inner">
-                               <p className="text-[10px] uppercase font-bold text-slate-400 mb-1 leading-none tracking-widest">Calculated Price</p>
-                               <p className="text-4xl font-black text-white">Rs. {getRequiredFee().toLocaleString()}</p>
-                               <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 bg-white/10 rounded-full text-[10px] text-cyan-400 font-bold border border-white/5 uppercase">
-                                 <CheckCircle className="w-3 h-3" /> MRP Category
-                               </div>
-                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : activeTab === "locations" ? (
-                    <div className="space-y-8">
-                       <div className="relative group">
-                         <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                           <Search className="w-5 h-5 text-slate-400 group-focus-within:text-[#0d7377] transition-colors" />
-                         </div>
-                         <input 
-                           type="text" 
-                           placeholder="Search for office by city or province (e.g. Lahore, Sindh)..."
-                           value={searchTerm}
-                           onChange={(e) => setSearchTerm(e.target.value)}
-                           className="w-full h-16 bg-slate-50 border border-slate-200 rounded-3xl pl-12 pr-6 text-slate-900 text-lg focus:ring-2 focus:ring-[#0d7377]/20 focus:bg-white outline-none transition-all placeholder:text-slate-400"
-                         />
-                       </div>
-                       <div className="grid md:grid-cols-2 gap-4 max-h-100 overflow-y-auto pr-2 scrollbar-thin">
-                         {filteredOffices.map((office, idx) => (
-                           <div key={idx} className="p-6 rounded-3xl border border-slate-100 bg-white hover:border-[#0d7377]/30 hover:shadow-md transition-all group">
-                             <div className="flex justify-between items-start mb-3">
-                               <h4 className="font-bold text-slate-800">{office.city}</h4>
-                               <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold uppercase">{office.province}</span>
-                             </div>
-                             <p className="text-sm text-slate-500 mb-4 leading-relaxed line-clamp-2">{office.address}</p>
-                             <div className="flex items-center gap-3 text-[#0d7377] group-hover:gap-4 transition-all">
-                               <Globe2 className="w-4 h-4" />
-                               <span className="text-xs font-bold">{office.phone}</span>
-                             </div>
-                           </div>
-                         ))}
-                       </div>
-                    </div>
-                  ) : (
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {activeSectionData.content.map((item, idx) => (
-                        <motion.div 
-                          key={idx}
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: idx * 0.1 }}
-                          className="p-8 pb-10 rounded-4xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-200 transition-all group"
-                        >
-                          <div className="w-10 h-10 rounded-2xl bg-white border border-slate-100 flex items-center justify-center font-bold text-[#0d7377] mb-6 group-hover:bg-[#0d7377] group-hover:text-white transition-all shadow-sm">
-                            {idx + 1}
-                          </div>
-                          <h4 className="text-xl font-bold text-slate-900 mb-3">{item.heading}</h4>
-                          <p className="text-slate-500 text-base leading-relaxed">{item.text}</p>
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-
-                  {!completedSections.includes(activeTab) && (
-                    <div className="mt-6">
-                       <button
-                        onClick={() => markComplete(activeTab)}
-                        className="inline-flex items-center gap-3 px-8 py-4 bg-[#0d7377] text-white rounded-2xl font-bold hover:bg-[#0a5a5d] transition-all shadow-lg shadow-[#0d7377]/20 active:scale-95"
-                      >
-                        <CheckCircle className="w-5 h-5" />
-                        Mark this stage as Read
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-            
-
-          </div>
-        </div>
+        )}
 
 
 
@@ -577,19 +944,41 @@ export default function PassportGuidePage() {
           viewport={{ once: true }}
           className="mb-12"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-[#0d7377]/10 rounded-xl">
-              <DollarSign className="w-5 h-5 text-[#0d7377]" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-[#0d7377]/10 rounded-xl">
+                  <DollarSign className="w-5 h-5 text-[#0d7377]" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">
+                    2026 Fee Guidelines ({passportType === 'mrp' ? 'MRP' : 'e-Passport'})
+                  </h2>
+                  <p className="text-slate-500 text-sm">
+                    Fees by pages, validity, and urgency
+                  </p>
+                </div>
+              </div>
+
+              <div className="inline-flex bg-slate-100 p-1 rounded-xl self-start sm:self-center">
+                {[
+                  { id: "mrp", label: "MRP" },
+                  { id: "e-passport", label: "e-Passport" }
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setPassportType(t.id as any)}
+                    className={cn(
+                      "px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition-all whitespace-nowrap",
+                      passportType === t.id 
+                        ? "bg-[#0d7377] text-white shadow-sm" 
+                        : "text-slate-500 hover:text-slate-700"
+                    )}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">
-                2026 Fee Guidelines (MRP)
-              </h2>
-              <p className="text-slate-500 text-sm">
-                Fees by pages, validity, and urgency
-              </p>
-            </div>
-          </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
@@ -611,7 +1000,7 @@ export default function PassportGuidePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.keys(feeGuidelines2026.normal).map((page, idx) => (
+                  {Object.keys(currentGuidelines.normal).map((page, idx) => (
                     <tr
                       key={`5y-${idx}`}
                       className="border-t border-slate-100 hover:bg-slate-50 transition-colors"
@@ -621,21 +1010,21 @@ export default function PassportGuidePage() {
                       </td>
                       <td className="px-6 py-3.5 text-right text-sm font-semibold text-slate-800">
                         Rs.{" "}
-                        {feeGuidelines2026.normal[page]["5"].toLocaleString()}
+                        {currentGuidelines.normal[page]["5"].toLocaleString()}
                       </td>
                       <td className="px-6 py-3.5 text-right text-sm font-semibold text-slate-800">
                         Rs.{" "}
-                        {feeGuidelines2026.urgent[page]["5"].toLocaleString()}
+                        {currentGuidelines.urgent[page]["5"].toLocaleString()}
                       </td>
                       <td className="px-6 py-3.5 text-right text-sm font-semibold text-slate-800">
                         Rs.{" "}
-                        {feeGuidelines2026.fasttrack[page][
+                        {currentGuidelines.fasttrack[page][
                           "5"
                         ].toLocaleString()}
                       </td>
                     </tr>
                   ))}
-                  {Object.keys(feeGuidelines2026.normal).map((page, idx) => (
+                  {Object.keys(currentGuidelines.normal).map((page, idx) => (
                     <tr
                       key={`10y-${idx}`}
                       className="border-t border-slate-100 hover:bg-slate-50 transition-colors"
@@ -645,15 +1034,15 @@ export default function PassportGuidePage() {
                       </td>
                       <td className="px-6 py-3.5 text-right text-sm font-semibold text-slate-800">
                         Rs.{" "}
-                        {feeGuidelines2026.normal[page]["10"].toLocaleString()}
+                        {currentGuidelines.normal[page]["10"].toLocaleString()}
                       </td>
                       <td className="px-6 py-3.5 text-right text-sm font-semibold text-slate-800">
                         Rs.{" "}
-                        {feeGuidelines2026.urgent[page]["10"].toLocaleString()}
+                        {currentGuidelines.urgent[page]["10"].toLocaleString()}
                       </td>
                       <td className="px-6 py-3.5 text-right text-sm font-semibold text-slate-800">
                         Rs.{" "}
-                        {feeGuidelines2026.fasttrack[page][
+                        {currentGuidelines.fasttrack[page][
                           "10"
                         ].toLocaleString()}
                       </td>
@@ -668,9 +1057,6 @@ export default function PassportGuidePage() {
             </div>
           </div>
         </motion.div>
-
-        {/* Testimonials Section */}
-        <TestimonialsSection />
 
         {/* CTA Section */}
         <motion.div

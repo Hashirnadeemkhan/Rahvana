@@ -1117,20 +1117,6 @@ export function SiteHeader({
                         },
                       ],
                     },
-                    {
-                      id: "case-strategy",
-                      label: "Case Strategy",
-                      items: [
-                        {
-                          icon: <ShieldCheck className="h-5 w-5" />,
-                          title: "Visa Strength Guide",
-                          description:
-                            "Master the IR-1/CR-1 process and assess your case strength today.",
-                          href: "/guides/visa-strength-guide",
-                          badge: "Live",
-                        },
-                      ],
-                    },
                   ]}
                   footerLink={{ label: "Browse all guides", href: "#" }}
                 />
@@ -1623,7 +1609,6 @@ export function SiteHeader({
                     <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
                       {[
                         { id: "passport-guide", label: "Passport Guide" },
-                        { id: "visa-strength-guide", label: "Visa Strength Guide" },
                       ].map((item) => (
                         <HydrationSafeButton
                           key={item.id}

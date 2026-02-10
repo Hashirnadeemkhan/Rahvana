@@ -42,8 +42,8 @@ export default function TwentyTwoOneGActionPlanner() {
             const profile = data.profile_details as MasterProfile;
             if (profile.actionPlanner?.questionnaire) {
                // Restore
-               const savedData = profile.actionPlanner.questionnaire.formData as FormData;
-               const savedSelections = profile.actionPlanner.questionnaire.selectedItems as FormSelections; // We need to store this too
+               const savedData = profile.actionPlanner.questionnaire.formData as unknown as FormData;
+               const savedSelections = profile.actionPlanner.questionnaire.selectedItems as unknown as FormSelections; // We need to store this too
                
                if (savedData) {
                   setInitialData(savedData);
