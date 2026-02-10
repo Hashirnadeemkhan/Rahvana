@@ -168,6 +168,14 @@ export default function ProfilePage() {
             <p className="text-slate-500 text-xs mt-0.5">Manage your data for auto-filling forms</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => router.push('/complete-profile')} 
+              className="h-8 text-xs px-3 border-primary/20 hover:bg-primary/5 text-primary"
+            >
+              <Check className="w-3.5 h-3.5 mr-1.5" />
+              Complete Master Profile
+            </Button>
             {isEditing ? (
               <>
                 <Button
