@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Upload, AlertCircle, CheckCircle, X, FileText } from "lucide-react";
-import SuccessState from '@/app/components/document-translation/SuccessState';
+import SuccessState from "@/app/components/document-translation/SuccessState";
 import {
   Select,
   SelectContent,
@@ -18,11 +18,7 @@ export default function DocumentTranslationUpload() {
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{
-    documentId: string;
-    status: string;
-    message: string;
-  } | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Reset form
@@ -32,7 +28,7 @@ export default function DocumentTranslationUpload() {
     setUserNotes("");
     setError(null);
     setUploadSuccess(false);
-    setResult(null);
+
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -69,38 +65,35 @@ export default function DocumentTranslationUpload() {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('userEmail', 'user@example.com'); // In a real app, get this from user context
-      formData.append('userName', 'Test User'); // In a real app, get this from user context
-      formData.append('documentType', documentType);
+      formData.append("file", file);
+      formData.append("userEmail", "user@example.com"); // In a real app, get this from user context
+      formData.append("userName", "Test User"); // In a real app, get this from user context
+      formData.append("documentType", documentType);
       if (userNotes) {
-        formData.append('userNotes', userNotes);
+        formData.append("userNotes", userNotes);
       }
 
-      const response = await fetch('/api/document-translation/upload', {
-        method: 'POST',
+      const response = await fetch("/api/document-translation/upload", {
+        method: "POST",
         body: formData,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
+        throw new Error(data.error || "Upload failed");
       }
 
-      setResult({
-        documentId: data.documentId,
-        status: data.status,
-        message: data.message,
-      });
       setUploadSuccess(true);
-      
+
       // Scroll to the top when success state appears
       setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }, 100);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during upload');
+      setError(
+        err instanceof Error ? err.message : "An error occurred during upload",
+      );
     } finally {
       setUploading(false);
     }
@@ -149,8 +142,6 @@ export default function DocumentTranslationUpload() {
           {/* Upload Section */}
           <section className="w-full max-w-md">
             <div className="bg-white rounded-xl shadow-md p-6">
-
-
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Upload Your Document
               </label>
@@ -171,7 +162,9 @@ export default function DocumentTranslationUpload() {
                   <div className="flex items-center justify-center gap-2">
                     <FileText className="w-10 h-10 text-indigo-600" />
                     <div className="text-left">
-                      <p className="font-medium truncate max-w-[200px]">{file.name}</p>
+                      <p className="font-medium truncate max-w-[200px]">
+                        {file.name}
+                      </p>
                       <p className="text-sm text-gray-500">
                         {(file.size / 1024 / 1024).toFixed(2)} MB
                       </p>
@@ -208,7 +201,9 @@ export default function DocumentTranslationUpload() {
                     <SelectValue placeholder="Select document type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="marriage">Marriage Certificate</SelectItem>
+                    <SelectItem value="marriage">
+                      Marriage Certificate
+                    </SelectItem>
                     <SelectItem value="birth">Birth Certificate</SelectItem>
                     <SelectItem value="divorce">Divorce Certificate</SelectItem>
                     <SelectItem value="death">Death Certificate</SelectItem>
@@ -258,10 +253,12 @@ export default function DocumentTranslationUpload() {
                   </>
                 )}
               </button>
-              
+
               <div className="mt-4 text-center">
-                <button 
-                  onClick={() => window.location.href = '/document-translation/my-requests'} 
+                <button
+                  onClick={() =>
+                    (window.location.href = "/document-translation/my-requests")
+                  }
                   className="text-primary hover:underline text-sm cursor-pointer"
                 >
                   See your translation requests
@@ -271,8 +268,10 @@ export default function DocumentTranslationUpload() {
           </section>
         </>
       ) : (
-        <SuccessState 
-          onGoToRequests={() => window.location.href = '/document-translation/my-requests'} 
+        <SuccessState
+          onGoToRequests={() =>
+            (window.location.href = "/document-translation/my-requests")
+          }
         />
       )}
     </div>

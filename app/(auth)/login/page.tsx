@@ -172,17 +172,17 @@ function LoginContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate-600">Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-muted/20 px-4 py-12">
       <div className="w-full max-w-md space-y-8">
         {/* Logo & Header */}
         <div className="text-center">
@@ -201,15 +201,17 @@ function LoginContent() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">Welcome Back</h1>
-          <p className="text-slate-600 mt-2">Sign in to continue to Arachnie</p>
+          <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
+          <p className="text-muted-foreground mt-2">
+            Sign in to continue to Arachnie
+          </p>
         </div>
 
         {/* Google Sign In Button */}
         <Button
           onClick={handleGoogleSignIn}
           disabled={isSubmitting}
-          className="w-full bg-white hover:bg-slate-50 text-slate-900 font-medium py-6 rounded-xl border border-slate-200 flex items-center justify-center gap-3 shadow-sm transition-all hover:shadow-md"
+          className="w-full bg-card hover:bg-muted text-foreground font-medium py-6 rounded-xl border border-border flex items-center justify-center gap-3 shadow-sm transition-all hover:shadow-md"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -235,20 +237,20 @@ function LoginContent() {
         {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200"></div>
+            <div className="w-full border-t border-border"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-linear-to-br from-slate-50 to-slate-100 text-slate-500">
+            <span className="px-4 bg-muted/20 text-muted-foreground">
               or sign in with email
             </span>
           </div>
         </div>
 
         {/* Email Sign In Form */}
-        <Card className="p-6 bg-white shadow-lg border-0 rounded-2xl">
+        <Card className="p-6 bg-card shadow-lg border-border rounded-2xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-foreground">
                 Email Address
               </label>
               <Input
@@ -258,18 +260,18 @@ function LoginContent() {
                 placeholder="you@example.com"
                 required
                 disabled={isSubmitting}
-                className="h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary"
+                className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-slate-700">
+                <label className="block text-sm font-medium text-foreground">
                   Password
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -282,12 +284,12 @@ function LoginContent() {
                   placeholder="Enter your password"
                   required
                   disabled={isSubmitting}
-                  className="h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary pr-12"
+                  className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary pr-12"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? (
                     <svg
@@ -372,7 +374,7 @@ function LoginContent() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl transition-all disabled:opacity-50"
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl transition-all disabled:opacity-50"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">
@@ -387,7 +389,7 @@ function LoginContent() {
         </Card>
 
         {/* Sign Up Link */}
-        <p className="text-center text-sm text-slate-600">
+        <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link
             href="/signup"
@@ -398,13 +400,13 @@ function LoginContent() {
         </p>
 
         {/* Footer */}
-        <p className="text-center text-xs text-slate-400">
+        <p className="text-center text-xs text-muted-foreground">
           By signing in, you agree to our{" "}
-          <Link href="/terms" className="underline hover:text-slate-600">
+          <Link href="/terms" className="underline hover:text-foreground">
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="underline hover:text-slate-600">
+          <Link href="/privacy" className="underline hover:text-foreground">
             Privacy Policy
           </Link>
         </p>
@@ -435,10 +437,10 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="flex flex-col items-center gap-4">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-600">Loading...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </div>
       }

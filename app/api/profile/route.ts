@@ -21,7 +21,7 @@ export async function GET() {
     const { data: profile, error: profileError } = await supabase
       .from("user_profiles")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("id", user.id)
       .maybeSingle();
 
     console.log("[Profile API] Profile query result:", {
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 
     // Convert camelCase to snake_case for database
     const profileData = {
-      user_id: user.id,
+      id: user.id,
       full_legal_name: body.fullLegalName,
       date_of_birth: body.dateOfBirth,
       place_of_birth: body.placeOfBirth,
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     const { data: existingProfile } = await supabase
       .from("user_profiles")
       .select("id")
-      .eq("user_id", user.id)
+      .eq("id", user.id)
       .single();
 
     let result;
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
       result = await supabase
         .from("user_profiles")
         .update(profileData)
-        .eq("user_id", user.id)
+        .eq("id", user.id)
         .select()
         .single();
     } else {

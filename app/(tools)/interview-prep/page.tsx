@@ -14,8 +14,12 @@ import {
 import { useRouter } from "next/navigation";
 import { ResultPage } from "./result/ResultPage";
 import { InterviewPrepOutput } from "../../../lib/interview-prep/types";
-import { OptionCard } from "@/app/components/interview-prep/OptionCard";
+
 import { ToggleSwitch } from "@/app/components/interview-prep/ToggleSwitch";
+import { useAuth } from "@/app/context/AuthContext";
+import { createBrowserClient } from "@supabase/ssr";
+import { mapProfileToGenericForm } from "@/lib/autoFill/mapper";
+import { MasterProfile } from "@/types/profile";
 
 type CaseType = "Spouse";
 
@@ -97,8 +101,10 @@ const CaseTypeStep = ({
 }: CaseTypeStepProps) => (
   <div className="space-y-8">
     <div className="text-center mb-8">
-      <h2 className="text-3xl font-bold text-slate-900 mb-3">Select Case Type</h2>
-      <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+      <h2 className="text-3xl font-bold text-foreground mb-3">
+        Select Case Type
+      </h2>
+      <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
         Please select the type of visa case you want to prepare for interview.
       </p>
     </div>
@@ -109,45 +115,78 @@ const CaseTypeStep = ({
         type="button"
         className={`p-8 border-2 rounded-xl text-center transition-all cursor-pointer ${
           formData.caseType === "Spouse"
-            ? "border-teal-600 bg-teal-50 ring-2 ring-teal-200"
-            : "border-slate-200 hover:border-teal-400 hover:bg-slate-50"
+            ? "border-teal-600 bg-teal-50/20 ring-2 ring-teal-200"
+            : "border-border hover:border-teal-400 hover:bg-muted"
         }`}
         onClick={() => onCaseTypeChange("Spouse")}
       >
         <div className="mx-auto bg-teal-100 text-teal-800 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-slate-800">Spouse Visa</h3>
-        <p className="text-base text-slate-600">
+        <h3 className="font-bold text-xl mb-2 text-foreground">Spouse Visa</h3>
+        <p className="text-base text-muted-foreground">
           IR-1 / CR-1 – Spouse of U.S. Citizen
         </p>
       </button>
 
       {/* COMING SOON: PARENT */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
-        <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      <div className="p-8 border-2 rounded-xl text-center bg-muted/20 border-border opacity-70">
+        <div className="mx-auto bg-muted text-muted-foreground w-16 h-16 rounded-full flex items-center justify-center mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-slate-500">Parent Visa</h3>
-        <p className="text-base text-slate-500">IR-5 – Parent of U.S. Citizen</p>
-        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-600">
+        <h3 className="font-bold text-xl mb-2 text-muted-foreground">
+          Parent Visa
+        </h3>
+        <p className="text-base text-muted-foreground">
+          IR-5 – Parent of U.S. Citizen
+        </p>
+        <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold rounded-full bg-muted text-muted-foreground">
           Coming Soon
         </span>
       </div>
 
       {/* COMING SOON: CHILD */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
+      <div className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70">
         <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            />
           </svg>
         </div>
         <h3 className="font-bold text-xl mb-2 text-slate-500">Child Visa</h3>
@@ -160,12 +199,21 @@ const CaseTypeStep = ({
       </div>
 
       {/* COMING SOON: FAMILY */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
+      <div className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70">
         <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
         <h3 className="font-bold text-xl mb-2 text-slate-500">Family Visa</h3>
@@ -178,12 +226,21 @@ const CaseTypeStep = ({
       </div>
 
       {/* COMING SOON: K1 */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
+      <div className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70">
         <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
         <h3 className="font-bold text-xl mb-2 text-slate-500">K1 Visa</h3>
@@ -194,12 +251,21 @@ const CaseTypeStep = ({
       </div>
 
       {/* COMING SOON: B1/B2 */}
-      <div
-        className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70"
-      >
+      <div className="p-8 border-2 rounded-xl text-center bg-slate-50 border-slate-200 opacity-70">
         <div className="mx-auto bg-slate-200 text-slate-500 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         </div>
         <h3 className="font-bold text-xl mb-2 text-slate-500">B1/B2 Visa</h3>
@@ -213,8 +279,16 @@ const CaseTypeStep = ({
     {error && (
       <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
         <div className="flex items-start">
-          <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          <svg
+            className="h-5 w-5 text-red-500 mt-0.5 mr-3"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clipRule="evenodd"
+            />
           </svg>
           <span>{error}</span>
         </div>
@@ -225,7 +299,7 @@ const CaseTypeStep = ({
       <Button
         onClick={onBack}
         variant="outline"
-        className="bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 px-6 py-3 text-base"
+        className="bg-muted hover:bg-muted/80 text-muted-foreground border-border px-6 py-3 text-base"
       >
         ← Back
       </Button>
@@ -282,7 +356,8 @@ const QuestionStep = ({
       | undefined;
 
     // All select questions now use dropdowns
-    const useDropdown = question.type === "select" && Array.isArray(question.options);
+    const useDropdown =
+      question.type === "select" && Array.isArray(question.options);
 
     switch (question.type) {
       case "text":
@@ -306,7 +381,7 @@ const QuestionStep = ({
                   : e.target.value,
               )
             }
-            className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+            className="w-full p-3 border border-border rounded-lg bg-background text-foreground focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
             placeholder={`Enter ${question.label.toLowerCase()}`}
           />
         );
@@ -323,7 +398,9 @@ const QuestionStep = ({
       case "boolean":
         return (
           <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold text-slate-800">{question.label}</span>
+            <span className="text-lg font-semibold text-slate-800">
+              {question.label}
+            </span>
             <ToggleSwitch
               checked={!!value}
               onChange={(checked) => onChange(question.key, checked)}
@@ -335,12 +412,14 @@ const QuestionStep = ({
           if (useDropdown) {
             // Render as dropdown with increased height to align with inputs
             return (
-              <Select 
+              <Select
                 value={typeof value === "string" ? value : ""}
                 onValueChange={(newValue) => onChange(question.key, newValue)}
               >
                 <SelectTrigger className="w-full h-14">
-                  <SelectValue placeholder={`Select ${question.label.toLowerCase()}`} />
+                  <SelectValue
+                    placeholder={`Select ${question.label.toLowerCase()}`}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {question.options.map((option: string) => (
@@ -378,16 +457,21 @@ const QuestionStep = ({
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-3">{title}</h2>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">{description}</p>
+        <h2 className="text-3xl font-bold text-foreground mb-3">{title}</h2>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          {description}
+        </p>
       </div>
 
       <div className="space-y-6">
         {questions.map((question) => {
           return (
-            <div key={question.key} className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div
+              key={question.key}
+              className="space-y-3 p-4 bg-muted/20 rounded-xl border border-border"
+            >
               {question.type !== "boolean" && (
-                <label className="block text-lg font-semibold text-slate-800">
+                <label className="block text-lg font-semibold text-foreground">
                   {question.label}
                   {question.required && (
                     <span className="text-red-500 ml-1">*</span>
@@ -402,8 +486,16 @@ const QuestionStep = ({
         {error && (
           <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
             <div className="flex items-start">
-              <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              <svg
+                className="h-5 w-5 text-red-500 mt-0.5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span>{error}</span>
             </div>
@@ -466,18 +558,19 @@ const ReviewStep = ({
   return (
     <div className="space-y-8">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 mb-3">
+        <h2 className="text-3xl font-bold text-foreground mb-3">
           Review Your Information
         </h2>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Please review all the information you&apos;ve entered before submitting for interview preparation.
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Please review all the information you&apos;ve entered before
+          submitting for interview preparation.
         </p>
       </div>
 
       <div className="space-y-6">
         {/* Case Type Section */}
-        <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-          <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3">
+        <div className="bg-muted/20 rounded-xl p-6 border border-border">
+          <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-3">
             <div className="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center">
               <svg
                 className="w-5 h-5"
@@ -497,7 +590,7 @@ const ReviewStep = ({
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-slate-600">Selected Type</p>
+              <p className="text-sm text-muted-foreground">Selected Type</p>
               <p className="font-medium capitalize">{formData.caseType}</p>
             </div>
           </div>
@@ -511,8 +604,8 @@ const ReviewStep = ({
           formData["months_since_marriage"] ||
           formData["marriage_location"] ||
           formData["previous_marriages"]) && (
-          <div className="bg-slate-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+          <div className="bg-muted/20 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <svg
                 className="w-5 h-5 text-teal-600"
                 fill="none"
@@ -531,7 +624,9 @@ const ReviewStep = ({
             <div className="grid grid-cols-2 gap-4">
               {formData["beneficiary_country"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Beneficiary Country</p>
+                  <p className="text-sm text-muted-foreground">
+                    Beneficiary Country
+                  </p>
                   <p className="font-medium">
                     {formData["beneficiary_country"]}
                   </p>
@@ -559,8 +654,12 @@ const ReviewStep = ({
               )}
               {formData["months_since_marriage"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Months Since Marriage</p>
-                  <p className="font-medium">{formData["months_since_marriage"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Months Since Marriage
+                  </p>
+                  <p className="font-medium">
+                    {formData["months_since_marriage"]}
+                  </p>
                 </div>
               )}
               {formData["marriage_location"] && (
@@ -608,7 +707,9 @@ const ReviewStep = ({
               {formData["relationship_origin_type"] && (
                 <div>
                   <p className="text-sm text-slate-600">How Did You Meet</p>
-                  <p className="font-medium">{formData["relationship_origin_type"]}</p>
+                  <p className="font-medium">
+                    {formData["relationship_origin_type"]}
+                  </p>
                 </div>
               )}
               {formData["total_time_spent_together"] && (
@@ -698,8 +799,12 @@ const ReviewStep = ({
               )}
               {formData["communication_frequency"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Communication Frequency</p>
-                  <p className="font-medium">{formData["communication_frequency"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Communication Frequency
+                  </p>
+                  <p className="font-medium">
+                    {formData["communication_frequency"]}
+                  </p>
                 </div>
               )}
               {formData["daily_communication"] && (
@@ -860,9 +965,7 @@ const ReviewStep = ({
               )}
               {formData["criminal_history"] !== undefined && (
                 <div>
-                  <p className="text-sm text-slate-600">
-                    Criminal History
-                  </p>
+                  <p className="text-sm text-slate-600">Criminal History</p>
                   <p className="font-medium">
                     {formatBoolean(formData["criminal_history"])}
                   </p>
@@ -979,8 +1082,12 @@ const ReviewStep = ({
               )}
               {formData["petitioner_income_level"] && (
                 <div>
-                  <p className="text-sm text-slate-600">Petitioner Income Level</p>
-                  <p className="font-medium">{formData["petitioner_income_level"]}</p>
+                  <p className="text-sm text-slate-600">
+                    Petitioner Income Level
+                  </p>
+                  <p className="font-medium">
+                    {formData["petitioner_income_level"]}
+                  </p>
                 </div>
               )}
               {formData["household_size"] && (
@@ -1039,8 +1146,16 @@ const ReviewStep = ({
         {error && (
           <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700">
             <div className="flex items-start">
-              <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              <svg
+                className="h-5 w-5 text-red-500 mt-0.5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span>{error}</span>
             </div>
@@ -1081,19 +1196,129 @@ export default function InterviewPreparation() {
     useState<InterviewPrepOutput | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Auto-fill profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+          const profile = data.profile_details as MasterProfile;
+
+          // Map profile data to form structure
+          const mappedData = mapProfileToGenericForm(profile, {
+            caseType: formData.caseType,
+            beneficiary_country: formData.beneficiary_country,
+            age_range: formData.age_range,
+            highest_education: formData.highest_education,
+            marriage_date: formData.marriage_date,
+            marriage_location: formData.marriage_location,
+            previous_marriages: formData.previous_marriages,
+            relationship_origin_type: formData.relationship_origin_type,
+            current_living_arrangement: formData.current_living_arrangement,
+            spouse_address: formData.spouse_address,
+            communication_frequency: formData.communication_frequency,
+            daily_communication: formData.daily_communication,
+            shared_activities: formData.shared_activities,
+            important_dates_knowledge: formData.important_dates_knowledge,
+            met_spouse_family: formData.met_spouse_family,
+            family_reaction_to_marriage: formData.family_reaction_to_marriage,
+            wedding_attendees: formData.wedding_attendees,
+            marriage_type: formData.marriage_type,
+            mutual_friends: formData.mutual_friends,
+            petitioner_status: formData.petitioner_status,
+            petitioner_income_level: formData.petitioner_income_level,
+            household_size: formData.household_size,
+            beneficiary_employment: formData.beneficiary_employment,
+            sponsor_employment: formData.sponsor_employment,
+            military_or_defense_background: formData.military_or_defense_background,
+            previous_us_visits: formData.previous_us_visits,
+            previous_visa_refusal: formData.previous_visa_refusal,
+            visa_overstay_history: formData.visa_overstay_history,
+            criminal_history: formData.criminal_history,
+            english_proficiency: formData.english_proficiency,
+            intended_us_state: formData.intended_us_state,
+            living_arrangements_in_us: formData.living_arrangements_in_us,
+            future_plans: formData.future_plans,
+            joint_finances: formData.joint_finances,
+            financial_arrangement_description: formData.financial_arrangement_description,
+          });
+
+          setFormData(prev => ({
+            ...prev,
+            ...mappedData
+          }));
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase, formData]);
+
+  // Load questions from the JSON file
+  interface QuestionDefinition {
+    key: string;
+    label: string;
+    type: string;
+    options?: string | string[];
+    required?: boolean;
+  }
+
+  interface QuestionnaireData {
+    sections: Array<{
+      id: string;
+      title: string;
+      description: string;
+      questions: QuestionDefinition[];
+    }>;
+  }
+
+  const [questionnaireData, setQuestionnaireData] =
+    useState<QuestionnaireData | null>(null);
+
+  useEffect(() => {
+    if (!questionnaireData) {
+      import("../../../data/interview-intake-questionnaire.json")
+        .then((data) =>
+          setQuestionnaireData(data.default || (data as QuestionnaireData)),
+        )
+        .catch((err) =>
+          console.error("Error loading questionnaire data:", err),
+        );
+    }
+  }, [questionnaireData]);
 
   // Check for existing session on component mount
   useEffect(() => {
     const checkExistingSession = async () => {
       // Check for sessionId query parameter (for session revisit)
       const urlParams = new URLSearchParams(window.location.search);
-      const sessionIdParam = urlParams.get('sessionId');
-      
+      const sessionIdParam = urlParams.get("sessionId");
+
       if (sessionIdParam) {
         try {
           setLoading(true);
           // Get email from localStorage or use a default for now
-          const userEmail = typeof window !== 'undefined' ? localStorage.getItem('userEmail') || 'test@example.com' : 'test@example.com';
+          const userEmail =
+            typeof window !== "undefined"
+              ? localStorage.getItem("userEmail") || "test@example.com"
+              : "test@example.com";
           const response = await fetch(
             `/api/interview-prep/sessions/${sessionIdParam}?userEmail=${encodeURIComponent(userEmail)}`,
           );
@@ -1106,8 +1331,12 @@ export default function InterviewPreparation() {
           ) {
             // Found a completed session, load results directly
             setSessionId(sessionIdParam);
-            setGeneratedResults(sessionData.session.interview_prep_results.generated_questions);
-            setStep(questionnaireData ? questionnaireData.sections.length + 2 : 3); // Go directly to results page
+            setGeneratedResults(
+              sessionData.session.interview_prep_results.generated_questions,
+            );
+            setStep(
+              questionnaireData ? questionnaireData.sections.length + 2 : 3,
+            ); // Go directly to results page
             return;
           }
         } catch (err) {
@@ -1153,41 +1382,8 @@ export default function InterviewPreparation() {
       }
     };
 
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       checkExistingSession();
-    }
-  }, []);
-
-  // Load questions from the JSON file
-  interface QuestionDefinition {
-    key: string;
-    label: string;
-    type: string;
-    options?: string | string[];
-    required?: boolean;
-  }
-
-  interface QuestionnaireData {
-    sections: Array<{
-      id: string;
-      title: string;
-      description: string;
-      questions: QuestionDefinition[];
-    }>;
-  }
-
-  const [questionnaireData, setQuestionnaireData] =
-    useState<QuestionnaireData | null>(null);
-
-  useEffect(() => {
-    if (!questionnaireData) {
-      import("../../../data/interview-intake-questionnaire.json")
-        .then((data) =>
-          setQuestionnaireData(data.default || (data as QuestionnaireData)),
-        )
-        .catch((err) =>
-          console.error("Error loading questionnaire data:", err),
-        );
     }
   }, [questionnaireData]);
 
@@ -1216,7 +1412,11 @@ export default function InterviewPreparation() {
           const updatedFormData = { ...formData };
           (updatedFormData as Record<string, unknown>)[id as string] = value;
           // Filter out non-question fields before saving
-          const { caseType, visaCategory, ...answers } = updatedFormData;
+          const {
+            caseType: _caseType,
+            visaCategory: _visaCategory,
+            ...answers
+          } = updatedFormData;
           const answersResponse = await fetch(
             `/api/interview-prep/sessions/${sessionId}`,
             {
@@ -1326,7 +1526,11 @@ export default function InterviewPreparation() {
           );
 
           // Save initial answers, excluding non-question fields
-          const { caseType, visaCategory, ...answers } = formData;
+          const {
+            caseType: _caseType,
+            visaCategory: _visaCategory,
+            ...answers
+          } = formData;
           const answersResponse = await fetch(
             `/api/interview-prep/sessions/${sessionResult.session.id}`,
             {
@@ -1466,7 +1670,11 @@ export default function InterviewPreparation() {
     if (sessionId) {
       try {
         // Filter out non-question fields before saving
-        const { caseType, visaCategory, ...answers } = formData;
+        const {
+          caseType: _caseType,
+          visaCategory: _visaCategory,
+          ...answers
+        } = formData;
         const answersResponse = await fetch(
           `/api/interview-prep/sessions/${sessionId}`,
           {
@@ -1657,7 +1865,7 @@ export default function InterviewPreparation() {
           onRestart={() => {
             setStep(0);
             setSessionId(null);
-            router.push('/interview-prep');
+            router.push("/interview-prep");
           }}
         />
       );
@@ -1696,7 +1904,9 @@ export default function InterviewPreparation() {
         <div className="w-full bg-slate-200 rounded-full h-3">
           <div
             className="bg-teal-600 h-3 rounded-full transition-all duration-500 ease-in-out"
-            style={{ width: `${progressPercentage > 100 ? 100 : progressPercentage}%` }}
+            style={{
+              width: `${progressPercentage > 100 ? 100 : progressPercentage}%`,
+            }}
           ></div>
         </div>
 
@@ -1716,11 +1926,14 @@ export default function InterviewPreparation() {
                     isActive
                       ? "bg-teal-600 text-white border-2 border-teal-600"
                       : isCompleted
-                      ? "bg-teal-100 text-teal-800 border-2 border-teal-200"
-                      : "bg-slate-100 text-slate-500 border-2 border-slate-200"
+                        ? "bg-teal-100 text-teal-800 border-2 border-teal-200"
+                        : "bg-slate-100 text-slate-500 border-2 border-slate-200"
                   }`}
                 >
-                  <div className="font-semibold truncate">{section.title.substring(0, 20)}{section.title.length > 20 ? '...' : ''}</div>
+                  <div className="font-semibold truncate">
+                    {section.title.substring(0, 20)}
+                    {section.title.length > 20 ? "..." : ""}
+                  </div>
                   <div className="text-[10px] mt-1">Step {index + 1}</div>
                 </div>
               );
@@ -1733,8 +1946,8 @@ export default function InterviewPreparation() {
               step === sections.length + 1
                 ? "bg-teal-600 text-white border-2 border-teal-600"
                 : step > sections.length + 1
-                ? "bg-teal-100 text-teal-800 border-2 border-teal-200"
-                : "bg-slate-100 text-slate-500 border-2 border-slate-200"
+                  ? "bg-teal-100 text-teal-800 border-2 border-teal-200"
+                  : "bg-slate-100 text-slate-500 border-2 border-slate-200"
             }`}
           >
             <div className="font-semibold">Review</div>

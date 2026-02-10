@@ -354,7 +354,7 @@ export const RapidFireModePage = ({
 
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 p-6">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-teal-50 p-6">
         <div className="max-w-2xl mx-auto text-center py-12">
           <div className="bg-white rounded-xl shadow-lg p-8">
             <h3 className="text-xl font-bold mb-4">No Questions Available</h3>
@@ -380,7 +380,7 @@ export const RapidFireModePage = ({
 
   if (totalScore !== null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 p-6">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-teal-50 p-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2">
@@ -394,7 +394,7 @@ export const RapidFireModePage = ({
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
             <div className="text-center mb-8">
               <div className="relative inline-block mb-6">
-                <div className="w-40 h-40 rounded-full border-8 border-teal-200 flex items-center justify-center bg-gradient-to-br from-teal-50 to-teal-100">
+                <div className="w-40 h-40 rounded-full border-8 border-teal-200 flex items-center justify-center bg-linear-to-br from-teal-50 to-teal-100">
                   <div className="text-center">
                     <span className="text-4xl font-bold text-teal-700">
                       {Math.round(
@@ -692,7 +692,7 @@ export const RapidFireModePage = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 p-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-teal-50 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -735,10 +735,10 @@ export const RapidFireModePage = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 min-h-[500px] flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 min-h-125 flex items-center justify-center">
           <div className="w-full max-w-2xl">
             <div
-              className={`relative w-full h-full min-h-[450px] cursor-pointer transition-transform duration-700 ease-out-cubic ${
+              className={`relative w-full h-full min-h-112.5 cursor-pointer transition-transform duration-700 ease-out-cubic ${
                 isFlipped ? "transform rotate-y-180" : ""
               }`}
               style={{
@@ -873,7 +873,7 @@ export const RapidFireModePage = ({
                 </div>
               </div>
 
-              <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-8 flex flex-col text-white shadow-xl">
+              <div className="absolute inset-0 backface-hidden rotate-y-180 bg-linear-to-br from-teal-600 to-teal-800 rounded-2xl p-8 flex flex-col text-white shadow-xl">
                 <div className="flex justify-between items-start mb-6">
                   <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
                     Answer & Guidance

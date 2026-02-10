@@ -200,7 +200,7 @@ export default function ToolsPage() {
   }).sort((a, b) => a.title.localeCompare(b.title));
 
   return (
-    <div className="min-h-screen bg-[#fafbfc] text-[#24292e] font-sans overflow-x-hidden selection:bg-[#0d7377] selection:text-white">
+    <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden selection:bg-primary selection:text-primary-foreground">
       {/* Ambient Glow */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10">
         <div className="absolute top-[10%] left-[15%] w-[500px] h-[500px] bg-[#0d7377]/5 rounded-full blur-3xl" />
@@ -217,10 +217,10 @@ export default function ToolsPage() {
 
         {/* Hero Section */}
         <section className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-[#24292e] to-[#586069] animate-fade-up">
+          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-foreground to-muted-foreground animate-fade-up">
             Create. Check. Comply.
           </h1>
-          <p className="text-[#586069] text-lg max-w-2xl mx-auto animate-fade-up [animation-delay:100ms]">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto animate-fade-up [animation-delay:100ms]">
             A suite of powerful tools designed to simplify complex processes and
             boost your productivity.
           </p>
@@ -228,13 +228,13 @@ export default function ToolsPage() {
 
         {/* Search Bar */}
         <div className="relative max-w-lg mx-auto mb-10 animate-scale-in [animation-delay:200ms]">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6a737d] w-5 h-5 pointer-events-none" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 pointer-events-none" />
           <input
             type="text"
             placeholder="Search tools..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border-2 border-[#e1e4e8] pl-11 pr-4 py-3 rounded-full text-[#24292e] focus:outline-none focus:border-[#0d7377] focus:ring-4 focus:ring-[#0d7377]/10 transition-all shadow-sm"
+            className="w-full bg-card border-2 border-border pl-11 pr-4 py-3 rounded-full text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm placeholder:text-muted-foreground"
           />
         </div>
 
@@ -246,8 +246,8 @@ export default function ToolsPage() {
               onClick={() => setSelectedCategory(cat)}
               className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 ${
                 selectedCategory === cat
-                  ? "bg-[#0d7377] text-white border-[#0d7377] shadow-md"
-                  : "bg-white text-[#586069] border-[#e1e4e8] hover:border-[#0d7377] hover:bg-[#e8f6f6] hover:text-[#0d7377]"
+                  ? "bg-primary text-primary-foreground border-primary shadow-md"
+                  : "bg-card text-muted-foreground border-border hover:border-primary hover:bg-primary/5 hover:text-primary"
               }`}
             >
               {cat}
@@ -262,7 +262,7 @@ export default function ToolsPage() {
               <ToolCard key={tool.id} tool={tool} index={index} />
             ))
           ) : (
-            <div className="col-span-full text-center py-12 text-[#586069]">
+            <div className="col-span-full text-center py-12 text-muted-foreground">
               No tools found matching your search.
             </div>
           )}
@@ -284,40 +284,46 @@ const CATEGORY_STYLES: Record<
   }
 > = {
   "AI & Planning": {
-    iconBox: "bg-[#7c3aed] text-white border-transparent",
+    iconBox: "bg-violet-600 text-white border-transparent dark:bg-violet-500",
     innerBox: "bg-white/20",
-    link: "text-[#7c3aed]",
-    borderGradient: "from-[#a78bfa] to-[#c4b5fd]", // Violet 400-300
+    link: "text-violet-600 dark:text-violet-400",
+    borderGradient:
+      "from-violet-400 to-violet-300 dark:from-violet-400 dark:to-violet-300",
   },
   "Money & Sponsorship": {
-    iconBox: "bg-[#059669] text-white border-transparent",
+    iconBox: "bg-emerald-600 text-white border-transparent dark:bg-emerald-500",
     innerBox: "bg-white/20",
-    link: "text-[#059669]",
-    borderGradient: "from-[#34d399] to-[#6ee7b7]", // Emerald 400-300
+    link: "text-emerald-600 dark:text-emerald-400",
+    borderGradient:
+      "from-emerald-400 to-emerald-300 dark:from-emerald-400 dark:to-emerald-300",
   },
   Tracking: {
-    iconBox: "bg-[#d97706] text-white border-transparent",
+    iconBox: "bg-amber-600 text-white border-transparent dark:bg-amber-500",
     innerBox: "bg-white/20",
-    link: "text-[#d97706]",
-    borderGradient: "from-[#fcd34d] to-[#fde68a]", // Amber 300-200
+    link: "text-amber-600 dark:text-amber-400",
+    borderGradient:
+      "from-amber-300 to-amber-200 dark:from-amber-300 dark:to-amber-200",
   },
   "Docs & PDFs": {
-    iconBox: "bg-[#e11d48] text-white border-transparent",
+    iconBox: "bg-rose-600 text-white border-transparent dark:bg-rose-500",
     innerBox: "bg-white/20",
-    link: "text-[#e11d48]",
-    borderGradient: "from-[#fb7185] to-[#fda4af]", // Rose 400-300
+    link: "text-rose-600 dark:text-rose-400",
+    borderGradient:
+      "from-rose-400 to-rose-300 dark:from-rose-400 dark:to-rose-300",
   },
   "Forms & Automation": {
-    iconBox: "bg-[#0891b2] text-white border-transparent",
+    iconBox: "bg-cyan-600 text-white border-transparent dark:bg-cyan-500",
     innerBox: "bg-white/20",
-    link: "text-[#0891b2]",
-    borderGradient: "from-[#67e8f9] to-[#a5f3fc]", // Cyan 300-200
+    link: "text-cyan-600 dark:text-cyan-400",
+    borderGradient:
+      "from-cyan-300 to-cyan-200 dark:from-cyan-300 dark:to-cyan-200",
   },
   "Storage & Organization": {
-    iconBox: "bg-[#4f46e5] text-white border-transparent",
+    iconBox: "bg-indigo-600 text-white border-transparent dark:bg-indigo-500",
     innerBox: "bg-white/20",
-    link: "text-[#4f46e5]",
-    borderGradient: "from-[#818cf8] to-[#a5b4fc]", // Indigo 400-300
+    link: "text-indigo-600 dark:text-indigo-400",
+    borderGradient:
+      "from-indigo-400 to-indigo-300 dark:from-indigo-400 dark:to-indigo-300",
   },
 };
 
@@ -330,7 +336,7 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
   return (
     <CardWrapper
       href={tool.href}
-      className={`group relative flex flex-col bg-white border border-[#e1e4e8] rounded-[30px] p-6 pt-7 mt-6 
+      className={`group relative flex flex-col bg-card border border-border rounded-[30px] p-6 pt-7 mt-6 
       transition-all duration-400 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] 
       ${
         isClickable
@@ -359,7 +365,7 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
       />
       {/* //from-[#0d7377] to-[#32e0c4] */}
       {/* Radial Glow Effect */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-0 bg-[radial-gradient(400px_circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),rgba(13,115,119,0.04),transparent_40%)]" />
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-0 bg-[radial-gradient(400px_circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),rgba(13,115,119,0.04),transparent_40%)] dark:bg-[radial-gradient(400px_circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),rgba(255,255,255,0.03),transparent_40%)]" />
 
       {/* Header (Badge) */}
       <div className="flex justify-end items-start mb-2 min-h-[24px] relative z-10">
@@ -368,8 +374,8 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
             className={`text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full border 
             ${
               tool.badge === "Live"
-                ? "bg-green-50 text-green-700 border-green-200"
-                : "bg-amber-50 text-amber-700 border-amber-200"
+                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+                : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800"
             }`}
           >
             {tool.badge}
@@ -379,22 +385,22 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col grow pt-2">
-        <h3 className="text-xl font-bold text-[#24292e] mb-1 transition-colors">
+        <h3 className="text-xl font-bold text-foreground mb-1 transition-colors">
           {tool.title}
         </h3>
         <div className="mb-3">
-          <span className="text-[11px] font-bold uppercase tracking-wide text-[#6a737d]/80 bg-[#f6f8fa] px-2 py-0.5 rounded">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground/80 bg-muted px-2 py-0.5 rounded">
             {tool.category}
           </span>
         </div>
-        <p className="text-[#586069] text-sm leading-relaxed mb-6 grow">
+        <p className="text-muted-foreground dark:text-white text-sm leading-relaxed mb-6 grow">
           {tool.description}
         </p>
       </div>
 
       {/* Footer / Action */}
-      <div className="relative z-10 flex items-center justify-between pt-4 border-t border-[#f0f2f4] mt-auto">
-        <span className="text-xs font-medium text-[#6a737d] flex items-center gap-1">
+      <div className="relative z-10 flex items-center justify-between pt-4 border-t border-border mt-auto">
+        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
           {/* Placeholder for stats or extra info if needed */}
         </span>
 
@@ -405,7 +411,7 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
             Open Tool <ArrowRight className="w-4 h-4" />
           </span>
         ) : (
-          <span className="text-sm font-semibold text-[#9ca3af] flex items-center gap-1.5 cursor-not-allowed">
+          <span className="text-sm font-semibold text-muted-foreground/50 flex items-center gap-1.5 cursor-not-allowed">
             Coming Soon
           </span>
         )}

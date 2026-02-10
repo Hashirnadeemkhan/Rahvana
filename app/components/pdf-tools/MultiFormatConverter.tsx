@@ -1,7 +1,13 @@
-'use client';
+"use client";
 
 import { useState, useRef } from "react";
-import { Upload, FileText, Loader2, Download, X, CheckCircle2, AlertCircle, FileCheck } from "lucide-react";
+import {
+  Upload,
+  Loader2,
+  Download,
+  AlertCircle,
+  FileCheck,
+} from "lucide-react";
 
 interface ConversionResult {
   originalSize: number;
@@ -13,7 +19,7 @@ export default function PDFConverterApp() {
   const [file, setFile] = useState<File | null>(null);
   const [converting, setConverting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [result, setResult] = useState<ConversionResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -21,21 +27,35 @@ export default function PDFConverterApp() {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    const validExtensions = ['.txt', '.html', '.htm', '.md', '.markdown', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.docx'];
-    const fileExtension = '.' + selectedFile.name.toLowerCase().split('.').pop();
+    const validExtensions = [
+      ".txt",
+      ".html",
+      ".htm",
+      ".md",
+      ".markdown",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".webp",
+      ".gif",
+      ".bmp",
+      ".docx",
+    ];
+    const fileExtension =
+      "." + selectedFile.name.toLowerCase().split(".").pop();
 
     if (!validExtensions.includes(fileExtension)) {
-      setError('Unsupported file format. Please select a supported file type.');
+      setError("Unsupported file format. Please select a supported file type.");
       return;
     }
 
     if (selectedFile.size > 100 * 1024 * 1024) {
-      setError('File is too large. Maximum size is 100MB');
+      setError("File is too large. Maximum size is 100MB");
       return;
     }
 
     setFile(selectedFile);
-    setError('');
+    setError("");
     setResult(null);
     setSuccess(false);
   };
@@ -44,7 +64,7 @@ export default function PDFConverterApp() {
     if (!file) return;
 
     setConverting(true);
-    setError('');
+    setError("");
     setResult(null);
     setSuccess(false);
 
@@ -89,24 +109,28 @@ export default function PDFConverterApp() {
       // Calculate result stats
       const originalSize = file.size;
       const convertedSize = blob.size;
-      const reduction = originalSize > 0 ? ((originalSize - convertedSize) / originalSize * 100).toFixed(2) : '0';
+      const reduction =
+        originalSize > 0
+          ? (((originalSize - convertedSize) / originalSize) * 100).toFixed(2)
+          : "0";
 
       setResult({
         originalSize,
         convertedSize,
-        reduction
+        reduction,
       });
 
       setSuccess(true);
       setTimeout(() => {
         setFile(null);
         setSuccess(false);
-        setError('');
+        setError("");
         setResult(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
       }, 3000);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Conversion failed";
+      const message =
+        error instanceof Error ? error.message : "Conversion failed";
       setError(message);
     } finally {
       setConverting(false);
@@ -114,13 +138,13 @@ export default function PDFConverterApp() {
   };
 
   const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const mb = bytes / 1024 / 1024;
     if (mb < 1) {
       const kb = bytes / 1024;
-      return kb.toFixed(2) + ' KB';
+      return kb.toFixed(2) + " KB";
     }
-    return mb.toFixed(2) + ' MB';
+    return mb.toFixed(2) + " MB";
   };
 
   return (
@@ -155,11 +179,13 @@ export default function PDFConverterApp() {
                 htmlFor="file-upload"
                 className={`block border-2 border-dashed rounded-xl p-8 text-center transition-all ${
                   converting
-                    ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
-                    : 'border-primary/90 hover:border-primary/100 hover:bg-primary/10 cursor-pointer'
+                    ? "border-gray-300 bg-gray-50 cursor-not-allowed"
+                    : "border-primary/90 hover:border-primary/100 hover:bg-primary/10 cursor-pointer"
                 }`}
               >
-                <Upload className={`mx-auto h-16 w-16 mb-3 ${file ? 'text-primary/90' : 'text-gray-400'}`} />
+                <Upload
+                  className={`mx-auto h-16 w-16 mb-3 ${file ? "text-primary/90" : "text-gray-400"}`}
+                />
                 {file ? (
                   <div>
                     <p className="text-primary/90 font-semibold text-lg mb-1 truncate max-w-xs mx-auto">
@@ -178,7 +204,8 @@ export default function PDFConverterApp() {
                       Click to upload or drag and drop
                     </p>
                     <p className="text-sm text-gray-500">
-                      Supports: Text, HTML, Markdown, Images, Word (DOCX) • Max 100MB
+                      Supports: Text, HTML, Markdown, Images, Word (DOCX) • Max
+                      100MB
                     </p>
                   </div>
                 )}
@@ -193,9 +220,25 @@ export default function PDFConverterApp() {
             >
               {converting ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-6 w-6 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Converting...
                 </>
@@ -225,24 +268,39 @@ export default function PDFConverterApp() {
               <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg shadow-sm">
                 <div className="flex items-center text-green-700 mb-4">
                   <FileCheck className="h-6 w-6 mr-3" />
-                  <span className="font-bold text-lg">Conversion Successful!</span>
+                  <span className="font-bold text-lg">
+                    Conversion Successful!
+                  </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <p className="text-gray-500 text-xs font-medium mb-1">Original Size</p>
-                    <p className="text-gray-800 font-bold text-xl">{formatBytes(result.originalSize)}</p>
+                    <p className="text-gray-500 text-xs font-medium mb-1">
+                      Original Size
+                    </p>
+                    <p className="text-gray-800 font-bold text-xl">
+                      {formatBytes(result.originalSize)}
+                    </p>
                   </div>
                   <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <p className="text-gray-500 text-xs font-medium mb-1">Converted Size</p>
-                    <p className="text-gray-800 font-bold text-xl">{formatBytes(result.convertedSize)}</p>
+                    <p className="text-gray-500 text-xs font-medium mb-1">
+                      Converted Size
+                    </p>
+                    <p className="text-gray-800 font-bold text-xl">
+                      {formatBytes(result.convertedSize)}
+                    </p>
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <p className="text-gray-500 text-xs font-medium mb-1">Space Saved</p>
+                  <p className="text-gray-500 text-xs font-medium mb-1">
+                    Space Saved
+                  </p>
                   <div className="flex items-baseline">
-                    <p className="text-green-600 font-bold text-3xl">{result.reduction}%</p>
+                    <p className="text-green-600 font-bold text-3xl">
+                      {result.reduction}%
+                    </p>
                     <p className="text-gray-500 text-sm ml-2">
-                      ({formatBytes(result.originalSize - result.convertedSize)} saved)
+                      ({formatBytes(result.originalSize - result.convertedSize)}{" "}
+                      saved)
                     </p>
                   </div>
                 </div>

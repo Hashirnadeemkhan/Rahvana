@@ -2,7 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardDescription,
+} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
   ChevronLeft,
@@ -29,14 +34,19 @@ import {
   Send,
   Globe,
   ExternalLink,
+  BookOpen,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 // ============================================================================
 // POVERTY GUIDELINES DATA (2025 HHS Poverty Guidelines)
 // ============================================================================
 
-const POVERTY_GUIDELINES: Record<number, { level100: number; level125: number }> = {
+const POVERTY_GUIDELINES: Record<
+  number,
+  { level100: number; level125: number }
+> = {
   1: { level100: 16510, level125: 20638 },
   2: { level100: 21150, level125: 26437 },
   3: { level100: 26650, level125: 33312 },
@@ -128,7 +138,7 @@ const RELATIONSHIP_OPTIONS = [
   "In-Law",
   "Friend",
   "Employer",
-  "Other"
+  "Other",
 ];
 
 // ============================================================================
@@ -143,13 +153,19 @@ interface CurrencyInputProps {
 }
 
 function formatCurrencyWithCommas(value: number): string {
+  if (value == null || isNaN(value)) return "";
   if (value === 0) return "";
   const parts = value.toFixed(2).split(".");
   const integerPart = parseInt(parts[0]).toLocaleString();
   return `${integerPart}.${parts[1]}`;
 }
 
-function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }: CurrencyInputProps) {
+function CurrencyInput({
+  value,
+  onChange,
+  placeholder = "0.00",
+  className = "",
+}: CurrencyInputProps) {
   const [displayValue, setDisplayValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -157,7 +173,9 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
   // Update display value when value prop changes (from parent)
   useEffect(() => {
     if (!isFocused) {
-      if (value === 0) {
+      if (value == null || isNaN(value)) {
+        setDisplayValue("");
+      } else if (value === 0) {
         setDisplayValue("");
       } else {
         setDisplayValue(formatCurrencyWithCommas(value));
@@ -193,7 +211,7 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
     setIsFocused(false);
     // Format with commas when user leaves the field
     const numericValue = parseFloat(displayValue);
-    if (!isNaN(numericValue) && numericValue > 0) {
+    if (!isNaN(numericValue) && numericValue >= 0) {
       setDisplayValue(formatCurrencyWithCommas(numericValue));
     }
   };
@@ -201,7 +219,7 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
   const handleFocus = () => {
     setIsFocused(true);
     // Show raw value without commas for easy editing
-    if (value > 0) {
+    if (value != null && !isNaN(value) && value > 0) {
       setDisplayValue(value.toString());
     } else {
       setDisplayValue("");
@@ -232,6 +250,11 @@ function CurrencyInput({ value, onChange, placeholder = "0.00", className = "" }
 // COMPONENT
 // ============================================================================
 
+import { useAuth } from "@/app/context/AuthContext";
+import { createBrowserClient } from "@supabase/ssr";
+import { mapProfileToGenericForm } from "@/lib/autoFill/mapper";
+import { MasterProfile } from "@/types/profile";
+
 export default function AffidavitSupportCalculator() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -258,9 +281,67 @@ export default function AffidavitSupportCalculator() {
     usedHouseholdRelationships: [],
     usedJointSponsorRelationships: [],
   });
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Auto-fill profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+          const profile = data.profile_details as MasterProfile;
+
+          // Map profile data to form structure
+          const mappedData = mapProfileToGenericForm(profile, {
+            sponsorStatus: formData.sponsorStatus,
+            isMilitary: formData.isMilitary,
+            isMarried: formData.isMarried,
+            numberOfChildren: formData.numberOfChildren,
+            taxDependents: formData.taxDependents,
+            hasPreviousSponsorship: formData.hasPreviousSponsorship,
+            previousSponsoredCount: formData.previousSponsoredCount,
+            currentSponsoredApplicant: formData.currentSponsoredApplicant,
+            currentSponsoredSpouse: formData.currentSponsoredSpouse,
+            currentSponsoredChildren: formData.currentSponsoredChildren,
+            annualIncome: formData.annualIncome,
+            sponsorDeceased: formData.sponsorDeceased,
+            assetValue: formData.assetValue,
+            relationshipToApplicant: formData.relationshipToApplicant,
+            isVAWA: formData.isVAWA,
+            isWidow: formData.isWidow,
+            isSpecialImmigrant: formData.isSpecialImmigrant,
+          });
+
+          setFormData(prev => ({
+            ...prev,
+            ...mappedData
+          }));
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase, formData]);
 
   const [result, setResult] = useState<CalculatorResult | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({});
 
   // ============================================================================
   // HELPER FUNCTIONS
@@ -269,9 +350,9 @@ export default function AffidavitSupportCalculator() {
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [sectionId]: !prev[sectionId]
+      [sectionId]: !prev[sectionId],
     }));
   };
 
@@ -284,7 +365,7 @@ export default function AffidavitSupportCalculator() {
       ],
     });
     // Auto-expand the section
-    setExpandedSections(prev => ({ ...prev, household: true }));
+    setExpandedSections((prev) => ({ ...prev, household: true }));
   };
 
   const removeHouseholdMember = (id: string) => {
@@ -294,17 +375,23 @@ export default function AffidavitSupportCalculator() {
     });
   };
 
-  const updateHouseholdMember = (id: string, updates: Partial<HouseholdMember>) => {
+  const updateHouseholdMember = (
+    id: string,
+    updates: Partial<HouseholdMember>,
+  ) => {
     // Track used relationships
     let newUsedRelationships = [...formData.usedHouseholdRelationships];
-    if (updates.relationship && !newUsedRelationships.includes(updates.relationship)) {
+    if (
+      updates.relationship &&
+      !newUsedRelationships.includes(updates.relationship)
+    ) {
       newUsedRelationships = [updates.relationship, ...newUsedRelationships];
     }
 
     setFormData({
       ...formData,
       householdMembers: formData.householdMembers.map((m) =>
-        m.id === id ? { ...m, ...updates } : m
+        m.id === id ? { ...m, ...updates } : m,
       ),
       usedHouseholdRelationships: newUsedRelationships,
     });
@@ -319,7 +406,7 @@ export default function AffidavitSupportCalculator() {
       ],
     });
     // Auto-expand the section
-    setExpandedSections(prev => ({ ...prev, joint: true }));
+    setExpandedSections((prev) => ({ ...prev, joint: true }));
   };
 
   const removeJointSponsor = (id: string) => {
@@ -332,14 +419,17 @@ export default function AffidavitSupportCalculator() {
   const updateJointSponsor = (id: string, updates: Partial<JointSponsor>) => {
     // Track used relationships
     let newUsedRelationships = [...formData.usedJointSponsorRelationships];
-    if (updates.relationship && !newUsedRelationships.includes(updates.relationship)) {
+    if (
+      updates.relationship &&
+      !newUsedRelationships.includes(updates.relationship)
+    ) {
       newUsedRelationships = [updates.relationship, ...newUsedRelationships];
     }
 
     setFormData({
       ...formData,
       jointSponsors: formData.jointSponsors.map((s) =>
-        s.id === id ? { ...s, ...updates } : s
+        s.id === id ? { ...s, ...updates } : s,
       ),
       usedJointSponsorRelationships: newUsedRelationships,
     });
@@ -364,7 +454,8 @@ export default function AffidavitSupportCalculator() {
 
   const calculateRequiredIncome = (householdSize: number): number => {
     const isMilitarySpouseOrChild =
-      formData.isMilitary && (formData.currentSponsoredApplicant || formData.currentSponsoredSpouse);
+      formData.isMilitary &&
+      (formData.currentSponsoredApplicant || formData.currentSponsoredSpouse);
     const povertyLevel = isMilitarySpouseOrChild ? 100 : 125;
 
     let baseIncome = POVERTY_GUIDELINES[8]?.[`level${povertyLevel}`] || 0;
@@ -380,13 +471,21 @@ export default function AffidavitSupportCalculator() {
   };
 
   const calculateTotalIncome = (): number => {
-    const householdTotal = formData.householdMembers.reduce((sum, m) => sum + m.annualIncome, 0);
-    const jointSponsorsTotal = formData.jointSponsors.reduce((sum, s) => sum + s.annualIncome, 0);
+    const householdTotal = formData.householdMembers.reduce(
+      (sum, m) => sum + m.annualIncome,
+      0,
+    );
+    const jointSponsorsTotal = formData.jointSponsors.reduce(
+      (sum, s) => sum + s.annualIncome,
+      0,
+    );
     return formData.annualIncome + householdTotal + jointSponsorsTotal;
   };
 
   const calculateAssetAlternative = (): number => {
-    const isSpouseOrParent = ["spouse", "parent"].includes(formData.relationshipToApplicant.toLowerCase());
+    const isSpouseOrParent = ["spouse", "parent"].includes(
+      formData.relationshipToApplicant.toLowerCase(),
+    );
     const multiplier = isSpouseOrParent ? 3 : 5;
     return formData.assetValue * multiplier;
   };
@@ -409,12 +508,13 @@ export default function AffidavitSupportCalculator() {
         {
           name: "I-864 - Affidavit of Support",
           description: "Official sponsor income verification form",
-          whereToFile: "USCIS (United States Citizenship and Immigration Services)",
+          whereToFile:
+            "USCIS (United States Citizenship and Immigration Services)",
           notes: [
             "File online or by mail with your I-130/I-485 application",
             "Include copies of last 3 years of tax returns",
-            "Sponsor must sign in presence of notary or USCIS officer"
-          ]
+            "Sponsor must sign in presence of notary or USCIS officer",
+          ],
         },
         {
           name: "I-864A - Contract Between Sponsor and Household Member",
@@ -422,17 +522,15 @@ export default function AffidavitSupportCalculator() {
           whereToFile: "USCIS (file with I-864)",
           notes: [
             "Each household member contributing income must sign this",
-            "Include their tax returns and proof of residence"
-          ]
+            "Include their tax returns and proof of residence",
+          ],
         },
         {
           name: "I-864W - Request for Exemption (Optional)",
           description: "For VAWA/self-petition cases",
           whereToFile: "USCIS",
-          notes: [
-            "Only needed if sponsor is exempt from income requirements"
-          ]
-        }
+          notes: ["Only needed if sponsor is exempt from income requirements"],
+        },
       ],
       // Case 5: Household member as sole sponsor
       5: [
@@ -443,9 +541,9 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "Household member must be US citizen or LPR",
             "They must meet household size requirements including their own family",
-            "Include all required documentation"
-          ]
-        }
+            "Include all required documentation",
+          ],
+        },
       ],
       // Case 6: Joint sponsor only
       6: [
@@ -456,8 +554,8 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "Joint sponsor must fully meet income requirements alone",
             "Primary sponsor still files I-864A as contract",
-            "Both sponsors are legally responsible"
-          ]
+            "Both sponsors are legally responsible",
+          ],
         },
         {
           name: "I-864A - Contract Between Sponsor and Household Member",
@@ -465,9 +563,9 @@ export default function AffidavitSupportCalculator() {
           whereToFile: "USCIS (file with I-864)",
           notes: [
             "Primary sponsor acknowledges joint sponsorship",
-            "Must provide financial documents"
-          ]
-        }
+            "Must provide financial documents",
+          ],
+        },
       ],
       // Case 7: Substitute sponsor
       7: [
@@ -478,8 +576,8 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "Must include Form I-363 Request to Designate or Substitute",
             "Original sponsor's death certificate required",
-            "Substitute must be US citizen or LPR relative"
-          ]
+            "Substitute must be US citizen or LPR relative",
+          ],
         },
         {
           name: "I-363 - Request to Designate or Substitute",
@@ -488,9 +586,9 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "Required when original sponsor is deceased",
             "Must include proof of death",
-            "Must show relationship to applicant"
-          ]
-        }
+            "Must show relationship to applicant",
+          ],
+        },
       ],
       // Case 8: Joint sponsor with their household
       8: [
@@ -501,8 +599,8 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "Joint sponsor includes their household members",
             "Each household member signs I-864A",
-            "Must prove household members live at same address"
-          ]
+            "Must prove household members live at same address",
+          ],
         },
         {
           name: "I-864A - Contract for Each Household Member",
@@ -510,9 +608,9 @@ export default function AffidavitSupportCalculator() {
           whereToFile: "USCIS (file with I-864)",
           notes: [
             "Each contributing household member must sign",
-            "Include their tax returns and proof of residence"
-          ]
-        }
+            "Include their tax returns and proof of residence",
+          ],
+        },
       ],
       // Case 9: Using assets
       9: [
@@ -523,8 +621,8 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "Use Form I-864 Supplement 3 for asset documentation",
             "Assets must be readily convertible to cash",
-            "Include proof of ownership and value"
-          ]
+            "Include proof of ownership and value",
+          ],
         },
         {
           name: "I-864 Supplement 3 - Identifying Information for Asset",
@@ -533,9 +631,9 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "List all assets being used",
             "Provide valuation evidence",
-            "Property must be free of liens"
-          ]
-        }
+            "Property must be free of liens",
+          ],
+        },
       ],
       // Case 10: Self-petitioning
       10: [
@@ -546,8 +644,8 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "No sponsor required for VAWA, widow, or special immigrant cases",
             "Include evidence of eligibility category",
-            "Consult immigration attorney for specific requirements"
-          ]
+            "Consult immigration attorney for specific requirements",
+          ],
         },
         {
           name: "I-485 - Application to Register Permanent Residence",
@@ -556,10 +654,10 @@ export default function AffidavitSupportCalculator() {
           notes: [
             "File after I-360 is approved",
             "Include all supporting documents",
-            "Biometrics appointment required"
-          ]
-        }
-      ]
+            "Biometrics appointment required",
+          ],
+        },
+      ],
     };
 
     // Default forms for cases 2, 3, 4 (regular combined support)
@@ -583,57 +681,70 @@ export default function AffidavitSupportCalculator() {
     return {
       householdSize,
       requiredIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
-      ruleApplied: formData.isMilitary && formData.currentSponsoredApplicant
-        ? "100% HHS Poverty Guidelines (Military)"
-        : "125% HHS Poverty Guidelines",
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      ruleApplied:
+        formData.isMilitary && formData.currentSponsoredApplicant
+          ? "100% HHS Poverty Guidelines (Military)"
+          : "125% HHS Poverty Guidelines",
       isEligible,
       shortfall: Math.max(0, requiredIncome - totalIncome),
       caseNumber: 1,
       caseName: "Primary Sponsor Alone",
-      caseDescription: "Using only the primary sponsor&apos;s income to meet the poverty guideline requirement."
+      caseDescription:
+        "Using only the primary sponsor&apos;s income to meet the poverty guideline requirement.",
     };
   };
 
   const checkCase2 = (): CalculatorResult => {
     const householdSize = calculateHouseholdSize();
     const requiredIncome = calculateRequiredIncome(householdSize);
-    const totalIncome = formData.annualIncome + formData.householdMembers.reduce((sum, m) => sum + m.annualIncome, 0);
+    const totalIncome =
+      formData.annualIncome +
+      formData.householdMembers.reduce((sum, m) => sum + m.annualIncome, 0);
     const isEligible = totalIncome >= requiredIncome;
 
     return {
       householdSize,
       requiredIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
-      ruleApplied: formData.isMilitary && formData.currentSponsoredApplicant
-        ? "100% HHS Poverty Guidelines (Military)"
-        : "125% HHS Poverty Guidelines",
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      ruleApplied:
+        formData.isMilitary && formData.currentSponsoredApplicant
+          ? "100% HHS Poverty Guidelines (Military)"
+          : "125% HHS Poverty Guidelines",
       isEligible,
       shortfall: Math.max(0, requiredIncome - totalIncome),
       caseNumber: 2,
       caseName: "Primary Sponsor + Household Members",
-      caseDescription: "Including income from household members (spouse, dependents) living with the sponsor."
+      caseDescription:
+        "Including income from household members (spouse, dependents) living with the sponsor.",
     };
   };
 
   const checkCase3 = (): CalculatorResult => {
     const householdSize = calculateHouseholdSize();
     const requiredIncome = calculateRequiredIncome(householdSize);
-    const totalIncome = formData.annualIncome + formData.jointSponsors.reduce((sum, s) => sum + s.annualIncome, 0);
+    const totalIncome =
+      formData.annualIncome +
+      formData.jointSponsors.reduce((sum, s) => sum + s.annualIncome, 0);
     const isEligible = totalIncome >= requiredIncome;
 
     return {
       householdSize,
       requiredIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
-      ruleApplied: formData.isMilitary && formData.currentSponsoredApplicant
-        ? "100% HHS Poverty Guidelines (Military)"
-        : "125% HHS Poverty Guidelines",
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      ruleApplied:
+        formData.isMilitary && formData.currentSponsoredApplicant
+          ? "100% HHS Poverty Guidelines (Military)"
+          : "125% HHS Poverty Guidelines",
       isEligible,
       shortfall: Math.max(0, requiredIncome - totalIncome),
       caseNumber: 3,
       caseName: "Primary Sponsor + Joint Sponsor(s)",
-      caseDescription: "Using a joint sponsor who agrees to also be legally responsible for the immigrant."
+      caseDescription:
+        "Using a joint sponsor who agrees to also be legally responsible for the immigrant.",
     };
   };
 
@@ -646,57 +757,74 @@ export default function AffidavitSupportCalculator() {
     return {
       householdSize,
       requiredIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
-      ruleApplied: formData.isMilitary && formData.currentSponsoredApplicant
-        ? "100% HHS Poverty Guidelines (Military)"
-        : "125% HHS Poverty Guidelines",
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      ruleApplied:
+        formData.isMilitary && formData.currentSponsoredApplicant
+          ? "100% HHS Poverty Guidelines (Military)"
+          : "125% HHS Poverty Guidelines",
       isEligible,
       shortfall: Math.max(0, requiredIncome - totalIncome),
       caseNumber: 4,
       caseName: "Combined Support",
-      caseDescription: "Using both household members and joint sponsors to meet the income requirement."
+      caseDescription:
+        "Using both household members and joint sponsors to meet the income requirement.",
     };
   };
 
   const checkCase5 = (): CalculatorResult => {
     const householdSize = calculateHouseholdSize();
     const requiredIncome = calculateRequiredIncome(householdSize);
-    const householdTotal = formData.householdMembers.reduce((sum, m) => sum + m.annualIncome, 0);
-    const isEligible = householdTotal >= requiredIncome && formData.annualIncome === 0;
+    const householdTotal = formData.householdMembers.reduce(
+      (sum, m) => sum + m.annualIncome,
+      0,
+    );
+    const isEligible =
+      householdTotal >= requiredIncome && formData.annualIncome === 0;
 
     return {
       householdSize,
       requiredIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
-      ruleApplied: formData.isMilitary && formData.currentSponsoredApplicant
-        ? "100% HHS Poverty Guidelines (Military)"
-        : "125% HHS Poverty Guidelines",
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      ruleApplied:
+        formData.isMilitary && formData.currentSponsoredApplicant
+          ? "100% HHS Poverty Guidelines (Military)"
+          : "125% HHS Poverty Guidelines",
       isEligible,
       shortfall: Math.max(0, requiredIncome - householdTotal),
       caseNumber: 5,
       caseName: "Household Member as Sole Sponsor",
-      caseDescription: "When the primary sponsor has no income, a household member can sponsor using their income."
+      caseDescription:
+        "When the primary sponsor has no income, a household member can sponsor using their income.",
     };
   };
 
   const checkCase6 = (): CalculatorResult => {
     const householdSize = calculateHouseholdSize();
     const requiredIncome = calculateRequiredIncome(householdSize);
-    const jointTotal = formData.jointSponsors.reduce((sum, s) => sum + s.annualIncome, 0);
-    const isEligible = jointTotal >= requiredIncome && formData.annualIncome === 0;
+    const jointTotal = formData.jointSponsors.reduce(
+      (sum, s) => sum + s.annualIncome,
+      0,
+    );
+    const isEligible =
+      jointTotal >= requiredIncome && formData.annualIncome === 0;
 
     return {
       householdSize,
       requiredIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
-      ruleApplied: formData.isMilitary && formData.currentSponsoredApplicant
-        ? "100% HHS Poverty Guidelines (Military)"
-        : "125% HHS Poverty Guidelines",
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      ruleApplied:
+        formData.isMilitary && formData.currentSponsoredApplicant
+          ? "100% HHS Poverty Guidelines (Military)"
+          : "125% HHS Poverty Guidelines",
       isEligible,
       shortfall: Math.max(0, requiredIncome - jointTotal),
       caseNumber: 6,
       caseName: "Joint Sponsor Only",
-      caseDescription: "When the primary sponsor has no income, a joint sponsor can fully support the application."
+      caseDescription:
+        "When the primary sponsor has no income, a joint sponsor can fully support the application.",
     };
   };
 
@@ -707,13 +835,15 @@ export default function AffidavitSupportCalculator() {
     return {
       householdSize,
       requiredIncome: reqIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
       ruleApplied: "Substitute Sponsor Requirements",
       isEligible: formData.sponsorDeceased === true,
       shortfall: reqIncome,
       caseNumber: 7,
       caseName: "Substitute Sponsor",
-      caseDescription: "When the original sponsor has died, a US citizen/lawful permanent resident relative can become a substitute sponsor."
+      caseDescription:
+        "When the original sponsor has died, a US citizen/lawful permanent resident relative can become a substitute sponsor.",
     };
   };
 
@@ -723,7 +853,7 @@ export default function AffidavitSupportCalculator() {
 
     // Calculate joint sponsor's household income
     let jointSponsorHouseholdIncome = 0;
-    formData.jointSponsors.forEach(sponsor => {
+    formData.jointSponsors.forEach((sponsor) => {
       jointSponsorHouseholdIncome += sponsor.annualIncome;
     });
 
@@ -732,13 +862,15 @@ export default function AffidavitSupportCalculator() {
     return {
       householdSize,
       requiredIncome: reqIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
       ruleApplied: "125% HHS Poverty Guidelines",
       isEligible,
       shortfall: Math.max(0, reqIncome - jointSponsorHouseholdIncome),
       caseNumber: 8,
       caseName: "Joint Sponsor + Their Household",
-      caseDescription: "The joint sponsor can include their spouse&apos;s income and other household members&apos; income."
+      caseDescription:
+        "The joint sponsor can include their spouse&apos;s income and other household members&apos; income.",
     };
   };
 
@@ -751,18 +883,23 @@ export default function AffidavitSupportCalculator() {
     return {
       householdSize,
       requiredIncome: reqIncome,
-      povertyLevel: formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
+      povertyLevel:
+        formData.isMilitary && formData.currentSponsoredApplicant ? 100 : 125,
       ruleApplied: "Asset-based Alternative (3x or 5x shortfall)",
       isEligible,
       shortfall: Math.max(0, reqIncome - assetAlternative),
       caseNumber: 9,
       caseName: "Using Assets",
-      caseDescription: "If you don't have enough income, you can use assets (property, savings) worth 5x the shortfall. For spouse or parent sponsors, only 3x is needed."
+      caseDescription:
+        "If you don't have enough income, you can use assets (property, savings) worth 5x the shortfall. For spouse or parent sponsors, only 3x is needed.",
     };
   };
 
   const checkCase10 = (): CalculatorResult => {
-    const isEligible = formData.isVAWA === true || formData.isWidow === true || formData.isSpecialImmigrant === true;
+    const isEligible =
+      formData.isVAWA === true ||
+      formData.isWidow === true ||
+      formData.isSpecialImmigrant === true;
     const householdSize = 1;
 
     return {
@@ -774,7 +911,8 @@ export default function AffidavitSupportCalculator() {
       shortfall: 0,
       caseNumber: 10,
       caseName: "Self-Petitioning",
-      caseDescription: "Certain categories can self-petition without a sponsor: VAWA self-petitioners, widows of US citizens, and special immigrants."
+      caseDescription:
+        "Certain categories can self-petition without a sponsor: VAWA self-petitioners, widows of US citizens, and special immigrants.",
     };
   };
 
@@ -798,7 +936,10 @@ export default function AffidavitSupportCalculator() {
     }
 
     // Try Case 4 if both types added
-    if (formData.householdMembers.length > 0 && formData.jointSponsors.length > 0) {
+    if (
+      formData.householdMembers.length > 0 &&
+      formData.jointSponsors.length > 0
+    ) {
       const case4 = checkCase4();
       if (case4.isEligible) return case4;
     }
@@ -949,7 +1090,10 @@ export default function AffidavitSupportCalculator() {
         return true;
       case 5:
         if (formData.hasPreviousSponsorship === false) return true;
-        return Boolean(formData.hasPreviousSponsorship) && formData.previousSponsoredCount > 0;
+        return (
+          Boolean(formData.hasPreviousSponsorship) &&
+          formData.previousSponsoredCount > 0
+        );
       case 6:
         return true;
       case 7:
@@ -975,8 +1119,12 @@ export default function AffidavitSupportCalculator() {
         <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <User className="w-8 h-8 text-white" />
         </div>
-        <h3 className="text-2xl font-bold text-slate-900">Sponsor Information</h3>
-        <p className="text-slate-600 mt-2">Are you a US Citizen or Green Card Holder?</p>
+        <h3 className="text-2xl font-bold text-slate-900">
+          Sponsor Information
+        </h3>
+        <p className="text-slate-600 mt-2">
+          Are you a US Citizen or Green Card Holder?
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -994,7 +1142,9 @@ export default function AffidavitSupportCalculator() {
           </div>
         </button>
         <button
-          onClick={() => setFormData({ ...formData, sponsorStatus: "greenCard" })}
+          onClick={() =>
+            setFormData({ ...formData, sponsorStatus: "greenCard" })
+          }
           className={`p-4 rounded-xl border-2 transition-all ${
             formData.sponsorStatus === "greenCard"
               ? "border-blue-500 bg-blue-50"
@@ -1009,8 +1159,13 @@ export default function AffidavitSupportCalculator() {
       </div>
 
       {formData.sponsorStatus && (
-        <div className="pt-4 border-t border-slate-200" onClick={(e) => e.stopPropagation()}>
-          <p className="text-sm font-semibold text-slate-900 mb-3">Are you active-duty US Military?</p>
+        <div
+          className="pt-4 border-t border-slate-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p className="text-sm font-semibold text-slate-900 mb-3">
+            Are you active-duty US Military?
+          </p>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setFormData({ ...formData, isMilitary: true })}
@@ -1097,7 +1252,12 @@ export default function AffidavitSupportCalculator() {
 
       <div className="flex items-center gap-3 justify-center">
         <button
-          onClick={() => setFormData({ ...formData, numberOfChildren: Math.max(0, formData.numberOfChildren - 1) })}
+          onClick={() =>
+            setFormData({
+              ...formData,
+              numberOfChildren: Math.max(0, formData.numberOfChildren - 1),
+            })
+          }
           className="w-12 h-12 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xl"
         >
           -
@@ -1106,11 +1266,21 @@ export default function AffidavitSupportCalculator() {
           type="number"
           min="0"
           value={formData.numberOfChildren}
-          onChange={(e) => setFormData({ ...formData, numberOfChildren: Math.max(0, parseInt(e.target.value) || 0) })}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              numberOfChildren: Math.max(0, parseInt(e.target.value) || 0),
+            })
+          }
           className="w-24 text-center text-3xl font-bold text-slate-900 bg-transparent border-0 focus:outline-none"
         />
         <button
-          onClick={() => setFormData({ ...formData, numberOfChildren: formData.numberOfChildren + 1 })}
+          onClick={() =>
+            setFormData({
+              ...formData,
+              numberOfChildren: formData.numberOfChildren + 1,
+            })
+          }
           className="w-12 h-12 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold text-xl"
         >
           +
@@ -1126,12 +1296,19 @@ export default function AffidavitSupportCalculator() {
           <Users className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-2xl font-bold text-slate-900">Tax Dependents</h3>
-        <p className="text-slate-600 mt-2">How many dependents on your tax return?</p>
+        <p className="text-slate-600 mt-2">
+          How many dependents on your tax return?
+        </p>
       </div>
 
       <div className="flex items-center gap-3 justify-center">
         <button
-          onClick={() => setFormData({ ...formData, taxDependents: Math.max(0, formData.taxDependents - 1) })}
+          onClick={() =>
+            setFormData({
+              ...formData,
+              taxDependents: Math.max(0, formData.taxDependents - 1),
+            })
+          }
           className="w-12 h-12 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xl"
         >
           -
@@ -1140,11 +1317,21 @@ export default function AffidavitSupportCalculator() {
           type="number"
           min="0"
           value={formData.taxDependents}
-          onChange={(e) => setFormData({ ...formData, taxDependents: Math.max(0, parseInt(e.target.value) || 0) })}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              taxDependents: Math.max(0, parseInt(e.target.value) || 0),
+            })
+          }
           className="w-24 text-center text-3xl font-bold text-slate-900 bg-transparent border-0 focus:outline-none"
         />
         <button
-          onClick={() => setFormData({ ...formData, taxDependents: formData.taxDependents + 1 })}
+          onClick={() =>
+            setFormData({
+              ...formData,
+              taxDependents: formData.taxDependents + 1,
+            })
+          }
           className="w-12 h-12 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-bold text-xl"
         >
           +
@@ -1159,13 +1346,20 @@ export default function AffidavitSupportCalculator() {
         <div className="w-16 h-16 bg-linear-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Users className="w-8 h-8 text-white" />
         </div>
-        <h3 className="text-2xl font-bold text-slate-900">Previous Sponsorships</h3>
-        <p className="text-slate-600 mt-2">Have you previously sponsored anyone who has not yet become a U.S. citizen?</p>
+        <h3 className="text-2xl font-bold text-slate-900">
+          Previous Sponsorships
+        </h3>
+        <p className="text-slate-600 mt-2">
+          Have you previously sponsored anyone who has not yet become a U.S.
+          citizen?
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <button
-          onClick={() => setFormData({ ...formData, hasPreviousSponsorship: true })}
+          onClick={() =>
+            setFormData({ ...formData, hasPreviousSponsorship: true })
+          }
           className={`p-4 rounded-xl border-2 transition-all ${
             formData.hasPreviousSponsorship === true
               ? "border-red-500 bg-red-50"
@@ -1178,7 +1372,13 @@ export default function AffidavitSupportCalculator() {
           </div>
         </button>
         <button
-          onClick={() => setFormData({ ...formData, hasPreviousSponsorship: false, previousSponsoredCount: 0 })}
+          onClick={() =>
+            setFormData({
+              ...formData,
+              hasPreviousSponsorship: false,
+              previousSponsoredCount: 0,
+            })
+          }
           className={`p-4 rounded-xl border-2 transition-all ${
             formData.hasPreviousSponsorship === false
               ? "border-red-500 bg-red-50"
@@ -1193,11 +1393,22 @@ export default function AffidavitSupportCalculator() {
       </div>
 
       {formData.hasPreviousSponsorship && (
-        <div className="pt-4 border-t border-slate-200" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="pt-4 border-t border-slate-200"
+          onClick={(e) => e.stopPropagation()}
+        >
           <p className="text-sm font-semibold text-slate-900 mb-3">How many?</p>
           <div className="flex items-center gap-3 justify-center">
             <button
-              onClick={() => setFormData({ ...formData, previousSponsoredCount: Math.max(1, formData.previousSponsoredCount - 1) })}
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  previousSponsoredCount: Math.max(
+                    1,
+                    formData.previousSponsoredCount - 1,
+                  ),
+                })
+              }
               className="w-12 h-12 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xl"
             >
               -
@@ -1206,11 +1417,24 @@ export default function AffidavitSupportCalculator() {
               type="number"
               min="1"
               value={formData.previousSponsoredCount}
-              onChange={(e) => setFormData({ ...formData, previousSponsoredCount: Math.max(0, parseInt(e.target.value) || 0) })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  previousSponsoredCount: Math.max(
+                    0,
+                    parseInt(e.target.value) || 0,
+                  ),
+                })
+              }
               className="w-24 text-center text-3xl font-bold text-slate-900 bg-transparent border-0 focus:outline-none"
             />
             <button
-              onClick={() => setFormData({ ...formData, previousSponsoredCount: formData.previousSponsoredCount + 1 })}
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  previousSponsoredCount: formData.previousSponsoredCount + 1,
+                })
+              }
               className="w-12 h-12 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xl"
             >
               +
@@ -1227,21 +1451,33 @@ export default function AffidavitSupportCalculator() {
         <div className="w-16 h-16 bg-linear-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Users className="w-8 h-8 text-white" />
         </div>
-        <h3 className="text-2xl font-bold text-slate-900">Who Are You Sponsoring?</h3>
+        <h3 className="text-2xl font-bold text-slate-900">
+          Who Are You Sponsoring?
+        </h3>
       </div>
 
       <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
         <div className="flex items-center gap-3">
           <CheckCircle className="w-6 h-6 text-indigo-600" />
-          <p className="font-semibold text-indigo-900">Main Applicant (always included)</p>
+          <p className="font-semibold text-indigo-900">
+            Main Applicant (always included)
+          </p>
         </div>
       </div>
 
-      <label className="flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer hover:border-indigo-300" onClick={(e) => e.stopPropagation()}>
+      <label
+        className="flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer hover:border-indigo-300"
+        onClick={(e) => e.stopPropagation()}
+      >
         <input
           type="checkbox"
           checked={formData.currentSponsoredSpouse}
-          onChange={(e) => setFormData({ ...formData, currentSponsoredSpouse: e.target.checked })}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              currentSponsoredSpouse: e.target.checked,
+            })
+          }
           className="w-5 h-5 rounded border-slate-300 text-indigo-600"
         />
         <div>
@@ -1251,10 +1487,20 @@ export default function AffidavitSupportCalculator() {
       </label>
 
       <div onClick={(e) => e.stopPropagation()}>
-        <p className="text-sm font-semibold text-slate-900 mb-3">How many children of applicant?</p>
+        <p className="text-sm font-semibold text-slate-900 mb-3">
+          How many children of applicant?
+        </p>
         <div className="flex items-center gap-3 justify-center">
           <button
-            onClick={() => setFormData({ ...formData, currentSponsoredChildren: Math.max(0, formData.currentSponsoredChildren - 1) })}
+            onClick={() =>
+              setFormData({
+                ...formData,
+                currentSponsoredChildren: Math.max(
+                  0,
+                  formData.currentSponsoredChildren - 1,
+                ),
+              })
+            }
             className="w-12 h-12 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xl"
           >
             -
@@ -1263,11 +1509,24 @@ export default function AffidavitSupportCalculator() {
             type="number"
             min="0"
             value={formData.currentSponsoredChildren}
-            onChange={(e) => setFormData({ ...formData, currentSponsoredChildren: Math.max(0, parseInt(e.target.value) || 0) })}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                currentSponsoredChildren: Math.max(
+                  0,
+                  parseInt(e.target.value) || 0,
+                ),
+              })
+            }
             className="w-24 text-center text-3xl font-bold text-slate-900 bg-transparent border-0 focus:outline-none"
           />
           <button
-            onClick={() => setFormData({ ...formData, currentSponsoredChildren: formData.currentSponsoredChildren + 1 })}
+            onClick={() =>
+              setFormData({
+                ...formData,
+                currentSponsoredChildren: formData.currentSponsoredChildren + 1,
+              })
+            }
             className="w-12 h-12 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xl"
           >
             +
@@ -1285,12 +1544,14 @@ export default function AffidavitSupportCalculator() {
           <div className="w-16 h-16 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <DollarSign className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900">Your Annual Income</h3>
+          <h3 className="text-2xl font-bold text-slate-900">
+            Your Annual Income
+          </h3>
           <p className="text-slate-600 mt-2">Enter your total annual income</p>
         </div>
 
         <CurrencyInput
-          value={formData.annualIncome}
+          value={formData.annualIncome || 0}
           onChange={(value) => setFormData({ ...formData, annualIncome: value })}
           placeholder="0.00"
         />
@@ -1299,9 +1560,12 @@ export default function AffidavitSupportCalculator() {
           <div className="flex justify-between">
             <div>
               <p className="text-sm text-blue-900">
-                <span className="font-semibold">Required:</span> ${calcResult.requiredIncome.toLocaleString()}
+                <span className="font-semibold">Required:</span> $
+                {calcResult.requiredIncome.toLocaleString()}
               </p>
-              <p className="text-xs text-blue-700">Household: {calcResult.householdSize} persons</p>
+              <p className="text-xs text-blue-700">
+                Household: {calcResult.householdSize} persons
+              </p>
             </div>
             <p className="text-xs text-blue-600">{calcResult.ruleApplied}</p>
           </div>
@@ -1314,7 +1578,10 @@ export default function AffidavitSupportCalculator() {
   const renderStep8 = () => {
     const calcResult = calculateResult();
     const totalIncome = calculateTotalIncome();
-    const remainingShortfall = Math.max(0, calcResult.requiredIncome - totalIncome);
+    const remainingShortfall = Math.max(
+      0,
+      calcResult.requiredIncome - totalIncome,
+    );
 
     return (
       <div className="space-y-6">
@@ -1322,16 +1589,23 @@ export default function AffidavitSupportCalculator() {
           <div className="w-16 h-16 bg-linear-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Heart className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900">Add Income Support</h3>
+          <h3 className="text-2xl font-bold text-slate-900">
+            Add Income Support
+          </h3>
           <p className="text-slate-600 mt-2">
-            You need <span className="font-bold text-amber-600">${remainingShortfall.toLocaleString()}</span> more
+            You need{" "}
+            <span className="font-bold text-amber-600">
+              ${remainingShortfall.toLocaleString()}
+            </span>{" "}
+            more
           </p>
         </div>
 
         <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
           <div className="flex justify-between">
             <p className="text-sm text-amber-900">
-              Required: ${calcResult.requiredIncome.toLocaleString()} | Your Total: ${totalIncome.toLocaleString()}
+              Required: ${calcResult.requiredIncome.toLocaleString()} | Your
+              Total: ${totalIncome.toLocaleString()}
             </p>
           </div>
         </div>
@@ -1350,7 +1624,9 @@ export default function AffidavitSupportCalculator() {
           >
             <div className="flex items-center gap-2">
               <Home className="w-5 h-5 text-emerald-600" />
-              <h4 className="font-semibold text-slate-900">Household Members</h4>
+              <h4 className="font-semibold text-slate-900">
+                Household Members
+              </h4>
             </div>
             {expandedSections.household ? (
               <ChevronUp className="w-5 h-5 text-emerald-600" />
@@ -1362,30 +1638,47 @@ export default function AffidavitSupportCalculator() {
           {expandedSections.household && (
             <div className="p-4 pt-0" onClick={(e) => e.stopPropagation()}>
               {formData.householdMembers.length === 0 ? (
-                <p className="text-sm text-slate-500 mb-4">No household members added</p>
+                <p className="text-sm text-slate-500 mb-4">
+                  No household members added
+                </p>
               ) : (
                 <div className="space-y-3 mb-4">
                   {formData.householdMembers.map((member) => (
-                    <div key={member.id} className="p-3 bg-white rounded-lg border border-slate-200">
+                    <div
+                      key={member.id}
+                      className="p-3 bg-white rounded-lg border border-slate-200"
+                    >
                       <div className="flex items-center gap-2 mb-2">
                         <select
                           value={member.relationship}
-                          onChange={(e) => updateHouseholdMember(member.id, { relationship: e.target.value })}
+                          onChange={(e) =>
+                            updateHouseholdMember(member.id, {
+                              relationship: e.target.value,
+                            })
+                          }
                           className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white"
                         >
                           <option value="">Select relationship...</option>
-                          {[...formData.usedHouseholdRelationships, ...RELATIONSHIP_OPTIONS]
+                          {[
+                            ...formData.usedHouseholdRelationships,
+                            ...RELATIONSHIP_OPTIONS,
+                          ]
                             .filter((v, i, a) => a.indexOf(v) === i)
                             .map((rel) => (
-                              <option key={rel} value={rel}>{rel}</option>
+                              <option key={rel} value={rel}>
+                                {rel}
+                              </option>
                             ))}
                         </select>
-                        <button onClick={() => removeHouseholdMember(member.id)} className="text-red-500 p-2">
+                        <button
+                          onClick={() => removeHouseholdMember(member.id)}
+                          className="text-red-500 p-2"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                       <CurrencyInput
-                        value={member.annualIncome}
+                        value={member.annualIncome || 0}
                         onChange={(value) => updateHouseholdMember(member.id, { annualIncome: value })}
                         placeholder="0.00"
                         className="text-sm"
@@ -1395,7 +1688,11 @@ export default function AffidavitSupportCalculator() {
                 </div>
               )}
 
-              <Button onClick={addHouseholdMember} size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+              <Button
+                onClick={addHouseholdMember}
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
                 <Plus className="w-4 h-4 mr-1" /> Add Household Member
               </Button>
             </div>
@@ -1428,39 +1725,60 @@ export default function AffidavitSupportCalculator() {
           {expandedSections.joint && (
             <div className="p-4 pt-0" onClick={(e) => e.stopPropagation()}>
               {formData.jointSponsors.length === 0 ? (
-                <p className="text-sm text-slate-500 mb-4">No joint sponsors added</p>
+                <p className="text-sm text-slate-500 mb-4">
+                  No joint sponsors added
+                </p>
               ) : (
                 <div className="space-y-3 mb-4">
                   {formData.jointSponsors.map((sponsor) => (
-                    <div key={sponsor.id} className="p-3 bg-white rounded-lg border border-slate-200">
+                    <div
+                      key={sponsor.id}
+                      className="p-3 bg-white rounded-lg border border-slate-200"
+                    >
                       <div className="flex items-center gap-2 mb-2">
                         <input
                           type="text"
                           placeholder="Name"
                           value={sponsor.name}
-                          onChange={(e) => updateJointSponsor(sponsor.id, { name: e.target.value })}
+                          onChange={(e) =>
+                            updateJointSponsor(sponsor.id, {
+                              name: e.target.value,
+                            })
+                          }
                           className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2"
                         />
-                        <button onClick={() => removeJointSponsor(sponsor.id)} className="text-red-500 p-2">
+                        <button
+                          onClick={() => removeJointSponsor(sponsor.id)}
+                          className="text-red-500 p-2"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         <select
                           value={sponsor.relationship}
-                          onChange={(e) => updateJointSponsor(sponsor.id, { relationship: e.target.value })}
+                          onChange={(e) =>
+                            updateJointSponsor(sponsor.id, {
+                              relationship: e.target.value,
+                            })
+                          }
                           className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white"
                         >
                           <option value="">Select relationship...</option>
-                          {[...formData.usedJointSponsorRelationships, ...RELATIONSHIP_OPTIONS]
+                          {[
+                            ...formData.usedJointSponsorRelationships,
+                            ...RELATIONSHIP_OPTIONS,
+                          ]
                             .filter((v, i, a) => a.indexOf(v) === i)
                             .map((rel) => (
-                              <option key={rel} value={rel}>{rel}</option>
+                              <option key={rel} value={rel}>
+                                {rel}
+                              </option>
                             ))}
                         </select>
                       </div>
                       <CurrencyInput
-                        value={sponsor.annualIncome}
+                        value={sponsor.annualIncome || 0}
                         onChange={(value) => updateJointSponsor(sponsor.id, { annualIncome: value })}
                         placeholder="0.00"
                         className="text-sm"
@@ -1470,7 +1788,11 @@ export default function AffidavitSupportCalculator() {
                 </div>
               )}
 
-              <Button onClick={addJointSponsor} size="sm" className="bg-rose-600 hover:bg-rose-700">
+              <Button
+                onClick={addJointSponsor}
+                size="sm"
+                className="bg-rose-600 hover:bg-rose-700"
+              >
                 <Plus className="w-4 h-4 mr-1" /> Add Joint Sponsor
               </Button>
             </div>
@@ -1480,7 +1802,9 @@ export default function AffidavitSupportCalculator() {
         <div className="p-4 bg-slate-100 rounded-xl">
           <div className="flex justify-between items-center">
             <p className="font-semibold text-slate-700">New Total Income:</p>
-            <p className="text-xl font-bold text-slate-900">${totalIncome.toLocaleString()}</p>
+            <p className="text-xl font-bold text-slate-900">
+              ${totalIncome.toLocaleString()}
+            </p>
           </div>
         </div>
 
@@ -1506,7 +1830,9 @@ export default function AffidavitSupportCalculator() {
           <div className="w-16 h-16 bg-linear-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <AlertTriangle className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-slate-900">Still Short: ${calcResult.shortfall.toLocaleString()}</h3>
+          <h3 className="text-2xl font-bold text-slate-900">
+            Still Short: ${calcResult.shortfall.toLocaleString()}
+          </h3>
           <p className="text-slate-600 mt-2">Consider these options:</p>
         </div>
 
@@ -1523,7 +1849,9 @@ export default function AffidavitSupportCalculator() {
             onClick={() => toggleSection("case7")}
           >
             <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-slate-900">Substitute Sponsor</h4>
+              <h4 className="font-semibold text-slate-900">
+                Substitute Sponsor
+              </h4>
             </div>
             {expandedSections.case7 ? (
               <ChevronUp className="w-5 h-5 text-slate-600" />
@@ -1535,20 +1863,27 @@ export default function AffidavitSupportCalculator() {
           {expandedSections.case7 && (
             <div className="p-4 pt-0" onClick={(e) => e.stopPropagation()}>
               <p className="text-sm text-slate-600 mb-4">
-                Did the primary sponsor pass away? A family member can become substitute sponsor.
+                Did the primary sponsor pass away? A family member can become
+                substitute sponsor.
               </p>
 
               <div className="space-y-4">
                 <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                   <p className="text-sm text-yellow-800">
-                    <strong>Requirement:</strong> The original sponsor must have died, and the substitute sponsor must be a US citizen or lawful permanent resident relative.
+                    <strong>Requirement:</strong> The original sponsor must have
+                    died, and the substitute sponsor must be a US citizen or
+                    lawful permanent resident relative.
                   </p>
                 </div>
 
-                <p className="font-medium text-slate-900">Did the sponsor pass away?</p>
+                <p className="font-medium text-slate-900">
+                  Did the sponsor pass away?
+                </p>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => setFormData({ ...formData, sponsorDeceased: true })}
+                    onClick={() =>
+                      setFormData({ ...formData, sponsorDeceased: true })
+                    }
                     className={`flex-1 p-3 rounded-lg border-2 transition-all ${
                       formData.sponsorDeceased === true
                         ? "border-green-500 bg-green-50"
@@ -1558,7 +1893,9 @@ export default function AffidavitSupportCalculator() {
                     <span className="font-semibold text-slate-900">Yes</span>
                   </button>
                   <button
-                    onClick={() => setFormData({ ...formData, sponsorDeceased: false })}
+                    onClick={() =>
+                      setFormData({ ...formData, sponsorDeceased: false })
+                    }
                     className={`flex-1 p-3 rounded-lg border-2 transition-all ${
                       formData.sponsorDeceased === false
                         ? "border-red-500 bg-red-50"
@@ -1586,7 +1923,9 @@ export default function AffidavitSupportCalculator() {
             onClick={() => toggleSection("case8")}
           >
             <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-slate-900">Joint Sponsor + Their Household</h4>
+              <h4 className="font-semibold text-slate-900">
+                Joint Sponsor + Their Household
+              </h4>
             </div>
             {expandedSections.case8 ? (
               <ChevronUp className="w-5 h-5 text-slate-600" />
@@ -1598,18 +1937,21 @@ export default function AffidavitSupportCalculator() {
           {expandedSections.case8 && (
             <div className="p-4 pt-0" onClick={(e) => e.stopPropagation()}>
               <p className="text-sm text-slate-600 mb-4">
-                Can your joint sponsor use their spouse&apos;s income to qualify?
+                Can your joint sponsor use their spouse&apos;s income to
+                qualify?
               </p>
 
               <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800">
-                  <strong>How it works:</strong> Joint sponsors can include their household members&apos; income (spouse, dependents) toward the total income requirement.
+                  <strong>How it works:</strong> Joint sponsors can include
+                  their household members&apos; income (spouse, dependents)
+                  toward the total income requirement.
                 </p>
               </div>
 
               <Button
                 onClick={() => {
-                  setExpandedSections(prev => ({ ...prev, joint: true }));
+                  setExpandedSections((prev) => ({ ...prev, joint: true }));
                   setCurrentStep(8);
                 }}
                 className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
@@ -1673,7 +2015,8 @@ export default function AffidavitSupportCalculator() {
           {expandedSections.case9 && (
             <div className="p-4 pt-0" onClick={(e) => e.stopPropagation()}>
               <p className="text-sm text-slate-600 mb-4">
-                Use assets (property, savings) worth 5x the shortfall. For spouse or parent sponsors, only 3x needed.
+                Use assets (property, savings) worth 5x the shortfall. For
+                spouse or parent sponsors, only 3x needed.
               </p>
 
               <div className="space-y-4">
@@ -1683,7 +2026,12 @@ export default function AffidavitSupportCalculator() {
                   </label>
                   <select
                     value={formData.relationshipToApplicant}
-                    onChange={(e) => setFormData({ ...formData, relationshipToApplicant: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        relationshipToApplicant: e.target.value,
+                      })
+                    }
                     className="w-full p-3 border border-slate-200 rounded-lg"
                   >
                     <option value="">Select relationship...</option>
@@ -1698,7 +2046,7 @@ export default function AffidavitSupportCalculator() {
                     Total Asset Value
                   </label>
                   <CurrencyInput
-                    value={formData.assetValue}
+                    value={formData.assetValue || 0}
                     onChange={(value) => setFormData({ ...formData, assetValue: value })}
                     placeholder="0.00"
                   />
@@ -1706,11 +2054,21 @@ export default function AffidavitSupportCalculator() {
 
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-800">
-                    <strong>Asset Alternative:</strong> ${calculateAssetAlternative().toLocaleString()}
-                    {formData.relationshipToApplicant.toLowerCase() === "spouse" || formData.relationshipToApplicant.toLowerCase() === "parent" ? (
-                      <span className="text-green-600"> (3x multiplier applied)</span>
+                    <strong>Asset Alternative:</strong> $
+                    {calculateAssetAlternative().toLocaleString()}
+                    {formData.relationshipToApplicant.toLowerCase() ===
+                      "spouse" ||
+                    formData.relationshipToApplicant.toLowerCase() ===
+                      "parent" ? (
+                      <span className="text-green-600">
+                        {" "}
+                        (3x multiplier applied)
+                      </span>
                     ) : (
-                      <span className="text-amber-600"> (5x multiplier applied)</span>
+                      <span className="text-amber-600">
+                        {" "}
+                        (5x multiplier applied)
+                      </span>
                     )}
                   </p>
                 </div>
@@ -1752,12 +2110,21 @@ export default function AffidavitSupportCalculator() {
                   <input
                     type="checkbox"
                     checked={formData.isVAWA === true}
-                    onChange={(e) => setFormData({ ...formData, isVAWA: e.target.checked ? true : null })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        isVAWA: e.target.checked ? true : null,
+                      })
+                    }
                     className="w-5 h-5 rounded border-slate-300 text-indigo-600"
                   />
                   <div>
-                    <p className="font-semibold text-slate-900">VAWA Self-Petitioner</p>
-                    <p className="text-xs text-slate-500">Victims of domestic violence</p>
+                    <p className="font-semibold text-slate-900">
+                      VAWA Self-Petitioner
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Victims of domestic violence
+                    </p>
                   </div>
                 </label>
 
@@ -1765,12 +2132,21 @@ export default function AffidavitSupportCalculator() {
                   <input
                     type="checkbox"
                     checked={formData.isWidow === true}
-                    onChange={(e) => setFormData({ ...formData, isWidow: e.target.checked ? true : null })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        isWidow: e.target.checked ? true : null,
+                      })
+                    }
                     className="w-5 h-5 rounded border-slate-300 text-indigo-600"
                   />
                   <div>
-                    <p className="font-semibold text-slate-900">Widow of US Citizen</p>
-                    <p className="text-xs text-slate-500">Surviving spouses of US citizens</p>
+                    <p className="font-semibold text-slate-900">
+                      Widow of US Citizen
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Surviving spouses of US citizens
+                    </p>
                   </div>
                 </label>
 
@@ -1778,12 +2154,21 @@ export default function AffidavitSupportCalculator() {
                   <input
                     type="checkbox"
                     checked={formData.isSpecialImmigrant === true}
-                    onChange={(e) => setFormData({ ...formData, isSpecialImmigrant: e.target.checked ? true : null })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        isSpecialImmigrant: e.target.checked ? true : null,
+                      })
+                    }
                     className="w-5 h-5 rounded border-slate-300 text-indigo-600"
                   />
                   <div>
-                    <p className="font-semibold text-slate-900">Special Immigrant</p>
-                    <p className="text-xs text-slate-500">Religious workers, translators, etc.</p>
+                    <p className="font-semibold text-slate-900">
+                      Special Immigrant
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Religious workers, translators, etc.
+                    </p>
                   </div>
                 </label>
               </div>
@@ -1797,7 +2182,10 @@ export default function AffidavitSupportCalculator() {
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <Button onClick={handleNext} className="flex-1 bg-linear-to-r from-emerald-600 to-emerald-700">
+          <Button
+            onClick={handleNext}
+            className="flex-1 bg-linear-to-r from-emerald-600 to-emerald-700"
+          >
             See Results
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -1811,14 +2199,19 @@ export default function AffidavitSupportCalculator() {
     const calcResult = result || calculateResult();
     const totalIncome = calculateTotalIncome();
     const assetAlternative = calculateAssetAlternative();
-    const isEligible = calcResult.isEligible ||
-      (formData.isVAWA || formData.isWidow || formData.isSpecialImmigrant) ||
+    const isEligible =
+      calcResult.isEligible ||
+      formData.isVAWA ||
+      formData.isWidow ||
+      formData.isSpecialImmigrant ||
       assetAlternative >= calcResult.requiredIncome;
 
     return (
       <div className="space-y-6">
         {/* Eligibility Status */}
-        <Card className={`border-2 ${isEligible ? "border-emerald-500 bg-emerald-50" : "border-red-500 bg-red-50"}`}>
+        <Card
+          className={`border-2 ${isEligible ? "border-emerald-500 bg-emerald-50" : "border-red-500 bg-red-50"}`}
+        >
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               {isEligible ? (
@@ -1831,9 +2224,13 @@ export default function AffidavitSupportCalculator() {
                 </div>
               )}
               <div>
-                <h4 className="text-2xl font-bold text-slate-900">{isEligible ? "Eligible!" : "Not Eligible"}</h4>
+                <h4 className="text-2xl font-bold text-slate-900">
+                  {isEligible ? "Eligible!" : "Not Eligible"}
+                </h4>
                 <p className="text-sm text-slate-600">
-                  {isEligible ? "Your income meets the requirement!" : `Still short: $${calcResult.shortfall.toLocaleString()}`}
+                  {isEligible
+                    ? "Your income meets the requirement!"
+                    : `Still short: $${calcResult.shortfall.toLocaleString()}`}
                 </p>
               </div>
             </div>
@@ -1843,33 +2240,61 @@ export default function AffidavitSupportCalculator() {
         {/* Case Info */}
         <Card className="border-0 shadow-md">
           <CardContent className="p-6">
-            <h4 className="font-semibold text-slate-900 mb-2">How You&apos;re Qualifying</h4>
-            <p className="text-lg font-bold text-slate-900 mb-1">{calcResult.caseName}</p>
-            <p className="text-sm text-slate-600">{calcResult.caseDescription}</p>
+            <h4 className="font-semibold text-slate-900 mb-2">
+              How You&apos;re Qualifying
+            </h4>
+            <p className="text-lg font-bold text-slate-900 mb-1">
+              {calcResult.caseName}
+            </p>
+            <p className="text-sm text-slate-600">
+              {calcResult.caseDescription}
+            </p>
           </CardContent>
         </Card>
 
         {/* Income Summary */}
         <Card className="border-0 shadow-md">
           <CardContent className="p-6">
-            <h4 className="font-semibold text-slate-900 mb-4">Income Summary</h4>
+            <h4 className="font-semibold text-slate-900 mb-4">
+              Income Summary
+            </h4>
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-slate-600">Your Income:</span>
-                <span className="font-semibold">${formData.annualIncome.toLocaleString()}</span>
+                <span className="font-semibold">
+                  ${formData.annualIncome.toLocaleString()}
+                </span>
               </div>
-              {formData.householdMembers.filter(m => m.annualIncome > 0).map((member, index) => (
-                <div key={member.id} className="flex justify-between text-emerald-600">
-                  <span>Household {index + 1} ({member.relationship}):</span>
-                  <span className="font-semibold">+${member.annualIncome.toLocaleString()}</span>
-                </div>
-              ))}
-              {formData.jointSponsors.filter(s => s.annualIncome > 0).map((sponsor, index) => (
-                <div key={sponsor.id} className="flex justify-between text-rose-600">
-                  <span>Joint {index + 1} ({sponsor.name || "Unnamed"}):</span>
-                  <span className="font-semibold">+${sponsor.annualIncome.toLocaleString()}</span>
-                </div>
-              ))}
+              {formData.householdMembers
+                .filter((m) => m.annualIncome > 0)
+                .map((member, index) => (
+                  <div
+                    key={member.id}
+                    className="flex justify-between text-emerald-600"
+                  >
+                    <span>
+                      Household {index + 1} ({member.relationship}):
+                    </span>
+                    <span className="font-semibold">
+                      +${member.annualIncome.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              {formData.jointSponsors
+                .filter((s) => s.annualIncome > 0)
+                .map((sponsor, index) => (
+                  <div
+                    key={sponsor.id}
+                    className="flex justify-between text-rose-600"
+                  >
+                    <span>
+                      Joint {index + 1} ({sponsor.name || "Unnamed"}):
+                    </span>
+                    <span className="font-semibold">
+                      +${sponsor.annualIncome.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
               <div className="border-t pt-2 flex justify-between font-bold">
                 <span>Total Income:</span>
                 <span>${totalIncome.toLocaleString()}</span>
@@ -1886,16 +2311,24 @@ export default function AffidavitSupportCalculator() {
         {formData.assetValue > 0 && (
           <Card className="border-0 shadow-md">
             <CardContent className="p-6">
-              <h4 className="font-semibold text-slate-900 mb-4">Asset Alternative</h4>
+              <h4 className="font-semibold text-slate-900 mb-4">
+                Asset Alternative
+              </h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-slate-600">Asset Value:</span>
-                  <span className="font-semibold">${formData.assetValue.toLocaleString()}</span>
+                  <span className="font-semibold">
+                    ${formData.assetValue.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Multiplier:</span>
                   <span className="font-semibold">
-                    {formData.relationshipToApplicant.toLowerCase() === "spouse" || formData.relationshipToApplicant.toLowerCase() === "parent" ? "3x" : "5x"}
+                    {formData.relationshipToApplicant.toLowerCase() ===
+                      "spouse" ||
+                    formData.relationshipToApplicant.toLowerCase() === "parent"
+                      ? "3x"
+                      : "5x"}
                   </span>
                 </div>
                 <div className="border-t pt-2 flex justify-between font-bold">
@@ -1917,7 +2350,9 @@ export default function AffidavitSupportCalculator() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Household</p>
-                  <p className="text-xl font-bold">{calcResult.householdSize}</p>
+                  <p className="text-xl font-bold">
+                    {calcResult.householdSize}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -1930,7 +2365,9 @@ export default function AffidavitSupportCalculator() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Required</p>
-                  <p className="text-xl font-bold">${calcResult.requiredIncome.toLocaleString()}</p>
+                  <p className="text-xl font-bold">
+                    ${calcResult.requiredIncome.toLocaleString()}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -1941,8 +2378,16 @@ export default function AffidavitSupportCalculator() {
         <Card className="border-0 shadow-md">
           <CardContent className="p-6">
             <p className="text-sm font-semibold mb-2">Progress</p>
-            <Progress value={Math.min((totalIncome / calcResult.requiredIncome) * 100, 100)} className="h-3" />
-            <p className="text-xs text-slate-500 mt-2">{calcResult.ruleApplied}</p>
+            <Progress
+              value={Math.min(
+                (totalIncome / calcResult.requiredIncome) * 100,
+                100,
+              )}
+              className="h-3"
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              {calcResult.ruleApplied}
+            </p>
           </CardContent>
         </Card>
 
@@ -1957,12 +2402,19 @@ export default function AffidavitSupportCalculator() {
 
               <div className="space-y-4">
                 {getFormsInfo(calcResult.caseNumber).map((form, index) => (
-                  <div key={index} className="border border-slate-200 rounded-xl overflow-hidden">
+                  <div
+                    key={index}
+                    className="border border-slate-200 rounded-xl overflow-hidden"
+                  >
                     <div className="bg-slate-50 p-3 border-b border-slate-200">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="font-bold text-slate-900">{form.name}</p>
-                          <p className="text-sm text-slate-600">{form.description}</p>
+                          <p className="font-bold text-slate-900">
+                            {form.name}
+                          </p>
+                          <p className="text-sm text-slate-600">
+                            {form.description}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1970,17 +2422,26 @@ export default function AffidavitSupportCalculator() {
                       <div className="flex items-start gap-2">
                         <Globe className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-xs font-semibold text-slate-700">Where to File:</p>
-                          <p className="text-sm text-slate-600">{form.whereToFile}</p>
+                          <p className="text-xs font-semibold text-slate-700">
+                            Where to File:
+                          </p>
+                          <p className="text-sm text-slate-600">
+                            {form.whereToFile}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-xs font-semibold text-slate-700">Important Notes:</p>
+                          <p className="text-xs font-semibold text-slate-700">
+                            Important Notes:
+                          </p>
                           <ul className="text-sm text-slate-600 space-y-1 mt-1">
                             {form.notes.map((note, noteIndex) => (
-                              <li key={noteIndex} className="flex items-start gap-1.5">
+                              <li
+                                key={noteIndex}
+                                className="flex items-start gap-1.5"
+                              >
                                 <span className="text-slate-400">•</span>
                                 {note}
                               </li>
@@ -1995,7 +2456,9 @@ export default function AffidavitSupportCalculator() {
 
               {/* Quick Links */}
               <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm font-semibold text-blue-900 mb-2">Quick Access</p>
+                <p className="text-sm font-semibold text-blue-900 mb-2">
+                  Quick Access
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <a
                     href="https://www.uscis.gov/forms/all-forms"
@@ -2043,24 +2506,46 @@ export default function AffidavitSupportCalculator() {
 
   const getStepTitle = () => {
     switch (currentStep) {
-      case 1: return "Sponsor Info";
-      case 2: return "Marital Status";
-      case 3: return "Children";
-      case 4: return "Dependents";
-      case 5: return "Previous";
-      case 6: return "Sponsoring";
-      case 7: return "Income";
-      case 8: return "Add Support";
-      case 9: return "More Options";
-      case 10: return "Other Options";
-      case 11: return "Results";
-      default: return `Step ${getDisplayStep()}`;
+      case 1:
+        return "Sponsor Info";
+      case 2:
+        return "Marital Status";
+      case 3:
+        return "Children";
+      case 4:
+        return "Dependents";
+      case 5:
+        return "Previous";
+      case 6:
+        return "Sponsoring";
+      case 7:
+        return "Income";
+      case 8:
+        return "Add Support";
+      case 9:
+        return "More Options";
+      case 10:
+        return "Other Options";
+      case 11:
+        return "Results";
+      default:
+        return `Step ${getDisplayStep()}`;
     }
   };
 
   const getProgressValue = (): number => {
     const stepConfig: Record<number, number> = {
-      1: 9, 2: 18, 3: 27, 4: 36, 5: 45, 6: 54, 7: 63, 8: 72, 9: 82, 10: 91, 11: 100
+      1: 9,
+      2: 18,
+      3: 27,
+      4: 36,
+      5: 45,
+      6: 54,
+      7: 63,
+      8: 72,
+      9: 82,
+      10: 91,
+      11: 100,
     };
     return stepConfig[currentStep] || (currentStep / 11) * 100;
   };
@@ -2069,14 +2554,34 @@ export default function AffidavitSupportCalculator() {
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => router.back()} className="rounded-xl">
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Affidavit Calculator</h1>
-            <p className="text-sm text-slate-600">Step {getDisplayStep()}: {getStepTitle()}</p>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.back()}
+              className="rounded-xl"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">
+                Affidavit Calculator
+              </h1>
+              <p className="text-sm text-slate-600">
+                Step {getDisplayStep()}: {getStepTitle()}
+              </p>
+            </div>
           </div>
+          <Link href="/affidavit-support-calculator/guide">
+            <Button
+              variant="ghost"
+              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              Read Guide
+            </Button>
+          </Link>
         </div>
 
         {/* Progress */}
@@ -2088,11 +2593,13 @@ export default function AffidavitSupportCalculator() {
         <Card className="border-0 shadow-xl">
           <CardHeader>
             <CardDescription>
-              {currentStep === 11 ? "Review your results" : "Complete all fields to proceed"}
+              {currentStep === 11
+                ? "Review your results"
+                : "Complete all fields to proceed"}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="min-h-[400px]">
+            <div className="min-h-100">
               {currentStep === 1 && renderStep1()}
               {currentStep === 2 && renderStep2()}
               {currentStep === 3 && renderStep3()}
@@ -2110,19 +2617,35 @@ export default function AffidavitSupportCalculator() {
             <div className="mt-8 flex items-center justify-between gap-3 pt-6 border-t border-slate-200">
               <div className="flex gap-3">
                 {currentStep > 1 && currentStep < 11 && (
-                  <Button variant="outline" onClick={handlePrevious} className="rounded-xl">
+                  <Button
+                    variant="outline"
+                    onClick={handlePrevious}
+                    className="rounded-xl"
+                  >
                     <ChevronLeft className="w-4 h-4 mr-2" /> Back
                   </Button>
                 )}
                 {currentStep === 11 && (
-                  <Button variant="outline" onClick={handlePrevious} className="rounded-xl">
+                  <Button
+                    variant="outline"
+                    onClick={handlePrevious}
+                    className="rounded-xl"
+                  >
                     <ChevronLeft className="w-4 h-4 mr-2" /> Back
                   </Button>
                 )}
               </div>
               {currentStep < 11 ? (
-                <Button onClick={handleNext} disabled={!canProceed()} className="rounded-xl bg-blue-600 hover:bg-blue-700">
-                  {currentStep === 7 ? "Check Eligibility" : currentStep === 10 ? "See Results" : "Next"}
+                <Button
+                  onClick={handleNext}
+                  disabled={!canProceed()}
+                  className="rounded-xl bg-blue-600 hover:bg-blue-700"
+                >
+                  {currentStep === 7
+                    ? "Check Eligibility"
+                    : currentStep === 10
+                      ? "See Results"
+                      : "Next"}
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : null}
@@ -2132,7 +2655,9 @@ export default function AffidavitSupportCalculator() {
 
         {/* Footer */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-slate-500">2025 HHS Poverty Guidelines. Consult a lawyer for official purposes.</p>
+          <p className="text-xs text-slate-500">
+            2025 HHS Poverty Guidelines. Consult a lawyer for official purposes.
+          </p>
         </div>
       </div>
     </div>

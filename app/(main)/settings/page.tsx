@@ -1,0 +1,323 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
+
+export default function SettingsPage() {
+  const { user, isLoading, signOut } = useAuth();
+  const router = useRouter();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const [notifications, setNotifications] = useState({
+    email: true,
+    sms: false,
+    push: true
+  });
+  
+  const [accountSettings, setAccountSettings] = useState({
+    twoFactorEnabled: false,
+    autoBackup: true
+  });
+  
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // Fetch user settings from database
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error) {
+        // If no settings exist yet, use defaults
+        // Check if it's a "Row not found" error (which is normal for new users)
+        if (error.message && !error.message.toLowerCase().includes('not found')) {
+          console.warn('Error fetching settings:', error);
+        }
+      } else if (data) {
+        setNotifications({
+          email: data.email_notifications || true,
+          sms: data.sms_notifications || false,
+          push: data.push_notifications || true
+        });
+
+        setAccountSettings({
+          twoFactorEnabled: data.two_factor_enabled || false,
+          autoBackup: data.auto_backup || true
+        });
+      }
+    } catch (error) {
+      console.error('Error in fetchSettings:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase, user?.id]);
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login');
+      return;
+    }
+
+    if (user) {
+      fetchSettings();
+    }
+  }, [user, isLoading, router, fetchSettings]);
+
+  const handleNotificationChange = (type: string) => {
+    setNotifications(prev => ({
+      ...prev,
+      [type]: !prev[type as keyof typeof prev]
+    }));
+  };
+
+  const handleAccountSettingChange = (type: string) => {
+    setAccountSettings(prev => ({
+      ...prev,
+      [type]: !prev[type as keyof typeof prev]
+    }));
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      setLoading(true);
+      setMessage("");
+
+      // Save settings to database
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert([{
+          user_id: user?.id,
+          email_notifications: notifications.email,
+          sms_notifications: notifications.sms,
+          push_notifications: notifications.push,
+          two_factor_enabled: accountSettings.twoFactorEnabled,
+          auto_backup: accountSettings.autoBackup,
+          updated_at: new Date().toISOString()
+        }], { onConflict: 'user_id' });
+
+      if (error) {
+        throw error;
+      }
+
+      setMessage("Settings saved successfully!");
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      setMessage("Error saving settings. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/login');
+  };
+
+  const handleDeleteAccount = async () => {
+    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      try {
+        setLoading(true);
+        
+        // Delete user data from database
+        await supabase
+          .from('user_profiles')
+          .delete()
+          .eq('id', user?.id);
+          
+        await supabase
+          .from('user_settings')
+          .delete()
+          .eq('user_id', user?.id);
+        
+        // Delete user from Supabase auth
+        const { error } = await supabase.auth.admin.deleteUser(user?.id || '');
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Sign out and redirect to home
+        await signOut();
+        router.push('/');
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        setMessage("Error deleting account. Please try again.");
+        setLoading(false);
+      }
+    }
+  };
+
+  if (isLoading || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 p-4">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-slate-900 mb-4"></div>
+          <p className="text-slate-700">Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Auth guard will redirect
+  }
+
+  return (
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 p-4">
+      <div className="max-w-4xl mx-auto py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
+          <p className="text-slate-600 mt-2">Manage your account settings and preferences</p>
+        </div>
+
+        {message && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+            {message}
+          </div>
+        )}
+
+        <div className="space-y-8">
+          {/* Notification Settings */}
+          <Card className="p-6 bg-white shadow-lg border-0">
+            <CardHeader className="border-b border-slate-200 pb-4">
+              <CardTitle className="text-xl text-slate-900">Notification Preferences</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="email-notifications" className="text-base font-medium">Email Notifications</Label>
+                  <p className="text-sm text-slate-500">Receive updates and alerts via email</p>
+                </div>
+                <Switch
+                  id="email-notifications"
+                  checked={notifications.email}
+                  onCheckedChange={() => handleNotificationChange('email')}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="sms-notifications" className="text-base font-medium">SMS Notifications</Label>
+                  <p className="text-sm text-slate-500">Receive important updates via SMS</p>
+                </div>
+                <Switch
+                  id="sms-notifications"
+                  checked={notifications.sms}
+                  onCheckedChange={() => handleNotificationChange('sms')}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="push-notifications" className="text-base font-medium">Push Notifications</Label>
+                  <p className="text-sm text-slate-500">Receive notifications in the browser/app</p>
+                </div>
+                <Switch
+                  id="push-notifications"
+                  checked={notifications.push}
+                  onCheckedChange={() => handleNotificationChange('push')}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Account Settings */}
+          <Card className="p-6 bg-white shadow-lg border-0">
+            <CardHeader className="border-b border-slate-200 pb-4">
+              <CardTitle className="text-xl text-slate-900">Account Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="two-factor" className="text-base font-medium">Two-Factor Authentication</Label>
+                  <p className="text-sm text-slate-500">Add an extra layer of security to your account</p>
+                </div>
+                <Switch
+                  id="two-factor"
+                  checked={accountSettings.twoFactorEnabled}
+                  onCheckedChange={() => handleAccountSettingChange('twoFactorEnabled')}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="auto-backup" className="text-base font-medium">Auto Backup</Label>
+                  <p className="text-sm text-slate-500">Automatically backup your data</p>
+                </div>
+                <Switch
+                  id="auto-backup"
+                  checked={accountSettings.autoBackup}
+                  onCheckedChange={() => handleAccountSettingChange('autoBackup')}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Security Settings */}
+          <Card className="p-6 bg-white shadow-lg border-0">
+            <CardHeader className="border-b border-slate-200 pb-4">
+              <CardTitle className="text-xl text-slate-900">Security</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-medium">Change Password</Label>
+                  <p className="text-sm text-slate-500 mb-3">Update your account password</p>
+                  <Button variant="outline" className="border-slate-300">Change Password</Button>
+                </div>
+                
+                <div className="pt-4 border-t border-slate-200">
+                  <Label className="text-base font-medium">Sign Out</Label>
+                  <p className="text-sm text-slate-500 mb-3">Log out of all devices</p>
+                  <Button 
+                    variant="outline" 
+                    className="border-red-300 text-red-700 hover:bg-red-50"
+                    onClick={handleSignOut}
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+                
+                <div className="pt-4 border-t border-slate-200">
+                  <Label className="text-base font-medium text-red-700">Delete Account</Label>
+                  <p className="text-sm text-slate-500 mb-3">Permanently remove your account and all data</p>
+                  <Button 
+                    variant="destructive"
+                    onClick={handleDeleteAccount}
+                  >
+                    Delete Account
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button 
+              onClick={handleSaveSettings} 
+              className="bg-slate-900 hover:bg-slate-800 text-white px-8"
+              disabled={loading}
+            >
+              Save All Settings
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

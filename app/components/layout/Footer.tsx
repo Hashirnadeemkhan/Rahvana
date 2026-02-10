@@ -8,7 +8,7 @@ export default function Footer() {
 
   // Keep existing administrator-specific logic
   if (pathname?.startsWith("/admin")) {
-    return <footer className="bg-white mt-20"></footer>;
+    return <footer className="bg-background mt-20"></footer>;
   }
 
   return (

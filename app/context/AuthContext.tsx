@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { AuthError, User, Session, Provider } from "@supabase/supabase-js";
+import { AuthError, User, Session } from "@supabase/supabase-js";
 
 // Define types for MFA error metadata
 interface MFAMetadata {
@@ -229,7 +229,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         secret: data.data.secret,
         factorId: data.data.factorId,
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: "Failed to initialize MFA setup",
@@ -252,7 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return { success: true };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: "Failed to verify MFA setup",
@@ -279,7 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return { success: true, user: data.user, session: data.session };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: "Failed to verify MFA code",
@@ -305,7 +305,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentLevel: data.currentLevel || "aal1",
         nextLevel: data.nextLevel || "aal1",
       };
-    } catch (error) {
+    } catch {
       return {
         currentLevel: "aal1",
         nextLevel: "aal1",
@@ -336,7 +336,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }>;
         error?: string;
       };
-    } catch (error) {
+    } catch {
       return { totp: [], error: "Failed to list MFA factors" };
     }
   };
@@ -377,7 +377,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return { success: true, message: "MFA disabled successfully" };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: "Failed to verify MFA setup",

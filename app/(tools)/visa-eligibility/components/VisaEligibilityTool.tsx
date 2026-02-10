@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import { useAuth } from "@/app/context/AuthContext";
+import { MasterProfile } from "@/types/profile";
 import { motion, AnimatePresence } from "framer-motion";
+import { autoFillForm } from "@/lib/autoFill/mapper";
 import {
   CheckCircle,
   // ChevronLeft,
@@ -18,6 +22,8 @@ import {
   AlertTriangle,
   LucideIcon,
   X,
+  Save,
+  Loader2,
 } from "lucide-react";
 import { visaCriteria } from "../criteria-data";
 
@@ -57,6 +63,203 @@ export function VisaEligibilityTool() {
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState<FutureAnswers>({});
   const [selectedVisaCode, setSelectedVisaCode] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+  
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('profile_details')
+        .eq('id', user.id)
+        .single();
+        
+      if (data?.profile_details) {
+        const profile = data.profile_details as MasterProfile;
+        
+        // Use the centralized auto-fill logic
+        const dummyForm: FutureAnswers = {
+          petitionerStatus: undefined,
+          statusOrigin: undefined,
+          petitionerAgeGroup: undefined,
+          relationship: undefined,
+          legalStatus: undefined,
+          applicantAgeGroup: undefined,
+          applicantMaritalStatus: undefined,
+          applicantLocation: undefined,
+          isLegallyMarried: undefined,
+          marriageDuration: undefined,
+          violationHistory: undefined,
+          intent: undefined,
+          sponsorBase: undefined,
+        };
+
+        // Initialize with null to ensure autoFillForm doesn't skip them
+        Object.keys(dummyForm).forEach(k => {
+          (dummyForm as any)[k] = null;
+        });
+
+        const filledAnswers = autoFillForm(profile, dummyForm as any) as FutureAnswers;
+
+        // Derivation logic for fields that might not be explicitly set in visaEligibility
+        const newAnswers: Partial<FutureAnswers> = { ...filledAnswers };
+
+        // 1. Petitioner Status (if not explicitly in visaEligibility)
+        if (!newAnswers.petitionerStatus) {
+           // Check standard citizenshipStatus
+           if (profile.citizenshipStatus === 'USCitizen') newAnswers.petitionerStatus = 'US_CITIZEN';
+           else if (profile.citizenshipStatus === 'LPR') newAnswers.petitionerStatus = 'LPR';
+           // Fallback: Check for loose string matches in case of legacy data
+           else if (String(profile.citizenshipStatus).toLowerCase().includes('citizen')) newAnswers.petitionerStatus = 'US_CITIZEN';
+           else if (String(profile.citizenshipStatus).toLowerCase().includes('permanent') || String(profile.citizenshipStatus).includes('LPR')) newAnswers.petitionerStatus = 'LPR';
+        }
+
+        // 2. Petitioner Age (Derive from DOB)
+        if (!newAnswers.petitionerAgeGroup && profile.dateOfBirth) {
+           // Handle direct age if available (legacy?) or calc from DOB
+           if (profile.dateOfBirth) {
+             const birthDate = new Date(profile.dateOfBirth);
+             const ageDiffMs = Date.now() - birthDate.getTime();
+             const ageDate = new Date(ageDiffMs);
+             const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+             newAnswers.petitionerAgeGroup = age >= 21 ? 'OVER_21' : 'UNDER_21';
+           } 
+        }
+
+        // 3. Relationship
+        if (!newAnswers.relationship) {
+          // Check visaType first
+          if (profile.visaType) {
+             const vt = profile.visaType;
+             if (['IR-1', 'CR-1', 'K-3', 'K3', 'IR1', 'CR1'].includes(vt)) newAnswers.relationship = 'SPOUSE';
+             else if (['IR-5', 'IR5'].includes(vt)) newAnswers.relationship = 'PARENT';
+             else if (['IR-2', 'F1', 'F2A', 'F2B', 'F3', 'IR2'].includes(vt)) newAnswers.relationship = 'CHILD';
+             else if (['F4'].includes(vt)) newAnswers.relationship = 'SIBLING';
+             else if (['K-1', 'K1'].includes(vt)) newAnswers.relationship = 'FIANCE';
+          } 
+          
+          // Check explicit relationship object
+          if (!newAnswers.relationship && profile.relationship?.type) {
+             const rel = profile.relationship.type.toUpperCase();
+             if (rel === 'SPOUSE') newAnswers.relationship = 'SPOUSE';
+             else if (rel === 'FIANCE' || rel === 'FIANCEE') newAnswers.relationship = 'FIANCE';
+             else if (rel === 'CHILD') newAnswers.relationship = 'CHILD';
+             else if (rel === 'PARENT' || rel === 'FATHER' || rel === 'MOTHER') newAnswers.relationship = 'PARENT';
+             else if (rel === 'SIBLING' || rel === 'BROTHER' || rel === 'SISTER') newAnswers.relationship = 'SIBLING';
+          }
+        }
+
+        // 4. Marriage Duration
+        if (!newAnswers.marriageDuration && profile.relationship?.marriageDate) {
+           const marriageDate = new Date(profile.relationship.marriageDate);
+           const diffMs = Date.now() - marriageDate.getTime();
+           const diffYears = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+           newAnswers.marriageDuration = diffYears >= 2 ? 'MORE_THAN_2' : 'LESS_THAN_2';
+           newAnswers.isLegallyMarried = 'YES';
+        }
+
+        // 5. Applicant Location
+        if (!newAnswers.applicantLocation) {
+          const beneficiaryCountry = profile.beneficiary?.countryOfResidence || profile.currentAddress?.country;
+          if (beneficiaryCountry) {
+             const isUS = beneficiaryCountry.toLowerCase().includes('united states') || beneficiaryCountry.toLowerCase() === 'usa' || beneficiaryCountry.toLowerCase() === 'us';
+             newAnswers.applicantLocation = isUS ? 'INSIDE_US' : 'OUTSIDE_US';
+          }
+        }
+
+        // 6. Applicant Age
+        if (!newAnswers.applicantAgeGroup) {
+          const benDob = profile.beneficiary?.dateOfBirth;
+          if (benDob) {
+             const birthDate = new Date(benDob);
+             const ageDiffMs = Date.now() - birthDate.getTime();
+             const ageDate = new Date(ageDiffMs);
+             const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+             newAnswers.applicantAgeGroup = age >= 21 ? 'OVER_21' : 'UNDER_21';
+          }
+        }
+
+        if (Object.keys(newAnswers).length > 0) {
+           setAnswers(prev => {
+             const finalAnswers = { ...prev, ...newAnswers };
+             
+             // Check if we have enough info to show results directly
+             // Minimal set: petitionerStatus (or sponsorBase), intent, relationship (if family)
+             const hasFamilyBasics = finalAnswers.petitionerStatus && finalAnswers.relationship;
+             const hasEmploymentBasics = finalAnswers.sponsorBase && ['EMPLOYMENT', 'INVESTMENT', 'HUMANITARIAN'].includes(finalAnswers.sponsorBase);
+             
+             // If we have intent and either family or employment basics, likely enough for a result
+             if (finalAnswers.intent && (hasFamilyBasics || hasEmploymentBasics)) {
+                // We add a small delay to let state settle or just setStep(5)
+                // However, doing it here might cause render issues if not careful.
+                // We'll use a timeout to push to step 5.
+                setTimeout(() => setStep(5), 100);
+             }
+             
+             return finalAnswers;
+           });
+        }
+      }
+    };
+    
+    fetchProfile();
+  }, [user, supabase]);
+
+  const handleEdit = () => {
+    setStep(1);
+    // We keep the answers so the user sees them filled in
+  };
+
+  const saveToProfile = async () => {
+    if (!user) return;
+    try {
+      setSaving(true);
+      setSaveMessage("");
+
+      // Get existing profile
+      const { data: profileData } = await supabase
+        .from('user_profiles')
+        .select('profile_details')
+        .eq('id', user.id)
+        .single();
+
+      const existingProfile = (profileData?.profile_details as MasterProfile) || {};
+      
+      // Update visaEligibility section
+      const updatedProfile: MasterProfile = {
+        ...existingProfile,
+        visaEligibility: {
+          ...existingProfile.visaEligibility,
+          ...answers
+        }
+      };
+
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert({
+          id: user.id,
+          profile_details: updatedProfile,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+      setSaveMessage("Successfully saved to your profile!");
+      setTimeout(() => setSaveMessage(""), 3000);
+    } catch (err) {
+      console.error("Error saving eligibility answers:", err);
+      setSaveMessage("Failed to save. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const totalSteps = 5; // 4 Sections + 1 Result
   const progress = (step / totalSteps) * 100;
@@ -968,6 +1171,34 @@ export function VisaEligibilityTool() {
                       </p>
                     </div>
                   ))}
+                </div>
+
+                <div className="space-y-4 pt-4">
+                   <button
+                    onClick={handleEdit}
+                    className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-white border-2 border-primary text-primary font-bold rounded-2xl hover:bg-primary/5 transition-all shadow-lg shadow-primary/5"
+                  >
+                    <RefreshCw size={20} />
+                    Edit My Information
+                  </button>
+
+                  <button
+                    onClick={saveToProfile}
+                    disabled={saving}
+                    className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-primary text-white font-bold rounded-2xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
+                  >
+                    {saving ? (
+                      <Loader2 size={20} className="animate-spin" />
+                    ) : (
+                      <Save size={20} />
+                    )}
+                    Save Results to My Profile
+                  </button>
+                  {saveMessage && (
+                    <p className={`text-center text-sm font-medium ${saveMessage.includes('Failed') ? 'text-red-500' : 'text-green-600'}`}>
+                      {saveMessage}
+                    </p>
+                  )}
                 </div>
 
                 <p className="text-xs text-gray-400 text-center">
