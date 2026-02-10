@@ -20,9 +20,20 @@ interface MFAError {
   message: string;
 }
 
+export interface UserProfile {
+  username?: string;
+  full_name?: string;
+  email?: string;
+  avatar_url?: string;
+  website?: string;
+  role?: string;
+  mfa_enabled?: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: UserProfile | null;
   isAdmin: boolean;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -101,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
@@ -145,6 +157,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Fetch profile
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+  
+    if (!error) setProfile(data);
+  };
+
   useEffect(() => {
     const getInitialSession = async () => {
       try {
@@ -155,6 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session ?? null);
 
         if (session?.user) {
+          fetchProfile(session.user.id);
           const adminStatus = await fetchUserProfile(session.user.id);
           setIsAdmin(adminStatus);
         }
@@ -523,6 +547,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         session,
+        profile,
         isAdmin,
         isLoading,
         isAuthenticated,

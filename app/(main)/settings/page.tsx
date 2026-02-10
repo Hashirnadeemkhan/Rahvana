@@ -14,22 +14,50 @@ export default function SettingsPage() {
   const router = useRouter();
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
   const [notifications, setNotifications] = useState({
     email: true,
     sms: false,
-    push: true
+    push: true,
   });
-  
+
   const [accountSettings, setAccountSettings] = useState({
     twoFactorEnabled: false,
-    autoBackup: true
+    autoBackup: true,
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [profile, setProfile] = useState<{ mfa_enabled: boolean } | null>(null);
+
+  const fetchProfile = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("mfa_enabled")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching profile:", error.message);
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+        setAccountSettings((prev) => ({
+          ...prev,
+          twoFactorEnabled: data.mfa_enabled,
+        }));
+      }
+    } catch (err) {
+      console.error("Unexpected fetchProfile error:", err);
+    }
+  }, [supabase, user?.id]);
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -37,31 +65,34 @@ export default function SettingsPage() {
 
       // Fetch user settings from database
       const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', user?.id)
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", user?.id)
         .single();
 
       if (error) {
         // If no settings exist yet, use defaults
         // Check if it's a "Row not found" error (which is normal for new users)
-        if (error.message && !error.message.toLowerCase().includes('not found')) {
-          console.warn('Error fetching settings:', error);
+        if (
+          error.message &&
+          !error.message.toLowerCase().includes("not found")
+        ) {
+          console.warn("Error fetching settings:", error);
         }
       } else if (data) {
         setNotifications({
           email: data.email_notifications || true,
           sms: data.sms_notifications || false,
-          push: data.push_notifications || true
+          push: data.push_notifications || true,
         });
 
         setAccountSettings({
           twoFactorEnabled: data.two_factor_enabled || false,
-          autoBackup: data.auto_backup || true
+          autoBackup: data.auto_backup || true,
         });
       }
     } catch (error) {
-      console.error('Error in fetchSettings:', error);
+      console.error("Error in fetchSettings:", error);
     } finally {
       setLoading(false);
     }
@@ -69,26 +100,27 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
     if (user) {
       fetchSettings();
+      fetchProfile(); // Fetch MFA from profiles
     }
   }, [user, isLoading, router, fetchSettings]);
 
   const handleNotificationChange = (type: string) => {
-    setNotifications(prev => ({
+    setNotifications((prev) => ({
       ...prev,
-      [type]: !prev[type as keyof typeof prev]
+      [type]: !prev[type as keyof typeof prev],
     }));
   };
 
   const handleAccountSettingChange = (type: string) => {
-    setAccountSettings(prev => ({
+    setAccountSettings((prev) => ({
       ...prev,
-      [type]: !prev[type as keyof typeof prev]
+      [type]: !prev[type as keyof typeof prev],
     }));
   };
 
@@ -98,17 +130,20 @@ export default function SettingsPage() {
       setMessage("");
 
       // Save settings to database
-      const { error } = await supabase
-        .from('user_settings')
-        .upsert([{
-          user_id: user?.id,
-          email_notifications: notifications.email,
-          sms_notifications: notifications.sms,
-          push_notifications: notifications.push,
-          two_factor_enabled: accountSettings.twoFactorEnabled,
-          auto_backup: accountSettings.autoBackup,
-          updated_at: new Date().toISOString()
-        }], { onConflict: 'user_id' });
+      const { error } = await supabase.from("user_settings").upsert(
+        [
+          {
+            user_id: user?.id,
+            email_notifications: notifications.email,
+            sms_notifications: notifications.sms,
+            push_notifications: notifications.push,
+            two_factor_enabled: accountSettings.twoFactorEnabled,
+            auto_backup: accountSettings.autoBackup,
+            updated_at: new Date().toISOString(),
+          },
+        ],
+        { onConflict: "user_id" },
+      );
 
       if (error) {
         throw error;
@@ -116,7 +151,7 @@ export default function SettingsPage() {
 
       setMessage("Settings saved successfully!");
     } catch (error) {
-      console.error('Error saving settings:', error);
+      console.error("Error saving settings:", error);
       setMessage("Error saving settings. Please try again.");
     } finally {
       setLoading(false);
@@ -125,37 +160,35 @@ export default function SettingsPage() {
 
   const handleSignOut = async () => {
     await signOut();
-    router.push('/login');
+    router.push("/login");
   };
 
   const handleDeleteAccount = async () => {
-    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to delete your account? This action cannot be undone.",
+      )
+    ) {
       try {
         setLoading(true);
-        
+
         // Delete user data from database
-        await supabase
-          .from('user_profiles')
-          .delete()
-          .eq('id', user?.id);
-          
-        await supabase
-          .from('user_settings')
-          .delete()
-          .eq('user_id', user?.id);
-        
+        await supabase.from("user_profiles").delete().eq("id", user?.id);
+
+        await supabase.from("user_settings").delete().eq("user_id", user?.id);
+
         // Delete user from Supabase auth
-        const { error } = await supabase.auth.admin.deleteUser(user?.id || '');
-        
+        const { error } = await supabase.auth.admin.deleteUser(user?.id || "");
+
         if (error) {
           throw error;
         }
-        
+
         // Sign out and redirect to home
         await signOut();
-        router.push('/');
+        router.push("/");
       } catch (error) {
-        console.error('Error deleting account:', error);
+        console.error("Error deleting account:", error);
         setMessage("Error deleting account. Please try again.");
         setLoading(false);
       }
@@ -182,7 +215,9 @@ export default function SettingsPage() {
       <div className="max-w-4xl mx-auto py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
-          <p className="text-slate-600 mt-2">Manage your account settings and preferences</p>
+          <p className="text-slate-600 mt-2">
+            Manage your account settings and preferences
+          </p>
         </div>
 
         {message && (
@@ -195,42 +230,65 @@ export default function SettingsPage() {
           {/* Notification Settings */}
           <Card className="p-6 bg-white shadow-lg border-0">
             <CardHeader className="border-b border-slate-200 pb-4">
-              <CardTitle className="text-xl text-slate-900">Notification Preferences</CardTitle>
+              <CardTitle className="text-xl text-slate-900">
+                Notification Preferences
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="email-notifications" className="text-base font-medium">Email Notifications</Label>
-                  <p className="text-sm text-slate-500">Receive updates and alerts via email</p>
+                  <Label
+                    htmlFor="email-notifications"
+                    className="text-base font-medium"
+                  >
+                    Email Notifications
+                  </Label>
+                  <p className="text-sm text-slate-500">
+                    Receive updates and alerts via email
+                  </p>
                 </div>
                 <Switch
                   id="email-notifications"
                   checked={notifications.email}
-                  onCheckedChange={() => handleNotificationChange('email')}
+                  onCheckedChange={() => handleNotificationChange("email")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="sms-notifications" className="text-base font-medium">SMS Notifications</Label>
-                  <p className="text-sm text-slate-500">Receive important updates via SMS</p>
+                  <Label
+                    htmlFor="sms-notifications"
+                    className="text-base font-medium"
+                  >
+                    SMS Notifications
+                  </Label>
+                  <p className="text-sm text-slate-500">
+                    Receive important updates via SMS
+                  </p>
                 </div>
                 <Switch
                   id="sms-notifications"
                   checked={notifications.sms}
-                  onCheckedChange={() => handleNotificationChange('sms')}
+                  onCheckedChange={() => handleNotificationChange("sms")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="push-notifications" className="text-base font-medium">Push Notifications</Label>
-                  <p className="text-sm text-slate-500">Receive notifications in the browser/app</p>
+                  <Label
+                    htmlFor="push-notifications"
+                    className="text-base font-medium"
+                  >
+                    Push Notifications
+                  </Label>
+                  <p className="text-sm text-slate-500">
+                    Receive notifications in the browser/app
+                  </p>
                 </div>
                 <Switch
                   id="push-notifications"
                   checked={notifications.push}
-                  onCheckedChange={() => handleNotificationChange('push')}
+                  onCheckedChange={() => handleNotificationChange("push")}
                 />
               </div>
             </CardContent>
@@ -239,30 +297,60 @@ export default function SettingsPage() {
           {/* Account Settings */}
           <Card className="p-6 bg-white shadow-lg border-0">
             <CardHeader className="border-b border-slate-200 pb-4">
-              <CardTitle className="text-xl text-slate-900">Account Settings</CardTitle>
+              <CardTitle className="text-xl text-slate-900">
+                Account Settings
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
+              <div className="flex flex-col">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="two-factor" className="text-base font-medium">Two-Factor Authentication</Label>
-                  <p className="text-sm text-slate-500">Add an extra layer of security to your account</p>
+                  <Label htmlFor="two-factor" className="text-base font-medium">
+                    Two-Factor Authentication
+                  </Label>
+                  <p className="text-sm text-slate-500">
+                    Add an extra layer of security to your account
+                  </p>
                 </div>
                 <Switch
                   id="two-factor"
                   checked={accountSettings.twoFactorEnabled}
-                  onCheckedChange={() => handleAccountSettingChange('twoFactorEnabled')}
+                  onCheckedChange={() =>
+                    handleAccountSettingChange("twoFactorEnabled")
+                  }
+                  disabled={profile?.mfa_enabled} // disable if already enabled
                 />
+                </div>
+
+                <Button
+                  onClick={() => alert("Setup MFA flow here")}
+                  className="w-fit mt-2"
+                  disabled={profile?.mfa_enabled} // disable if already enabled
+                >
+                  {profile?.mfa_enabled
+                    ? "Two-Factor Enabled"
+                    : "Enable Two-Factor Authentication"}
+                </Button>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="auto-backup" className="text-base font-medium">Auto Backup</Label>
-                  <p className="text-sm text-slate-500">Automatically backup your data</p>
+                  <Label
+                    htmlFor="auto-backup"
+                    className="text-base font-medium"
+                  >
+                    Auto Backup
+                  </Label>
+                  <p className="text-sm text-slate-500">
+                    Automatically backup your data
+                  </p>
                 </div>
                 <Switch
                   id="auto-backup"
                   checked={accountSettings.autoBackup}
-                  onCheckedChange={() => handleAccountSettingChange('autoBackup')}
+                  onCheckedChange={() =>
+                    handleAccountSettingChange("autoBackup")
+                  }
                 />
               </div>
             </CardContent>
@@ -276,30 +364,39 @@ export default function SettingsPage() {
             <CardContent className="pt-6 space-y-6">
               <div className="space-y-4">
                 <div>
-                  <Label className="text-base font-medium">Change Password</Label>
-                  <p className="text-sm text-slate-500 mb-3">Update your account password</p>
-                  <Button variant="outline" className="border-slate-300">Change Password</Button>
+                  <Label className="text-base font-medium">
+                    Change Password
+                  </Label>
+                  <p className="text-sm text-slate-500 mb-3">
+                    Update your account password
+                  </p>
+                  <Button variant="outline" className="border-slate-300">
+                    Change Password
+                  </Button>
                 </div>
-                
+
                 <div className="pt-4 border-t border-slate-200">
                   <Label className="text-base font-medium">Sign Out</Label>
-                  <p className="text-sm text-slate-500 mb-3">Log out of all devices</p>
-                  <Button 
-                    variant="outline" 
+                  <p className="text-sm text-slate-500 mb-3">
+                    Log out of all devices
+                  </p>
+                  <Button
+                    variant="outline"
                     className="border-red-300 text-red-700 hover:bg-red-50"
                     onClick={handleSignOut}
                   >
                     Sign Out
                   </Button>
                 </div>
-                
+
                 <div className="pt-4 border-t border-slate-200">
-                  <Label className="text-base font-medium text-red-700">Delete Account</Label>
-                  <p className="text-sm text-slate-500 mb-3">Permanently remove your account and all data</p>
-                  <Button 
-                    variant="destructive"
-                    onClick={handleDeleteAccount}
-                  >
+                  <Label className="text-base font-medium text-red-700">
+                    Delete Account
+                  </Label>
+                  <p className="text-sm text-slate-500 mb-3">
+                    Permanently remove your account and all data
+                  </p>
+                  <Button variant="destructive" onClick={handleDeleteAccount}>
                     Delete Account
                   </Button>
                 </div>
@@ -308,8 +405,8 @@ export default function SettingsPage() {
           </Card>
 
           <div className="flex justify-end">
-            <Button 
-              onClick={handleSaveSettings} 
+            <Button
+              onClick={handleSaveSettings}
               className="bg-slate-900 hover:bg-slate-800 text-white px-8"
               disabled={loading}
             >

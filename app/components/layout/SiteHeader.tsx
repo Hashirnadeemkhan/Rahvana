@@ -39,6 +39,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
+import { UserProfile } from "@/app/context/AuthContext";
 import { useTheme } from "next-themes";
 
 interface HeaderProps {
@@ -47,6 +48,7 @@ interface HeaderProps {
   isSignedIn?: boolean;
   onToggleAuth?: () => void;
   user?: User | null;
+  profile?: UserProfile | null;
 }
 
 // --------------------------------------------------------------------------
@@ -133,6 +135,7 @@ export function SiteHeader({
   isSignedIn = false,
   onToggleAuth,
   user,
+  profile,
 }: HeaderProps = {}) {
   // Run cleanup once
   useExtensionCleanup();
@@ -172,6 +175,7 @@ export function SiteHeader({
         tools: "/?section=tools",
         pricing: "/pricing",
         dashboard: "/user-dashboard",
+        mfa: "/mfa-setup",
         contact: "/#contact",
         passport: "/passport",
         "passport-guide": "/guides/passport-guide",
