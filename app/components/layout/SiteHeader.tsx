@@ -1302,6 +1302,13 @@ export function SiteHeader({
                         My Dashboard
                       </button>
                       <button
+                        onClick={() => handleNav("profile")}
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
+                      >
+                        <UserIcon className="w-4 h-4" />
+                        My Profile
+                      </button>
+                      <button
                         onClick={() => handleNav("document-vault")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
@@ -1340,8 +1347,8 @@ export function SiteHeader({
                     {/* Section 2 */}
                     <div className="py-2 border-b border-border">
                       <button
-                        onClick={() => {}} // Placeholder
-                        className="flex items-center gap-3 w-full py-2.5 px-5 text-gray-600 hover:bg-slate-50 hover:text-primary transition-colors text-sm font-medium"
+                        onClick={() => handleNav("settings")}
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Settings className="w-4 h-4" />
                         Account Settings
@@ -1666,18 +1673,43 @@ export function SiteHeader({
                 >
                   <span className="font-bold">Pricing</span>
                 </HydrationSafeButton>
-                {/* {isSignedIn && (
-                  <HydrationSafeButton
-                    onClick={() => handleNav("dashboard")}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
-                      isActive("dashboard")
-                        ? "bg-[#0d9488]/10 text-[#0d9488]"
-                        : "text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    <span className="font-bold">Dashboard</span>
-                  </HydrationSafeButton>
-                )} */}
+                {isSignedIn && (
+                  <>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("dashboard")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("dashboard", "/user-dashboard")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Layout className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">My Dashboard</span>
+                    </HydrationSafeButton>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("profile")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("profile", "/profile")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <UserIcon className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">My Profile</span>
+                    </HydrationSafeButton>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("settings")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("settings", "/settings")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Settings className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">Account Settings</span>
+                    </HydrationSafeButton>
+                  </>
+                )}
                 <HydrationSafeButton
                   onClick={() => handleNav("contact")}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
