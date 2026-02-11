@@ -180,6 +180,7 @@ export function SiteHeader({
         passport: "/passport",
         "passport-guide": "/guides/passport-guide",
         "visa-strength-guide": "/guides/visa-strength-guide",
+        "frc-guide": "/guides/frc-guide",
         pdf: "/pdf-processing",
         signature: "/signature-image-processing",
         iv: "/iv-tool",
@@ -1096,6 +1097,14 @@ export function SiteHeader({
                           description:
                             "Comprehensive overview of Police Character Certificates for all provinces.",
                           href: "/guides/police-certificate",
+                          badge: "Live",
+                        },
+                        {
+                          icon: <Globe className="h-5 w-5" />,
+                          title: "FRC Guide",
+                          description:
+                            "Complete guide to obtaining your Family Registration Certificate (FRC).",
+                          href: "/guides/frc-guide",
                           badge: "Live",
                         },
                       ],

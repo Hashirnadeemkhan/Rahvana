@@ -49,6 +49,12 @@
   --rahvana-primary-dark: #0a5a5d;
   --rahvana-primary-pale: #e8f6f6;
   --rahvana-secondary: #32e0c4;
+  
+  /* Guide-specific tokens */
+  --guide-hero-gradient: linear-gradient(135deg, hsl(168 70% 42%), hsl(168 60% 52%));
+  --guide-card-shadow: 0 4px 24px -4px hsl(168 70% 42% / 0.15);
+  --guide-card-hover-shadow: 0 8px 32px -4px hsl(168 70% 42% / 0.25);
+  --guide-grid-color: hsl(168 70% 42% / 0.025);
 }
 
 @keyframes beaconPulse {
@@ -309,6 +315,29 @@
   .reveal-delay-5 {
     transition-delay: 0.5s;
   }
+}
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, hsl(168 80% 30%), hsl(168 70% 42%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.guide-grid-bg {
+  background-image: 
+    linear-gradient(var(--guide-grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--guide-grid-color) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 @layer base {
