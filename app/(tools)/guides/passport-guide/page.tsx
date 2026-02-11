@@ -20,6 +20,7 @@ import {
   Home,
   Sparkles,
   ChevronRight,
+  ChevronLeft,
   ExternalLink,
 } from "lucide-react";
 import { HeroSection } from "./components/hero-section";
@@ -463,7 +464,7 @@ export default function PassportGuidePage() {
               <button
                 disabled={!journeyConfig.type || !journeyConfig.method || !journeyConfig.age}
                 onClick={() => setShowJourneyForm(false)}
-                className="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-slate-200"
+                className="w-full sm:w-auto px-10 py-4 bg-linear-to-r from-[#0d7377] to-[#14a0a6] text-white rounded-2xl font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-[#0d7377]/20"
               >
                 Start My Tailored Guide
               </button>
@@ -646,72 +647,54 @@ export default function PassportGuidePage() {
                   </div>
                 </div>
               </motion.div>
-              {filteredSections.map((section, sIdx) => {
-                const isDocSection = section.id === "documents";
-                const content = getFilteredContent(section.id, section.content);
-                const theme = sectionThemes[section.id] || sectionThemes.process;
-                
-                const isCollapsed = collapsedSections.includes(section.id);
-                
-                return (
-                  <motion.div 
-                    key={section.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: sIdx * 0.1 }}
-                    className={cn(
-                      "bg-white rounded-[2rem] border overflow-hidden shadow-sm flex flex-col transition-all duration-300",
-                      theme.border,
-                      !isCollapsed && theme.bg
-                    )}
-                  >
-                    <button 
-                      onClick={() => toggleSectionCollapse(section.id)}
-                      className={cn(
-                        "w-full text-left p-6 lg:p-8 border-b flex items-center justify-between group transition-colors",
-                        isCollapsed ? "bg-slate-50/50 border-slate-100 hover:bg-slate-100/50" : cn("border-transparent", theme.bg)
-                      )}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "p-3 rounded-2xl shadow-sm border transition-transform group-hover:scale-110",
-                          isCollapsed ? "bg-white border-slate-100" : theme.iconBg,
-                          !isCollapsed && "border-transparent"
-                        )}>
-                          <section.icon className={cn("w-5 h-5", theme.accent)} />
-                        </div>
-                        <div>
-                          <h3 className={cn("font-bold transition-colors", theme.accent)}>{section.title}</h3>
-                          <p className="text-xs text-slate-500">{section.description}</p>
-                        </div>
-                      </div>
-                      <motion.div
-                        animate={{ rotate: isCollapsed ? 0 : 180 }}
+              
+              {/* Step Navigation Content */}
+              <div className="space-y-6 min-h-[600px]">
+                {filteredSections
+                  .filter(section => section.id === activeTab)
+                  .map((section, sIdx) => {
+                    const content = getFilteredContent(section.id, section.content);
+                    const theme = sectionThemes[section.id] || sectionThemes.process;
+                    const currentIndex = filteredSections.findIndex(s => s.id === activeTab);
+                    const nextSection = filteredSections[currentIndex + 1];
+                    const prevSection = filteredSections[currentIndex - 1];
+
+                    return (
+                      <motion.div 
+                        key={section.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
                         className={cn(
-                          "p-2 rounded-xl bg-white border text-slate-400 transition-colors",
-                          !isCollapsed ? theme.border : "border-slate-200",
-                          "group-hover:" + theme.accent
+                          "bg-white rounded-[2rem] border overflow-hidden shadow-sm flex flex-col transition-all duration-300",
+                          theme.border,
+                          theme.bg
                         )}
                       >
-                        <ChevronDown className="w-5 h-5" />
-                      </motion.div>
-                    </button>
+                        {/* Section Header (Non-collapsible title) */}
+                        <div className="w-full text-left p-6 lg:p-8 border-b flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={cn("p-3 rounded-2xl shadow-sm border", theme.iconBg)}>
+                              <section.icon className={cn("w-5 h-5", theme.accent)} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Step {currentIndex + 1} of {filteredSections.length}</span>
+                                {completedSections.includes(section.id) && (
+                                  <CheckCircle className="w-3 h-3 text-emerald-500" />
+                                )}
+                              </div>
+                              <h3 className={cn("font-bold", theme.accent)}>{section.title}</h3>
+                            </div>
+                          </div>
+                        </div>
 
-                    <AnimatePresence>
-                      {!isCollapsed && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="p-6 lg:p-8">
-                            {section.id === "photos" ? (
-                              <PhotoGuideSection />
-                            ) : section.id === "locations" ? (
-                              <LocationGuideSection />
-                            ) : section.id === "fees" ? (
-                              <div className="space-y-6">
+                        <div className="p-6 lg:p-8">
+                          {section.id === "photos" ? (
+                            <PhotoGuideSection />
+                          ) : section.id === "locations" ? (
+                            <LocationGuideSection />
+                          ) : section.id === "fees" ? (
+                            <div className="space-y-6">
                                 <div className="bg-linear-to-br from-[#0d7377] to-[#14a0a6] p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
                                   <div className="absolute top-0 right-0 p-6 opacity-10">
                                     <DollarSign className="w-24 h-24" />
@@ -928,13 +911,49 @@ export default function PassportGuidePage() {
                                 })}
                               </div>
                             )}
+
+                          {/* Navigation Buttons */}
+                          <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-between">
+                            {prevSection ? (
+                              <button
+                                onClick={() => {
+                                  setActiveTab(prevSection.id);
+                                }}
+                                className="flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all"
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                                Previous: {prevSection.title}
+                              </button>
+                            ) : <div></div>}
+
+                            {nextSection ? (
+                              <button
+                                onClick={() => {
+                                  setActiveTab(nextSection.id);
+                                  markComplete(section.id);
+                                }}
+                                className="flex items-center gap-2 px-8 py-3 rounded-xl bg-[#0d7377] text-white font-bold text-sm hover:bg-[#0a5a5d] transition-all shadow-lg shadow-[#0d7377]/20"
+                              >
+                                Next Step
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                   markComplete(section.id);
+                                }}
+                                className="flex items-center gap-2 px-8 py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
+                              >
+                                Complete Guide
+                                <CheckCircle className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+              </div>
             </div>
           </div>
         )}

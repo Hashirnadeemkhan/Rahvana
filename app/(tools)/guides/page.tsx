@@ -52,8 +52,8 @@ const guides: GuideCard[] = [
   },
   {
     title: "Nikahnama & Marriage Certificate",
-    description: "Original Nikahnama, MRC, and certified English translation",
-    href: "/guides/marriage-certificate",
+    description: "How to obtain and register your Nikah Nama and NADRA Marriage Certificate",
+    href: "/guides/nikah-nama-guide",
     icon: <Heart className="h-6 w-6" />,
     category: "Identity & Civil Documents",
     difficulty: "Medium",
@@ -163,6 +163,14 @@ const guides: GuideCard[] = [
     icon: <FileCheck className="h-6 w-6" />,
     category: "Visa Process Documents",
     difficulty: "Medium",
+  },
+  {
+    title: "Educational Certificates (US Visa)",
+    description: "Complete roadmap: HEC/IBCC attestation, WES evaluation, and I-20 requirements",
+    href: "/guides/educational-certificates-us-visa",
+    icon: <BookOpen className="h-6 w-6" />,
+    category: "Education & Process",
+    difficulty: "Complex",
   },
 ];
 

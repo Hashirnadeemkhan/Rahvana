@@ -35,6 +35,7 @@ import {
   FileCheck,
   Moon,
   Sun,
+  BookOpen,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
@@ -175,7 +176,9 @@ export function SiteHeader({
         contact: "/#contact",
         passport: "/passport",
         "passport-guide": "/guides/passport-guide",
+        "nikah-nama-guide": "/guides/nikah-nama-guide",
         "visa-strength-guide": "/guides/visa-strength-guide",
+        "educational-certificates-us-visa": "/guides/educational-certificates-us-visa",
         pdf: "/pdf-processing",
         signature: "/signature-image-processing",
         iv: "/iv-tool",
@@ -1087,11 +1090,27 @@ export function SiteHeader({
                           badge: "Live",
                         },
                         {
+                          icon: <Heart className="h-5 w-5" />,
+                          title: "Nikah Nama Guide",
+                          description:
+                            "How to obtain, fill, and register your Nikah Nama and NADRA MRC.",
+                          href: "/guides/nikah-nama-guide",
+                          badge: "Live",
+                        },
+                        {
                           icon: <Shield className="h-5 w-5" />,
                           title: "PCC Reference Guide",
                           description:
                             "Comprehensive overview of Police Character Certificates for all provinces.",
                           href: "/guides/police-certificate",
+                          badge: "Live",
+                        },
+                        {
+                          icon: <BookOpen className="h-5 w-5" />,
+                          title: "Education Certificate Guide",
+                          description:
+                            "Attestation (HEC/IBCC), WES evaluation, and US student visa requirements.",
+                          href: "/guides/educational-certificates-us-visa",
                           badge: "Live",
                         },
                       ],
@@ -1641,6 +1660,8 @@ export function SiteHeader({
                     <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
                       {[
                         { id: "passport-guide", label: "Passport Guide" },
+                        { id: "nikah-nama-guide", label: "Nikah Nama Guide" },
+                        { id: "educational-certificates-us-visa", label: "Education Guide" },
                       ].map((item) => (
                         <HydrationSafeButton
                           key={item.id}
