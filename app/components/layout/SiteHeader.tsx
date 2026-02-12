@@ -197,7 +197,8 @@ export function SiteHeader({
         "custom-requirements": "/custom-requirements",
         "interview-prep": "/interview-prep",
         profile : "/profile",
-        settings: "/settings"
+        settings: "/settings",
+        "marriage-proof-guide": "/guides/bona-marriage-guide"
       };
 
       const targetRoute = routes[id] || "/";
@@ -1095,6 +1096,14 @@ export function SiteHeader({
                           description:
                             "How to obtain, fill, and register your Nikah Nama and NADRA MRC.",
                           href: "/guides/nikah-nama-guide",
+                          badge: "Live",
+                        },
+                        {
+                          icon: <ShieldCheck className="h-5 w-5" />,
+                          title: "Bona Fide Marriage Guide",
+                          description:
+                            "Complete guide to proving a genuine marriage for IR1/CR1 spousal visas.",
+                          href: "/guides/bona-marriage-guide",
                           badge: "Live",
                         },
                         {

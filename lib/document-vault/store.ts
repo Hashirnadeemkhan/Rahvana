@@ -478,23 +478,27 @@ export const useDocumentVaultStore = create<DocumentVaultStore>()((set, get) => 
       getStats: () => {
         const { uploadedDocuments, requiredDocuments } = get();
 
-        // Only count required documents, not optional ones
-        const requiredDocs = requiredDocuments.filter(doc => doc.required);
-        const total = requiredDocs.length;
-        const uploaded = requiredDocs.filter(
-          rd => uploadedDocuments.some(
-            (ud) => ud.documentDefId === rd.id && ud.status === 'UPLOADED'
+        // Only count mandatory documents for progress percentage
+        const mandatoryDocs = requiredDocuments.filter(doc => doc.required);
+        const total = mandatoryDocs.length;
+        
+        const uploaded = mandatoryDocs.filter(
+          md => uploadedDocuments.some(
+            (ud) => ud.documentDefId === md.id && (ud.status === 'UPLOADED' || ud.status === 'NEEDS_ATTENTION')
           )
         ).length;
-        const missing = requiredDocs.filter(
-          (rd) =>
+
+        const missing = mandatoryDocs.filter(
+          (md) =>
             !uploadedDocuments.some(
-              (ud) => ud.documentDefId === rd.id && ud.status !== 'MISSING'
+              (ud) => ud.documentDefId === md.id
             )
         ).length;
+
         const expiring = uploadedDocuments.filter(
           (d) => d.status === 'NEEDS_ATTENTION'
         ).length;
+
         const expired = uploadedDocuments.filter((d) => d.status === 'EXPIRED').length;
 
         return {

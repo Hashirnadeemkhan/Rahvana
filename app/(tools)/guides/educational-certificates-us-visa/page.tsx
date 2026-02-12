@@ -1,5 +1,6 @@
-"use client";
+"use client"
 import React from "react";
+import Script from "next/script";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -11,27 +12,23 @@ import {
   Home,
   ShieldCheck,
   BadgeCheck,
-  Info,
   RotateCcw,
-  GraduationCap,
   Plane,
   Stamp,
-  Search,
-  BookOpen,
-  Award,
-  CreditCard,
-  Building2,
   FileSearch,
+  CreditCard,
 } from "lucide-react";
 import { HeroSection } from "./components/hero-section";
 
 // --- Types & Config ---
 
+type IconComponent = React.ComponentType<{ className?: string; }> | React.FC<{ className?: string; }>;
+
 interface Step {
   id: string;
   title: string;
   shortTitle: string;
-  icon: any;
+  icon: IconComponent;
   categories: {
     heading: string;
     items: { id: string; text: string; subtext?: string }[];
@@ -39,154 +36,255 @@ interface Step {
   proTip?: string;
 }
 
+interface VantaEffectInstance {
+  destroy: () => void;
+}
+
+interface VantaTopologyOptions {
+  el: HTMLElement | null;
+  mouseControls: boolean;
+  touchControls: boolean;
+  gyroControls: boolean;
+  minHeight: number;
+  minWidth: number;
+  scale: number;
+  scaleMobile: number;
+  backgroundColor: number;
+  color: number;
+}
+
+interface WindowWithVanta extends Window {
+  VANTA?: {
+    TOPOLOGY: (options: VantaTopologyOptions) => VantaEffectInstance;
+  };
+}
+
 const STEPS: Step[] = [
   {
     id: "gathering",
-    title: "1. Document Gathering & Verification",
-    shortTitle: "Documents",
+    title: "1. Gathering Educational Documents",
+    shortTitle: "Gather Docs",
     icon: FileText,
     categories: [
       {
-        heading: "Primary Academic Documents",
+        heading: "School Level Documents",
         items: [
-          { id: "gen-1", text: "Matric (SSC) Certificate & Transcript" },
-          { id: "gen-2", text: "Intermediate (HSSC) Certificate & Transcript" },
-          { id: "gen-3", text: "Bachelor's Degree & Final Transcripts", subtext: "Required for Grad school applicants" },
-          { id: "gen-4", text: "Master's Degree (if applicable)" },
-          { id: "gen-5", text: "Passport (Must be valid for 6 months minimum)" },
+          { 
+            id: "gen-1", 
+            text: "Matric (SSC) Certificate & Transcript", 
+            subtext: "Obtain from your BISE Board (e.g., Lahore Board, Karachi Board). Request original certificate + marksheet." 
+          },
+          { 
+            id: "gen-2", 
+            text: "Intermediate (HSSC) Certificate & Transcript", 
+            subtext: "Obtain from your BISE Board. Get original + detailed marksheet." 
+          },
         ],
       },
       {
-        heading: "University Admit Documents",
+        heading: "University Level Documents",
         items: [
-          { id: "admit-1", text: "I-20 Form (Original signed hardcopy/digital)", subtext: "Obtained from your US University" },
-          { id: "admit-2", text: "Admission Letter" },
+          { 
+            id: "gen-3", 
+            text: "Bachelor's Degree & Final Transcripts", 
+            subtext: "Obtain from your university (request sealed envelope with degree + official transcripts)." 
+          },
+          { 
+            id: "gen-4", 
+            text: "Master's Degree & Transcripts (if applicable)", 
+            subtext: "Obtain from your university in sealed envelope format." 
+          },
+        ],
+      },
+      {
+        heading: "Student Visa Specific",
+        items: [
+          { id: "admit-1", text: "I-20 Form (Original signed)", subtext: "Issued by your US university/college after admission" },
+          { id: "admit-2", text: "Admission Letter", subtext: "From your US university/college" },
         ],
       },
     ],
-    proTip: "Ensure all names on certificates match your Passport exactly. Any discrepancy requires an Affidavit.",
+    proTip: "Ensure names on all certificates match your passport exactly. Get an affidavit if there is any mismatch.",
   },
   {
     id: "attestation",
-    title: "2. Attestation Journey (Pakistan Authorities)",
+    title: "2. Attestation of Educational Certificates",
     shortTitle: "Attestation",
     icon: Stamp,
     categories: [
       {
-        heading: "School Level (IBCC)",
+        heading: "School Level (Matric & Intermediate)",
         items: [
-          { id: "ibcc-1", text: "Online Application at ibcc.edu.pk", subtext: "Register and fill the form" },
-          { id: "ibcc-2", text: "Attestation of Matric & Inter Certificates", subtext: "Fee: PKR 2,000-5,000 per doc" },
-          { id: "ibcc-3", text: "Equivalence Certificate", subtext: "Required if certificates are O/A Levels" },
+          { id: "ibcc-1", text: "Apply online at ibcc.edu.pk", subtext: "Register and submit application" },
+          { 
+            id: "ibcc-2", 
+            text: "IBCC Attestation", 
+            subtext: "For Matric & Intermediate certificates. Fee: PKR 2,000-5,000 per document. Submit originals + copies." 
+          },
+          { 
+            id: "ibcc-3", 
+            text: "Equivalence Certificate (if needed)", 
+            subtext: "For O/A Levels or foreign qualifications – apply at IBCC" 
+          },
         ],
       },
       {
-        heading: "Higher Education (HEC)",
+        heading: "University Level (Bachelor's & above)",
         items: [
-          { id: "hec-1", text: "Portal Account at eservices.hec.gov.pk" },
-          { id: "hec-2", text: "Upload Degrees & Transcripts" },
-          { id: "hec-3", text: "Biometric & Verification", subtext: "Verified through University linkage" },
-          { id: "hec-4", text: "Final HEC Stamp", subtext: "PKR 800 - 2,000 per document" },
+          { id: "hec-1", text: "Create account at eservices.hec.gov.pk", subtext: "Online portal for application" },
+          { 
+            id: "hec-2", 
+            text: "HEC Attestation", 
+            subtext: "Upload degree & transcripts. HEC verifies with university. Fee: PKR 800-2,000 per document. Get final stamp." 
+          },
         ],
       },
       {
-        heading: "Ministry of Foreign Affairs (MOFA)",
+        heading: "Final Attestation (Recommended)",
         items: [
-          { id: "mofa-1", text: "Final Attestation (Optional but recommended)", subtext: "Done after HEC/IBCC stamps" },
+          { 
+            id: "mofa-1", 
+            text: "MOFA Attestation", 
+            subtext: "After IBCC/HEC. Apply at mofa.gov.pk or MOFA camps. Increases credibility at US visa interview." 
+          },
         ],
       },
     ],
-    proTip: "Urgent attestation is available but requires higher fees. Always keep photocopies of the back side (stamped side).",
+    proTip: "Always keep photocopies of the stamped (attested) side. Urgent service available with extra fees.",
   },
   {
     id: "evaluation",
-    title: "3. Evaluations & Test Scores",
-    shortTitle: "Tests",
+    title: "3. Credential Evaluation & Tests",
+    shortTitle: "Evaluation",
     icon: FileSearch,
     categories: [
       {
-        heading: "Standardized Tests",
+        heading: "English Proficiency Tests",
         items: [
-          { id: "test-1", text: "English Proficiency (IELTS/TOEFL/Duolingo)" },
-          { id: "test-2", text: "Academic Tests (SAT/GRE/GMAT scores)" },
+          { id: "test-1", text: "IELTS / TOEFL", subtext: "Take test from British Council, IDP or ETS" },
         ],
       },
       {
-        heading: "Credential Evaluation (WES etc.)",
+        heading: "Credential Evaluation (if required by university)",
         items: [
-          { id: "eval-1", text: "Register on WES.org (or ECE/IEE)" },
-          { id: "eval-2", text: "Request Official Sealed Envelopes from University/HEC" },
-          { id: "eval-3", text: "Courier Documents to Evaluation Agency" },
+          { id: "eval-1", text: "Register at WES.org (or ECE / IEE)", subtext: "Create account for evaluation" },
+          { 
+            id: "eval-2", 
+            text: "Send sealed & attested documents", 
+            subtext: "Request university/HEC to send sealed envelopes directly to WES" 
+          },
+          { 
+            id: "eval-3", 
+            text: "Submit to evaluation agency", 
+            subtext: "Courier or direct submission to WES/ECE. Do NOT open sealed envelopes." 
+          },
         ],
       },
     ],
-    proTip: "Do NOT break the seal of university-issued envelopes. They must remain sealed to be accepted by WES.",
+    proTip: "Sealed envelopes from university/HEC must remain unopened for acceptance by WES or US schools.",
   },
   {
     id: "fees",
-    title: "4. US Fees & SEVIS Registration",
+    title: "4. Fees Related to Education Path",
     shortTitle: "Fees",
     icon: CreditCard,
     categories: [
       {
-        heading: "SEVIS Obligations",
+        heading: "Student Visa Fees",
         items: [
-          { id: "sevis-1", text: "SEVIS I-901 Fee Payment ($350)", subtext: "Pay at fmjfee.com" },
-          { id: "sevis-2", text: "Print SEVIS Receipt", subtext: "Mandatory for interview" },
-        ],
-      },
-      {
-        heading: "Visa Application Fees",
-        items: [
-          { id: "visa-1", text: "MRV Visa Fee ($185)", subtext: "Payable via Allied Bank in Pakistan" },
-          { id: "visa-2", text: "Keep Deposit Slip", subtext: "Required for receipt number on UStraveldocs" },
+          { id: "sevis-1", text: "SEVIS I-901 Fee ($350)", subtext: "Pay online at fmjfee.com after receiving I-20" },
+          { id: "visa-1", text: "MRV Visa Fee ($185)", subtext: "Pay via Allied Bank in Pakistan" },
         ],
       },
     ],
-    proTip: "The MRV fee is non-refundable. Ensure I-20 details are correct before paying SEVIS.",
+    proTip: "Fees are non-refundable. Pay SEVIS only after I-20 is issued.",
   },
   {
     id: "interview",
-    title: "5. DS-160 & Visa Success",
-    shortTitle: "Success",
+    title: "5. DS-160 & Interview Preparation",
+    shortTitle: "Interview",
     icon: Plane,
     categories: [
       {
-        heading: "Online Filings",
+        heading: "Online Application",
         items: [
-          { id: "final-1", text: "Complete DS-160 Form accurately" },
-          { id: "final-2", text: "Schedule Appointment (Islamabad/Karachi)" },
+          { id: "final-1", text: "Complete DS-160 Form", subtext: "Accurately fill education history at ceac.state.gov" },
+          { id: "final-2", text: "Schedule appointment", subtext: "Book slot at US Embassy Islamabad or Consulate Karachi" },
         ],
       },
       {
-        heading: "Financial Evidence (Core for Interview)",
+        heading: "Documents to Carry to Interview",
         items: [
-          { id: "fin-1", text: "Bank Statements (covering 1 year of costs)" },
-          { id: "fin-2", text: "Affidavit of Support / Sponsor Letters" },
-          { id: "fin-3", text: "Tax Returns (Sponsor's FBR/IRS records)" },
+          { id: "emb-1", text: "I-20 (Original signed)" },
+          { id: "emb-2", text: "Passport & DS-160 Confirmation Page" },
+          { 
+            id: "emb-3", 
+            text: "Attested Educational Certificates & Transcripts", 
+            subtext: "Originals + IBCC/HEC/MOFA attested copies. Carry all from Matric to highest degree." 
+          },
+          { id: "emb-4", text: "SEVIS & MRV Payment Receipts" },
         ],
       },
       {
-        heading: "Final Checklist for Embassy",
+        heading: "Where Educational Documents Are Submitted",
         items: [
-          { id: "emb-1", text: "I-20 (Original Signed)" },
-          { id: "emb-2", text: "Passport & DS-160 Confirmation" },
-          { id: "emb-3", text: "Attested Academic Folder" },
-          { id: "emb-4", text: "SEVIS & MRV Receipts" },
+          { 
+            id: "sub-1", 
+            text: "US University / College", 
+            subtext: "Upload scanned attested copies during admission + send sealed originals" 
+          },
+          { 
+            id: "sub-2", 
+            text: "DS-160 Online Form", 
+            subtext: "Upload scanned copies of attested certificates" 
+          },
+          { 
+            id: "sub-3", 
+            text: "US Embassy Visa Interview", 
+            subtext: "Bring originals + attested photocopies to interview (Islamabad or Karachi)" 
+          },
         ],
       },
     ],
-    proTip: "Be ready to explain your 'Ties to Pakistan' and your specific academic goals in the US.",
+    proTip: "Clearly explain your study plan and strong ties to Pakistan. Be honest about your education history.",
   },
 ];
 
-export default function EducationCertificatesGuidePage() {
+export default function USVisaEducationalGuidePage() {
   const [activeTab, setActiveTab] = React.useState<number>(0);
   const [checkedItems, setCheckedItems] = React.useState<string[]>([]);
 
-  // Persistence logic
+  const vantaRef = React.useRef<HTMLDivElement>(null);
+  const [scriptsLoaded, setScriptsLoaded] = React.useState(false);
+
   React.useEffect(() => {
-    const saved = localStorage.getItem("usa-edu-guide-progress-final");
+    let vantaInstance: VantaEffectInstance | null = null;
+
+    if (!vantaInstance && scriptsLoaded && typeof window !== 'undefined') {
+      const vantaLib = (window as WindowWithVanta).VANTA;
+      if (vantaLib?.TOPOLOGY && vantaRef.current) {
+        vantaInstance = vantaLib.TOPOLOGY({
+          el: vantaRef.current,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          scale: 1.00,
+          scaleMobile: 1.00,
+          backgroundColor: 0x055b5e,
+          color: 0x89964e
+        }) as VantaEffectInstance;
+      }
+    }
+
+    return () => {
+      if (vantaInstance) vantaInstance.destroy();
+    };
+  }, [scriptsLoaded]);
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem("usa-edu-guide-progress");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -199,7 +297,7 @@ export default function EducationCertificatesGuidePage() {
   }, []);
 
   React.useEffect(() => {
-    localStorage.setItem("usa-edu-guide-progress-final", JSON.stringify({
+    localStorage.setItem("usa-edu-guide-progress", JSON.stringify({
       checked: checkedItems,
       currentStep: activeTab
     }));
@@ -221,46 +319,63 @@ export default function EducationCertificatesGuidePage() {
     if (confirm("Reset all progress?")) {
       setCheckedItems([]);
       setActiveTab(0);
-      localStorage.removeItem("usa-edu-guide-progress-final");
+      localStorage.removeItem("usa-edu-guide-progress");
     }
   };
 
   const currentStep = STEPS[activeTab];
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
-      <HeroSection />
+    <div className="min-h-screen font-sans relative bg-[#055b5e]">
+      <Script 
+        src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.1/p5.min.js"
+        strategy="beforeInteractive"
+      />
+      <Script 
+        src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.topology.min.js"
+        strategy="afterInteractive"
+        onLoad={() => setScriptsLoaded(true)} 
+      />
+
+      <div 
+        ref={vantaRef} 
+        className="fixed inset-0 z-0 w-full h-full"
+      />
+
+      <div className="relative z-10 w-full h-full">
+        <HeroSection />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
-        {/* Breadcrumb & Global Progress */}
+        {/* Breadcrumb & Progress */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 mt-8">
-          <nav className="flex items-center gap-2 text-sm text-slate-600">
-            <Link href="/" className="hover:text-[#0d7377] transition-colors"><Home className="w-4 h-4" /></Link>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-            <Link href="/guides" className="hover:text-[#0d7377] font-medium">Guides</Link>
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-            <span className="text-[#0d7377] font-black tracking-tight underline decoration-teal-500/30 decoration-4 underline-offset-4 uppercase text-xs">US Education Roadmap</span>
+          <nav className="flex items-center gap-2 text-sm text-white/60">
+            <Link href="/" className="hover:text-white transition-colors"><Home className="w-4 h-4" /></Link>
+            <ChevronRight className="w-4 h-4 text-white/30" />
+            <Link href="/guides" className="hover:text-white font-medium">Guides</Link>
+            <ChevronRight className="w-4 h-4 text-white/30" />
+            <span className="text-white font-black tracking-tight border-b-4 border-[#89964e]/50 uppercase text-xs">US Education Certificates Guide</span>
           </nav>
 
-          <div className="flex items-center gap-4 bg-white px-6 py-3 rounded-2xl border border-slate-200 shadow-sm shrink-0">
+          <div className="flex items-center gap-4 bg-white/10 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/20 shadow-xl shrink-0">
             <div className="text-left">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Overall Progress</p>
-              <p className="text-sm font-black text-slate-900">{getProgress()}% Completed</p>
+              <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-0.5">Progress</p>
+              <p className="text-sm font-black text-white">{getProgress()}% Completed</p>
             </div>
-            <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div className="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${getProgress()}%` }}
-                className="h-full bg-linear-to-r from-[#0d7377] to-[#14a0a6]" 
+                className="h-full bg-gradient-to-r from-[#89964e] to-[#a4b44b]" 
               />
             </div>
-            <button onClick={resetProgress} className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-rose-500 transition-colors">
+            <button onClick={resetProgress} className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-rose-400 transition-colors">
               <RotateCcw className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Desktop Stepper Navigation */}
+        {/* Stepper Navigation - Now 5 columns again */}
         <div className="hidden lg:grid grid-cols-5 gap-4 mb-12">
           {STEPS.map((step, idx) => (
             <button
@@ -269,21 +384,20 @@ export default function EducationCertificatesGuidePage() {
               className={cn(
                 "group relative p-6 rounded-3xl border-2 transition-all flex flex-col items-center text-center gap-3 overflow-hidden",
                 activeTab === idx 
-                  ? "bg-[#0d7377] border-[#0d7377] text-white shadow-xl shadow-[#0d7377]/20" 
+                  ? "bg-white border-white text-[#055b5e] shadow-2xl scale-105" 
                   : idx < activeTab 
-                    ? "bg-teal-50 border-teal-100 text-[#0d7377]" 
-                    : "bg-white border-slate-100 text-slate-400 hover:border-[#14a0a6]/40 hover:text-slate-900"
+                    ? "bg-[#89964e]/40 border-white/20 text-white" 
+                    : "bg-black/20 border-white/10 text-white/50 hover:border-white/40 hover:text-white"
               )}
             >
               <div className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center transition-all",
-                activeTab === idx ? "bg-white/20" : "bg-slate-50 group-hover:bg-teal-50"
+                activeTab === idx ? "bg-[#89964e]/10" : "bg-white/10 group-hover:bg-white/20"
               )}>
-                <step.icon className={cn("w-5 h-5", activeTab === idx ? "text-white" : "text-slate-400 group-hover:text-[#0d7377]")} />
+                <step.icon className={cn("w-5 h-5", activeTab === idx ? "text-[#055b5e]" : "text-white/60 group-hover:text-white")} />
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest leading-none">{step.shortTitle}</span>
               
-              {/* Checkmark for completed steps */}
               {STEPS[idx].categories.every(cat => cat.items.every(i => checkedItems.includes(i.id))) && (
                 <div className="absolute top-2 right-2">
                   <CheckCircle className="w-4 h-4 text-emerald-400" />
@@ -294,7 +408,6 @@ export default function EducationCertificatesGuidePage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-12 items-start text-left">
-          {/* Main Content Area */}
           <div className="lg:col-span-2 order-2 lg:order-1">
             <AnimatePresence mode="wait">
               <motion.div 
@@ -302,21 +415,20 @@ export default function EducationCertificatesGuidePage() {
                 initial={{ opacity: 0, scale: 0.98, x: 20 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.98, x: -20 }}
-                className="bg-white rounded-[3rem] p-8 lg:p-12 border border-slate-100 shadow-2xl relative overflow-hidden"
+                className="bg-white/10 backdrop-blur-2xl rounded-[3rem] p-8 lg:p-12 border border-white/20 shadow-2xl relative overflow-hidden"
               >
-                {/* Visual Background Decal */}
-                <div className="absolute -right-16 -top-16 opacity-[0.03] rotate-12">
-                   <currentStep.icon className="w-64 h-64 text-[#0d7377]" />
+                <div className="absolute -right-16 -top-16 opacity-[0.15] rotate-12">
+                   <currentStep.icon className="w-64 h-64 text-[#89964e]" />
                 </div>
 
                 <div className="relative z-10">
                   <div className="flex items-center gap-6 mb-12">
-                    <div className="w-16 h-16 rounded-3xl bg-linear-to-br from-[#0d7377] to-[#14a0a6] flex items-center justify-center text-white shadow-lg shrink-0">
+                    <div className="w-16 h-16 rounded-3xl bg-white flex items-center justify-center text-[#055b5e] shadow-xl shrink-0">
                       <currentStep.icon className="w-8 h-8" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-100 px-3 py-1 rounded-full mb-2 inline-block">Stage {activeTab + 1} of {STEPS.length}</span>
-                      <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">{currentStep.title}</h2>
+                      <span className="text-[10px] font-black text-[#89964e] uppercase tracking-[0.2em] bg-white/10 px-3 py-1 rounded-full mb-2 inline-block">Step {activeTab + 1} of {STEPS.length}</span>
+                      <h2 className="text-3xl lg:text-4xl font-black text-white tracking-tight">{currentStep.title}</h2>
                     </div>
                   </div>
 
@@ -324,8 +436,8 @@ export default function EducationCertificatesGuidePage() {
                     {currentStep.categories.map((cat, catIdx) => (
                       <div key={catIdx} className="space-y-6">
                         <div className="flex items-center gap-3">
-                          <div className="h-8 w-1.5 bg-[#14a0a6] rounded-full" />
-                          <h4 className="font-black text-slate-900 text-xl tracking-tight uppercase text-sm">{cat.heading}</h4>
+                          <div className="h-8 w-1.5 bg-[#89964e] rounded-full" />
+                          <h4 className="font-black text-white text-sm tracking-tight uppercase">{cat.heading}</h4>
                         </div>
                         
                         <div className="grid gap-3">
@@ -336,27 +448,27 @@ export default function EducationCertificatesGuidePage() {
                                 key={item.id}
                                 onClick={() => toggleChecked(item.id)}
                                 className={cn(
-                                  "group flex items-start gap-5 p-6 rounded-[2rem] border-2 transition-all cursor-pointer",
+                                  "group flex items-start gap-5 p-6 rounded-4xl border-2 transition-all cursor-pointer",
                                   isChecked 
-                                    ? "bg-teal-50/40 border-[#0d7377]/20 shadow-sm" 
-                                    : "bg-white border-slate-50 hover:border-[#14a0a6]/20 hover:bg-slate-50/50"
+                                    ? "bg-[#89964e]/20 border-[#89964e]/40 shadow-sm" 
+                                    : "bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10"
                                 )}
                               >
                                 <div className={cn(
                                   "mt-1 w-6 h-6 rounded-[10px] border-2 flex items-center justify-center shrink-0 transition-all shadow-sm",
-                                  isChecked ? "bg-[#0d7377] border-[#0d7377] text-white" : "border-slate-200 bg-white group-hover:border-[#14a0a6]/40"
+                                  isChecked ? "bg-[#89964e] border-[#89964e] text-slate-900" : "border-white/20 bg-transparent group-hover:border-white/40"
                                 )}>
                                   {isChecked && <CheckCircle className="w-4 h-4" />}
                                 </div>
                                 <div className="flex flex-col text-left">
                                   <span className={cn(
                                     "text-base leading-tight tracking-tight",
-                                    isChecked ? "text-slate-900 font-bold" : "text-slate-700 font-semibold"
+                                    isChecked ? "text-white font-bold" : "text-white/80 font-semibold"
                                   )}>
                                     {item.text}
                                   </span>
                                   {item.subtext && (
-                                    <span className="text-xs text-slate-400 mt-1 font-medium">{item.subtext}</span>
+                                    <span className="text-xs text-white/40 mt-1 font-medium">{item.subtext}</span>
                                   )}
                                 </div>
                               </div>
@@ -367,7 +479,6 @@ export default function EducationCertificatesGuidePage() {
                     ))}
                   </div>
 
-                  {/* Navigation Footer */}
                   <div className="mt-20 pt-10 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
                     <button
                       disabled={activeTab === 0}
@@ -377,7 +488,7 @@ export default function EducationCertificatesGuidePage() {
                       }}
                       className={cn(
                         "w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-5 rounded-2xl font-black text-sm transition-all",
-                        activeTab === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-slate-50 text-slate-600 border-2 border-slate-200"
+                        activeTab === 0 ? "opacity-30 cursor-not-allowed" : "hover:bg-white/10 text-white border-2 border-white/20"
                       )}
                     >
                       <ChevronLeft className="w-5 h-5" />
@@ -390,17 +501,17 @@ export default function EducationCertificatesGuidePage() {
                           setActiveTab(prev => prev + 1);
                           window.scrollTo({ top: 400, behavior: 'smooth' });
                         }}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-12 py-5 rounded-2xl bg-linear-to-r from-[#0d7377] to-[#14a0a6] text-white font-black text-sm hover:scale-[1.03] active:scale-[0.97] transition-all shadow-xl shadow-[#0d7377]/20"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-12 py-5 rounded-2xl bg-white text-[#055b5e] font-black text-sm hover:scale-[1.03] active:scale-[0.97] transition-all shadow-xl shadow-black/20"
                       >
                         Next: {STEPS[activeTab + 1].shortTitle}
                         <ChevronRight className="w-5 h-5" />
                       </button>
                     ) : (
                       <button
-                        onClick={() => alert("Roadmap Complete! Best of luck with your US studies.")}
+                        onClick={() => alert("Guide Complete! Good luck with your US studies.")}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-12 py-5 rounded-2xl bg-emerald-600 text-white font-black text-sm hover:scale-[1.03] active:scale-[0.97] transition-all shadow-xl shadow-emerald-600/20"
                       >
-                        Finish Roadmap
+                        Finish Guide
                         <BadgeCheck className="w-5 h-5" />
                       </button>
                     )}
@@ -410,52 +521,39 @@ export default function EducationCertificatesGuidePage() {
             </AnimatePresence>
           </div>
 
-          {/* Sidebar Advisory */}
+          {/* Sidebar */}
           <div className="lg:col-span-1 order-1 lg:order-2 space-y-6 lg:sticky lg:top-24 text-left">
-             <div className="bg-white rounded-[2.5rem] border-2 border-slate-100 p-8 shadow-xl relative overflow-hidden">
+             <div className="bg-white/10 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 p-8 shadow-xl relative overflow-hidden">
                 <div className="flex items-center gap-3 mb-6">
-                   <div className="p-2.5 bg-rose-50 rounded-xl">
-                      <ShieldCheck className="w-5 h-5 text-rose-500" />
+                   <div className="p-2.5 bg-white rounded-xl">
+                      <ShieldCheck className="w-5 h-5 text-[#055b5e]" />
                    </div>
-                   <h3 className="font-black text-slate-900 text-lg tracking-tight">Stage Advisory</h3>
+                   <h3 className="font-black text-white text-lg tracking-tight">Quick Tip</h3>
                 </div>
-                <p className="text-sm font-bold text-slate-700 leading-relaxed mb-8">
+                <p className="text-sm font-bold text-white/70 leading-relaxed mb-8">
                    {currentStep.proTip}
                 </p>
-                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                   <div className="flex items-start gap-4">
-                      <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-100 shrink-0">
-                         <Info className="w-4 h-4 text-[#14a0a6]" />
-                      </div>
-                      <div>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Stay Organized</p>
-                         <p className="text-xs font-bold text-slate-600 leading-relaxed">
-                            Check multiple boxes to see your journey progress bar move. Use this checklist as your final folder audit.
-                         </p>
-                      </div>
-                   </div>
-                </div>
              </div>
 
-             {/* Quick Links / External */}
-             <div className="bg-linear-to-br from-[#0d7377] to-[#14a0a6] rounded-[2.5rem] p-8 text-white shadow-xl">
-                <h4 className="font-black text-lg mb-4 tracking-tight">Official Portals</h4>
+             <div className="bg-white rounded-[2.5rem] p-8 text-[#055b5e] shadow-xl">
+                <h4 className="font-black text-lg mb-4 tracking-tight">Official Websites</h4>
                 <div className="space-y-3">
                    {[
-                      { name: "HEC E-Services", url: "https://eservices.hec.gov.pk" },
-                      { name: "IBCC Pakistan", url: "https://ibcc.edu.pk" },
-                      { name: "CEAC DS-160", url: "https://ceac.state.gov" },
-                      { name: "SEVIS Payment", url: "https://fmjfee.com" }
+                      { name: "HEC Portal", url: "https://eservices.hec.gov.pk" },
+                      { name: "IBCC Portal", url: "https://ibcc.edu.pk" },
+                      { name: "DS-160 Form", url: "https://ceac.state.gov" },
+                      { name: "SEVIS Fee", url: "https://fmjfee.com" },
+                      { name: "US Embassy Pakistan", url: "https://pk.usembassy.gov" }
                    ].map((link, idx) => (
                       <a 
                         key={idx} 
                         href={link.url} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all group"
+                        className="flex items-center justify-between p-4 bg-[#055b5e]/5 hover:bg-[#055b5e]/10 rounded-2xl transition-all group border border-[#055b5e]/10"
                       >
                          <span className="text-xs font-black uppercase tracking-widest">{link.name}</span>
-                         <ChevronRight className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-all" />
+                         <ChevronRight className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-all text-[#055b5e]" />
                       </a>
                    ))}
                 </div>

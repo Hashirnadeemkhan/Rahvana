@@ -34,20 +34,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import {
-  FileText,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  Download,
-  Bell,
-  Trash2,
-  BookOpen,
-  LayoutGrid,
-  List,
+  Search,
+  X as CloseIcon,
   ShieldCheck,
-  Zap,
+  BookOpen,
   ChevronDown,
+  Download,
+  Clock,
+  Trash2,
+  Zap,
+  CheckCircle,
+  AlertCircle,
+  Bell,
+  List,
+  LayoutGrid,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -79,26 +81,55 @@ export default function DocumentVaultPage() {
   const [previewDoc, setPreviewDoc] = useState<UploadedDocument | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
   const [activeTab, setActiveTab] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter documents based on search query
+  const filteredDocumentsByCategory = useMemo(() => {
+    if (!config) return {};
+    const baseDocs = getDocumentsByCategory(config, true);
+    if (!searchQuery.trim()) return baseDocs;
+
+    const query = searchQuery.toLowerCase();
+    const filtered: Record<string, typeof ALL_DOCUMENTS> = {};
+
+    Object.entries(baseDocs).forEach(([category, docs]) => {
+      const filteredDocs = docs.filter(doc => 
+        doc.name.toLowerCase().includes(query) || 
+        doc.description?.toLowerCase().includes(query)
+      );
+      if (filteredDocs.length > 0) {
+        filtered[category] = filteredDocs;
+      }
+    });
+
+    return filtered;
+  }, [config, searchQuery]);
 
   // Calculate stats - must be before any conditional returns
   const stats = useMemo(() => {
-    // Only count required documents, not optional ones
-    const requiredDocs = requiredDocuments.filter((doc) => doc.required);
-    const total = requiredDocs.length;
-    const uploaded = requiredDocs.filter((rd) =>
+    // Only count mandatory documents for progress percentage
+    const mandatoryDocs = requiredDocuments.filter((doc) => doc.required);
+    const total = mandatoryDocs.length;
+    
+    // Uploaded count should include 'NEEDS_ATTENTION' (as they are still valid)
+    const uploaded = mandatoryDocs.filter((rd) =>
       uploadedDocuments.some(
-        (ud) => ud.documentDefId === rd.id && ud.status === "UPLOADED",
+        (ud) => ud.documentDefId === rd.id && (ud.status === "UPLOADED" || ud.status === "NEEDS_ATTENTION"),
       ),
     ).length;
-    const missing = requiredDocs.filter(
+
+    // A document is missing only if no version exists at all
+    const missing = mandatoryDocs.filter(
       (rd) =>
         !uploadedDocuments.some(
-          (ud) => ud.documentDefId === rd.id && ud.status !== "MISSING",
+          (ud) => ud.documentDefId === rd.id,
         ),
     ).length;
+
     const expiring = uploadedDocuments.filter(
       (d) => d.status === "NEEDS_ATTENTION",
     ).length;
+    
     const expired = uploadedDocuments.filter(
       (d) => d.status === "EXPIRED",
     ).length;
@@ -116,6 +147,10 @@ export default function DocumentVaultPage() {
     () => (config ? getDocumentsByCategory(config, true) : {}),
     [config],
   );
+
+  const flatFilteredDocuments = useMemo(() => {
+    return Object.values(filteredDocumentsByCategory).flat();
+  }, [filteredDocumentsByCategory]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -161,9 +196,9 @@ export default function DocumentVaultPage() {
 
   // Categories for tabs
   const categories = useMemo(() => {
-    const cats = Object.keys(documentsByCategory).sort();
+    const cats = Object.keys(filteredDocumentsByCategory).sort();
     return ['all', ...cats];
-  }, [documentsByCategory]);
+  }, [filteredDocumentsByCategory]);
 
   if (authLoading || isInitializing) {
     return (
@@ -266,6 +301,7 @@ export default function DocumentVaultPage() {
     if (!confirm("Are you sure you want to delete this document?")) return;
 
     try {
+      toast.loading("Deleting document...", { id: "delete-doc" });
       const response = await fetch(`/api/documents/${documentId}`, {
         method: "DELETE",
       });
@@ -274,11 +310,15 @@ export default function DocumentVaultPage() {
         throw new Error("Delete failed");
       }
 
-      toast.success("Document deleted");
-      setInitialized(false); // Trigger re-initialization to reload data
+      // Reload all data from database to ensure store is in sync
+      if (user) {
+        await initialize(user.id);
+      }
+      
+      toast.success("Document deleted", { id: "delete-doc" });
     } catch (error) {
       console.error("Delete error:", error);
-      toast.error("Failed to delete document");
+      toast.error("Failed to delete document", { id: "delete-doc" });
     }
   };
 
@@ -382,27 +422,6 @@ export default function DocumentVaultPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mr-2">
-                <Button 
-                  variant={viewMode === 'table' ? 'secondary' : 'ghost'} 
-                  size="sm" 
-                  onClick={() => setViewMode('table')}
-                  className={`h-8 rounded-lg ${viewMode === 'table' ? 'bg-white shadow-sm' : ''}`}
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
-                  size="sm" 
-                  onClick={() => setViewMode('grid')}
-                  className={`h-8 rounded-lg ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </Button>
-              </div>
-
-              <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div>
-
               <Link href="/document-vault/guide" className="hidden sm:flex">
                 <Button variant="ghost" size="sm" className="font-semibold gap-2">
                   <BookOpen className="w-4 h-4" />
@@ -564,44 +583,152 @@ export default function DocumentVaultPage() {
             </AnimatePresence>
 
             <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-              <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                <TabsList className="bg-white dark:bg-slate-900 border shadow-sm h-11 p-1 rounded-xl">
-                  {categories.slice(0, 5).map(cat => (
-                    <TabsTrigger 
-                      key={cat} 
-                      value={cat} 
-                      className="px-6 rounded-lg font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white transition-all duration-300"
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-6">
+                <div className="flex items-center flex-wrap gap-4">
+                  <TabsList className="bg-white dark:bg-slate-900 border shadow-sm h-11 p-1 rounded-xl shrink-0">
+                    {categories.slice(0, 5).map(cat => (
+                      <TabsTrigger 
+                        key={cat} 
+                        value={cat} 
+                        className="px-6 rounded-lg font-bold text-xs data-[state=active]:bg-primary data-[state=active]:text-white transition-all duration-300"
+                      >
+                        {cat === 'all' ? 'All Master Checklist' : getCategoryDisplayName(cat).split(' ')[0]}
+                      </TabsTrigger>
+                    ))}
+                    {categories.length > 5 && (
+                       <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-9 px-3 rounded-lg font-bold text-xs gap-1">
+                            More <ChevronDown className="w-3 h-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {categories.slice(5).map(cat => (
+                            <DropdownMenuItem key={cat} onClick={() => setActiveTab(cat)}>
+                              {getCategoryDisplayName(cat)}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                       </DropdownMenu>
+                    )}
+                  </TabsList>
+
+                  {/* Move View Switcher here next to tabs */}
+                  <div className="flex bg-white dark:bg-slate-900 border shadow-sm p-1 rounded-xl h-11">
+                    <Button 
+                      variant={viewMode === 'table' ? 'secondary' : 'ghost'} 
+                      size="sm" 
+                      onClick={() => setViewMode('table')}
+                      className={`h-9 px-3 rounded-lg ${viewMode === 'table' ? 'bg-slate-100 dark:bg-slate-800 shadow-inner' : ''}`}
                     >
-                      {cat === 'all' ? 'All Master Checklist' : getCategoryDisplayName(cat).split(' ')[0]}
-                    </TabsTrigger>
-                  ))}
-                  {categories.length > 5 && (
-                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-9 px-3 rounded-lg font-bold text-xs gap-1">
-                          More <ChevronDown className="w-3 h-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {categories.slice(5).map(cat => (
-                          <DropdownMenuItem key={cat} onClick={() => setActiveTab(cat)}>
-                            {getCategoryDisplayName(cat)}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                     </DropdownMenu>
-                  )}
-                </TabsList>
+                      <List className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
+                      size="sm" 
+                      onClick={() => setViewMode('grid')}
+                      className={`h-9 px-3 rounded-lg ${viewMode === 'grid' ? 'bg-slate-100 dark:bg-slate-800 shadow-inner' : ''}`}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
                 
-                <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                <div className="flex flex-1 items-center gap-4 max-w-md w-full ml-auto">
+                   <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input 
+                        placeholder="Search documents..." 
+                        className="pl-10 h-11 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:ring-primary/20"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      {searchQuery && (
+                        <button 
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                        >
+                          <CloseIcon className="w-3 h-3 text-slate-400" />
+                        </button>
+                      )}
+                   </div>
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
                   {activeTab === 'all' ? 'Comprehensive Master Checklist' : getCategoryDisplayName(activeTab)}
+                  {searchQuery && (
+                    <Badge variant="outline" className="font-bold text-primary border-primary/20 bg-primary/5">
+                      Search: {searchQuery}
+                    </Badge>
+                  )}
                 </h2>
               </div>
 
               <TabsContent value={activeTab} className="mt-0 ring-offset-0 focus-visible:ring-0">
                 <div className="space-y-10">
-                  {activeTab === 'all' ? (
-                    // Show all categories in 'all' tab
+                  {searchQuery ? (
+                    // Show flat list of search results when searching
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3">
+                         <div className="h-1 w-12 bg-primary rounded-full"></div>
+                         <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">
+                           Found {flatFilteredDocuments.length} matching documents
+                         </h3>
+                      </div>
+                      
+                      {flatFilteredDocuments.length > 0 ? (
+                        viewMode === 'grid' ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                            {flatFilteredDocuments.map((doc) => {
+                              const uploadedDoc = uploadedDocuments.find(ud => ud.documentDefId === doc.id);
+                              return (
+                                <DocumentCard
+                                  key={doc.id}
+                                  documentDef={doc}
+                                  uploadedDoc={uploadedDoc}
+                                  onUpload={() => openUploadModal(doc.id)}
+                                  onPreview={uploadedDoc ? () => handlePreview(uploadedDoc) : undefined}
+                                  onDownload={uploadedDoc ? () => handleDownload(uploadedDoc.id) : undefined}
+                                  onDelete={uploadedDoc ? () => handleDelete(uploadedDoc.id) : undefined}
+                                  onExport={uploadedDoc ? () => handleExportSingle(uploadedDoc.id, uploadedDoc.hasCompressedVersion || false) : undefined}
+                                  onOpenWizard={() => openWizard(doc.id)}
+                                />
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <DocumentTableView 
+                            documents={flatFilteredDocuments}
+                            uploadedDocuments={uploadedDocuments}
+                            onUpload={openUploadModal}
+                            onPreview={handlePreview}
+                            onDownload={handleDownload}
+                            onDelete={handleDelete}
+                            onExport={handleExportSingle}
+                            onOpenWizard={openWizard}
+                          />
+                        )
+                      ) : (
+                        <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+                          <Search className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-white">No documents found</h3>
+                          <p className="text-slate-500 max-w-xs mx-auto mt-2">
+                            We couldn't find any documents matching "{searchQuery}". Try a different keyword.
+                          </p>
+                          <Button 
+                            variant="link" 
+                            className="mt-4 text-primary font-bold"
+                            onClick={() => setSearchQuery("")}
+                          >
+                            Clear Search
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : activeTab === 'all' ? (
+                    // Show all categories in 'all' tab when NOT searching
                     Object.entries(documentsByCategory).map(([category, docs]) => (
                       <div key={category} className="space-y-4">
                         <div className="flex items-center gap-3">
@@ -645,7 +772,7 @@ export default function DocumentVaultPage() {
                       </div>
                     ))
                   ) : (
-                    // Show specific category
+                    // Show specific category when NOT searching
                     <div className="space-y-4">
                       {viewMode === 'grid' ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
