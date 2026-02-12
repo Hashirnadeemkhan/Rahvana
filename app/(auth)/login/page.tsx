@@ -243,7 +243,7 @@ function LoginContent() {
           </div>
           <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
           <p className="text-muted-foreground mt-2">
-            Sign in to continue to Arachnie
+            Sign in to continue to Rahvana
           </p>
         </div>
 
