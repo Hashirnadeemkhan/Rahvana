@@ -1,13 +1,29 @@
 // app/(auth)/login/page.tsx
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+interface Profile {
+  mfa_enabled: boolean;
+  mfa_prompt_dismissed_at: string | null;
+}
+
+import { useState, useEffect, Suspense, FormEvent } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { createClient } from "@/lib/supabase/client";
+
+const supabase = createClient();
 
 function LoginContent() {
   const [email, setEmail] = useState("");
@@ -16,9 +32,22 @@ function LoginContent() {
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn, signInWithGoogle, isLoading, user } = useAuth();
+  const {
+    signIn,
+    signInWithGoogle,
+    isLoading,
+    user,
+    verifyMFALogin,
+    mfaPending,
+  } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [factorId, setFactorId] = useState("");
+  const [challengeId, setChallengeId] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
+  const [showMfaPrompt, setShowMfaPrompt] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   // Check for messages from URL params
   useEffect(() => {
@@ -42,12 +71,51 @@ function LoginContent() {
     }
   }, [searchParams]);
 
-  // Redirect if already logged in
+  // Listen for auth state changes
   useEffect(() => {
-    if (user && !isLoading) {
-      router.push("/admin");
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          fetchProfile(session.user.id);
+        }
+      },
+    );
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("mfa_enabled, mfa_prompt_dismissed_at")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Profile fetch error:", error.message);
+      return;
     }
-  }, [user, isLoading, router]);
+    if (!data) {
+      console.warn("Profile not found or blocked by RLS");
+      return;
+    }
+
+    setProfile(data);
+    checkMfaPrompt(data);
+  };
+
+  const checkMfaPrompt = (profile: Profile) => {
+    const showPrompt =
+      !profile.mfa_enabled &&
+      (!profile.mfa_prompt_dismissed_at ||
+        daysSince(profile.mfa_prompt_dismissed_at) >= 7);
+
+    setShowMfaPrompt(showPrompt);
+  };
+
+  const daysSince = (date: string) => {
+    const diffTime = Math.abs(new Date().getTime() - new Date(date).getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,16 +123,34 @@ function LoginContent() {
     setIsSubmitting(true);
 
     try {
-      const { error: signInError } = await signIn(email, password);
+      const {
+        error: signInError,
+        mfaRequired: isMfaRequired,
+        factorId: fId,
+        challengeId: cId,
+      } = await signIn(email, password);
       if (signInError) {
         if (signInError.message.includes("Invalid login credentials")) {
           setError("Invalid email or password. Please check and try again.");
         } else if (signInError.message.includes("Email not confirmed")) {
           setError("Please verify your email before signing in.");
         } else {
-          setError(signInError.message);
+          // setError(signInError.message);
         }
       }
+
+      // MFA required 
+    if ((isMfaRequired && fId && cId)) {
+      setMfaRequired(true);
+      setFactorId(fId);
+      setChallengeId(cId);
+      setSuccess("Please enter your authentication code");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // no MFA, safe to redirect
+    router.push("/");
     } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
@@ -72,12 +158,56 @@ function LoginContent() {
     }
   };
 
+  const handleMfaSubmit = async (e: FormEvent) => {
+      e.preventDefault();
+      setError("");
+      setIsSubmitting(true);
+  
+      try {
+        const { success, error: mfaError } = await verifyMFALogin(
+          factorId,
+          challengeId,
+          mfaCode,
+        );
+  
+        if (success) {
+          router.replace("/");
+        } else {
+          setError(mfaError || "Invalid authentication code");
+        }
+      } catch {
+        setError("Failed to verify authentication code");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
   const handleGoogleSignIn = async () => {
     setError("");
     const { error: googleError } = await signInWithGoogle();
     if (googleError) {
       setError("Failed to sign in with Google. Please try again.");
     }
+  };
+
+  const handleEnableMfa = () => {
+    router.push("/mfa-setup");
+  };
+
+  const handleRemindMeLater = async () => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ mfa_prompt_dismissed_at: new Date().toISOString() })
+      .eq("id", user.id);
+
+    if (error) {
+      console.error("Failed to update dismiss time:", error);
+      return;
+    }
+
+    setShowMfaPrompt(false);
   };
 
   if (isLoading) {
@@ -113,7 +243,7 @@ function LoginContent() {
           </div>
           <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
           <p className="text-muted-foreground mt-2">
-            Sign in to continue to Arachnie
+            Sign in to continue to Rahvana
           </p>
         </div>
 
@@ -157,7 +287,64 @@ function LoginContent() {
         </div>
 
         {/* Email Sign In Form */}
-        <Card className="p-6 bg-card shadow-lg border-border rounded-2xl">
+        {mfaRequired ? (
+          <form onSubmit={handleMfaSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-foreground">
+                Authentication Code
+              </label>
+              <Input
+                type="text"
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value)}
+                placeholder="Enter 6-digit code"
+                maxLength={6}
+                required
+                disabled={isSubmitting}
+                className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
+              />
+              <p className="text-sm text-muted-foreground">
+                Enter the code from your authenticator app
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+                <svg
+                  className="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={isSubmitting || mfaCode.length !== 6}
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Verifying...
+                </div>
+              ) : (
+                "Verify Code"
+              )}
+            </Button>
+          </form>
+        ) : ( <Card className="p-6 bg-card shadow-lg border-border rounded-2xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-foreground">
@@ -297,6 +484,7 @@ function LoginContent() {
             </Button>
           </form>
         </Card>
+          )}
 
         {/* Sign Up Link */}
         <p className="text-center text-sm text-muted-foreground">
@@ -321,6 +509,24 @@ function LoginContent() {
           </Link>
         </p>
       </div>
+
+      {showMfaPrompt && (
+        <Dialog open={showMfaPrompt} onOpenChange={setShowMfaPrompt}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enable Two-Factor Authentication</DialogTitle>
+              <DialogDescription>
+                Add an extra layer of security to your account by enabling
+                two-factor authentication.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={handleEnableMfa}>Enable MFA</Button>
+              <Button onClick={handleRemindMeLater}>Remind me later</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

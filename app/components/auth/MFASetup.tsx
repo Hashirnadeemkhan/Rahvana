@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
-import Image from "next/image";
+// import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createBrowserClient } from "@supabase/ssr/dist/main/createBrowserClient";
 
 export function MFASetup() {
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+
+  // const router = useRouter();
+
   const [step, setStep] = useState<"initial" | "qr" | "verify" | "complete">(
     "initial",
   );
@@ -20,9 +28,42 @@ export function MFASetup() {
   const [loading, setLoading] = useState(false);
   const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
   const [disableOTP, setDisableOTP] = useState<string>("");
+  const [profile, setProfile] = useState<{ mfa_enabled: boolean } | null>(null);
 
-  const { enableMFA, verifyMFASetup, disableMFASetup, listMFACheckFactors } =
-    useAuth();
+  const {
+    user,
+    enableMFA,
+    verifyMFASetup,
+    disableMFASetup,
+    listMFACheckFactors,
+  } = useAuth();
+
+  const fetchProfile = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("mfa_enabled")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching profile:", error.message);
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error("Unexpected fetchProfile error:", err);
+    }
+  }, [supabase, user?.id]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleEnableMFA = async () => {
     setLoading(true);
@@ -100,6 +141,7 @@ export function MFASetup() {
         setError("");
         // Reset the MFA setup to initial state
         setStep("initial");
+        // router.push("/settings");
       } else {
         setError(result.error || "Failed to disable MFA");
       }
@@ -113,13 +155,29 @@ export function MFASetup() {
   if (step === "initial") {
     return (
       <Card className="p-6 max-w-md mx-auto">
-        <h2 className="text-xl font-bold mb-4">
-          Enable Two-Factor Authentication
-        </h2>
-        <p className="text-muted-foreground mb-6">
-          Add an extra layer of security to your account by enabling two-factor
-          authentication.
-        </p>
+        {profile && !profile.mfa_enabled && (
+          <>
+            <h2 className="text-xl font-bold mb-4">
+              Setup Two-Factor Authentication
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Add an extra layer of security to your account by enabling
+              two-factor authentication.
+            </p>
+          </>
+        )}
+
+        {profile && profile.mfa_enabled && (
+          <>
+            <h2 className="text-xl font-bold mb-4">
+              Manage Two-Factor Authentication
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Control and update your existing two-factor authentication
+              settings.
+            </p>
+          </>
+        )}
 
         {error && (
           <Alert variant="destructive" className="mb-4">
@@ -127,18 +185,24 @@ export function MFASetup() {
           </Alert>
         )}
 
-        <Button onClick={handleEnableMFA} disabled={loading} className="w-full">
-          {loading ? "Setting up..." : "Enable 2FA"}
-        </Button>
-
-        <div className="text-center">
-          <button
-            onClick={() => setIsDisableModalOpen(true)}
-            className="text-primary hover:underline text-sm cursor-pointer"
+        {profile && !profile.mfa_enabled && (
+          <Button
+            onClick={handleEnableMFA}
+            disabled={loading}
+            className="w-full"
           >
-            Disable 2FA
-          </button>
-        </div>
+            {loading ? "Setting up..." : "Enable 2FA"}
+          </Button>
+        )}
+
+        {profile && profile.mfa_enabled && (
+          <Button
+          onClick={() => setIsDisableModalOpen(true)}
+          className="w-full"
+        >
+          Disable 2FA
+        </Button>
+        )}
 
         {/* Disable MFA Modal */}
         {isDisableModalOpen && (
@@ -209,7 +273,7 @@ export function MFASetup() {
         </p>
 
         <div className="flex justify-center my-6">
-          <Image
+          <img
             src={qrCode}
             alt="Scan this QR code with your authenticator app"
             width={200}
@@ -314,7 +378,7 @@ export function MFASetup() {
           Two-factor authentication has been enabled on your account.
         </p>
 
-        <Button onClick={() => setStep("initial")} className="w-full">
+        <Button onClick={() => window.location.href = "/settings"} className="w-full">
           Done
         </Button>
       </Card>

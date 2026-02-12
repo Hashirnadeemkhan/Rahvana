@@ -5,7 +5,7 @@ import { SiteHeader } from "./SiteHeader";
 import { useRouter, usePathname } from "next/navigation";
 
 export function ClientHeader() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -32,6 +32,7 @@ export function ClientHeader() {
       isSignedIn={!!user}
       onToggleAuth={handleAuthToggle}
       user={user}
+      profile={profile}
     />
   );
 }

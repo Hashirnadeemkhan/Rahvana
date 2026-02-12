@@ -40,6 +40,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
+import { UserProfile } from "@/app/context/AuthContext";
 import { useTheme } from "next-themes";
 
 interface HeaderProps {
@@ -48,6 +49,7 @@ interface HeaderProps {
   isSignedIn?: boolean;
   onToggleAuth?: () => void;
   user?: User | null;
+  profile?: UserProfile | null;
 }
 
 // --------------------------------------------------------------------------
@@ -134,6 +136,7 @@ export function SiteHeader({
   isSignedIn = false,
   onToggleAuth,
   user,
+  profile,
 }: HeaderProps = {}) {
   // Run cleanup once
   useExtensionCleanup();
@@ -173,11 +176,13 @@ export function SiteHeader({
         tools: "/?section=tools",
         pricing: "/pricing",
         dashboard: "/user-dashboard",
+        mfa: "/mfa-setup",
         contact: "/#contact",
         passport: "/passport",
         "passport-guide": "/guides/passport-guide",
         "nikah-nama-guide": "/guides/nikah-nama-guide",
         "visa-strength-guide": "/guides/visa-strength-guide",
+        "frc-guide": "/guides/frc-guide",
         "educational-certificates-us-visa": "/guides/educational-certificates-us-visa",
         pdf: "/pdf-processing",
         signature: "/signature-image-processing",
@@ -1115,6 +1120,14 @@ export function SiteHeader({
                           badge: "Live",
                         },
                         {
+                          icon: <Globe className="h-5 w-5" />,
+                          title: "FRC Guide",
+                          description:
+                            "Complete guide to obtaining your Family Registration Certificate (FRC).",
+                          href: "/guides/frc-guide",
+                          badge: "Live",
+                        },
+                        {
                           icon: <BookOpen className="h-5 w-5" />,
                           title: "Education Certificate Guide",
                           description:
@@ -1333,6 +1346,13 @@ export function SiteHeader({
                         My Profile
                       </button>
                       <button
+                        onClick={() => handleNav("profile")}
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
+                      >
+                        <UserIcon className="w-4 h-4" />
+                        My Profile
+                      </button>
+                      <button
                         onClick={() => handleNav("document-vault")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
@@ -1371,6 +1391,8 @@ export function SiteHeader({
                     {/* Section 2 */}
                     <div className="py-2 border-b border-border">
                       <button
+                        onClick={() => handleNav("settings")}
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                         onClick={() => handleNav("settings")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
@@ -1699,6 +1721,43 @@ export function SiteHeader({
                 >
                   <span className="font-bold">Pricing</span>
                 </HydrationSafeButton>
+                {isSignedIn && (
+                  <>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("dashboard")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("dashboard", "/user-dashboard")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Layout className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">My Dashboard</span>
+                    </HydrationSafeButton>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("profile")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("profile", "/profile")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <UserIcon className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">My Profile</span>
+                    </HydrationSafeButton>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("settings")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("settings", "/settings")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Settings className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">Account Settings</span>
+                    </HydrationSafeButton>
+                  </>
+                )}
                 {isSignedIn && (
                   <>
                     <HydrationSafeButton
