@@ -303,33 +303,33 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               <div className="flex flex-col">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="two-factor" className="text-base font-medium">
-                    Two-Factor Authentication
-                  </Label>
-                  <p className="text-sm text-slate-500">
-                    Add an extra layer of security to your account
-                  </p>
-                </div>
-                <Switch
-                  id="two-factor"
-                  checked={accountSettings.twoFactorEnabled}
-                  onCheckedChange={() =>
-                    handleAccountSettingChange("twoFactorEnabled")
-                  }
-                  disabled={profile?.mfa_enabled} // disable if already enabled
-                />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label
+                      htmlFor="two-factor"
+                      className="text-base font-medium"
+                    >
+                      Two-Factor Authentication
+                    </Label>
+                    <p className="text-sm text-slate-500">
+                      Add an extra layer of security to your account
+                    </p>
+                  </div>
+                  <Switch
+                    className="cursor-not-allowed"
+                    id="two-factor"
+                    checked={profile?.mfa_enabled}
+                    disabled={profile?.mfa_enabled} // disable if already enabled
+                  />
                 </div>
 
                 <Button
-                  onClick={() => alert("Setup MFA flow here")}
+                  onClick={() => router.push("/mfa-setup")}
                   className="w-fit mt-2"
-                  disabled={profile?.mfa_enabled} // disable if already enabled
                 >
                   {profile?.mfa_enabled
-                    ? "Two-Factor Enabled"
-                    : "Enable Two-Factor Authentication"}
+                    ? "Manage Two-Factor Authentication"
+                    : "Setup Two-Factor Authentication"}
                 </Button>
               </div>
 
