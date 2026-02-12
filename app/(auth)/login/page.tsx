@@ -6,7 +6,7 @@ interface Profile {
   mfa_prompt_dismissed_at: string | null;
 }
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, FormEvent } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -32,9 +32,20 @@ function LoginContent() {
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn, signInWithGoogle, isLoading, user } = useAuth();
+  const {
+    signIn,
+    signInWithGoogle,
+    isLoading,
+    user,
+    verifyMFALogin,
+    mfaPending,
+  } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [factorId, setFactorId] = useState("");
+  const [challengeId, setChallengeId] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
   const [showMfaPrompt, setShowMfaPrompt] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -60,18 +71,6 @@ function LoginContent() {
     }
   }, [searchParams]);
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (profile) {
-      if (showMfaPrompt) {
-        // show modal, dont redirect yet
-      } else {
-        // no MFA needed, safe to redirect
-        router.push("/admin");
-      }
-    }
-  }, [profile, showMfaPrompt]);
-
   // Listen for auth state changes
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
@@ -79,7 +78,7 @@ function LoginContent() {
         if (session?.user) {
           fetchProfile(session.user.id);
         }
-      }
+      },
     );
     return () => listener.subscription.unsubscribe();
   }, []);
@@ -124,7 +123,12 @@ function LoginContent() {
     setIsSubmitting(true);
 
     try {
-      const { error: signInError } = await signIn(email, password);
+      const {
+        error: signInError,
+        mfaRequired: isMfaRequired,
+        factorId: fId,
+        challengeId: cId,
+      } = await signIn(email, password);
       if (signInError) {
         if (signInError.message.includes("Invalid login credentials")) {
           setError("Invalid email or password. Please check and try again.");
@@ -134,12 +138,49 @@ function LoginContent() {
           // setError(signInError.message);
         }
       }
+
+      // MFA required 
+    if ((isMfaRequired && fId && cId)) {
+      setMfaRequired(true);
+      setFactorId(fId);
+      setChallengeId(cId);
+      setSuccess("Please enter your authentication code");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // no MFA, safe to redirect
+    router.push("/");
     } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const handleMfaSubmit = async (e: FormEvent) => {
+      e.preventDefault();
+      setError("");
+      setIsSubmitting(true);
+  
+      try {
+        const { success, error: mfaError } = await verifyMFALogin(
+          factorId,
+          challengeId,
+          mfaCode,
+        );
+  
+        if (success) {
+          router.replace("/");
+        } else {
+          setError(mfaError || "Invalid authentication code");
+        }
+      } catch {
+        setError("Failed to verify authentication code");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
 
   const handleGoogleSignIn = async () => {
     setError("");
@@ -155,19 +196,18 @@ function LoginContent() {
 
   const handleRemindMeLater = async () => {
     if (!user) return;
-  
+
     const { error } = await supabase
       .from("profiles")
       .update({ mfa_prompt_dismissed_at: new Date().toISOString() })
       .eq("id", user.id);
-  
+
     if (error) {
       console.error("Failed to update dismiss time:", error);
       return;
     }
-  
+
     setShowMfaPrompt(false);
-    console.log("Remind me later clicked, MFA prompt hidden");
   };
 
   if (isLoading) {
@@ -247,7 +287,64 @@ function LoginContent() {
         </div>
 
         {/* Email Sign In Form */}
-        <Card className="p-6 bg-card shadow-lg border-border rounded-2xl">
+        {mfaRequired ? (
+          <form onSubmit={handleMfaSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-foreground">
+                Authentication Code
+              </label>
+              <Input
+                type="text"
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value)}
+                placeholder="Enter 6-digit code"
+                maxLength={6}
+                required
+                disabled={isSubmitting}
+                className="h-12 rounded-xl border-border focus:border-primary focus:ring-primary"
+              />
+              <p className="text-sm text-muted-foreground">
+                Enter the code from your authenticator app
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+                <svg
+                  className="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={isSubmitting || mfaCode.length !== 6}
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-medium rounded-xl transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Verifying...
+                </div>
+              ) : (
+                "Verify Code"
+              )}
+            </Button>
+          </form>
+        ) : ( <Card className="p-6 bg-card shadow-lg border-border rounded-2xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-foreground">
@@ -387,6 +484,7 @@ function LoginContent() {
             </Button>
           </form>
         </Card>
+          )}
 
         {/* Sign Up Link */}
         <p className="text-center text-sm text-muted-foreground">

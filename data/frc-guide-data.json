@@ -148,6 +148,8 @@
     ],
     "contact_options": {
       "nrc_centers": "https://www.nadra.gov.pk/nadraOffices",
+      "pak_identity_apple": "https://apps.apple.com/us/app/pak-identity/id1563975817",
+      "pak_identity_google_play": "https://play.google.com/store/apps/details?id=pk.gov.nadra.pakid&hl=en",
       "helpline": "1777"
     },
     "important_note": "Support availability and contact details may change. Always refer to official NADRA channels for the latest information."

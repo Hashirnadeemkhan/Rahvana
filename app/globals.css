@@ -340,6 +340,19 @@
   display: none;
 }
 
+@keyframes rotate-line {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.animate-rotate-line {
+  animation: rotate-line 8s linear infinite;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

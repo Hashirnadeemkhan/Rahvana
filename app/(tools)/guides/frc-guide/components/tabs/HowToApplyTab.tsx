@@ -1,6 +1,15 @@
 import { motion } from "framer-motion";
-import { Building, Smartphone, Clock, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { Building, Smartphone, Clock, CheckCircle2, Download, Apple, Chrome } from "lucide-react";
 import frcData from "@/data/frc-guide-data.json";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const fadeUp = {
   initial: { opacity: 0, y: 16 },
@@ -9,7 +18,8 @@ const fadeUp = {
 };
 
 export default function HowToApplyTab() {
-  const { application_methods } = frcData;
+  const { application_methods, help_and_support } = frcData;
+  const [isOpen, setIsOpen] = useState(false);
 
   const methods = [
     {
@@ -25,7 +35,63 @@ export default function HowToApplyTab() {
       key: "online" as const,
       icon: Smartphone,
       title: application_methods.online.method,
-      subtitle: `${application_methods.online.platform} — ${application_methods.online.navigation_path}`,
+      subtitle: (
+        <div className="flex items-center gap-2">
+          <span>{application_methods.online.platform}</span>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <button 
+                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                onClick={() => setIsOpen(true)}
+              >
+                <Smartphone className="w-3 h-3" />
+                Download App
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Smartphone className="w-5 h-5 text-primary" />
+                  Download Pak Identity App
+                </DialogTitle>
+                <DialogDescription>
+                  Choose your platform to download the official Pak Identity Mobile Application
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <a
+                  href={help_and_support.contact_options.pak_identity_google_play}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center gap-3 p-4 rounded-xl border border-border bg-card hover:border-primary/30 hover:bg-primary/5 transition-all"
+                >
+                  <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-green-500 text-white">
+                    <Chrome className="w-6 h-6" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-card-foreground">Google Play</p>
+                    <p className="text-xs text-muted-foreground mt-1">Android</p>
+                  </div>
+                </a>
+                <a
+                  href={help_and_support.contact_options.pak_identity_apple}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center gap-3 p-4 rounded-xl border border-border bg-card hover:border-primary/30 hover:bg-primary/5 transition-all"
+                >
+                  <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-black text-white">
+                    <Apple className="w-6 h-6" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-card-foreground">App Store</p>
+                    <p className="text-xs text-muted-foreground mt-1">iOS</p>
+                  </div>
+                </a>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      ),
       steps: application_methods.online.steps,
       delivery: application_methods.online.delivery_time,
       format: application_methods.online.output_format,
@@ -49,7 +115,13 @@ export default function HowToApplyTab() {
               <h3 className="text-lg font-bold text-card-foreground">
                 {method.title}
               </h3>
-              <p className="text-xs text-muted-foreground">{method.subtitle}</p>
+              <div className="text-xs text-muted-foreground">
+                {typeof method.subtitle === 'string' ? (
+                  method.subtitle
+                ) : (
+                  method.subtitle
+                )}
+              </div>
             </div>
           </div>
 
