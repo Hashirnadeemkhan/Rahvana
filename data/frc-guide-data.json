@@ -1,0 +1,172 @@
+{
+  "overview": {
+    "title": "Family Registration Certificate (FRC)",
+    "description": "The Family Registration Certificate (FRC) is an official NADRA-issued document that shows your registered family members exactly as recorded in NADRA’s database on the date of issuance. It confirms and verifies family relationships for legal, immigration, and official purposes.",
+    "legal_basis": "The FRC is issued under Schedule XI of Rule 19 of the NADRA (NIC) Rules, 2002.",
+    "primary_use": [
+      "Visa, embassy, and immigration applications",
+      "Verification of family relationships for legal or official matters"
+    ],
+    "issuing_authority": "National Database and Registration Authority (NADRA)",
+    "validity_note": "The certificate reflects family data available in NADRA records at the time it is issued."
+  },
+
+  "categories": [
+    {
+      "type": "By Birth",
+      "includes": "Shows details of your parents and siblings.",
+      "when_to_choose": "Select this category if you need proof of your family before marriage."
+    },
+    {
+      "type": "By Marriage",
+      "includes": "Shows details of your spouse and children.",
+      "when_to_choose": "Choose this option if you are married and need to verify your immediate family."
+    },
+    {
+      "type": "By Adoption",
+      "includes": "Shows details of your guardian and adopted family members.",
+      "when_to_choose": "Applicable for adopted individuals or guardianship-related verification."
+    },
+    {
+      "type": "By All",
+      "includes": "Shows details of both birth and marriage families (alpha and beta family members).",
+      "when_to_choose": "Select this if you need a complete family record in a single certificate."
+    }
+  ],
+
+  "eligibility": {
+    "basic_requirement": "All listed family members should be registered with NADRA and have a valid 13-digit identification number.",
+    "allowed_exceptions": [
+      "Deceased family members who were not registered",
+      "Unregistered living individuals in specific cases"
+    ],
+    "important_note": "Details of unregistered family members are added based on information provided by the applicant and may require verification."
+  },
+
+  "application_methods": {
+    "in_person": {
+      "method": "NADRA Registration Center (NRC)",
+      "availability": "Available nationwide, including E-Khidmat Markaz in Punjab.",
+      "steps": [
+        "Visit your nearest NADRA Registration Center.",
+        "Obtain a token from the counter to begin your application.",
+        "Complete biometric verification (fingerprints and photograph).",
+        "If applying for minors, their photographs will be taken if the CRC does not already include a photo.",
+        "Your family data will be retrieved and shown to you for review.",
+        "Submit the applicable fee at the counter.",
+        "Your Family Registration Certificate will be printed and handed over immediately."
+      ],
+      "delivery_time": "Issued in real-time during your visit."
+    },
+    "online": {
+      "method": "Pak Identity Mobile App",
+      "platform": "Pak ID Mobile Application",
+      "navigation_path": "Home > Family > FRC",
+      "steps": [
+        "Log in to your Pak ID account or create a new account if you do not already have one.",
+        "From the Home screen, go to the Family section and select FRC.",
+        "Your family members’ details will be displayed on the screen.",
+        "Carefully review all information. Any record highlighted in red requires correction before proceeding.",
+        "Select the appropriate FRC category based on your requirement.",
+        "Review your application summary and submit it.",
+        "Pay the applicable fee using the available online payment options.",
+        "After processing, download the FRC PDF from the ID Vault section of the app."
+      ],
+      "delivery_time": "Digital FRC is usually available within 24 hours after fee submission.",
+      "output_format": "Downloadable PDF document"
+    }
+  },
+
+  "required_documents": {
+    "applicant": ["Valid 13-digit CNIC, NICOP, POC, or CRC"],
+    "family_members": [
+      "CNIC for adult family members",
+      "Child Registration Certificate (CRC / Form-B) for children"
+    ],
+    "special_cases": {
+      "minor_children": "Children under 18 years of age must be physically present if their CRC is issued without a photograph.",
+      "deceased_family_member": "The CNIC of a deceased family member must be canceled by submitting a Death Certificate issued by the Union Council, Municipal Corporation, or Cantonment Board.",
+      "poc_holder": "If a POC holder does not already exist in the family record, they must apply separately and add other family members as relatives."
+    },
+    "online_application": [
+      "Recent passport-size photograph",
+      "Scanned or uploaded supporting documents as required"
+    ]
+  },
+
+  "fees": {
+    "by_birth": {
+      "amount": 1000,
+      "currency": "PKR",
+      "note": "Applicable for By Birth category"
+    },
+    "by_marriage": {
+      "amount": 1000,
+      "currency": "PKR",
+      "note": "Applicable for By Marriage category"
+    },
+    "by_adoption": {
+      "amount": 1000,
+      "currency": "PKR",
+      "note": "Applicable for By Adoption category"
+    },
+    "by_all": {
+      "amount": 2000,
+      "currency": "PKR",
+      "note": "Applicable for By All category"
+    }
+  },
+
+  "processing_time": {
+    "nrc": "Issued immediately during your visit to the NADRA Registration Center.",
+    "pak_identity": "Usually available within 24 hours after online fee submission."
+  },
+
+  "data_correction_rules": {
+    "allowed": ["Correction of English name spellings during FRC processing"],
+    "not_allowed": ["Change of name or personal identity details"],
+    "incomplete_records": "Incomplete or outdated family records will not appear in the FRC until they are updated through NADRA."
+  },
+
+  "important_notes": [
+    "Application processing starts only after the fee has been successfully submitted.",
+    "The FRC reflects NADRA records as they exist on the date of issuance.",
+    "The FRC process, requirements, and fees are uniform across Pakistan."
+  ],
+
+  "help_and_support": {
+    "description": "If you face any issues during the application or need further assistance, the following official support channels are available.",
+    "support_channels": [
+      "NADRA Registration Centers (NRCs)",
+      "Pak Identity Mobile App support"
+    ],
+    "assistance_scope": [
+      "Guidance on FRC application steps",
+      "Correction of family records",
+      "Biometric verification issues",
+      "Application status or processing queries"
+    ],
+    "contact_options": {
+      "nrc_centers": "https://www.nadra.gov.pk/nadraOffices",
+      "pak_identity_apple": "https://apps.apple.com/us/app/pak-identity/id1563975817",
+      "pak_identity_google_play": "https://play.google.com/store/apps/details?id=pk.gov.nadra.pakid&hl=en",
+      "helpline": "1777"
+    },
+    "important_note": "Support availability and contact details may change. Always refer to official NADRA channels for the latest information."
+  },
+
+  "faq": [
+    {
+      "question": "What is a Family Registration Certificate (FRC)?",
+      "answer": "An official NADRA-issued document that confirms your family composition based on NADRA records, including certain unregistered deceased or living members where applicable."
+    },
+    {
+      "question": "How long does it take to receive an FRC?",
+      "answer": "FRCs are issued immediately at NADRA Registration Centers, while online applications usually take up to 24 hours."
+    },
+    {
+      "question": "Can I apply for FRC online?",
+      "answer": "Yes, you can apply through the Pak Identity Mobile App and download the certificate digitally."
+    }
+  ]
+}
