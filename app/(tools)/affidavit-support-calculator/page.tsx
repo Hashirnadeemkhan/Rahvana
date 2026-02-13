@@ -153,6 +153,7 @@ interface CurrencyInputProps {
 }
 
 function formatCurrencyWithCommas(value: number): string {
+  if (value == null || isNaN(value)) return "";
   if (value === 0) return "";
   const parts = value.toFixed(2).split(".");
   const integerPart = parseInt(parts[0]).toLocaleString();
@@ -172,7 +173,9 @@ function CurrencyInput({
   // Update display value when value prop changes (from parent)
   useEffect(() => {
     if (!isFocused) {
-      if (value === 0) {
+      if (value == null || isNaN(value)) {
+        setDisplayValue("");
+      } else if (value === 0) {
         setDisplayValue("");
       } else {
         setDisplayValue(formatCurrencyWithCommas(value));
@@ -208,7 +211,7 @@ function CurrencyInput({
     setIsFocused(false);
     // Format with commas when user leaves the field
     const numericValue = parseFloat(displayValue);
-    if (!isNaN(numericValue) && numericValue > 0) {
+    if (!isNaN(numericValue) && numericValue >= 0) {
       setDisplayValue(formatCurrencyWithCommas(numericValue));
     }
   };
@@ -216,7 +219,7 @@ function CurrencyInput({
   const handleFocus = () => {
     setIsFocused(true);
     // Show raw value without commas for easy editing
-    if (value > 0) {
+    if (value != null && !isNaN(value) && value > 0) {
       setDisplayValue(value.toString());
     } else {
       setDisplayValue("");
@@ -247,6 +250,11 @@ function CurrencyInput({
 // COMPONENT
 // ============================================================================
 
+import { useAuth } from "@/app/context/AuthContext";
+import { createBrowserClient } from "@supabase/ssr";
+import { mapProfileToGenericForm } from "@/lib/autoFill/mapper";
+import { MasterProfile } from "@/types/profile";
+
 export default function AffidavitSupportCalculator() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -273,6 +281,62 @@ export default function AffidavitSupportCalculator() {
     usedHouseholdRelationships: [],
     usedJointSponsorRelationships: [],
   });
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Auto-fill profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+          const profile = data.profile_details as MasterProfile;
+
+          // Map profile data to form structure
+          const mappedData = mapProfileToGenericForm(profile, {
+            sponsorStatus: formData.sponsorStatus,
+            isMilitary: formData.isMilitary,
+            isMarried: formData.isMarried,
+            numberOfChildren: formData.numberOfChildren,
+            taxDependents: formData.taxDependents,
+            hasPreviousSponsorship: formData.hasPreviousSponsorship,
+            previousSponsoredCount: formData.previousSponsoredCount,
+            currentSponsoredApplicant: formData.currentSponsoredApplicant,
+            currentSponsoredSpouse: formData.currentSponsoredSpouse,
+            currentSponsoredChildren: formData.currentSponsoredChildren,
+            annualIncome: formData.annualIncome,
+            sponsorDeceased: formData.sponsorDeceased,
+            assetValue: formData.assetValue,
+            relationshipToApplicant: formData.relationshipToApplicant,
+            isVAWA: formData.isVAWA,
+            isWidow: formData.isWidow,
+            isSpecialImmigrant: formData.isSpecialImmigrant,
+          });
+
+          setFormData(prev => ({
+            ...prev,
+            ...mappedData
+          }));
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase, formData]);
 
   const [result, setResult] = useState<CalculatorResult | null>(null);
   const [expandedSections, setExpandedSections] = useState<
@@ -1487,10 +1551,8 @@ export default function AffidavitSupportCalculator() {
         </div>
 
         <CurrencyInput
-          value={formData.annualIncome}
-          onChange={(value) =>
-            setFormData({ ...formData, annualIncome: value })
-          }
+          value={formData.annualIncome || 0}
+          onChange={(value) => setFormData({ ...formData, annualIncome: value })}
           placeholder="0.00"
         />
 
@@ -1616,12 +1678,8 @@ export default function AffidavitSupportCalculator() {
                         </button>
                       </div>
                       <CurrencyInput
-                        value={member.annualIncome}
-                        onChange={(value) =>
-                          updateHouseholdMember(member.id, {
-                            annualIncome: value,
-                          })
-                        }
+                        value={member.annualIncome || 0}
+                        onChange={(value) => updateHouseholdMember(member.id, { annualIncome: value })}
                         placeholder="0.00"
                         className="text-sm"
                       />
@@ -1720,12 +1778,8 @@ export default function AffidavitSupportCalculator() {
                         </select>
                       </div>
                       <CurrencyInput
-                        value={sponsor.annualIncome}
-                        onChange={(value) =>
-                          updateJointSponsor(sponsor.id, {
-                            annualIncome: value,
-                          })
-                        }
+                        value={sponsor.annualIncome || 0}
+                        onChange={(value) => updateJointSponsor(sponsor.id, { annualIncome: value })}
                         placeholder="0.00"
                         className="text-sm"
                       />
@@ -1992,10 +2046,8 @@ export default function AffidavitSupportCalculator() {
                     Total Asset Value
                   </label>
                   <CurrencyInput
-                    value={formData.assetValue}
-                    onChange={(value) =>
-                      setFormData({ ...formData, assetValue: value })
-                    }
+                    value={formData.assetValue || 0}
+                    onChange={(value) => setFormData({ ...formData, assetValue: value })}
                     placeholder="0.00"
                   />
                 </div>
@@ -2547,7 +2599,7 @@ export default function AffidavitSupportCalculator() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="min-h-[400px]">
+            <div className="min-h-100">
               {currentStep === 1 && renderStep1()}
               {currentStep === 2 && renderStep2()}
               {currentStep === 3 && renderStep3()}

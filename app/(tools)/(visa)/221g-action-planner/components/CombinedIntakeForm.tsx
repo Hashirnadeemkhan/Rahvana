@@ -1,32 +1,26 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
-import Actual221GFormChecker from "./Actual221GFormChecker";
-import { FormData, FormSelections } from "../types/221g";
+import { useState, useEffect, useCallback } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Progress } from "@/components/ui/progress"
+import Actual221GFormChecker from "./Actual221GFormChecker"
+import { FormData, FormSelections } from "../types/221g"
+import { mapProfileToGenericForm } from "@/lib/autoFill/mapper"
+import { MasterProfile } from "@/types/profile"
+import { useAuth } from "@/app/context/AuthContext"
+import { createBrowserClient } from "@supabase/ssr"
 
 interface CombinedIntakeFormProps {
   onSubmit: (data: FormData, selectedItems: FormSelections) => void;
+  initialData?: FormData | null;
+  initialSelections?: FormSelections | null;
 }
 
 const VISA_TYPES = [
@@ -41,44 +35,28 @@ const VISA_TYPES = [
   { value: "F4", label: "F4 - Sibling of U.S. Citizen" },
   { value: "K1", label: "K1 - Fiancé(e) of U.S. Citizen" },
   { value: "Other", label: "Other (Please specify)" },
-];
+]
 
 const EMBASSIES = [
   { value: "islamabad", label: "U.S. Embassy Islamabad, Pakistan" },
   { value: "karachi", label: "U.S. Consulate Karachi, Pakistan" },
   { value: "lahore", label: "U.S. Consulate Lahore, Pakistan" },
   { value: "other", label: "Other Embassy" },
-];
+]
 
 const OFFICER_REQUESTS = [
-  {
-    value: "financial",
-    label: "Financial documents (I-864, tax transcripts, employment letters)",
-  },
-  {
-    value: "civil",
-    label:
-      "Civil documents (birth certificates, marriage certificates, police certificates)",
-  },
-  {
-    value: "security",
-    label: "Security clearance (background checks, additional screening)",
-  },
-  {
-    value: "legal",
-    label:
-      "Legal documents (divorce decrees, death certificates, court records)",
-  },
+  { value: "financial", label: "Financial documents (I-864, tax transcripts, employment letters)" },
+  { value: "civil", label: "Civil documents (birth certificates, marriage certificates, police certificates)" },
+  { value: "security", label: "Security clearance (background checks, additional screening)" },
+  { value: "legal", label: "Legal documents (divorce decrees, death certificates, court records)" },
   { value: "medical", label: "Medical examination corrections" },
   { value: "translation", label: "Document translations" },
   { value: "other", label: "Other (please specify)" },
-];
+]
 
-export default function CombinedIntakeForm({
-  onSubmit,
-}: CombinedIntakeFormProps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<FormData>({
+export default function CombinedIntakeForm({ onSubmit, initialData, initialSelections }: CombinedIntakeFormProps) {
+  const [currentStep, setCurrentStep] = useState(0)
+  const [formData, setFormData] = useState<FormData>(initialData || {
     visaType: "",
     visaTypeOther: "",
     interviewDate: "",
@@ -92,113 +70,125 @@ export default function CombinedIntakeForm({
     ceacUpdateDate: "",
     caseNumber: "",
     additionalNotes: "",
-  });
-  const [selected221gItems, setSelected221gItems] = useState<FormSelections>(
-    {},
-  );
-  const [showFormChecker, setShowFormChecker] = useState(false);
+  })
+  const [selected221gItems, setSelected221gItems] = useState<FormSelections>(initialSelections || {})
+  const [showFormChecker, setShowFormChecker] = useState(false)
+  const [profileLoaded, setProfileLoaded] = useState(false)
+  const { user } = useAuth()
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  // Auto-fill profile data
+  useEffect(() => {
+    // If we were initialized with saved data, don't overwrite with generic profile data automatically
+    // unless the user explicitly wants to (feature for later?)
+    if (initialData) return;
+    
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+          const profile = data.profile_details as MasterProfile;
+
+          // Map profile data to form structure
+          const mappedData = mapProfileToGenericForm(profile, {
+            visaType: formData.visaType,
+            visaTypeOther: formData.visaTypeOther,
+            interviewDate: formData.interviewDate,
+            embassy: formData.embassy,
+            embassyOther: formData.embassyOther,
+            caseNumber: formData.caseNumber,
+            additionalNotes: formData.additionalNotes,
+          });
+
+          setFormData(prev => ({
+            ...prev,
+            ...mappedData
+          }));
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase, formData]);
 
   const steps = [
-    {
-      id: 0,
-      title: "Visa Details",
-      description: "Basic information about your visa application",
-    },
-    {
-      id: 1,
-      title: "Interview Outcome",
-      description: "What happened during your interview",
-    },
-    {
-      id: 2,
-      title: "221(g) Letter",
-      description: "Details about your 221(g) letter",
-    },
-    {
-      id: 3,
-      title: "221(g) Items",
-      description: "Check items that match your letter",
-    },
-    {
-      id: 4,
-      title: "CEAC Status",
-      description: "Current status on CEAC system",
-    },
-    {
-      id: 5,
-      title: "Additional Info",
-      description: "Any other relevant details",
-    },
-  ];
+    { id: 0, title: "Visa Details", description: "Basic information about your visa application" },
+    { id: 1, title: "Interview Outcome", description: "What happened during your interview" },
+    { id: 2, title: "221(g) Letter", description: "Details about your 221(g) letter" },
+    { id: 3, title: "221(g) Items", description: "Check items that match your letter" },
+    { id: 4, title: "CEAC Status", description: "Current status on CEAC system" },
+    { id: 5, title: "Additional Info", description: "Any other relevant details" },
+  ]
 
-  const handleInputChange = (
-    field: keyof FormData,
-    value: string | boolean | string[] | null,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const handleInputChange = (field: keyof FormData, value: string | boolean | string[] | null) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   const handleCheckboxChange = (request: string) => {
     setFormData((prev) => {
-      const requests = [...prev.officerRequests];
+      const requests = [...prev.officerRequests]
       if (requests.includes(request)) {
-        return {
-          ...prev,
-          officerRequests: requests.filter((r) => r !== request),
-        };
+        return { ...prev, officerRequests: requests.filter((r) => r !== request) }
       } else {
-        return { ...prev, officerRequests: [...requests, request] };
+        return { ...prev, officerRequests: [...requests, request] }
       }
-    });
-  };
+    })
+  }
 
   const handleSubmit = () => {
-    onSubmit(formData, selected221gItems);
-  };
+    onSubmit(formData, selected221gItems)
+  }
 
   const nextStep = () => {
     if (currentStep === 2 && formData.letterReceived) {
-      setShowFormChecker(true);
+      setShowFormChecker(true)
     } else if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep(currentStep + 1)
     } else {
-      handleSubmit();
+      handleSubmit()
     }
-  };
+  }
 
   const prevStep = () => {
     if (showFormChecker) {
-      setShowFormChecker(false);
+      setShowFormChecker(false)
     } else if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep(currentStep - 1)
     }
-  };
-  const handleVisaTypeOtherChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setFormData({ ...formData, visaTypeOther: e.target.value });
-  };
+  }
+  const handleVisaTypeOtherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, visaTypeOther: e.target.value })
+  }
 
   const progress =
-    ((currentStep + (showFormChecker ? 0.5 : 0) + 1) /
-      (steps.length + (formData.letterReceived ? 0.5 : 0))) *
-    100;
+    ((currentStep + (showFormChecker ? 0.5 : 0) + 1) / (steps.length + (formData.letterReceived ? 0.5 : 0))) * 100
 
   return (
     <div className="w-full">
       <Card className="w-full">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-primary">
+          <CardTitle className="text-3xl font-bold text-blue-700">
             221(g) / Administrative Processing Action Planner
           </CardTitle>
-          <CardDescription>
-            Get your personalized action plan after your visa interview
-          </CardDescription>
+          <CardDescription>Get your personalized action plan after your visa interview</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-6">
             <Progress value={progress} className="w-full h-2" />
-            <div className="flex justify-between mt-2 text-sm text-muted-foreground">
+            <div className="flex justify-between mt-2 text-sm text-gray-600">
               <span>
                 Step {currentStep + (showFormChecker ? 0.5 : 0) + 1} of{" "}
                 {steps.length + (formData.letterReceived ? 0.5 : 0)}
@@ -215,12 +205,7 @@ export default function CombinedIntakeForm({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label htmlFor="visaType">Visa Type</Label>
-                  <Select
-                    value={formData.visaType}
-                    onValueChange={(value) =>
-                      handleInputChange("visaType", value)
-                    }
-                  >
+                  <Select value={formData.visaType} onValueChange={(value) => handleInputChange("visaType", value)}>
                     <SelectTrigger id="visaType">
                       <SelectValue placeholder="Select visa type" />
                     </SelectTrigger>
@@ -234,29 +219,22 @@ export default function CombinedIntakeForm({
                   </Select>
 
                   {formData.visaType === "Other" && (
-                    <div className="space-y-2">
-                      <label className="block text-sm font-semibold text-foreground">
-                        Please specify visa type
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.visaTypeOther}
-                        onChange={handleVisaTypeOtherChange}
-                        placeholder="Enter your visa type"
-                        className="w-full px-4 py-3 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring bg-background"
-                      />
-                    </div>
-                  )}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Please specify visa type</label>
+              <input
+                type="text"
+                value={formData.visaTypeOther}
+                onChange={handleVisaTypeOtherChange}
+                placeholder="Enter your visa type"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          )}
                 </div>
 
                 <div className="space-y-3">
                   <Label htmlFor="embassy">Embassy/Consulate</Label>
-                  <Select
-                    value={formData.embassy}
-                    onValueChange={(value) =>
-                      handleInputChange("embassy", value)
-                    }
-                  >
+                  <Select value={formData.embassy} onValueChange={(value) => handleInputChange("embassy", value)}>
                     <SelectTrigger id="embassy">
                       <SelectValue placeholder="Select embassy" />
                     </SelectTrigger>
@@ -271,20 +249,15 @@ export default function CombinedIntakeForm({
 
                   {formData.embassy === "other" && (
                     <div className="mt-4 space-y-2">
-                      <Label
-                        htmlFor="embassyOther"
-                        className="text-sm font-medium"
-                      >
+                      <Label htmlFor="embassyOther" className="text-sm font-medium">
                         Please specify embassy/consulate
                       </Label>
                       <Input
                         id="embassyOther"
                         value={formData.embassyOther}
-                        onChange={(e) =>
-                          handleInputChange("embassyOther", e.target.value)
-                        }
+                        onChange={(e) => handleInputChange("embassyOther", e.target.value)}
                         placeholder="Enter embassy name and location (e.g., U.S. Embassy Bangkok, Thailand)"
-                        className="border-input focus:border-ring focus:ring-ring"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
                   )}
@@ -297,9 +270,7 @@ export default function CombinedIntakeForm({
                   id="interviewDate"
                   type="date"
                   value={formData.interviewDate}
-                  onChange={(e) =>
-                    handleInputChange("interviewDate", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("interviewDate", e.target.value)}
                 />
               </div>
             </div>
@@ -313,14 +284,8 @@ export default function CombinedIntakeForm({
               <div>
                 <Label>Did the officer keep your passport?</Label>
                 <RadioGroup
-                  value={
-                    formData.passportKept === null
-                      ? ""
-                      : formData.passportKept.toString()
-                  }
-                  onValueChange={(value) =>
-                    handleInputChange("passportKept", value === "true")
-                  }
+                  value={formData.passportKept === null ? "" : formData.passportKept.toString()}
+                  onValueChange={(value) => handleInputChange("passportKept", value === "true")}
                   className="flex space-x-4 mt-2"
                 >
                   <div className="flex items-center space-x-2">
@@ -335,55 +300,37 @@ export default function CombinedIntakeForm({
               </div>
 
               <div>
-                <Label className="text-base font-semibold">
-                  What did the officer request?
-                </Label>
+                <Label className="text-base font-semibold">What did the officer request?</Label>
                 <div className="mt-4 space-y-4">
                   {OFFICER_REQUESTS.map((request) => (
                     <div key={request.value} className="space-y-3">
-                      <div className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                         <Checkbox
                           id={`request-${request.value}`}
-                          checked={formData.officerRequests.includes(
-                            request.value,
-                          )}
-                          onCheckedChange={() =>
-                            handleCheckboxChange(request.value)
-                          }
+                          checked={formData.officerRequests.includes(request.value)}
+                          onCheckedChange={() => handleCheckboxChange(request.value)}
                           className="mt-1"
                         />
-                        <Label
-                          htmlFor={`request-${request.value}`}
-                          className="leading-relaxed cursor-pointer"
-                        >
+                        <Label htmlFor={`request-${request.value}`} className="leading-relaxed cursor-pointer">
                           {request.label}
                         </Label>
                       </div>
 
-                      {request.value === "other" &&
-                        formData.officerRequests.includes("other") && (
-                          <div className="ml-7 mt-3 space-y-2">
-                            <Label
-                              htmlFor="officerRequestOther"
-                              className="text-sm font-medium"
-                            >
-                              Please specify additional documents/requests
-                            </Label>
-                            <Textarea
-                              id="officerRequestOther"
-                              value={formData.officerRequestOther}
-                              onChange={(e) =>
-                                handleInputChange(
-                                  "officerRequestOther",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="Enter details of additional documents or requests"
-                              rows={3}
-                              className="resize-none border-input focus:border-ring focus:ring-ring"
-                            />
-                          </div>
-                        )}
+                      {request.value === "other" && formData.officerRequests.includes("other") && (
+                        <div className="ml-7 mt-3 space-y-2">
+                          <Label htmlFor="officerRequestOther" className="text-sm font-medium">
+                            Please specify additional documents/requests
+                          </Label>
+                          <Textarea
+                            id="officerRequestOther"
+                            value={formData.officerRequestOther}
+                            onChange={(e) => handleInputChange("officerRequestOther", e.target.value)}
+                            placeholder="Enter details of additional documents or requests"
+                            rows={3}
+                            className="resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -399,14 +346,8 @@ export default function CombinedIntakeForm({
               <div>
                 <Label>Did you receive a 221(g) letter?</Label>
                 <RadioGroup
-                  value={
-                    formData.letterReceived === null
-                      ? ""
-                      : formData.letterReceived.toString()
-                  }
-                  onValueChange={(value) =>
-                    handleInputChange("letterReceived", value === "true")
-                  }
+                  value={formData.letterReceived === null ? "" : formData.letterReceived.toString()}
+                  onValueChange={(value) => handleInputChange("letterReceived", value === "true")}
                   className="flex space-x-4 mt-2"
                 >
                   <div className="flex items-center space-x-2">
@@ -423,26 +364,19 @@ export default function CombinedIntakeForm({
               {formData.letterReceived && (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="caseNumber">
-                      Case Number (from 221(g) letter)
-                    </Label>
+                    <Label htmlFor="caseNumber">Case Number (from 221(g) letter)</Label>
                     <Input
                       id="caseNumber"
                       value={formData.caseNumber}
-                      onChange={(e) =>
-                        handleInputChange("caseNumber", e.target.value)
-                      }
+                      onChange={(e) => handleInputChange("caseNumber", e.target.value)}
                       placeholder="Enter case number if available"
                     />
                   </div>
 
-                  <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
-                    <Label className="text-primary font-medium">
-                      221(g) Letter Items
-                    </Label>
-                    <p className="text-sm text-primary/80 mt-1">
-                      You will check the items that match your 221(g) letter on
-                      the next screen
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <Label className="text-blue-800 font-medium">221(g) Letter Items</Label>
+                    <p className="text-sm text-blue-700 mt-1">
+                      You will check the items that match your 221(g) letter on the next screen
                     </p>
                   </div>
                 </div>
@@ -453,26 +387,18 @@ export default function CombinedIntakeForm({
           {/* 221(g) Form Checker - Special step when letter received */}
           {showFormChecker && (
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold">
-                221(g) Letter Items Checker
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Check all items that appear on your 221(g) letter
-              </p>
-              <Actual221GFormChecker
-                selectedItems={selected221gItems}
-                onSelectionChange={setSelected221gItems}
+              <h3 className="text-xl font-semibold">221(g) Letter Items Checker</h3>
+              <p className="text-sm text-gray-600">Check all items that appear on your 221(g) letter</p>
+              <Actual221GFormChecker 
+                selectedItems={selected221gItems} 
+                onSelectionChange={setSelected221gItems} 
                 onNext={() => {
-                  setCurrentStep(3);
-                  setShowFormChecker(false);
+                  setCurrentStep(3)
+                  setShowFormChecker(false)
                 }}
               />
               <div className="flex gap-4 mt-8">
-                <Button
-                  variant="outline"
-                  onClick={prevStep}
-                  className="flex-1 bg-transparent"
-                >
+                <Button variant="outline" onClick={prevStep} className="flex-1 bg-transparent">
                   Back
                 </Button>
               </div>
@@ -489,9 +415,7 @@ export default function CombinedIntakeForm({
                 <Input
                   id="ceacStatus"
                   value={formData.ceacStatus}
-                  onChange={(e) =>
-                    handleInputChange("ceacStatus", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("ceacStatus", e.target.value)}
                   placeholder="e.g., Administrative Processing, 221(g), Documentarily Qualified"
                 />
               </div>
@@ -502,9 +426,7 @@ export default function CombinedIntakeForm({
                   id="ceacUpdateDate"
                   type="date"
                   value={formData.ceacUpdateDate}
-                  onChange={(e) =>
-                    handleInputChange("ceacUpdateDate", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("ceacUpdateDate", e.target.value)}
                 />
               </div>
             </div>
@@ -516,79 +438,54 @@ export default function CombinedIntakeForm({
               <h3 className="text-xl font-semibold">Additional Information</h3>
 
               <div className="space-y-2">
-                <Label htmlFor="additionalNotes">
-                  Any additional notes or special circumstances
-                </Label>
+                <Label htmlFor="additionalNotes">Any additional notes or special circumstances</Label>
                 <Textarea
                   id="additionalNotes"
                   value={formData.additionalNotes}
-                  onChange={(e) =>
-                    handleInputChange("additionalNotes", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("additionalNotes", e.target.value)}
                   placeholder="Describe any special circumstances, additional documents you have, or concerns..."
                   rows={4}
                   className="resize-none"
                 />
               </div>
 
-              <div className="bg-primary/10 p-5 rounded-lg border border-primary/20">
-                <h4 className="font-semibold text-primary mb-3 text-base">
-                  Review Your Information
-                </h4>
+              <div className="bg-blue-50 p-5 rounded-lg border border-blue-200">
+                <h4 className="font-semibold text-blue-800 mb-3 text-base">Review Your Information</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex">
                     <span className="font-medium min-w-40">Visa Type:</span>
-                    <span className="text-foreground">
+                    <span className="text-gray-700">
                       {formData.visaType === "Other" && formData.visaTypeOther
                         ? formData.visaTypeOther
-                        : VISA_TYPES.find((v) => v.value === formData.visaType)
-                            ?.label || "Not selected"}
+                        : VISA_TYPES.find((v) => v.value === formData.visaType)?.label || "Not selected"}
                     </span>
                   </div>
                   <div className="flex">
                     <span className="font-medium min-w-40">Embassy:</span>
-                    <span className="text-foreground">
+                    <span className="text-gray-700">
                       {formData.embassy === "other" && formData.embassyOther
                         ? formData.embassyOther
-                        : EMBASSIES.find((e) => e.value === formData.embassy)
-                            ?.label || formData.embassy}
+                        : EMBASSIES.find((e) => e.value === formData.embassy)?.label || formData.embassy}
                     </span>
                   </div>
                   <div className="flex">
-                    <span className="font-medium min-w-40">
-                      Interview Date:
-                    </span>
-                    <span className="text-foreground">
-                      {formData.interviewDate || "Not provided"}
-                    </span>
+                    <span className="font-medium min-w-40">Interview Date:</span>
+                    <span className="text-gray-700">{formData.interviewDate || "Not provided"}</span>
                   </div>
                   <div className="flex">
-                    <span className="font-medium min-w-40">
-                      Letter Received:
-                    </span>
-                    <span className="text-foreground">
-                      {formData.letterReceived === null
-                        ? "Not answered"
-                        : formData.letterReceived
-                          ? "Yes"
-                          : "No"}
+                    <span className="font-medium min-w-40">Letter Received:</span>
+                    <span className="text-gray-700">
+                      {formData.letterReceived === null ? "Not answered" : formData.letterReceived ? "Yes" : "No"}
                     </span>
                   </div>
                   <div className="flex">
                     <span className="font-medium min-w-40">CEAC Status:</span>
-                    <span className="text-foreground">
-                      {formData.ceacStatus || "Not provided"}
-                    </span>
+                    <span className="text-gray-700">{formData.ceacStatus || "Not provided"}</span>
                   </div>
                   <div className="flex">
                     <span className="font-medium min-w-40">221(g) Items:</span>
-                    <span className="text-foreground">
-                      {
-                        Object.values(selected221gItems).filter((value) =>
-                          Boolean(value),
-                        ).length
-                      }{" "}
-                      items checked
+                    <span className="text-gray-700">
+                      {Object.values(selected221gItems).filter((value) => Boolean(value)).length} items checked
                     </span>
                   </div>
                 </div>
@@ -598,11 +495,7 @@ export default function CombinedIntakeForm({
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8">
-            <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 0 && !showFormChecker}
-            >
+            <Button variant="outline" onClick={prevStep} disabled={currentStep === 0 && !showFormChecker}>
               Previous
             </Button>
 
@@ -615,5 +508,5 @@ export default function CombinedIntakeForm({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

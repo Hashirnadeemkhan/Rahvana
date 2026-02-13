@@ -13,6 +13,12 @@ interface RapidFireModeProps {
   onSwitchToPrep: () => void;
 }
 
+interface QuestionResponse {
+  question: GeneratedQuestion;
+  response: "covered" | "partial" | "missed" | "skipped" | null;
+  index: number;
+}
+
 type ConfettiLevel = "excellent" | "good";
 
 function fireConfetti(level: ConfettiLevel) {
@@ -60,10 +66,16 @@ export const RapidFireModePage = ({
   const [showAnswer, setShowAnswer] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [userResponse, setUserResponse] = useState<
-    "covered" | "partial" | "missed" | null
+    "covered" | "partial" | "missed" | "skipped" | null
   >(null);
   const [totalScore, setTotalScore] = useState<number | null>(null);
   const [skippedQuestions, setSkippedQuestions] = useState<number>(0);
+  const [questionResponses, setQuestionResponses] = useState<
+    QuestionResponse[]
+  >([]);
+  const [reviewQuestion, setReviewQuestion] =
+    useState<GeneratedQuestion | null>(null);
+  const [isReviewFlipped, setIsReviewFlipped] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -132,6 +144,25 @@ export const RapidFireModePage = ({
     setShowAnswer(true);
     setIsFlipped(true);
 
+    // Store question response for review
+    const newResponse: QuestionResponse = {
+      question: currentQuestion,
+      response,
+      index: currentQuestionIndex,
+    };
+
+    setQuestionResponses((prev) => {
+      const existingIndex = prev.findIndex(
+        (r) => r.index === currentQuestionIndex,
+      );
+      if (existingIndex >= 0) {
+        const updated = [...prev];
+        updated[existingIndex] = newResponse;
+        return updated;
+      }
+      return [...prev, newResponse];
+    });
+
     let points = 0;
     switch (response) {
       case "covered":
@@ -157,16 +188,50 @@ export const RapidFireModePage = ({
       setIsFlipped(false);
       setUserResponse(null);
     } else {
-      const effectiveQuestions = shuffledQuestions.length - skippedQuestions;
-      const maxPossibleScore = effectiveQuestions * 10;
+      // Ensure all questions have responses recorded
+      const allResponses = [...questionResponses];
+
+      // Add any missing questions as 'missed' (in case they timed out without explicit response)
+      // But don't overwrite skipped questions
+      for (let i = 0; i < shuffledQuestions.length; i++) {
+        const existingResponse = allResponses.find((r) => r.index === i);
+        if (!existingResponse) {
+          allResponses.push({
+            question: shuffledQuestions[i],
+            response: "missed",
+            index: i,
+          });
+        } else if (existingResponse.response === "skipped") {
+          // Keep skipped responses as is
+          continue;
+        }
+      }
+
+      // Calculate final score based on actual responses
+      const coveredCount = allResponses.filter(
+        (r) => r.response === "covered",
+      ).length;
+      const partialCount = allResponses.filter(
+        (r) => r.response === "partial",
+      ).length;
+      const missedCount = allResponses.filter(
+        (r) => r.response === "missed",
+      ).length;
+      const skippedCount = allResponses.filter(
+        (r) => r.response === "skipped",
+      ).length;
+
+      const totalPoints = coveredCount * 10 + partialCount * 5;
+      const maxPossiblePoints = (shuffledQuestions.length - skippedCount) * 10;
 
       const percentageScore =
-        effectiveQuestions > 0
-          ? Math.round((score / maxPossibleScore) * 100)
+        maxPossiblePoints > 0
+          ? Math.round((totalPoints / maxPossiblePoints) * 100)
           : 0;
 
+      // Update the state with complete response data
+      setQuestionResponses(allResponses);
       setTotalScore(percentageScore);
-
       saveReadinessScore(percentageScore);
     }
   };
@@ -195,7 +260,30 @@ export const RapidFireModePage = ({
 
   const skipQuestion = () => {
     setSkippedQuestions((prev) => prev + 1);
-    handleResponse("missed");
+
+    // Store skipped question response
+    const newResponse: QuestionResponse = {
+      question: currentQuestion,
+      response: "skipped",
+      index: currentQuestionIndex,
+    };
+
+    setQuestionResponses((prev) => {
+      const existingIndex = prev.findIndex(
+        (r) => r.index === currentQuestionIndex,
+      );
+      if (existingIndex >= 0) {
+        const updated = [...prev];
+        updated[existingIndex] = newResponse;
+        return updated;
+      }
+      return [...prev, newResponse];
+    });
+
+    // Reset state and go to next question
+    setUserResponse("skipped");
+    setShowAnswer(true);
+    setIsFlipped(true);
   };
 
   const restartRapidFire = () => {
@@ -207,12 +295,66 @@ export const RapidFireModePage = ({
     setUserResponse(null);
     setTotalScore(null);
     setSkippedQuestions(0);
+    setQuestionResponses([]);
+    setReviewQuestion(null);
+    setIsReviewFlipped(false);
     setShuffledQuestions(shuffleArray(questions.filter((q) => q.applicable)));
+  };
+
+  // Track timed-out questions properly
+  useEffect(() => {
+    if (timeLeft === 0 && !showAnswer && userResponse === null) {
+      // Check if this question was already recorded as skipped
+      const isAlreadySkipped = questionResponses.some(
+        (r) => r.index === currentQuestionIndex && r.response === "skipped",
+      );
+
+      if (!isAlreadySkipped) {
+        // Auto-mark as missed when time expires (only if not already skipped)
+        const newResponse: QuestionResponse = {
+          question: currentQuestion,
+          response: "missed",
+          index: currentQuestionIndex,
+        };
+
+        setQuestionResponses((prev) => {
+          const existingIndex = prev.findIndex(
+            (r) => r.index === currentQuestionIndex,
+          );
+          if (existingIndex >= 0) {
+            // Don't overwrite skipped responses
+            if (prev[existingIndex].response === "skipped") {
+              return prev;
+            }
+            const updated = [...prev];
+            updated[existingIndex] = newResponse;
+            return updated;
+          }
+          return [...prev, newResponse];
+        });
+      }
+    }
+  }, [
+    timeLeft,
+    showAnswer,
+    userResponse,
+    currentQuestion,
+    currentQuestionIndex,
+    questionResponses,
+  ]);
+
+  const handleReviewQuestionClick = (question: GeneratedQuestion) => {
+    setReviewQuestion(question);
+    setIsReviewFlipped(false);
+  };
+
+  const handleReviewCardClick = () => {
+    setIsReviewFlipped(!isReviewFlipped);
   };
 
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 p-6">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-teal-50 p-6">
         <div className="max-w-2xl mx-auto text-center py-12">
           <div className="bg-white rounded-xl shadow-lg p-8">
             <h3 className="text-xl font-bold mb-4">No Questions Available</h3>
@@ -238,7 +380,7 @@ export const RapidFireModePage = ({
 
   if (totalScore !== null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 p-6">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-teal-50 p-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2">
@@ -252,10 +394,15 @@ export const RapidFireModePage = ({
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
             <div className="text-center mb-8">
               <div className="relative inline-block mb-6">
-                <div className="w-40 h-40 rounded-full border-8 border-teal-200 flex items-center justify-center bg-gradient-to-br from-teal-50 to-teal-100">
+                <div className="w-40 h-40 rounded-full border-8 border-teal-200 flex items-center justify-center bg-linear-to-br from-teal-50 to-teal-100">
                   <div className="text-center">
                     <span className="text-4xl font-bold text-teal-700">
-                      {totalScore}%
+                      {Math.round(
+                        (score /
+                          (shuffledQuestions.length - skippedQuestions)) *
+                          10,
+                      )}
+                      %
                     </span>
                     <div className="text-sm text-teal-600 font-medium mt-1">
                       Readiness Score
@@ -312,22 +459,28 @@ export const RapidFireModePage = ({
             <div className="grid grid-cols-3 gap-4 mb-8">
               <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-100">
                 <div className="text-2xl font-bold text-emerald-600">
-                  {Math.floor(score / 10)}
+                  {
+                    questionResponses.filter((r) => r.response === "covered")
+                      .length
+                  }
                 </div>
                 <div className="text-sm text-emerald-700">Covered Well</div>
               </div>
               <div className="text-center p-4 bg-amber-50 rounded-lg border border-amber-100">
                 <div className="text-2xl font-bold text-amber-600">
-                  {Math.floor((score % 10) / 5)}
+                  {
+                    questionResponses.filter((r) => r.response === "partial")
+                      .length
+                  }
                 </div>
                 <div className="text-sm text-amber-700">Partial Coverage</div>
               </div>
               <div className="text-center p-4 bg-rose-50 rounded-lg border border-rose-100">
                 <div className="text-2xl font-bold text-rose-600">
-                  {shuffledQuestions.length -
-                    Math.floor(score / 10) -
-                    Math.floor((score % 10) / 5) -
-                    skippedQuestions}
+                  {
+                    questionResponses.filter((r) => r.response === "missed")
+                      .length
+                  }
                 </div>
                 <div className="text-sm text-rose-700">Missed</div>
               </div>
@@ -344,22 +497,191 @@ export const RapidFireModePage = ({
               </div>
             )}
 
+            {/* Reviewable Progress Bar */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                Performance Review
+              </h3>
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  <span className="font-medium">Note:</span> Click on any of the
+                  color-coded tabs to review the Q&A.
+                </p>
+              </div>
+              <div className="flex gap-1 mb-4">
+                {shuffledQuestions.map((_, index) => {
+                  const response = questionResponses.find(
+                    (r) => r.index === index,
+                  );
+                  let bgColor = "bg-gray-300"; // Gray for unanswered/skipped
+
+                  if (response) {
+                    switch (response.response) {
+                      case "covered":
+                        bgColor = "bg-green-500";
+                        break;
+                      case "partial":
+                        bgColor = "bg-amber-500";
+                        break;
+                      case "missed":
+                        bgColor = "bg-red-500";
+                        break;
+                      case "skipped":
+                        bgColor = "bg-gray-400";
+                        break;
+                    }
+                  }
+
+                  return (
+                    <div
+                      key={index}
+                      className={`h-3 flex-1 rounded-sm cursor-pointer transition-all hover:opacity-80 ${bgColor}`}
+                      onClick={() => {
+                        const questionResp = questionResponses.find(
+                          (r) => r.index === index,
+                        );
+                        if (questionResp) {
+                          handleReviewQuestionClick(questionResp.question);
+                        }
+                      }}
+                      title={`Question ${index + 1}: ${response?.response || "Unanswered"}`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="flex justify-center gap-6 text-sm text-slate-600">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
+                  <span>Covered Well</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-amber-500 rounded-sm"></div>
+                  <span>Partial Coverage</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-sm"></div>
+                  <span>Missed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gray-400 rounded-sm"></div>
+                  <span>Skipped</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Review Question Card */}
+            {reviewQuestion && (
+              <div className="mb-8 bg-white rounded-xl p-6 border border-slate-200">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="font-semibold text-slate-900">
+                    Question Review
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setReviewQuestion(null)}
+                  >
+                    Close
+                  </Button>
+                </div>
+
+                <div
+                  className={`relative w-full h-80 cursor-pointer transition-transform duration-700 ease-out-cubic ${
+                    isReviewFlipped ? "transform rotate-y-180" : ""
+                  }`}
+                  style={{
+                    transformStyle: "preserve-3d",
+                    perspective: "1000px",
+                  }}
+                  onClick={handleReviewCardClick}
+                >
+                  {/* Front of Card - Question */}
+                  <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-teal-500 to-teal-700 rounded-xl p-6 flex flex-col justify-between text-white shadow-lg">
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium">
+                          {reviewQuestion.category}
+                        </span>
+                        <span className="text-teal-200 text-xs bg-white/10 px-2 py-1 rounded">
+                          Review Mode
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-bold leading-tight">
+                        {reviewQuestion.question}
+                      </h3>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-teal-100 text-sm">
+                        Click to see answer and guidance
+                      </p>
+                      <div className="flex justify-center mt-2">
+                        <div className="w-6 h-6 border-2 border-white/50 rounded-full animate-bounce flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 bg-white/80 rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Back of Card - Answer & Guidance */}
+                  <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-teal-600 to-teal-800 rounded-xl p-6 flex flex-col text-white shadow-lg">
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="bg-white/20 px-2 py-1 rounded text-xs font-medium">
+                        Answer & Guidance
+                      </span>
+                    </div>
+
+                    <div className="space-y-4 flex-1 overflow-y-auto pr-2">
+                      <div>
+                        <h4 className="text-teal-200 font-semibold mb-2 flex items-center gap-2 text-sm">
+                          <span className="w-2 h-2 bg-teal-200 rounded-full"></span>
+                          Suggested Answer
+                        </h4>
+                        <p className="text-slate-100 text-sm leading-relaxed">
+                          {reviewQuestion.suggestedAnswer}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="text-blue-200 font-semibold mb-2 flex items-center gap-2 text-sm">
+                          <span className="w-2 h-2 bg-blue-200 rounded-full"></span>
+                          Guidance
+                        </h4>
+                        <p className="text-slate-200 text-sm leading-relaxed">
+                          {reviewQuestion.guidance}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-center mt-4">
+                      <p className="text-slate-300 text-xs">
+                        Click to flip back
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3 justify-center">
               <Button
                 onClick={restartRapidFire}
-                className="bg-teal-600 hover:bg-teal-700"
+                className="bg-teal-600 hover:bg-teal-700 cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Try Again
               </Button>
               <Button
                 onClick={onSwitchToPrep}
-                className="bg-orange-600 hover:bg-orange-700"
+                className="bg-orange-600 hover:bg-orange-700 cursor-pointer"
               >
                 <Zap className="w-4 h-4 mr-2" />
                 Switch to Prep Mode
               </Button>
-              <Button onClick={onExit} variant="outline">
+              <Button
+                onClick={onExit}
+                variant="outline"
+                className="cursor-pointer"
+              >
                 Exit
               </Button>
             </div>
@@ -370,7 +692,7 @@ export const RapidFireModePage = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 p-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-teal-50 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -413,10 +735,10 @@ export const RapidFireModePage = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 min-h-[500px] flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 min-h-125 flex items-center justify-center">
           <div className="w-full max-w-2xl">
             <div
-              className={`relative w-full h-full min-h-[450px] cursor-pointer transition-transform duration-700 ease-out-cubic ${
+              className={`relative w-full h-full min-h-112.5 cursor-pointer transition-transform duration-700 ease-out-cubic ${
                 isFlipped ? "transform rotate-y-180" : ""
               }`}
               style={{
@@ -447,8 +769,10 @@ export const RapidFireModePage = ({
                     <div className="flex justify-center mt-14">
                       <div className="relative w-44 h-44">
                         {/* Subtle outer ring for depth */}
-                        <div className={`absolute inset-0 rounded-full ${timeLeft <= 3 ? 'ring-2 ring-red-100' : 'ring-2 ring-teal-100'} opacity-50`}></div>
-                                          
+                        <div
+                          className={`absolute inset-0 rounded-full ${timeLeft <= 3 ? "ring-2 ring-red-100" : "ring-2 ring-teal-100"} opacity-50`}
+                        ></div>
+
                         {/* Enhanced circular timer */}
                         <svg
                           className="w-full h-full drop-shadow-sm"
@@ -463,14 +787,18 @@ export const RapidFireModePage = ({
                             stroke="url(#timerBg)"
                             strokeWidth="6"
                           />
-                                            
+
                           {/* Progress ring with smooth animation */}
                           <circle
                             cx="88"
                             cy="88"
                             r="76"
                             fill="none"
-                            stroke={timeLeft <= 3 ? "url(#timerDanger)" : "url(#timerSuccess)"}
+                            stroke={
+                              timeLeft <= 3
+                                ? "url(#timerDanger)"
+                                : "url(#timerSuccess)"
+                            }
                             strokeWidth="6"
                             strokeDasharray={`${2 * Math.PI * 76}`}
                             strokeDashoffset={`${2 * Math.PI * 76 * (1 - timeLeft / 10)}`}
@@ -478,29 +806,47 @@ export const RapidFireModePage = ({
                             className="transition-all duration-1000 ease-out"
                             transform="rotate(-90 88 88)"
                           />
-                                            
+
                           {/* Gradient definitions */}
                           <defs>
-                            <linearGradient id="timerBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient
+                              id="timerBg"
+                              x1="0%"
+                              y1="0%"
+                              x2="100%"
+                              y2="100%"
+                            >
                               <stop offset="0%" stopColor="#f1f5f9" />
                               <stop offset="100%" stopColor="#e2e8f0" />
                             </linearGradient>
-                            <linearGradient id="timerSuccess" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient
+                              id="timerSuccess"
+                              x1="0%"
+                              y1="0%"
+                              x2="100%"
+                              y2="100%"
+                            >
                               <stop offset="0%" stopColor="#0d9488" />
                               <stop offset="100%" stopColor="#0f766e" />
                             </linearGradient>
-                            <linearGradient id="timerDanger" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient
+                              id="timerDanger"
+                              x1="0%"
+                              y1="0%"
+                              x2="100%"
+                              y2="100%"
+                            >
                               <stop offset="0%" stopColor="#ef4444" />
                               <stop offset="100%" stopColor="#dc2626" />
                             </linearGradient>
                           </defs>
                         </svg>
-                                          
+
                         {/* Enhanced timer display */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl px-4 py-2">
-                            <div 
-                              className={`text-5xl font-black tracking-tight ${timeLeft <= 3 ? 'text-red-600' : 'text-teal-600'} transition-all duration-500 ${timeLeft <= 3 ? 'scale-105' : ''}`}
+                            <div
+                              className={`text-5xl font-black tracking-tight ${timeLeft <= 3 ? "text-red-600" : "text-teal-600"} transition-all duration-500 ${timeLeft <= 3 ? "scale-105" : ""}`}
                             >
                               {timeLeft}
                             </div>
@@ -527,7 +873,7 @@ export const RapidFireModePage = ({
                 </div>
               </div>
 
-              <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-8 flex flex-col text-white shadow-xl">
+              <div className="absolute inset-0 backface-hidden rotate-y-180 bg-linear-to-br from-teal-600 to-teal-800 rounded-2xl p-8 flex flex-col text-white shadow-xl">
                 <div className="flex justify-between items-start mb-6">
                   <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
                     Answer & Guidance

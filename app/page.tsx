@@ -18,6 +18,7 @@ import GetInTouch from "@/app/components/HomePage/GetInTouch";
 import Image from "next/image";
 import { StackedCarousel } from "./components/StackedCarousel";
 import Link from "next/link";
+import HydrationSafeButton from "@/app/components/HydrationSafeButton";
 
 const JOURNEYS = [
   // Family & Protection
@@ -654,23 +655,23 @@ function HomePageContent() {
                     </p>
                     <div className="flex flex-wrap gap-4 mb-10">
                       <Link href={"/visa-category/ir-category"}>
-                        <button
+                        <HydrationSafeButton
                           onClick={() => {}}
                           className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                         >
                           Begin Your Journey
                           <Icons.ArrowRight className="w-5 h-5" />
-                        </button>
+                        </HydrationSafeButton>
                       </Link>
                       <Link href={"/visa-category/ir-category"}>
-                        <button
+                        <HydrationSafeButton
                           onClick={() => {
                             // setActiveSection("journeys");
                           }} //() => handleNavigate("journeys")
                           className="inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-border bg-background hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
                         >
                           Explore Journeys
-                        </button>
+                        </HydrationSafeButton>
                       </Link>
                     </div>
                     <div className="flex flex-wrap gap-8">
@@ -780,7 +781,7 @@ function HomePageContent() {
                     "Work Green Cards",
                     "Students & Visitors",
                   ].map((tab) => (
-                    <button
+                    <HydrationSafeButton
                       key={tab}
                       onClick={() => setJourneyTab(tab)}
                       className={`px-6 py-3 rounded-full text-sm font-semibold transition-all border ${
@@ -791,7 +792,7 @@ function HomePageContent() {
                     >
                       {tab.charAt(0).toUpperCase() +
                         tab.slice(1).replace("-", " ")}
-                    </button>
+                    </HydrationSafeButton>
                   ))}
                 </div>
 
@@ -886,12 +887,12 @@ function HomePageContent() {
                   ))}
                 </div>
                 <div className="mt-12 text-center">
-                  <button
+                  <HydrationSafeButton
                     onClick={() => handleNavigate("tools")}
                     className="inline-flex items-center gap-2 px-8 py-3 text-base font-bold text-rahvana-primary border-2 border-rahvana-primary rounded-full hover:bg-rahvana-primary hover:text-white transition-all"
                   >
                     Explore all tools <Icons.ArrowRight className="w-5 h-5" />
-                  </button>
+                  </HydrationSafeButton>
                 </div>
               </div>
             </section>
@@ -921,12 +922,12 @@ function HomePageContent() {
                           First consult is free.
                         </span>
                       </p>
-                      <button
+                      <HydrationSafeButton
                         onClick={() => setShowComingSoon(true)}
                         className="inline-flex items-center px-10 py-5 bg-background text-rahvana-primary text-lg font-bold rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all"
                       >
                         Book a Consultation
-                      </button>
+                      </HydrationSafeButton>
                     </div>
                     <div className="relative h-64 lg:h-full min-h-[400px] rounded-r-2xl">
                       <Image
@@ -1031,7 +1032,7 @@ function HomePageContent() {
                         const step = i + 1;
                         const isActive = activeStep === step;
                         return (
-                          <motion.button
+                          <motion.div
                             key={step}
                             onClick={() => setActiveStep(step)}
                             variants={{
@@ -1052,11 +1053,15 @@ function HomePageContent() {
                               translate: "-50% -50%",
                             }}
                           >
-                            <span className="sr-only">Step {step}</span>
-                            {React.createElement(LIFECYCLE_STEPS[i].icon, {
-                              className: "w-6 h-6",
-                            })}
-                          </motion.button>
+                            <HydrationSafeButton
+                               className="w-full h-full rounded-full flex items-center justify-center p-0 bg-transparent border-0"
+                            > 
+                                <span className="sr-only">Step {step}</span>
+                                {React.createElement(LIFECYCLE_STEPS[i].icon, {
+                                    className: "w-6 h-6 pointer-events-none",
+                                })}
+                            </HydrationSafeButton>
+                          </motion.div>
                         );
                       })}
                     </motion.div>
@@ -1134,7 +1139,7 @@ function HomePageContent() {
                           : "border-border bg-card hover:border-rahvana-primary/30"
                       }`}
                     >
-                      <button
+                      <HydrationSafeButton
                         onClick={() => setOpenFAQ(openFAQ === i ? null : i)}
                         className="w-full px-8 py-6 text-left flex items-center justify-between"
                       >
@@ -1150,7 +1155,7 @@ function HomePageContent() {
                         >
                           <Icons.Plus className="w-4 h-4" />
                         </div>
-                      </button>
+                      </HydrationSafeButton>
                       <AnimatePresence>
                         {openFAQ === i && (
                           <motion.div
@@ -1200,12 +1205,12 @@ function HomePageContent() {
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
                     className="relative w-full max-w-md bg-card rounded-3xl p-8 shadow-2xl border border-border"
                   >
-                    <button
+                    <HydrationSafeButton
                       onClick={() => setShowComingSoon(false)}
                       className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <Icons.X className="w-6 h-6" />
-                    </button>
+                    </HydrationSafeButton>
                     <div className="w-16 h-16 rounded-2xl bg-rahvana-primary-pale text-rahvana-primary flex items-center justify-center mx-auto mb-6">
                       <Icons.Rocket className="w-8 h-8" />
                     </div>
@@ -1233,12 +1238,12 @@ function HomePageContent() {
                         required
                         className="w-full px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-rahvana-primary focus:ring-4 focus:ring-rahvana-primary/10 transition-all font-medium bg-background text-foreground"
                       />
-                      <button
+                      <HydrationSafeButton
                         type="submit"
                         className="w-full py-4 bg-rahvana-primary text-white font-bold rounded-xl shadow-lg hover:bg-rahvana-primary-dark transition-all active:scale-95"
                       >
                         Notify Me
-                      </button>
+                      </HydrationSafeButton>
                     </form>
                   </motion.div>
                 </div>

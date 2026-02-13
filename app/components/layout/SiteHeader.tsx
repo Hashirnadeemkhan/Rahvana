@@ -39,6 +39,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
+import { UserProfile } from "@/app/context/AuthContext";
 import { useTheme } from "next-themes";
 
 interface HeaderProps {
@@ -47,6 +48,7 @@ interface HeaderProps {
   isSignedIn?: boolean;
   onToggleAuth?: () => void;
   user?: User | null;
+  profile?: UserProfile | null;
 }
 
 // --------------------------------------------------------------------------
@@ -59,25 +61,45 @@ const HydrationSafeButton = (
   },
 ) => {
   const { className, ...rest } = props;
+
+  // Filter out problematic attributes that might be added by extensions
+  const filteredRest = { ...rest };
+  const extensionAttributes = ['fdprocessedid', 'data-extension', 'data-extension-id'];
+  extensionAttributes.forEach(attr => {
+    if (filteredRest[attr as keyof typeof filteredRest]) {
+      delete filteredRest[attr as keyof typeof filteredRest];
+    }
+  });
+
   return (
     <button
-      {...rest}
+      {...filteredRest}
       className={className}
-      // <-- THIS IS THE KEY LINE
       suppressHydrationWarning={true}
     />
   );
 };
 
 // --------------------------------------------------------------------------
-//  Global clean-up – runs once, removes any fdprocessedid attrs
+//  Global clean-up – runs once, removes any extension-injected attrs
 // --------------------------------------------------------------------------
 const useExtensionCleanup = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      document
-        .querySelectorAll("[fdprocessedid]")
-        .forEach((el) => el.removeAttribute("fdprocessedid"));
+      // Remove common attributes added by browser extensions
+      const extensionAttrs = [
+        "fdprocessedid",
+        "data-extension",
+        "data-extension-id",
+        "_moz-generated-content-before",
+        "_moz-generated-content-after"
+      ];
+
+      extensionAttrs.forEach(attr => {
+        document
+          .querySelectorAll(`[${attr}]`)
+          .forEach((el) => el.removeAttribute(attr));
+      });
     }, 0);
     return () => clearTimeout(timer);
   }, []);
@@ -113,6 +135,7 @@ export function SiteHeader({
   isSignedIn = false,
   onToggleAuth,
   user,
+  profile,
 }: HeaderProps = {}) {
   // Run cleanup once
   useExtensionCleanup();
@@ -152,8 +175,12 @@ export function SiteHeader({
         tools: "/?section=tools",
         pricing: "/pricing",
         dashboard: "/user-dashboard",
+        mfa: "/mfa-setup",
         contact: "/#contact",
         passport: "/passport",
+        "passport-guide": "/guides/passport-guide",
+        "visa-strength-guide": "/guides/visa-strength-guide",
+        "frc-guide": "/guides/frc-guide",
         pdf: "/pdf-processing",
         signature: "/signature-image-processing",
         iv: "/iv-tool",
@@ -171,6 +198,8 @@ export function SiteHeader({
         "courier-registration": "/courier-registration",
         "custom-requirements": "/custom-requirements",
         "interview-prep": "/interview-prep",
+        profile : "/profile",
+        settings: "/settings"
       };
 
       const targetRoute = routes[id] || "/";
@@ -266,7 +295,7 @@ export function SiteHeader({
               onMouseEnter={() => handleMenuEnter("journeys")}
               onMouseLeave={handleMenuLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "journeys"
                     ? "bg-muted text-primary"
@@ -277,7 +306,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${activeMenu === "journeys" ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
             </div>
 
             {/* Toolbox */}
@@ -286,7 +315,7 @@ export function SiteHeader({
               onMouseEnter={() => handleMenuEnter("tools")}
               onMouseLeave={handleMenuLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "tools"
                     ? "bg-muted text-primary"
@@ -297,7 +326,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${activeMenu === "tools" ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
             </div>
 
             {/* Guides */}
@@ -306,7 +335,7 @@ export function SiteHeader({
               onMouseEnter={() => handleMenuEnter("guides")}
               onMouseLeave={handleMenuLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "guides"
                     ? "bg-muted text-primary"
@@ -317,7 +346,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${activeMenu === "guides" ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
             </div>
 
             {/* Services */}
@@ -326,7 +355,7 @@ export function SiteHeader({
               onMouseEnter={() => handleMenuEnter("services")}
               onMouseLeave={handleMenuLeave}
             >
-              <button
+              <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeMenu === "services"
                     ? "bg-muted text-primary"
@@ -337,7 +366,7 @@ export function SiteHeader({
                 <ChevronDown
                   className={`h-4 w-4 transition-transform duration-300 ${activeMenu === "services" ? "rotate-180" : ""}`}
                 />
-              </button>
+              </HydrationSafeButton>
             </div>
 
             <Link
@@ -1031,31 +1060,56 @@ export function SiteHeader({
                           title: "PCC Playbook — Sindh",
                           description:
                             "Sindh police certificate guide: requirements, steps, timelines, and common mistakes.",
-                          href: "/police-verification", // Assuming this links to custom requirements or similar
+                          href: "/guides/police-verification", // Assuming this links to custom requirements or similar
                         },
                         {
                           icon: <Shield className="h-5 w-5" />,
                           title: "PCC Playbook — Punjab",
                           description:
                             "Punjab police certificate guide (service coming soon).",
-                          href: "/police-verification",
+                          href: "/guides/police-verification",
                         },
                         {
                           icon: <Shield className="h-5 w-5" />,
                           title: "PCC Playbook — KPK",
                           description:
                             "KPK police certificate guide (service coming soon).",
-                          href: "/police-verification",
+                          href: "/guides/police-verification",
                         },
                         {
                           icon: <Shield className="h-5 w-5" />,
                           title: "PCC Playbook — Balochistan",
                           description:
                             "Balochistan police certificate guide (service coming soon).",
-                          href: "/police-verification",
+                          href: "/guides/police-verification",
+                        },
+                        {
+                          icon: <Globe className="h-5 w-5" />,
+                          title: "Passport Guide",
+                          description:
+                            "Complete guide to obtaining or renewing your Pakistani passport.",
+                          href: "/guides/passport-guide",
+                          badge: "Live",
+                        },
+                        {
+                          icon: <Shield className="h-5 w-5" />,
+                          title: "PCC Reference Guide",
+                          description:
+                            "Comprehensive overview of Police Character Certificates for all provinces.",
+                          href: "/guides/police-certificate",
+                          badge: "Live",
+                        },
+                        {
+                          icon: <Globe className="h-5 w-5" />,
+                          title: "FRC Guide",
+                          description:
+                            "Complete guide to obtaining your Family Registration Certificate (FRC).",
+                          href: "/guides/frc-guide",
+                          badge: "Live",
                         },
                       ],
                     },
+                  
                     {
                       id: "embassy-logistics",
                       label: "Embassy Logistics",
@@ -1065,7 +1119,7 @@ export function SiteHeader({
                           title: "Courier & Passport Delivery Guide",
                           description:
                             "Register, choose delivery options, and troubleshoot common courier issues.",
-                          href: "/courier-registration",
+                          href: "/guides/courier-registration",
                         },
                       ],
                     },
@@ -1078,7 +1132,7 @@ export function SiteHeader({
                           title: "Customs & Declarations Guide",
                           description:
                             "What to declare, what to avoid, and common pitfalls when traveling.",
-                          href: "/custom-requirements", // Placeholder
+                          href: "/guides/custom-requirements", // Placeholder
                         },
                       ],
                     },
@@ -1257,6 +1311,13 @@ export function SiteHeader({
                         My Dashboard
                       </button>
                       <button
+                        onClick={() => handleNav("profile")}
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
+                      >
+                        <UserIcon className="w-4 h-4" />
+                        My Profile
+                      </button>
+                      <button
                         onClick={() => handleNav("document-vault")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
@@ -1295,7 +1356,7 @@ export function SiteHeader({
                     {/* Section 2 */}
                     <div className="py-2 border-b border-border">
                       <button
-                        onClick={() => {}} // Placeholder
+                        onClick={() => handleNav("settings")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
                         <Settings className="w-4 h-4" />
@@ -1357,8 +1418,8 @@ export function SiteHeader({
           />
 
           {/* Sidebar Content */}
-          <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-background shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
-            <div className="flex items-center justify-between p-5 border-b border-border">
+          <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
               {/* <Link
                 href="/"
                 onClick={(e) => handleNav("home", e)}
@@ -1565,6 +1626,50 @@ export function SiteHeader({
                     </div>
                   )}
                 </div>
+                
+                {/* Guides Section */}
+                <div className="mt-2">
+                  <HydrationSafeButton
+                    onClick={() => {
+                      const section = "guides";
+                      setExpandedSections((prev) =>
+                        prev.includes(section)
+                          ? prev.filter((s) => s !== section)
+                          : [...prev, section],
+                      );
+                    }}
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Folder className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">Guides</span>
+                    </div>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        expandedSections.includes("guides") ? "rotate-180" : ""
+                      }`}
+                    />
+                  </HydrationSafeButton>
+                  {expandedSections.includes("guides") && (
+                    <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
+                      {[
+                        { id: "passport-guide", label: "Passport Guide" },
+                      ].map((item) => (
+                        <HydrationSafeButton
+                          key={item.id}
+                          onClick={() => handleNav(item.id)}
+                          className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
+                            isActive(item.id)
+                              ? "text-[#0d9488] font-semibold bg-[#0d9488]/5"
+                              : "text-slate-500 hover:text-[#0d9488] hover:bg-slate-50"
+                          }`}
+                        >
+                          {item.label}
+                        </HydrationSafeButton>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* <div className="mt-4 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">General</div> */}
                 <HydrationSafeButton
@@ -1577,18 +1682,43 @@ export function SiteHeader({
                 >
                   <span className="font-bold">Pricing</span>
                 </HydrationSafeButton>
-                {/* {isSignedIn && (
-                  <HydrationSafeButton
-                    onClick={() => handleNav("dashboard")}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
-                      isActive("dashboard")
-                        ? "bg-[#0d9488]/10 text-[#0d9488]"
-                        : "text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    <span className="font-bold">Dashboard</span>
-                  </HydrationSafeButton>
-                )} */}
+                {isSignedIn && (
+                  <>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("dashboard")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("dashboard", "/user-dashboard")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Layout className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">My Dashboard</span>
+                    </HydrationSafeButton>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("profile")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("profile", "/profile")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <UserIcon className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">My Profile</span>
+                    </HydrationSafeButton>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("settings")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("settings", "/settings")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Settings className="w-5 h-5 opacity-60" />
+                      <span className="font-bold">Account Settings</span>
+                    </HydrationSafeButton>
+                  </>
+                )}
                 <HydrationSafeButton
                   onClick={() => handleNav("contact")}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${

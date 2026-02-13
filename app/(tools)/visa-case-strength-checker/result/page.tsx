@@ -13,6 +13,35 @@ function ResultPageInner() {
     window.location.href = "/visa-case-strength-checker";
   };
 
+  const handleEdit = () => {
+    // Navigate back to the form to allow editing
+    window.location.href = `/visa-case-strength-checker?sessionId=${sessionId}`;
+  };
+
+  const handleSaveToProfile = async () => {
+    // Implementation for saving results to user's profile
+    // This would typically involve calling an API endpoint
+    try {
+      const response = await fetch('/api/visa-checker/save-results', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save results');
+      }
+
+      // Optionally show success notification here
+      console.log('Results saved successfully');
+    } catch (error) {
+      console.error('Error saving results:', error);
+      throw error; // Re-throw to be handled by the component
+    }
+  };
+
   if (!sessionId) {
     return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
@@ -24,12 +53,7 @@ function ResultPageInner() {
             <p className="text-slate-600 mb-6">
               No session ID provided. Please start a new assessment.
             </p>
-            <button
-              onClick={handleRestart}
-              className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-            >
-              Start New Assessment
-            </button>
+
           </div>
         </div>
       </div>
@@ -47,7 +71,12 @@ function ResultPageInner() {
             ← Back to My Cases
           </button>
         </div>
-        <ResultPage sessionId={sessionId} onRestart={handleRestart} />
+        <ResultPage
+          sessionId={sessionId}
+          onRestart={handleRestart}
+          onEdit={handleEdit}
+          onSaveToProfile={handleSaveToProfile}
+        />
       </div>
     </div>
   );

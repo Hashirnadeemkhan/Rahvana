@@ -16,6 +16,10 @@ import { ResultPage } from "./result/ResultPage";
 import { InterviewPrepOutput } from "../../../lib/interview-prep/types";
 
 import { ToggleSwitch } from "@/app/components/interview-prep/ToggleSwitch";
+import { useAuth } from "@/app/context/AuthContext";
+import { createBrowserClient } from "@supabase/ssr";
+import { mapProfileToGenericForm } from "@/lib/autoFill/mapper";
+import { MasterProfile } from "@/types/profile";
 
 type CaseType = "Spouse";
 
@@ -1192,6 +1196,80 @@ export default function InterviewPreparation() {
     useState<InterviewPrepOutput | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Auto-fill profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+          const profile = data.profile_details as MasterProfile;
+
+          // Map profile data to form structure
+          const mappedData = mapProfileToGenericForm(profile, {
+            caseType: formData.caseType,
+            beneficiary_country: formData.beneficiary_country,
+            age_range: formData.age_range,
+            highest_education: formData.highest_education,
+            marriage_date: formData.marriage_date,
+            marriage_location: formData.marriage_location,
+            previous_marriages: formData.previous_marriages,
+            relationship_origin_type: formData.relationship_origin_type,
+            current_living_arrangement: formData.current_living_arrangement,
+            spouse_address: formData.spouse_address,
+            communication_frequency: formData.communication_frequency,
+            daily_communication: formData.daily_communication,
+            shared_activities: formData.shared_activities,
+            important_dates_knowledge: formData.important_dates_knowledge,
+            met_spouse_family: formData.met_spouse_family,
+            family_reaction_to_marriage: formData.family_reaction_to_marriage,
+            wedding_attendees: formData.wedding_attendees,
+            marriage_type: formData.marriage_type,
+            mutual_friends: formData.mutual_friends,
+            petitioner_status: formData.petitioner_status,
+            petitioner_income_level: formData.petitioner_income_level,
+            household_size: formData.household_size,
+            beneficiary_employment: formData.beneficiary_employment,
+            sponsor_employment: formData.sponsor_employment,
+            military_or_defense_background: formData.military_or_defense_background,
+            previous_us_visits: formData.previous_us_visits,
+            previous_visa_refusal: formData.previous_visa_refusal,
+            visa_overstay_history: formData.visa_overstay_history,
+            criminal_history: formData.criminal_history,
+            english_proficiency: formData.english_proficiency,
+            intended_us_state: formData.intended_us_state,
+            living_arrangements_in_us: formData.living_arrangements_in_us,
+            future_plans: formData.future_plans,
+            joint_finances: formData.joint_finances,
+            financial_arrangement_description: formData.financial_arrangement_description,
+          });
+
+          setFormData(prev => ({
+            ...prev,
+            ...mappedData
+          }));
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase, formData]);
 
   // Load questions from the JSON file
   interface QuestionDefinition {

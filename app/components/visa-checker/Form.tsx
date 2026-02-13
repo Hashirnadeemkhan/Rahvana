@@ -1,7 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { mapProfileToGenericForm } from '@/lib/autoFill/mapper';
+import { MasterProfile } from '@/types/profile';
+import { useAuth } from '@/app/context/AuthContext';
+import { createBrowserClient } from '@supabase/ssr';
 
 export default function Form() {
   const [form, setForm] = useState({
@@ -13,6 +17,49 @@ export default function Form() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const { user } = useAuth();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Auto-fill profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('profile_details')
+          .eq('id', user.id)
+          .single();
+
+        if (data?.profile_details && !profileLoaded) {
+          const profile = data.profile_details as MasterProfile;
+
+          // Map profile data to form structure
+          const mappedData = mapProfileToGenericForm(profile, {
+            category: form.category,
+            priorityDate: form.priorityDate,
+            country: form.country,
+            applicationType: form.applicationType,
+          });
+
+          setForm(prev => ({
+            ...prev,
+            ...mappedData
+          }));
+          setProfileLoaded(true);
+        }
+      } catch (err) {
+        console.error("Error auto-filling profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [user, profileLoaded, supabase, form]);
 
   const handleSubmit = async () => {
     if (!form.priorityDate) {
