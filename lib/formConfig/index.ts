@@ -3,6 +3,8 @@
 import * as i130 from "./i130";
 import * as i864 from "./i864";
 import * as i130a from "./i130a"; 
+import * as i129f from "./i129f";
+import * as i912 from "./i912";
 import * as ds260 from "./ds260"
 
 import type { FormConfig } from "./types"; // import your FormConfig type
@@ -12,6 +14,8 @@ const configs: Record<string, FormConfig> = {
   i130,
   i864,
   i130a,
+  i129f,
+  i912,
   ds260
 };
 

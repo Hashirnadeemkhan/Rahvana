@@ -1,46 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import Link from "next/link";
-import Script from "next/script";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Heart,
-  Shield,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  FileText,
-  MapPin,
-  HelpCircle,
-  ArrowRight,
-  ClipboardCheck,
-  Building2,
-  Camera,
-  MessageSquare,
-  Search,
-  BookOpen,
+ 
   Info,
-  Calendar,
   ExternalLink,
-  Archive,
   Wallet,
-  Globe,
-  Gavel,
-  History,
   Check,
   ChevronRight,
   ChevronLeft,
-  Scale,
   UserCheck,
   Sparkles,
   Zap,
   Home,
-  RotateCcw,
   BadgeCheck,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
@@ -52,7 +29,7 @@ interface Step {
   shortTitle: string;
   count: string;
   description: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string; }> | React.FunctionComponent<{ className?: string; }>;
   sections: {
     heading: string;
     items: { id: string; text: string; subtext?: string }[];
@@ -224,7 +201,7 @@ export default function BonaMarriageGuidePage() {
             </motion.div>
 
             <h1 className="text-4xl md:text-7xl font-black text-[#055b5e] dark:text-white mb-6 tracking-tight">
-              Relationship <span className="text-transparent bg-clip-text bg-linear-to-r from-[#14a0a6] via-[#32e0c4] to-[#14a0a6] bg-[length:200%_auto] animate-gradient-x">Evidence</span>
+              Relationship <span className="text-transparent bg-clip-text bg-linear-to-r from-[#14a0a6] via-[#32e0c4] to-[#14a0a6] bg-size-[200%_auto] animate-gradient-x">Evidence</span>
             </h1>
             <p className="max-w-2xl text-slate-500 text-base md:text-lg mb-10 font-medium leading-relaxed">
               Transform your shared history into a professional evidence file. A comprehensive roadmap for IR1/CR1 applicants from Pakistan.
@@ -237,7 +214,7 @@ export default function BonaMarriageGuidePage() {
                 { icon: Wallet, label: "Phase 3", value: "Shared Life" },
                 { icon: UserCheck, label: "Phase 4", value: "Interview" },
               ].map((stat, idx) => (
-                <div key={idx} className="bg-white/80 dark:bg-white/5 backdrop-blur-md p-5 rounded-[2rem] border border-slate-200/50 shadow-sm transition-all hover:border-[#14a0a6]/30">
+                <div key={idx} className="bg-white/80 dark:bg-white/5 backdrop-blur-md p-5 rounded-4xl border border-slate-200/50 shadow-sm transition-all hover:border-[#14a0a6]/30">
                   <stat.icon className="w-5 h-5 text-[#14a0a6] mb-3" />
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{stat.label}</p>
                   <p className="text-sm font-black text-[#055b5e] dark:text-white">{stat.value}</p>
@@ -318,7 +295,7 @@ export default function BonaMarriageGuidePage() {
           
           <div className="lg:col-span-3 relative group">
             {/* Border Beam Glow Effect */}
-            <div className="absolute -inset-[2px] bg-linear-to-r from-[#14a0a6] via-[#32e0c4] to-[#055b5e] rounded-[3.1rem] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm pointer-events-none" />
+            <div className="absolute -inset-0.5 bg-linear-to-r from-[#14a0a6] via-[#32e0c4] to-[#055b5e] rounded-[3.1rem] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm pointer-events-none" />
             
             <AnimatePresence mode="wait">
               <motion.div 
@@ -331,10 +308,10 @@ export default function BonaMarriageGuidePage() {
               >
                 <div className="relative z-10">
                    <div className="flex flex-col md:flex-row md:items-center gap-10 mb-16">
-                      <motion.div 
+                      <motion.div
                         initial={{ rotate: -15, scale: 0.8 }}
                         animate={{ rotate: 0, scale: 1 }}
-                        className="w-20 h-20 rounded-[2rem] bg-linear-to-br from-[#055b5e] to-[#14a0a6] flex items-center justify-center text-white shadow-2xl shadow-[#055b5e]/40 shrink-0"
+                        className="w-20 h-20 rounded-4xl bg-linear-to-br from-[#055b5e] to-[#14a0a6] flex items-center justify-center text-white shadow-2xl shadow-[#055b5e]/40 shrink-0"
                       >
                          <currentStep.icon className="w-10 h-10" />
                       </motion.div>
@@ -379,11 +356,11 @@ export default function BonaMarriageGuidePage() {
                                     {/* Left Status Indicator */}
                                     <div className={cn(
                                       "w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 transition-all duration-500",
-                                      isChecked 
-                                        ? "bg-[#055b5e] border-[#055b5e] text-white rotate-[360deg]" 
+                                      isChecked
+                                        ? "bg-[#055b5e] border-[#055b5e] text-white rotate-360"
                                         : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-300 group-hover:border-[#14a0a6]"
                                     )}>
-                                      {isChecked ? <Check className="w-6 h-6 stroke-[3]" /> : <div className="w-2 h-2 rounded-full bg-slate-200" />}
+                                      {isChecked ? <Check className="w-6 h-6 stroke-3" /> : <div className="w-2 h-2 rounded-full bg-slate-200" />}
                                     </div>
 
                                     {/* Content */}
@@ -468,7 +445,7 @@ export default function BonaMarriageGuidePage() {
                    <h3 className="font-black text-white text-xl tracking-tight">Expert Strategy</h3>
                 </div>
                 <p className="text-lg font-bold text-white/90 leading-relaxed relative z-10 italic">
-                   "{currentStep.proTip}"
+                   &quot;{currentStep.proTip}&quot;
                 </p>
              </motion.div>
 
