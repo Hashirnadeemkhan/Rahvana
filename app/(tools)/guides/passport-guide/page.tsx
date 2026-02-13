@@ -517,7 +517,7 @@ export default function PassportGuidePage() {
           <div className="grid lg:grid-cols-3 gap-8 mb-12 items-start">
             {/* Left Column: Progress & Quick Info */}
             <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
-              <div className="bg-white rounded-[2rem] border border-slate-200 p-8 shadow-sm">
+              <div className="bg-white rounded-4xl border border-slate-200 p-8 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-slate-900">Your Journey Progress</h3>
                   <span className="text-sm font-bold text-[#0d7377] bg-[#0d7377]/10 px-3 py-1 rounded-full">
@@ -636,7 +636,7 @@ export default function PassportGuidePage() {
               </div>
 
               {/* Fee Quick Preview */}
-              <div className="bg-[#e8f6f6] rounded-[2rem] p-8 text-[#0d7377] shadow-xl">
+              <div className="bg-[#e8f6f6] rounded-4xl p-8 text-[#0d7377] shadow-xl">
                  <div className="flex items-center gap-3 mb-6">
                    <div className="p-2 bg-[#0d7377]/10 rounded-xl">
                      <DollarSign className="w-5 h-5 text-[#0d7377]" />
@@ -717,7 +717,7 @@ export default function PassportGuidePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: sIdx * 0.1 }}
                     className={cn(
-                      "bg-white rounded-[2rem] border overflow-hidden shadow-sm flex flex-col transition-all duration-300",
+                      "bg-white rounded-4xl border overflow-hidden shadow-sm flex flex-col transition-all duration-300",
                       theme.border,
                       !isCollapsed && theme.bg
                     )}
