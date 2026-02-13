@@ -6,7 +6,6 @@ import { usePDFStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import type * as PDFJS from "pdfjs-dist";
 
-
 let pdfjsLib: typeof PDFJS | null = null;
 
 async function initPdfJs() {
@@ -18,9 +17,17 @@ async function initPdfJs() {
 }
 
 export function PDFThumbnails() {
-  const { currentPage, setCurrentPage, pdfFile, totalPages, pageModifications } = usePDFStore();
+  const {
+    currentPage,
+    setCurrentPage,
+    pdfFile,
+    totalPages,
+    pageModifications,
+  } = usePDFStore();
   const [isLoading, setIsLoading] = useState(false);
-  const [thumbnails, setThumbnails] = useState<Array<{ thumbnail: string; rotation: number; originalIndex: number }>>([]);
+  const [thumbnails, setThumbnails] = useState<
+    Array<{ thumbnail: string; rotation: number; originalIndex: number }>
+  >([]);
 
   useEffect(() => {
     if (!pdfFile) return;
@@ -29,12 +36,17 @@ export function PDFThumbnails() {
       try {
         setIsLoading(true);
         const pdfjs = await initPdfJs();
-        const pdf = await pdfjs.getDocument(await pdfFile.arrayBuffer()).promise;
-        
+        const pdf = await pdfjs.getDocument(await pdfFile.arrayBuffer())
+          .promise;
+
         // If no modifications yet, generate from original pages
         if (pageModifications.length === 0) {
-          const thumbs: Array<{ thumbnail: string; rotation: number; originalIndex: number }> = [];
-          
+          const thumbs: Array<{
+            thumbnail: string;
+            rotation: number;
+            originalIndex: number;
+          }> = [];
+
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const viewport = page.getViewport({ scale: 0.3 });
@@ -51,11 +63,15 @@ export function PDFThumbnails() {
               originalIndex: i - 1,
             });
           }
-          
+
           setThumbnails(thumbs);
         } else {
           // Generate thumbnails based on modifications
-          const thumbs: Array<{ thumbnail: string; rotation: number; originalIndex: number }> = [];
+          const thumbs: Array<{
+            thumbnail: string;
+            rotation: number;
+            originalIndex: number;
+          }> = [];
 
           for (const mod of pageModifications) {
             if (mod.deleted) continue;
@@ -101,14 +117,19 @@ export function PDFThumbnails() {
   if (thumbnails.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-2 bg-gray-50 p-2 overflow-y-auto h-full" style={{ width: "120px", minWidth: "120px" }}>
+    <div
+      className="flex flex-col gap-2 bg-gray-50 p-2 overflow-y-auto h-full"
+      style={{ width: "120px", minWidth: "120px" }}
+    >
       {thumbnails.map((thumb, index) => (
         <button
           key={`${thumb.originalIndex}-${index}`}
           onClick={() => setCurrentPage(index)}
           className={cn(
-            "relative rounded border overflow-hidden transition-all hover:border-blue-400 flex-shrink-0",
-            currentPage === index ? "border-2 border-blue-600 shadow-md" : "border border-gray-300"
+            "relative rounded border overflow-hidden transition-all hover:border-blue-400 shrink-0",
+            currentPage === index
+              ? "border-2 border-blue-600 shadow-md"
+              : "border border-gray-300",
           )}
           style={{ width: "104px", height: "140px" }}
         >

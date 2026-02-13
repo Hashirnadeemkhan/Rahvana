@@ -15,7 +15,7 @@ function ResultPageInner() {
 
   if (!sessionId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center max-w-md">
           <div className="bg-white rounded-xl shadow-lg p-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-4">
@@ -37,7 +37,7 @@ function ResultPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
           <button

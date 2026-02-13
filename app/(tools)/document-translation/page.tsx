@@ -100,7 +100,7 @@ export default function DocumentTranslationUpload() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-gray-800 flex flex-col items-center py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 text-gray-800 flex flex-col items-center py-12 px-4">
       {/* Header */}
       <header className="text-center mb-10">
         <h1 className="text-4xl md:text-5xl font-bold text-primary/90">
@@ -130,7 +130,7 @@ export default function DocumentTranslationUpload() {
                 "No password protected PDFs",
               ].map((req, i) => (
                 <li key={i} className="flex items-start gap-3 md:col-span-1">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
                   <span>
                     <strong>{i + 1}.</strong> {req}
                   </span>
@@ -241,7 +241,7 @@ export default function DocumentTranslationUpload() {
                   ${
                     !file || uploading
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-primary/90 text-white hover:bg-primary/100"
+                      : "bg-primary/90 text-white hover:bg-primary"
                   }`}
               >
                 {uploading ? (

@@ -149,7 +149,7 @@ export default function MyCases() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-gray-800 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 text-gray-800 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <header className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3">
