@@ -12,6 +12,7 @@ from app.core.form_configs import i864_config
 from app.core.form_configs import i130a_config
 from app.core.form_configs import i129f_config
 from app.core.form_configs import i912_config
+from app.core.form_configs import i864a_config
 # from app.core.form_configs import ds260_config
 
 # Master mapping: formId → FIELD_MAPPING
@@ -21,6 +22,7 @@ FORM_CONFIGS = {
     "i130a": i130a_config.FIELD_MAPPING,
     "i129f": i129f_config.FIELD_MAPPING,
     "i912": i912_config.FIELD_MAPPING,
+    "i864a": i864a_config.FIELD_MAPPING,
     # "ds260": ds260_config.FIELD_MAPPING,
     # "i485": i485_config.FIELD_MAPPING,
     # "i765": i765_config.FIELD_MAPPING,

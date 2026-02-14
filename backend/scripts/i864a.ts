@@ -1,0 +1,173 @@
+import type { Field } from './types';
+
+export const formId = 'i864a';
+export const formTitle = 'Form I-864A';
+export const formSubtitle = 'Contract Between Sponsor and Household Member';
+
+export const formFields: Field[] = [
+  // === Additional Information ===
+  { key: 's_0_attorneystatebarnumber', pdfKey: 's_0_attorneystatebarnumber', label: 'S 0 Attorneystatebarnumber', type: 'text', section: 'Additional Information' },
+  { key: 's_0_g28-checkbox1', pdfKey: 's_0_g28-checkbox1', label: 'S 0 G28-Checkbox1', type: 'checkbox', section: 'Additional Information' },
+  // === Part 1: Information About Household Member ===
+  { key: 'pt1_l0_1a_familyname', pdfKey: 'pt1_l0_1a_familyname', label: '1A Family Name', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l0_1b_givenname', pdfKey: 'pt1_l0_1b_givenname', label: '1B Given Name', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l0_1c_middlename', pdfKey: 'pt1_l0_1c_middlename', label: '1C Middle Name', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_incareofname', pdfKey: 'pt1_l2_incareofname', label: 'Incareofname', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_streetnumbername', pdfKey: 'pt1_l2_streetnumbername', label: 'Street Number and Name', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_unit', pdfKey: 'pt1_l2_unit', label: 'Unit', type: 'checkbox', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_unit_1', pdfKey: 'pt1_l2_unit_1', label: 'Unit 1', type: 'checkbox', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_unit_2', pdfKey: 'pt1_l2_unit_2', label: 'Unit 2', type: 'checkbox', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_aptsteflrnumber', pdfKey: 'pt1_l2_aptsteflrnumber', label: 'Apt./Ste./Flr. Number', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_cityortown', pdfKey: 'pt1_l2_cityortown', label: 'City or Town', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_state', pdfKey: 'pt1_l2_state', label: 'State', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_zipcode', pdfKey: 'pt1_l2_zipcode', label: 'ZIP Code', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_province', pdfKey: 'pt1_l2_province', label: 'Province', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_postalcode', pdfKey: 'pt1_l2_postalcode', label: 'Postalcode', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l2_country', pdfKey: 'pt1_l2_country', label: 'Country', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l3_cb', pdfKey: 'pt1_l3_cb', label: 'Cb', type: 'checkbox', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l3_cb_1', pdfKey: 'pt1_l3_cb_1', label: 'Cb 1', type: 'checkbox', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_streetnumbername', pdfKey: 'pt1_l4_streetnumbername', label: 'Street Number and Name', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_unit', pdfKey: 'pt1_l4_unit', label: 'Unit', type: 'checkbox', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_unit_1', pdfKey: 'pt1_l4_unit_1', label: 'Unit 1', type: 'checkbox', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_unit_2', pdfKey: 'pt1_l4_unit_2', label: 'Unit 2', type: 'checkbox', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_aptsteflrnumber', pdfKey: 'pt1_l4_aptsteflrnumber', label: 'Apt./Ste./Flr. Number', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_cityortown', pdfKey: 'pt1_l4_cityortown', label: 'City or Town', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_state', pdfKey: 'pt1_l4_state', label: 'State', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_zipcode', pdfKey: 'pt1_l4_zipcode', label: 'Zipcode', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_province', pdfKey: 'pt1_l4_province', label: 'Province', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_postalcode', pdfKey: 'pt1_l4_postalcode', label: 'Postalcode', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l4_country', pdfKey: 'pt1_l4_country', label: 'Country', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l5_dateofbirth', pdfKey: 'pt1_l5_dateofbirth', label: 'Date of Birth', type: 'date', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l6_countryofbirth', pdfKey: 'pt1_l6_countryofbirth', label: 'Countryofbirth', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l7_ssn', pdfKey: 'pt1_l7_ssn', label: 'Social Security Number', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 'pt1_l8_aliennumber', pdfKey: 'pt1_l8_aliennumber', label: 'A-Number', type: 'text', section: 'Part 1: Information About Household Member' },
+  // === Part 2: Relationship to Sponsor ===
+  { key: 'pt2_l0_1-3_checkbox', pdfKey: 'pt2_l0_1-3_checkbox', label: '1-3', type: 'checkbox', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l0_1-3_checkbox_1', pdfKey: 'pt2_l0_1-3_checkbox_1', label: '1-3  1', type: 'checkbox', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l0_1-3_checkbox_2', pdfKey: 'pt2_l0_1-3_checkbox_2', label: '1-3  2', type: 'checkbox', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l3_a_relationship', pdfKey: 'pt2_l3_a_relationship', label: 'A Relationship', type: 'checkbox', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l3_a_relationship_1', pdfKey: 'pt2_l3_a_relationship_1', label: 'A Relationship 1', type: 'checkbox', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l3_a_relationship_2', pdfKey: 'pt2_l3_a_relationship_2', label: 'A Relationship 2', type: 'checkbox', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l3_a_relationship_3', pdfKey: 'pt2_l3_a_relationship_3', label: 'A Relationship 3', type: 'checkbox', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l3_a_relationship_4', pdfKey: 'pt2_l3_a_relationship_4', label: 'A Relationship 4', type: 'checkbox', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l3_a_other', pdfKey: 'pt2_l3_a_other', label: 'A Other', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  // === Part 3: Employment and Income ===
+  { key: 'pt3_l1_employment', pdfKey: 'pt3_l1_employment', label: 'Employment', type: 'checkbox', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l0_1a_employed', pdfKey: 'pt3_l0_1a_employed', label: '1A Employed', type: 'text', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l2_employed', pdfKey: 'pt3_l2_employed', label: 'Employed', type: 'text', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l3_employed', pdfKey: 'pt3_l3_employed', label: 'Employed', type: 'text', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l4_employment', pdfKey: 'pt3_l4_employment', label: 'Employment', type: 'checkbox', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l0_4a_selfemployeddescription', pdfKey: 'pt3_l0_4a_selfemployeddescription', label: '4A Selfemployeddescription', type: 'text', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l5_employment', pdfKey: 'pt3_l5_employment', label: 'Employment', type: 'checkbox', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l0_5a_employeddate', pdfKey: 'pt3_l0_5a_employeddate', label: '5A Employeddate', type: 'date', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l6_employment', pdfKey: 'pt3_l6_employment', label: 'Employment', type: 'checkbox', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l0_6a_employeddate', pdfKey: 'pt3_l0_6a_employeddate', label: '6A Employeddate', type: 'date', section: 'Part 3: Employment and Income' },
+  { key: 'pt3_l2_currentincome', pdfKey: 'pt3_l2_currentincome', label: 'Currentincome', type: 'text', section: 'Part 3: Employment and Income' },
+  // === Part 4: Assets ===
+  { key: 'pt4_l1_cb', pdfKey: 'pt4_l1_cb', label: 'Cb', type: 'checkbox', section: 'Part 4: Assets' },
+  { key: 'pt4_l1_cb_1', pdfKey: 'pt4_l1_cb_1', label: 'Cb 1', type: 'checkbox', section: 'Part 4: Assets' },
+  { key: 'pt4_l0_2a_taxyear', pdfKey: 'pt4_l0_2a_taxyear', label: '2A Taxyear', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l0_2a_totalincome', pdfKey: 'pt4_l0_2a_totalincome', label: '2A Totalincome', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l0_2b_taxyear', pdfKey: 'pt4_l0_2b_taxyear', label: '2B Taxyear', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l0_2b_totalincome', pdfKey: 'pt4_l0_2b_totalincome', label: '2B Totalincome', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l0_2c_taxyear', pdfKey: 'pt4_l0_2c_taxyear', label: '2C Taxyear', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l0_2c_totalincome', pdfKey: 'pt4_l0_2c_totalincome', label: '2C Totalincome', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l3_assets', pdfKey: 'pt4_l3_assets', label: 'Assets', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l4_assets', pdfKey: 'pt4_l4_assets', label: 'Assets', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l5_assets', pdfKey: 'pt4_l5_assets', label: 'Assets', type: 'text', section: 'Part 4: Assets' },
+  { key: 'pt4_l6_totalassets', pdfKey: 'pt4_l6_totalassets', label: 'Totalassets', type: 'text', section: 'Part 4: Assets' },
+  // === Part 5: Sponsor's Promise, Statement, and Signature ===
+  { key: 'pt5_l0_sponsorname', pdfKey: 'pt5_l0_sponsorname', label: 'Sponsorname', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_intendingmigrants', pdfKey: 'pt5_l0_intendingmigrants', label: 'Intendingmigrants', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_1a_familyname', pdfKey: 'pt5_l0_1a_familyname', label: '1A Family Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_1b_givenname', pdfKey: 'pt5_l0_1b_givenname', label: '1B Given Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_1c_middlename', pdfKey: 'pt5_l0_1c_middlename', label: '1C Middle Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_1d_dateofbirth', pdfKey: 'pt5_l0_1d_dateofbirth', label: '1D Date of Birth', type: 'date', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_1e_anumber', pdfKey: 'pt5_l0_1e_anumber', label: '1E Anumber', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_2a_familyname', pdfKey: 'pt5_l0_2a_familyname', label: '2A Family Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_2b_givenname', pdfKey: 'pt5_l0_2b_givenname', label: '2B Given Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_2c_middlename', pdfKey: 'pt5_l0_2c_middlename', label: '2C Middle Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_2d_dateofbirth', pdfKey: 'pt5_l0_2d_dateofbirth', label: '2D Date of Birth', type: 'date', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_2e_anumber', pdfKey: 'pt5_l0_2e_anumber', label: '2E Anumber', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_3a_familyname', pdfKey: 'pt5_l0_3a_familyname', label: '3A Family Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_3b_givenname', pdfKey: 'pt5_l0_3b_givenname', label: '3B Given Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_3c_middlename', pdfKey: 'pt5_l0_3c_middlename', label: '3C Middle Name', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_3d_dateofbirth', pdfKey: 'pt5_l0_3d_dateofbirth', label: '3D Date of Birth', type: 'date', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  { key: 'pt5_l0_3e_anumber', pdfKey: 'pt5_l0_3e_anumber', label: '3E Anumber', type: 'text', section: 'Part 5: Sponsor's Promise, Statement, and Signature' },
+  // === Additional Information ===
+  { key: 's_3_p5line5_checkbox', pdfKey: 's_3_p5line5_checkbox', label: 'S 3 P5Line5 Checkbox', type: 'checkbox', section: 'Additional Information' },
+  { key: 's_3_p5line5b_language', pdfKey: 's_3_p5line5b_language', label: 'S 3 P5Line5B Language', type: 'text', section: 'Additional Information' },
+  { key: 's_3_p5line5_checkbox_1', pdfKey: 's_3_p5line5_checkbox_1', label: 'S 3 P5Line5 Checkbox 1', type: 'checkbox', section: 'Additional Information' },
+  { key: 's_3_p5line5_checkbox_2', pdfKey: 's_3_p5line5_checkbox_2', label: 'S 3 P5Line5 Checkbox 2', type: 'checkbox', section: 'Additional Information' },
+  { key: 's_3_p5line5c_language', pdfKey: 's_3_p5line5c_language', label: 'S 3 P5Line5C Language', type: 'text', section: 'Additional Information' },
+  { key: 's_3_part2line4a_middlename', pdfKey: 's_3_part2line4a_middlename', label: 'S 3 Part2Line4A Middlename', type: 'text', section: 'Additional Information' },
+  { key: 's_3_part2line4a_givenname', pdfKey: 's_3_part2line4a_givenname', label: 'S 3 Part2Line4A Givenname', type: 'text', section: 'Additional Information' },
+  { key: 's_3_part2line4a_familyname', pdfKey: 's_3_part2line4a_familyname', label: 'S 3 Part2Line4A Familyname', type: 'text', section: 'Additional Information' },
+  // === Part 2: Relationship to Sponsor ===
+  { key: 's_3_pt2line4_mobilephone', pdfKey: 's_3_pt2line4_mobilephone', label: 'S 3 Pt2Line4 Mobilephone', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  { key: 's_3_pt2line5_emailaddress', pdfKey: 's_3_pt2line5_emailaddress', label: 'S 3 Pt2Line5 Emailaddress', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  { key: 's_3_pt2line3_daytimephone', pdfKey: 's_3_pt2line3_daytimephone', label: 'S 3 Pt2Line3 Daytimephone', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  { key: 's_3_pt2line6_applicantsignature', pdfKey: 's_3_pt2line6_applicantsignature', label: 'S 3 Pt2Line6 Applicantsignature', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  { key: 's_3_pt2line6_dateofsignature', pdfKey: 's_3_pt2line6_dateofsignature', label: 'S 3 Pt2Line6 Dateofsignature', type: 'date', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l5_ssn', pdfKey: 'pt2_l5_ssn', label: 'Social Security Number', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  { key: 'pt2_l8_dateofbirth', pdfKey: 'pt2_l8_dateofbirth', label: 'Date of Birth', type: 'date', section: 'Part 2: Relationship to Sponsor' },
+  // === Additional Information ===
+  { key: 'pt9_l0_iamfluent', pdfKey: 'pt9_l0_iamfluent', label: 'Iamfluent', type: 'text', section: 'Additional Information' },
+  { key: 'pt9_l0_iamfluent_1', pdfKey: 'pt9_l0_iamfluent_1', label: 'Iamfluent 1', type: 'text', section: 'Additional Information' },
+  { key: 's_4_p6line2_attorney', pdfKey: 's_4_p6line2_attorney', label: 'S 4 P6Line2 Attorney', type: 'text', section: 'Additional Information' },
+  { key: 's_4_p6line1b_language', pdfKey: 's_4_p6line1b_language', label: 'S 4 P6Line1B Language', type: 'text', section: 'Additional Information' },
+  { key: 's_4_p7line5_daytimetelephonenumber', pdfKey: 's_4_p7line5_daytimetelephonenumber', label: 'S 4 P7Line5 Daytimetelephonenumber', type: 'text', section: 'Additional Information' },
+  { key: 's_4_p7line6_mobiletelephonenumber', pdfKey: 's_4_p7line6_mobiletelephonenumber', label: 'S 4 P7Line6 Mobiletelephonenumber', type: 'text', section: 'Additional Information' },
+  { key: 's_4_p7line7_emailaddress', pdfKey: 's_4_p7line7_emailaddress', label: 'S 4 P7Line7 Emailaddress', type: 'text', section: 'Additional Information' },
+  // === Part 6: Household Member's Promise, Statement, and Signature ===
+  { key: 'pt6_l2_checkbox', pdfKey: 'pt6_l2_checkbox', label: 'Part 6, Item 2', type: 'checkbox', section: 'Part 6: Household Member's Promise, Statement, and Signature' },
+  { key: 'pt6_l1_checkbox', pdfKey: 'pt6_l1_checkbox', label: 'Part 6, Item 1', type: 'checkbox', section: 'Part 6: Household Member's Promise, Statement, and Signature' },
+  { key: 'pt6_l1_checkbox_1', pdfKey: 'pt6_l1_checkbox_1', label: '1', type: 'checkbox', section: 'Part 6: Household Member's Promise, Statement, and Signature' },
+  // === Additional Information ===
+  { key: 's_5_p7line6a_emailaddress', pdfKey: 's_5_p7line6a_emailaddress', label: 'S 5 P7Line6A Emailaddress', type: 'text', section: 'Additional Information' },
+  { key: 's_5_p8line1b_interpretersgivenname', pdfKey: 's_5_p8line1b_interpretersgivenname', label: 'S 5 P8Line1B Interpretersgivenname', type: 'text', section: 'Additional Information' },
+  { key: 's_5_p8line1a_interpretersfamilyname', pdfKey: 's_5_p8line1a_interpretersfamilyname', label: 'S 5 P8Line1A Interpretersfamilyname', type: 'text', section: 'Additional Information' },
+  { key: 's_5_p8line2_interpretersbusinessname', pdfKey: 's_5_p8line2_interpretersbusinessname', label: 'S 5 P8Line2 Interpretersbusinessname', type: 'text', section: 'Additional Information' },
+  { key: 's_5_p8line5_interpretersemailaddress', pdfKey: 's_5_p8line5_interpretersemailaddress', label: 'S 5 P8Line5 Interpretersemailaddress', type: 'text', section: 'Additional Information' },
+  { key: 's_5_p8line4_interpretersdaytimephonenumber', pdfKey: 's_5_p8line4_interpretersdaytimephonenumber', label: 'S 5 P8Line4 Interpretersdaytimephonenumber', type: 'text', section: 'Additional Information' },
+  { key: 's_5_p8line4_interpretersdaytimephonenumber_1', pdfKey: 's_5_p8line4_interpretersdaytimephonenumber_1', label: 'S 5 P8Line4 Interpretersdaytimephonenumber 1', type: 'text', section: 'Additional Information' },
+  // === Part 2: Relationship to Sponsor ===
+  { key: 's_5_pt2line6_applicantsignature_1', pdfKey: 's_5_pt2line6_applicantsignature_1', label: 'S 5 Pt2Line6 Applicantsignature 1', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  { key: 's_5_pt2line6_dateofsignature_1', pdfKey: 's_5_pt2line6_dateofsignature_1', label: 'S 5 Pt2Line6 Dateofsignature 1', type: 'date', section: 'Part 2: Relationship to Sponsor' },
+  // === Additional Information ===
+  { key: 's_6_p9line2_preparersbusinessname', pdfKey: 's_6_p9line2_preparersbusinessname', label: 'S 6 P9Line2 Preparersbusinessname', type: 'text', section: 'Additional Information' },
+  { key: 's_6_p9line1a_preparersfamilyname', pdfKey: 's_6_p9line1a_preparersfamilyname', label: 'S 6 P9Line1A Preparersfamilyname', type: 'text', section: 'Additional Information' },
+  { key: 's_6_p9line1b_preparersgivenname', pdfKey: 's_6_p9line1b_preparersgivenname', label: 'S 6 P9Line1B Preparersgivenname', type: 'text', section: 'Additional Information' },
+  { key: 's_6_p9line6_preparersemailaddress', pdfKey: 's_6_p9line6_preparersemailaddress', label: 'S 6 P9Line6 Preparersemailaddress', type: 'text', section: 'Additional Information' },
+  { key: 's_6_p9line4_preparersdaytimephonenumber', pdfKey: 's_6_p9line4_preparersdaytimephonenumber', label: 'S 6 P9Line4 Preparersdaytimephonenumber', type: 'text', section: 'Additional Information' },
+  { key: 's_6_p9line5_preparersfaxnumber', pdfKey: 's_6_p9line5_preparersfaxnumber', label: 'S 6 P9Line5 Preparersfaxnumber', type: 'text', section: 'Additional Information' },
+  // === Part 2: Relationship to Sponsor ===
+  { key: 's_6_pt2line6_applicantsignature_2', pdfKey: 's_6_pt2line6_applicantsignature_2', label: 'S 6 Pt2Line6 Applicantsignature 2', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  { key: 's_6_pt2line6_dateofsignature_2', pdfKey: 's_6_pt2line6_dateofsignature_2', label: 'S 6 Pt2Line6 Dateofsignature 2', type: 'date', section: 'Part 2: Relationship to Sponsor' },
+  { key: 's_6_pt2line6_applicantsignature_3', pdfKey: 's_6_pt2line6_applicantsignature_3', label: 'S 6 Pt2Line6 Applicantsignature 3', type: 'text', section: 'Part 2: Relationship to Sponsor' },
+  { key: 's_6_pt2line6_dateofsignature_3', pdfKey: 's_6_pt2line6_dateofsignature_3', label: 'S 6 Pt2Line6 Dateofsignature 3', type: 'date', section: 'Part 2: Relationship to Sponsor' },
+  // === Part 8: Preparer Information ===
+  { key: 'pt8_l0_language', pdfKey: 'pt8_l0_language', label: 'Language', type: 'text', section: 'Part 8: Preparer Information' },
+  // === Part 1: Information About Household Member ===
+  { key: 's_7_global_anumber_0_pt1line3e_aliennumber', pdfKey: 's_7_global_anumber_0_pt1line3e_aliennumber', label: 'S 7 Global Anumber 0 Pt1Line3E Aliennumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt11line3b_partnumber', pdfKey: 's_7_pt11line3b_partnumber', label: 'S 7 Pt11Line3B Partnumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt11line3c_itemnumber', pdfKey: 's_7_pt11line3c_itemnumber', label: 'S 7 Pt11Line3C Itemnumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt11line6b_partnumber', pdfKey: 's_7_pt11line6b_partnumber', label: 'S 7 Pt11Line6B Partnumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt11line6c_itemnumber', pdfKey: 's_7_pt11line6c_itemnumber', label: 'S 7 Pt11Line6C Itemnumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt11line5c_itemnumber', pdfKey: 's_7_pt11line5c_itemnumber', label: 'S 7 Pt11Line5C Itemnumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt11line5b_partnumber', pdfKey: 's_7_pt11line5b_partnumber', label: 'S 7 Pt11Line5B Partnumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt11line4b_partnumber', pdfKey: 's_7_pt11line4b_partnumber', label: 'S 7 Pt11Line4B Partnumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt11line4c_itemnumber', pdfKey: 's_7_pt11line4c_itemnumber', label: 'S 7 Pt11Line4C Itemnumber', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt1line1a_familyname', pdfKey: 's_7_pt1line1a_familyname', label: 'S 7 Pt1Line1A Familyname', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt1line1b_givenname', pdfKey: 's_7_pt1line1b_givenname', label: 'S 7 Pt1Line1B Givenname', type: 'text', section: 'Part 1: Information About Household Member' },
+  { key: 's_7_pt1line1c_middlename', pdfKey: 's_7_pt1line1c_middlename', label: 'S 7 Pt1Line1C Middlename', type: 'text', section: 'Part 1: Information About Household Member' },
+];
+
+export const getInitialFormData = () => {
+  const data: Record<string, string> = {};
+  formFields.forEach((f) => { if (f.key) data[f.key] = ''; });
+  return data;
+};
+
+export const i864aConfig = { formId, formTitle, formSubtitle, formFields, getInitialFormData };
+export default i864aConfig;
