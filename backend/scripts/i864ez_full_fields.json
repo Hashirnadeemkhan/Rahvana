@@ -1,0 +1,712 @@
+[
+  {
+    "page": 1,
+    "name": "form1[0].#pageSet[0].Page1[0].PDF417BarCode1[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].G28-CheckBox1[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].AttorneyStateBarNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].USCISOnlineAccountNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].P1_Line1a_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].P1_Line1a_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].P1_Line1b_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].P1_Line1b_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].P1_Line1c_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].P1_Line1c_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line1a_FamilyName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line1b_GivenName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line1c_MiddleName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line3_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line3_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2a_InCareofName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2b_StreetNumberName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2c_Unit[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2c_Unit[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2c_Unit[2]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2c_AptSteFlrNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2d_CityOrTown[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2e_State[0]",
+    "type": "ComboBox"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2f_ZipCode[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2g_Province[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2h_PostalCode[0]",
+    "type": "Text"
+  },
+  {
+    "page": 1,
+    "name": "form1[0].#subform[0].Part3_Line2i_Country[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#pageSet[0].Page1[1].PDF417BarCode1[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4a_StreetNumberNameA[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4b_UnitA[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4b_UnitA[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4b_UnitA[2]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4b_AptSteFlrNumberA[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4c_CityOrTown[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4d_State[0]",
+    "type": "ComboBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4e_ZipCode[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4f_Province[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4g_PostalCode[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line4h_Country[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line5_CountryofDomicile[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part3_Line6_DateOfBirth[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line9_CountryofBirth[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line10_SSN[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line12_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line12_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line12_Checkbox[2]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line12c_AlienNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line2_USCISOnlineAcctNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line13_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P3_Line13_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part2_Line1a_FamilyName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part2_Line1b_GivenName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].Part2_Line1c_MiddleName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_InCareofName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_StreetNumberName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_Unit[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_Unit[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_Unit[2]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_AptSteFlrNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_CityOrTown[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_State[0]",
+    "type": "ComboBox"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_ZipCode[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_Province[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_PostalCode[0]",
+    "type": "Text"
+  },
+  {
+    "page": 2,
+    "name": "form1[0].#subform[1].P2_Line2_Country[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#pageSet[0].Page1[2].PDF417BarCode1[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P3_Line3_CountryNationality[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].Part2_Line4_DateOfBirth[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].#area[1].Part2_Line5_AlienNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].Part2_Line6_USCISOnlineAcctNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].Part2_Line3_DaytimeTelephoneNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P4_Line1a_TotalNumberofImmigrants[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P4_Line1b_Spouse[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P4_Line1c_Dependent[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P4_Line1d_sponsoredpersons[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P4_Line1e_otherDependents[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P4_Line1f_AddTogether[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line1_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line1_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line2b_NameofEmployer[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line2c_NameofEmployer[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line3b_DateofRetirement[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line4_AnnualIncome[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line5a_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line5a_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line6a_TaxYear[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line6a_TotalIncome[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line6b_TaxYear[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line6b_TotalIncome[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line6c_TaxYear[0]",
+    "type": "Text"
+  },
+  {
+    "page": 3,
+    "name": "form1[0].#subform[2].P5_Line6c_TotalIncome[0]",
+    "type": "Text"
+  },
+  {
+    "page": 4,
+    "name": "form1[0].#pageSet[0].Page1[3].PDF417BarCode1[0]",
+    "type": "Text"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#pageSet[0].Page1[4].PDF417BarCode1[0]",
+    "type": "Text"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#subform[4].P6_Line1_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#subform[4].P6_Line1_Checkbox[1]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#subform[4].P6_Line1b_language[0]",
+    "type": "Text"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#subform[4].P6_Line2_Checkbox[0]",
+    "type": "CheckBox"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#subform[4].P6_Line2_Attorney[0]",
+    "type": "Text"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#subform[4].P6_Line3_DaytimeTelephoneNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#subform[4].P6_Line4_MobileTelephoneNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 5,
+    "name": "form1[0].#subform[4].P7Line7_EmailAddress[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#pageSet[0].Page1[5].PDF417BarCode1[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P6Line6a_ApplicantSignature[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P6Line6b_DateofSignature[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P7_Line1a_InterpretersFamilyName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P7_Line1b_InterpretersGivenName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P7_Line4_InterpretersDaytimePhoneNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P7_Line4_InterpretersDaytimePhoneNumber[1]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P7_Line5_InterpretersEmailAddress[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P7_Language[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P7Line6a_InterpretersSignature[0]",
+    "type": "Text"
+  },
+  {
+    "page": 6,
+    "name": "form1[0].#subform[5].P7_Line6b_DateofSignature[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#pageSet[0].Page1[6].PDF417BarCode1[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#subform[6].P8_Line1a_PreparersFamilyName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#subform[6].P8_Line1b_PreparersGivenName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#subform[6].P8_Line2_PreparersBusinessName[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#subform[6].P8_Line4_PreparersDaytimePhoneNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#subform[6].P8_Line5_PreparersFaxNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#subform[6].P8_Line6_PreparersEmailAddress[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#subform[6].P8_Line8a_PreparersSignature[0]",
+    "type": "Text"
+  },
+  {
+    "page": 7,
+    "name": "form1[0].#subform[6].P8_Line8b_DateofSignature[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#pageSet[0].Page1[7].PDF417BarCode1[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].Part3_Line1a_FamilyName[1]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].Part3_Line1b_GivenName[1]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].Part3_Line1c_MiddleName[1]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].Global_ANumber[0].P3_Line12c_AlienNumber[1]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line3a_PageNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line3b_PartNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line3c_ItemNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line3d_AdditionalInfo[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line4a_PageNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line4b_PartNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line4c_ItemNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line4d_AdditionalInfo[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line5a_PageNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line5b_PartNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line5c_ItemNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line5d_AdditionalInfo[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line6a_PageNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line6b_PartNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line6c_ItemNumber[0]",
+    "type": "Text"
+  },
+  {
+    "page": 8,
+    "name": "form1[0].#subform[7].P9_Line6d_AdditionalInfo[0]",
+    "type": "Text"
+  }
+]
