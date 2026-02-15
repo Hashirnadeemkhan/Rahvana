@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       
       const emailResult = await sendEmail({
         to: user.email!,
-        subject: "Two-Factor Authentication Enabled Successfully - Arachnie",
+        subject: "Two-Factor Authentication Enabled Successfully - Rahvana",
         html: getMFAEnabledEmailHtml(),
       });
       
