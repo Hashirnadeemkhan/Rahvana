@@ -32,7 +32,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams) {
 
 const LOGO_IMAGE = `
   <img 
-    src="https://rahvana.com/assets/images/RahvanaLogo.png" 
+    src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/RahvanaLogo.png"
     alt="Rahvana Logo" 
     style="width:120px; height:auto;" 
   />
