@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "motion/react";
-import { Globe2, Clock, DollarSign, FileText, Shield, Sparkles } from "lucide-react";
+import { Globe2, Heart, FileText, Shield, Sparkles, CheckCircle2 } from "lucide-react";
 
 export function HeroSection() {
   return (
@@ -19,48 +19,42 @@ export function HeroSection() {
           className="flex flex-col items-center text-center"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-[#14a0a6]/20 rounded-full mb-8 shadow-sm">
-            <Globe2 className="w-4 h-4 text-[#0d7377]" />
+            <Sparkles className="w-4 h-4 text-[#0d7377]" />
             <span className="text-sm font-bold text-[#0d7377] uppercase tracking-wider">
-              Complete Guide 2026
+              Marriage Registration 2026
             </span>
           </div>
 
           <h1 className="text-4xl md:text-7xl font-black text-slate-900 mb-6 tracking-tight">
-            Pakistani <span className="text-transparent bg-clip-text bg-linear-to-r from-[#0d7377] to-[#14a0a6]">Passport</span>
+            NADRA MRC <span className="text-transparent bg-clip-text bg-linear-to-r from-[#0d7377] to-[#14a0a6]">Registration Guide</span>
           </h1>
           
           <p className="max-w-2xl text-slate-600 text-base md:text-lg leading-relaxed mb-10">
-            Everything you need to know about applying for or renewing a
-            Pakistani passport - eligibility, fees, documents, offices, and
-            step-by-step process.
+            A simplified, step-by-step roadmap for Union Council registration and obtaining your NADRA-issued computerized Marriage Registration Certificate (MRC).
           </p>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl">
             {[
               {
-                icon: Clock,
-                label: "Processing",
-                value: "2-21 days",
-                color: "indigo"
-              },
-              {
-                icon: DollarSign,
-                label: "Starting Fee",
-                value: "Rs. 5,500",
-                color: "emerald"
-              },
-              {
                 icon: FileText,
-                label: "Validity",
-                value: "5 or 10 yrs",
-                color: "sky"
+                label: "Digital Era",
+                value: "Pak-ID Integrated",
               },
               {
                 icon: Shield,
-                label: "For Travel",
-                value: "6+ months",
-                color: "amber"
+                label: "Compliance",
+                value: "NADRA Mandatory",
+              },
+              {
+                icon: Globe2,
+                label: "Validation",
+                value: "Global Acceptance",
+              },
+              {
+                icon: CheckCircle2,
+                label: "Timeline",
+                value: "15-30 Day Window",
               },
             ].map((stat, idx) => (
               <motion.div
@@ -68,7 +62,7 @@ export function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
-                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group text-center"
+                className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all group text-center"
               >
                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                   <stat.icon className="w-5 h-5 text-[#0d7377]" />
@@ -83,3 +77,4 @@ export function HeroSection() {
     </section>
   );
 }
+

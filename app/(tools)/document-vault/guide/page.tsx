@@ -362,7 +362,7 @@ export default function DocumentVaultGuidePage() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ delay: idx * 0.1, duration: 0.5 }}
             >
-              <Card className="h-full border-none shadow-lg shadow-slate-200/50 bg-white/80 backdrop-blur-sm hover:translate-y-[-5px] transition-all duration-300">
+              <Card className="h-full border-none shadow-lg shadow-slate-200/50 bg-white/80 backdrop-blur-sm hover:-translate-y-1.25 transition-all duration-300">
                 <CardContent className="p-8 flex flex-col items-start h-full">
                   <div className={`p-4 rounded-2xl ${feature.color} mb-6`}>
                     <feature.icon className="w-8 h-8" />
@@ -440,7 +440,7 @@ export default function DocumentVaultGuidePage() {
         {/* Process Steps */}
         <div className="mb-32 relative">
           {/* Connecting Line (Desktop) */}
-          <div className="hidden md:block absolute top-[60px] left-0 right-0 h-1 bg-linear-to-r from-blue-100 via-blue-200 to-blue-100 rounded-full" />
+          <div className="hidden md:block absolute top-15 left-0 right-0 h-1 bg-linear-to-r from-blue-100 via-blue-200 to-blue-100 rounded-full" />
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {steps.map((step, idx) => (

@@ -6,14 +6,11 @@ import { cn } from "@/lib/utils";
 import {
   Heart,
   ShieldCheck,
-  AlertCircle,
   FileText,
   Users,
-  Search,
   CheckCircle,
   ChevronRight,
   Home,
-  Star,
   Zap,
   Briefcase,
   History,
@@ -174,7 +171,7 @@ export default function VisaStrengthGuidePage() {
                    {
                      stage: "Stage 02",
                      title: "Financial Scrutiny",
-                     desc: "Your sponsor's income must meet the 125% line. If using a joint sponsor, ensure their paperwork is as robust as the primary sponsor's.",
+                     desc: "Your sponsor&#39;s income must meet the 125% line. If using a joint sponsor, ensure their paperwork is as robust as the primary sponsor&#39;s.",
                      icon: Scale,
                      side: "right"
                    },
@@ -188,7 +185,7 @@ export default function VisaStrengthGuidePage() {
                    {
                      stage: "Stage 04",
                      title: "The Interview Lab",
-                     desc: "The final 30 minutes. The officer is looking for natural interaction, consistency, and 'bona-fide' intent through your answers.",
+                     desc: "The final 30 minutes. The officer is looking for natural interaction, consistency, and &#39;bona-fide&#39; intent through your answers.",
                      icon: Target,
                      side: "right"
                    }
@@ -204,13 +201,13 @@ export default function VisaStrengthGuidePage() {
                     )}
                    >
                      {/* Number bubble */}
-                     <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex w-12 h-12 rounded-full bg-white border border-slate-200 items-center justify-center font-bold text-slate-400 z-10 shadow-sm border-2 border-slate-100 group-hover:border-cyan-500 transition-colors">
+                     <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex w-12 h-12 rounded-full bg-white border-2 border-slate-100 items-center justify-center font-bold text-slate-400 z-10 shadow-sm group-hover:border-cyan-500 transition-colors">
                         {idx + 1}
                      </div>
 
                      <div className="flex-1 w-full">
                         <div className={cn(
-                          "p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all",
+                          "p-8 rounded-4xl bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all",
                           step.side === "right" ? "text-left" : "md:text-right"
                         )}>
                            <span className="text-xs font-black text-cyan-600 uppercase tracking-widest mb-4 block">{step.stage}</span>
@@ -230,7 +227,7 @@ export default function VisaStrengthGuidePage() {
            <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1">
                  <h2 className="text-4xl font-bold text-slate-900 font-serif italic mb-6">Expert <br/> <span className="text-cyan-600">Best Practices</span></h2>
-                 <p className="text-slate-500 leading-relaxed">Small tactical adjustments that can significantly impact the interviewer's perception of your case.</p>
+                 <p className="text-slate-500 leading-relaxed">Small tactical adjustments that can significantly impact the interviewer&#39;s perception of your case.</p>
               </div>
               <div className="lg:col-span-2 grid md:grid-cols-2 gap-6">
                  <div className="p-8 rounded-4xl bg-white border border-slate-200">
@@ -238,7 +235,7 @@ export default function VisaStrengthGuidePage() {
                        <CheckCircle className="w-6 h-6" />
                     </div>
                     <h4 className="font-bold text-xl mb-3">Be Specific, Not Vague</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">When asked about wedding details, give names and specific funny moments rather than generic 'it was good' answers.</p>
+                    <p className="text-slate-500 text-sm leading-relaxed">When asked about wedding details, give names and specific funny moments rather than generic &#39;it was good&#39; answers.</p>
                  </div>
                  <div className="p-8 rounded-4xl bg-white border border-slate-200">
                     <div className="p-3 bg-amber-50 text-amber-600 rounded-xl w-fit mb-6">

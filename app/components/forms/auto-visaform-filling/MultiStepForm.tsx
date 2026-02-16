@@ -154,7 +154,8 @@ export function MultiStepForm({ formCode }: MultiStepFormProps) {
             );
         }
       } else if (field.type === "checkbox") {
-        payload[field.pdfKey] = value === "Yes" ? "Yes" : "Off";
+        const isChecked = value === "Yes" || String(value) === "true" || value === "on";
+        payload[field.pdfKey] = isChecked ? "Yes" : "Off";
       } else {
         payload[field.pdfKey] = value;
       }

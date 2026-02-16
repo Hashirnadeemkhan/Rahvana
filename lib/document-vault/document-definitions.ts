@@ -567,6 +567,51 @@ const MEDICAL_DOCS: DocumentDefinition[] = [
     multipleFilesAllowed: false,
     validityType: 'none',
   },
+  {
+    id: 'polio-vaccine-cert',
+    key: 'POLIO_CERT',
+    name: 'Polio Vaccination Certificate',
+    description: 'Official International Certificate of Vaccination (issued within last 12 months)',
+    category: 'MEDICAL',
+    roles: ['BENEFICIARY'],
+    stages: ['NVC', 'INTERVIEW'],
+    required: true,
+    multipleFilesAllowed: false,
+    validityType: 'fixed_days',
+    validityDays: 365, // Valid for 1 year
+    defaultWarnDays: 60,
+    wizardSteps: [
+      {
+        stepNumber: 1,
+        title: 'Visit Government Hospital or Health Office',
+        description: 'Get a fresh dose of Oral Polio Vaccine (OPV) from any government-approved vaccination center or hospital.',
+        tips: [
+          'Must be recorded on the official Yellow Card or NADRA system',
+          'Make sure the date of vaccination is within 1 year of your travel date',
+        ],
+        estimatedTime: '1 day',
+        cost: 'Free (Government Centers) / Nominal (Private)',
+      },
+      {
+        stepNumber: 2,
+        title: 'Get NADRA Immunization Certificate',
+        description: 'If vaccinated through the official system, you can also download a computerized certificate from the NADRA website.',
+        resources: [
+          {
+            name: 'NADRA SLIMS (Immunization)',
+            url: 'https://nims.nadra.gov.pk/',
+            type: 'link',
+          },
+        ],
+        tips: [
+          'NADRA certificate is more professional and widely accepted',
+          'Keep both original and computerized copy',
+        ],
+        estimatedTime: '10 minutes (online)',
+        cost: 'PKR 100',
+      },
+    ],
+  },
 ];
 
 // ============================================================================

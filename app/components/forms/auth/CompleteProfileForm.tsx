@@ -775,7 +775,7 @@ export default function CompleteProfileForm() {
         <div className="space-y-5">
           <div className="bg-slate-50 border border-slate-200 rounded-md px-3 py-2.5 mb-4">
             <p className="text-xs text-slate-600">
-              This information is optional but helps us auto-fill visa forms. Skip if you're not currently applying for a visa.
+              This information is optional but helps us auto-fill visa forms. Skip if you&apos;re not currently applying for a visa.
             </p>
           </div>
 
