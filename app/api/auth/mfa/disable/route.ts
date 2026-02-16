@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       
       const emailResult = await sendEmail({
         to: session.user.email!,
-        subject: "Two-Factor Authentication Disabled - Arachnie",
+        subject: "Two-Factor Authentication Disabled - Rahvana",
         html: getMFADisabledEmailHtml(),
       });
       

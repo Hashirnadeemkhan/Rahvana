@@ -12,13 +12,13 @@ import { createBrowserClient } from "@supabase/ssr/dist/main/createBrowserClient
 export function MFASetup() {
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
   // const router = useRouter();
 
   const [step, setStep] = useState<"initial" | "qr" | "verify" | "complete">(
-    "initial",
+    "initial"
   );
   const [qrCode, setQrCode] = useState<string>("");
   const [secret, setSecret] = useState<string>("");
@@ -197,47 +197,88 @@ export function MFASetup() {
 
         {profile && profile.mfa_enabled && (
           <Button
-          onClick={() => setIsDisableModalOpen(true)}
-          className="w-full"
-        >
-          Disable 2FA
-        </Button>
+            onClick={() => setIsDisableModalOpen(true)}
+            className="w-full"
+          >
+            Disable 2FA
+          </Button>
         )}
 
         {/* Disable MFA Modal */}
         {isDisableModalOpen && (
-          <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-              <h3 className="text-lg font-semibold mb-2">
-                Disable Two-Factor Authentication
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Enter your current 6-digit authentication code to disable 2FA.
-              </p>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Authentication Code
-                  </label>
-                  <Input
-                    type="text"
-                    value={disableOTP}
-                    onChange={(e) => setDisableOTP(e.target.value)}
-                    placeholder="Enter 6-digit code"
-                    maxLength={6}
-                    disabled={loading}
-                  />
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-card rounded-2xl shadow-xl border border-border w-full max-w-md overflow-hidden">
+              {/* Header */}
+              <div className="px-6 pt-6 pb-4 border-b border-border">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                    <svg
+                      className="w-5 h-5 text-destructive"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Disable Two-Factor Authentication
+                  </h3>
                 </div>
-
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
+                <p className="text-sm text-muted-foreground">
+                  Enter your current authentication code to disable 2FA
+                </p>
               </div>
 
-              <div className="flex justify-end space-x-3 mt-6">
+              {/* Body */}
+              <div className="px-6 py-6">
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-foreground">
+                      Authentication Code
+                    </label>
+                    <Input
+                      type="text"
+                      value={disableOTP}
+                      onChange={(e) => setDisableOTP(e.target.value)}
+                      placeholder="Enter 6-digit code"
+                      maxLength={6}
+                      disabled={loading}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Enter the code from your authenticator app
+                    </p>
+                  </div>
+
+                  {error && (
+                    <div className="flex items-start gap-3 p-4 bg-destructive/5 border border-destructive/20 rounded-xl">
+                      <svg
+                        className="w-5 h-5 text-destructive shrink-0 mt-0.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <p className="text-sm text-destructive">{error}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 bg-muted/20 border-t border-border flex justify-end gap-3">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -246,15 +287,23 @@ export function MFASetup() {
                     setError("");
                   }}
                   disabled={loading}
+                  className="h-11 rounded-xl px-6"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleDisableMFA}
                   disabled={loading || disableOTP.length !== 6}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="h-11 rounded-xl px-6 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                 >
-                  {loading ? "Disabling..." : "Disable 2FA"}
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      Disabling...
+                    </div>
+                  ) : (
+                    "Disable 2FA"
+                  )}
                 </Button>
               </div>
             </div>
@@ -266,7 +315,7 @@ export function MFASetup() {
 
   if (step === "qr") {
     return (
-      <Card className="p-6 mt-20 max-w-md mx-auto">
+      <Card className="p-6 mt-20 mb-16 max-w-md mx-auto">
         <h2 className="text-xl font-bold text-center">Scan QR Code</h2>
         <p className="text-muted-foreground font-medium">
           Scan this QR code with Google Authenticator:
@@ -348,6 +397,7 @@ export function MFASetup() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             maxLength={6}
+            className="w-full"
           />
 
           {error && (
@@ -378,7 +428,10 @@ export function MFASetup() {
           Two-factor authentication has been enabled on your account.
         </p>
 
-        <Button onClick={() => window.location.href = "/settings"} className="w-full">
+        <Button
+          onClick={() => (window.location.href = "/settings")}
+          className="w-full"
+        >
           Done
         </Button>
       </Card>

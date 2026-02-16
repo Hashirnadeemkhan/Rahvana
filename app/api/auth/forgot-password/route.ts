@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     const emailHtml = getPasswordResetEmailHtml(resetLink);
     const { success, error: emailError } = await sendEmail({
       to: email,
-      subject: "Reset Your Password - Arachnie",
+      subject: "Reset Your Password - Rahvana",
       html: emailHtml,
     });
 

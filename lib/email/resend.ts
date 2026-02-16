@@ -30,271 +30,449 @@ export async function sendEmail({ to, subject, html }: SendEmailParams) {
   }
 }
 
+const LOGO_IMAGE = `
+  <img 
+    src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/RahvanaLogo.png"
+    alt="Rahvana Logo" 
+    style="width:120px; height:auto;" 
+  />
+`;
+
 export function getEmailConfirmationHtml(confirmLink: string): string {
+  // Create a more user-friendly display link
+  const displayLink = confirmLink.replace(/^https?:\/\/[^\/]+/, '');
+  
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Confirm Your Email</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-        <tr>
-          <td>
-            <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-              <!-- Logo/Header -->
-              <div style="text-align: center; margin-bottom: 32px;">
-                <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                  <span style="color: white; font-size: 24px; font-weight: bold;">A</span>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirm Your Email</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#e8f6f6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+      <tr>
+        <td align="center">
+
+          <!-- Main Card -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; background:#ffffff; border-radius:18px; box-shadow:0 8px 24px rgba(13,115,119,0.08); overflow:hidden;">
+            
+            <!-- Top Accent Bar -->
+            <tr>
+              <td style="height:6px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+            </tr>
+
+            <tr>
+              <td style="padding:48px 40px;">
+
+                <!-- Logo -->
+                <div style="text-align:center; margin-bottom:32px;">
+                  <div style="display:inline-block; padding:18px; background:#e8f6f6; border-radius:16px;">
+                    <!-- Logo Image -->
+                    ${LOGO_IMAGE}
+                  </div>
                 </div>
-                <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #0f172a;">Welcome to Arachnie!</h1>
-              </div>
 
-              <!-- Content -->
-              <p style="margin: 0 0 16px; font-size: 16px; line-height: 24px; color: #475569;">
-                Thank you for signing up! Please confirm your email address by clicking the button below.
-              </p>
+                <!-- Heading -->
+                <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
+                  Confirm Your Email Address
+                </h1>
 
-              <!-- Button -->
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="${confirmLink}" style="display: inline-block; padding: 14px 32px; background-color: #3b82f6; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 12px;">
-                  Confirm Email
-                </a>
-              </div>
-
-              <!-- Link fallback -->
-              <p style="margin: 0 0 16px; font-size: 14px; line-height: 20px; color: #64748b;">
-                If the button doesn't work, copy and paste this link into your browser:
-              </p>
-              <p style="margin: 0 0 24px; font-size: 14px; line-height: 20px; color: #3b82f6; word-break: break-all;">
-                ${confirmLink}
-              </p>
-
-              <!-- Expiry notice -->
-              <div style="background-color: #dbeafe; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-                <p style="margin: 0; font-size: 14px; color: #1e40af;">
-                  ⏰ This link will expire in 24 hours.
+                <!-- Body Text -->
+                <p style="margin:0 0 24px; font-size:16px; line-height:1.7; color:#475569; text-align:center;">
+                  Thank you for signing up to Rahvana.  
+                  Please confirm your email address to activate your account and get started.
                 </p>
-              </div>
 
-              <!-- Footer -->
-              <p style="margin: 0; font-size: 14px; line-height: 20px; color: #94a3b8;">
-                If you didn't create an account with Arachnie, you can safely ignore this email.
-              </p>
-            </div>
+                <!-- Button -->
+                <div style="text-align:center; margin:36px 0;">
+                  <a href="${confirmLink}"
+                     style="display:inline-block;
+                            padding:16px 40px;
+                            background:#0d7377;
+                            color:#ffffff;
+                            text-decoration:none;
+                            font-size:16px;
+                            font-weight:600;
+                            border-radius:14px;
+                            box-shadow:0 6px 18px rgba(13,115,119,0.25);">
+                    Confirm Email
+                  </a>
+                </div>
 
-            <!-- Footer branding -->
-            <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #94a3b8;">
-              © ${new Date().getFullYear()} Arachnie. All rights reserved.
-            </p>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
+                <!-- Divider -->
+                <div style="height:1px; background:#e2e8f0; margin:32px 0;"></div>
+
+                <!-- Fallback -->
+                <p style="margin:0 0 10px; font-size:14px; color:#64748b;">
+                  If the button above doesn't work, copy and paste this link into your browser:
+                </p>
+
+                <p style="margin:0 0 28px; font-size:14px; color:#0d7377; word-break:break-word;">
+                  ${confirmLink}
+                </p>
+
+                <!-- Expiry Box -->
+                <div style="background:#e8f6f6; border-radius:12px; padding:16px;">
+                  <p style="margin:0; font-size:14px; color:#0a5a5d; font-weight:500;">
+                    ⏰ This link will expire in 24 hours.
+                  </p>
+                </div>
+
+                <!-- Footer Note -->
+                <p style="margin:28px 0 0; font-size:14px; color:#94a3b8; text-align:center;">
+                  If you did not create an account, you can safely ignore this email.
+                </p>
+
+              </td>
+            </tr>
+          </table>
+
+          <!-- Bottom Footer -->
+          <p style="margin-top:28px; font-size:12px; color:#94a3b8;">
+            © ${new Date().getFullYear()} Rahvana. All rights reserved.
+          </p>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
+  </html>
   `;
 }
 
 export function getPasswordResetEmailHtml(resetLink: string): string {
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Reset Your Password</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-        <tr>
-          <td>
-            <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-              <!-- Logo/Header -->
-              <div style="text-align: center; margin-bottom: 32px;">
-                <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #334155 0%, #0f172a 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                  <span style="color: white; font-size: 24px; font-weight: bold;">A</span>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reset Your Password</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#e8f6f6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+      <tr>
+        <td align="center">
+
+          <!-- Main Card -->
+          <table width="100%" cellpadding="0" cellspacing="0"
+            style="max-width:600px; background:#ffffff; border-radius:18px; box-shadow:0 8px 24px rgba(13,115,119,0.08); overflow:hidden;">
+
+            <!-- Top Gradient Accent -->
+            <tr>
+              <td style="height:6px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+            </tr>
+
+            <tr>
+              <td style="padding:48px 40px;">
+
+                <!-- Logo Section -->
+                <div style="text-align:center; margin-bottom:32px;">
+                  <!-- Logo Image -->
+                  ${LOGO_IMAGE}
                 </div>
-                <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #0f172a;">Reset Your Password</h1>
-              </div>
-              
-              <!-- Content -->
-              <p style="margin: 0 0 16px; font-size: 16px; line-height: 24px; color: #475569;">
-                We received a request to reset your password. Click the button below to create a new password.
-              </p>
-              
-              <!-- Button -->
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="${resetLink}" style="display: inline-block; padding: 14px 32px; background-color: #0f172a; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 12px;">
-                  Reset Password
-                </a>
-              </div>
-              
-              <!-- Link fallback -->
-              <p style="margin: 0 0 16px; font-size: 14px; line-height: 20px; color: #64748b;">
-                If the button doesn't work, copy and paste this link into your browser:
-              </p>
-              <p style="margin: 0 0 24px; font-size: 14px; line-height: 20px; color: #3b82f6; word-break: break-all;">
-                ${resetLink}
-              </p>
-              
-              <!-- Expiry notice -->
-              <div style="background-color: #fef3c7; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-                <p style="margin: 0; font-size: 14px; color: #92400e;">
-                  ⏰ This link will expire in 1 hour for security reasons.
+
+                <!-- Heading -->
+                <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
+                  Reset Your Password
+                </h1>
+
+                <!-- Description -->
+                <p style="margin:0 0 24px; font-size:16px; line-height:1.7; color:#475569; text-align:center;">
+                  We received a request to reset your password.  
+                  Click the button below to create a new one.
                 </p>
-              </div>
-              
-              <!-- Footer -->
-              <p style="margin: 0; font-size: 14px; line-height: 20px; color: #94a3b8;">
-                If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
-              </p>
-            </div>
-            
-            <!-- Footer branding -->
-            <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #94a3b8;">
-              © ${new Date().getFullYear()} Arachnie. All rights reserved.
-            </p>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
+
+                <!-- CTA Button -->
+                <div style="text-align:center; margin:36px 0;">
+                  <a href="${resetLink}"
+                     style="display:inline-block;
+                            padding:16px 40px;
+                            background:#0d7377;
+                            color:#ffffff;
+                            text-decoration:none;
+                            font-size:16px;
+                            font-weight:600;
+                            border-radius:14px;
+                            box-shadow:0 6px 18px rgba(13,115,119,0.25);">
+                    Reset Password
+                  </a>
+                </div>
+
+                <!-- Divider -->
+                <div style="height:1px; background:#e2e8f0; margin:32px 0;"></div>
+
+                <!-- Fallback Link -->
+                <p style="margin:0 0 10px; font-size:14px; color:#64748b;">
+                  If the button above doesn't work, copy and paste this link into your browser:
+                </p>
+
+                <p style="margin:0 0 28px; font-size:14px; color:#0d7377; word-break:break-word;">
+                  ${resetLink}
+                </p>
+
+                <!-- Security Notice Box -->
+                <div style="background:#fff4e5; border-radius:12px; padding:16px; margin-bottom:24px;">
+                  <p style="margin:0; font-size:14px; color:#92400e; font-weight:500;">
+                    ⏰ This link will expire in 1 hour for security reasons.
+                  </p>
+                </div>
+
+                <!-- Footer Note -->
+                <p style="margin:0; font-size:14px; line-height:20px; color:#94a3b8; text-align:center;">
+                  If you did not request a password reset, you can safely ignore this email.  
+                  Your password will remain unchanged.
+                </p>
+
+              </td>
+            </tr>
+          </table>
+
+          <!-- Bottom Footer -->
+          <p style="margin-top:28px; font-size:12px; color:#94a3b8;">
+            © ${new Date().getFullYear()} Rahvana. All rights reserved.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
   `;
 }
 
 export function getMFAEnabledEmailHtml(): string {
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Two-Factor Authentication Enabled</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-        <tr>
-          <td>
-            <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-              <!-- Logo/Header -->
-              <div style="text-align: center; margin-bottom: 32px;">
-                <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                  <span style="color: white; font-size: 24px; font-weight: bold;">✓</span>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Two-Factor Authentication Enabled</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#e8f6f6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+      <tr>
+        <td align="center">
+
+          <!-- Main Card -->
+          <table width="100%" cellpadding="0" cellspacing="0"
+            style="max-width:600px; background:#ffffff; border-radius:18px; box-shadow:0 8px 24px rgba(13,115,119,0.08); overflow:hidden;">
+
+            <!-- Top Gradient Accent -->
+            <tr>
+              <td style="height:6px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+            </tr>
+
+            <tr>
+              <td style="padding:48px 40px;">
+
+                <!-- Logo Section -->
+                <div style="text-align:center; margin-bottom:32px;">
+                  <!-- Logo Image -->
+                  ${LOGO_IMAGE}
                 </div>
-                <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #0f172a;">2FA Enabled Successfully</h1>
-              </div>
-              
-              <!-- Content -->
-              <p style="margin: 0 0 16px; font-size: 16px; line-height: 24px; color: #475569;">
-                Great news! Two-factor authentication has been successfully enabled on your account.
-              </p>
-              
-              <div style="background-color: #dcfce7; border-radius: 8px; padding: 16px; margin: 24px 0;">
-                <p style="margin: 0; font-size: 14px; color: #166534; font-weight: 500;">
-                  🔒 Your account is now more secure with an additional layer of protection.
+
+                <!-- Success Icon Circle -->
+                <div style="text-align:center; margin-bottom:20px;">
+                  <div style="
+                    display:inline-block;
+                    width:70px;
+                    height:70px;
+                    background:#e8f6f6;
+                    border-radius:50%;
+                    line-height:70px;
+                    font-size:28px;
+                    color:#0d7377;
+                    font-weight:700;">
+                    ✓
+                  </div>
+                </div>
+
+                <!-- Heading -->
+                <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
+                  Two-Factor Authentication Enabled
+                </h1>
+
+                <!-- Main Message -->
+                <p style="margin:0 0 24px; font-size:16px; line-height:1.7; color:#475569; text-align:center;">
+                  Great news! Two-factor authentication has been successfully enabled on your account.
                 </p>
-              </div>
-              
-              <p style="margin: 0 0 16px; font-size: 16px; line-height: 24px; color: #475569;">
-                From now on, you'll need to enter a verification code from your authenticator app when signing in.
-              </p>
-              
-              <!-- Security tips -->
-              <div style="background-color: #f1f5f9; border-radius: 8px; padding: 16px; margin: 24px 0;">
-                <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #0f172a;">Security Tips:</h3>
-                <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #475569;">
-                  <li style="margin-bottom: 8px;">Keep your authenticator app secure</li>
-                  <li style="margin-bottom: 8px;">Don't share your verification codes</li>
-                  <li style="margin-bottom: 0;">Consider backing up your recovery codes</li>
+
+                <!-- Success Highlight Box -->
+                <div style="background:#e8f6f6; border-radius:12px; padding:16px; margin:24px 0;">
+                  <p style="margin:0; font-size:14px; color:#0a5a5d; font-weight:500;">
+                    🔒 Your account now has an additional layer of protection.
+                  </p>
+                </div>
+
+                <!-- Explanation -->
+                <p style="margin:0 0 28px; font-size:16px; line-height:1.7; color:#475569;">
+                  From now on, you'll need to enter a verification code from your authenticator app when signing in.
+                </p>
+
+                <!-- Divider -->
+                <div style="height:1px; background:#e2e8f0; margin:32px 0;"></div>
+
+                <!-- Security Tips -->
+                <h3 style="margin:0 0 16px; font-size:18px; font-weight:600; color:#0d7377;">
+                  Security Tips
+                </h3>
+
+                <ul style="margin:0 0 28px; padding-left:20px; font-size:14px; color:#475569; line-height:1.7;">
+                  <li style="margin-bottom:8px;">Keep your authenticator app secure</li>
+                  <li style="margin-bottom:8px;">Never share your verification codes</li>
+                  <li>Store your recovery codes in a safe place</li>
                 </ul>
-              </div>
-              
-              <!-- Footer -->
-              <p style="margin: 0; font-size: 14px; line-height: 20px; color: #94a3b8;">
-                If you didn't enable two-factor authentication, please contact our support team immediately.
-              </p>
-            </div>
-            
-            <!-- Footer branding -->
-            <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #94a3b8;">
-              © ${new Date().getFullYear()} Arachnie. All rights reserved.
-            </p>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
+
+                <!-- Warning Footer -->
+                <div style="background:#fff4e5; border-radius:12px; padding:16px;">
+                  <p style="margin:0; font-size:14px; color:#92400e;">
+                    If you did not enable two-factor authentication, please contact our support team immediately.
+                  </p>
+                </div>
+
+              </td>
+            </tr>
+          </table>
+
+          <!-- Bottom Footer -->
+          <p style="margin-top:28px; font-size:12px; color:#94a3b8;">
+            © ${new Date().getFullYear()} Rahvana. All rights reserved.
+          </p>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
+  </html>
   `;
 }
 
 export function getMFADisabledEmailHtml(): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Two-Factor Authentication Disabled</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-        <tr>
-          <td>
-            <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-              <!-- Logo/Header -->
-              <div style="text-align: center; margin-bottom: 32px;">
-                <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                  <span style="color: white; font-size: 24px; font-weight: bold;">!</span>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Two-Factor Authentication Disabled</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#e8f6f6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+      <tr>
+        <td align="center">
+
+          <!-- Main Card -->
+          <table width="100%" cellpadding="0" cellspacing="0"
+            style="max-width:600px; background:#ffffff; border-radius:18px; box-shadow:0 8px 24px rgba(13,115,119,0.08); overflow:hidden;">
+
+            <!-- Top Gradient Accent -->
+            <tr>
+              <td style="height:6px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+            </tr>
+
+            <tr>
+              <td style="padding:48px 40px;">
+
+                <!-- Logo -->
+                <div style="text-align:center; margin-bottom:32px;">
+                  ${LOGO_IMAGE}
                 </div>
-                <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #0f172a;">2FA Disabled</h1>
-              </div>
-              
-              <!-- Content -->
-              <p style="margin: 0 0 16px; font-size: 16px; line-height: 24px; color: #475569;">
-                Two-factor authentication has been disabled on your account.
-              </p>
-              
-              <div style="background-color: #fef3c7; border-radius: 8px; padding: 16px; margin: 24px 0;">
-                <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 500;">
-                  ⚠️ Your account security has been reduced. Consider re-enabling 2FA for better protection.
+
+                <!-- Warning Icon -->
+                <div style="text-align:center; margin-bottom:20px;">
+                  <div style="
+                    display:inline-block;
+                    width:70px;
+                    height:70px;
+                    background:#fff4e5;
+                    border-radius:50%;
+                    line-height:70px;
+                    font-size:28px;
+                    color:#92400e;
+                    font-weight:700;">
+                    !
+                  </div>
+                </div>
+
+                <!-- Heading -->
+                <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
+                  Two-Factor Authentication Disabled
+                </h1>
+
+                <!-- Main Text -->
+                <p style="margin:0 0 24px; font-size:16px; line-height:1.7; color:#475569; text-align:center;">
+                  Two-factor authentication has been disabled on your account.
                 </p>
-              </div>
-              
-              <p style="margin: 0 0 16px; font-size: 16px; line-height: 24px; color: #475569;">
-                You will no longer be required to enter a verification code when signing in.
-              </p>
-              
-              <!-- Security warning -->
-              <div style="background-color: #fee2e2; border-radius: 8px; padding: 16px; margin: 24px 0;">
-                <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #991b1b;">Security Notice:</h3>
-                <p style="margin: 0; font-size: 14px; color: #b91c1c;">
-                  If you didn't disable two-factor authentication, your account may have been compromised. Please enable 2FA again and change your password.
+
+                <!-- Security Reduced Notice -->
+                <div style="background:#fff4e5; border-radius:12px; padding:16px; margin:24px 0;">
+                  <p style="margin:0; font-size:14px; color:#92400e; font-weight:500;">
+                    ⚠️ Your account security has been reduced. We strongly recommend enabling 2FA again.
+                  </p>
+                </div>
+
+                <!-- Explanation -->
+                <p style="margin:0 0 28px; font-size:16px; line-height:1.7; color:#475569;">
+                  You will no longer be required to enter a verification code when signing in.
                 </p>
-              </div>
-              
-              <!-- Re-enable CTA -->
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/mfa-setup" style="display: inline-block; padding: 14px 32px; background-color: #f59e0b; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 12px;">
-                  Re-enable 2FA
-                </a>
-              </div>
-              
-              <!-- Footer -->
-              <p style="margin: 0; font-size: 14px; line-height: 20px; color: #94a3b8;">
-                If you have any questions about this change, please contact our support team.
-              </p>
-            </div>
-            
-            <!-- Footer branding -->
-            <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #94a3b8;">
-              © ${new Date().getFullYear()} Arachnie. All rights reserved.
-            </p>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
+
+                <!-- Critical Security Warning -->
+                <div style="background:#fee2e2; border-radius:12px; padding:18px; margin-bottom:32px;">
+                  <h3 style="margin:0 0 10px; font-size:16px; font-weight:600; color:#991b1b;">
+                    Security Notice
+                  </h3>
+                  <p style="margin:0; font-size:14px; color:#b91c1c; line-height:1.6;">
+                    If you did not disable two-factor authentication, your account may have been compromised. 
+                    Please re-enable 2FA immediately and change your password.
+                  </p>
+                </div>
+
+                <!-- CTA -->
+                <div style="text-align:center; margin-bottom:28px;">
+                  <a href="${appUrl}/mfa-setup"
+                     style="display:inline-block;
+                            padding:16px 40px;
+                            background:#0d7377;
+                            color:#ffffff;
+                            text-decoration:none;
+                            font-size:16px;
+                            font-weight:600;
+                            border-radius:14px;
+                            box-shadow:0 6px 18px rgba(13,115,119,0.25);">
+                    Re-enable 2FA
+                  </a>
+                </div>
+
+                <!-- Footer Text -->
+                <p style="margin:0; font-size:14px; line-height:20px; color:#94a3b8; text-align:center;">
+                  If you have any questions about this change, please contact our support team.
+                </p>
+
+              </td>
+            </tr>
+          </table>
+
+          <!-- Bottom Footer -->
+          <p style="margin-top:28px; font-size:12px; color:#94a3b8;">
+            © ${new Date().getFullYear()} Rahvana. All rights reserved.
+          </p>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
+  </html>
   `;
 }
