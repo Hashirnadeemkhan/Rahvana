@@ -22,7 +22,8 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            // un comment if you want bydefault device theme 
+            // defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >

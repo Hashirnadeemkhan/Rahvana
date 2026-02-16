@@ -1154,7 +1154,7 @@ function HomePageContent() {
                           {faq.q}
                         </span>
                         <div
-                          className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
+                          className={`w-16 h-6 md:h-8 md:w-8 rounded-full  border flex items-center justify-center transition-all ${
                             openFAQ === i
                               ? "bg-rahvana-primary border-rahvana-primary text-white rotate-45"
                               : "border-border text-muted-foreground group-hover:border-rahvana-primary group-hover:text-rahvana-primary"
