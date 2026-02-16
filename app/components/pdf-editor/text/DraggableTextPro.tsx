@@ -290,7 +290,7 @@ export default function DraggableTextPro({
           />
         ) : (
           <div
-            className="w-full h-full overflow-hidden select-none whitespace-pre-wrap break-words"
+            className="w-full h-full overflow-hidden select-none whitespace-pre-wrap wrap-break-word"
             style={{
               fontSize: data.fontSize,
               color: data.color,

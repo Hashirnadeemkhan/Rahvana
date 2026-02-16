@@ -1,266 +1,506 @@
 "use client";
-import React from "react";
+
+import React, { useState } from "react";
 import Link from "next/link";
-import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
 import {
-  Heart,
-  ShieldCheck,
-  AlertCircle,
-  FileText,
-  Users,
   Search,
-  CheckCircle,
-  ChevronRight,
-  Home,
-  Star,
-  Zap,
+  FileText,
+  Shield,
+  DollarSign,
+  Heart,
+  Users,
   Briefcase,
-  History,
-  Scale,
-  Clock,
-  ExternalLink,
-  Target,
+  FileCheck,
+  // BookOpen,
   ArrowRight,
-  HelpCircle,
+  GraduationCap,
+  Scale,
+  Globe,
+  Syringe,
+  Activity,
+  Map,
+  // Truck,
+  // Plane,
 } from "lucide-react";
 
-import { HeroSection } from "./components/hero-section";
-import { StrategicIndicators } from "./components/strategic-indicators";
+// --- Data & Types ---
 
-const PILLARS = [
+type GuideCategory =
+  | "Pakistan Docs"
+  | "Embassy Logistics"
+  | "Arrival & Travel"
+  | "Financial & Sponsorship"
+  | "Medical & Exam"
+  | "Relationship Evidence"
+  | "Visa Strategy";
+
+interface Guide {
+  id: string;
+  title: string;
+  description: string;
+  category: GuideCategory;
+  href: string;
+  icon: React.ElementType;
+  disabled?: boolean;
+  comingSoon?: boolean;
+}
+
+const GUIDES: Guide[] = [
+  // --- Pakistan Docs ---
   {
-    title: "Bona-Fide Marriage",
-    desc: "The primary intent evaluation. Does your marriage exist for reasons beyond a Green Card?",
-    icon: Heart,
-    color: "from-rose-500/10 to-rose-500/5",
-    textColor: "text-rose-600",
-  },
-  {
-    title: "Public Charge Rule",
-    desc: "Financial stability of the sponsor. Checking the 125% Federal Poverty Line requirement.",
-    icon: Briefcase,
-    color: "from-blue-500/10 to-blue-500/5",
-    textColor: "text-blue-600",
-  },
-  {
-    title: "Document Accuracy",
-    desc: "Consistency across DS-260 and I-130 forms. Even small date misalignments matter.",
+    id: "pcc-sindh",
+    title: "PCC Playbook — Sindh",
+    description:
+      "Sindh police certificate guide: requirements, steps, timelines, and common mistakes.",
+    category: "Pakistan Docs",
+    href: "/police-verification?province=Sindh",
     icon: FileText,
-    color: "from-emerald-500/10 to-emerald-500/5",
-    textColor: "text-emerald-600",
   },
   {
-    title: "Social Integration",
-    desc: "How integrated is your spouse into your social circles (family, friends, community)?",
+    id: "pcc-punjab",
+    title: "PCC Playbook — Punjab",
+    description: "Punjab police certificate guide (service coming soon).",
+    category: "Pakistan Docs",
+    href: "/police-verification?province=Punjab",
+    icon: Shield,
+  },
+  {
+    id: "pcc-kpk",
+    title: "PCC Playbook — KPK",
+    description: "KPK police certificate guide (service coming soon).",
+    category: "Pakistan Docs",
+    href: "/police-verification?province=KPK",
+    icon: Shield,
+  },
+  {
+    id: "pcc-balochistan",
+    title: "PCC Playbook — Balochistan",
+    description: "Balochistan police certificate guide (service coming soon).",
+    category: "Pakistan Docs",
+    href: "/police-verification?province=Balochistan",
+    icon: Shield,
+  },
+  {
+    id: "passport",
+    title: "Passport Guide",
+    description:
+      "Complete guide to obtaining or renewing your Pakistani passport.",
+    category: "Pakistan Docs",
+    href: "/guides/passport-guide",
+    icon: Globe,
+  },
+  {
+    id: "pcc-reference",
+    title: "PCC Reference Guide",
+    description:
+      "Comprehensive overview of Police Character Certificates for all provinces.",
+    category: "Pakistan Docs",
+    href: "/guides/police-certificate",
+    icon: Shield,
+  },
+  {
+    id: "cnic",
+    title: "CNIC (National ID)",
+    description: "Complete guide to obtaining and renewing your NADRA CNIC.",
+    category: "Pakistan Docs",
+    href: "/guides/cnic-guide",
+    icon: FileText,
+  },
+  {
+    id: "birth-certificate",
+    title: "Birth Certificate",
+    description: "NADRA CRC, B-Form, and alternative birth documentation.",
+    category: "Pakistan Docs",
+    href: "/guides/birth-certificate-guide",
+    icon: FileText,
+  },
+  {
+    id: "frc",
+    title: "FRC Guide",
+    description:
+      "Complete guide to obtaining your Family Registration Certificate (FRC).",
+    category: "Pakistan Docs",
+    href: "/guides/frc-guide",
+    icon: Globe,
+  },
+  {
+    id: "marriage-certificate",
+    title: "Marriage Certificate",
+    description: "Nikahnama, MRC, and certified English translations.",
+    category: "Pakistan Docs",
+    href: "/guides/marriage-certificate",
+    icon: Heart,
+    disabled: true,
+    comingSoon: true,
+  },
+  {
+    id: "divorce-death",
+    title: "Divorce & Death",
+    description: "Termination of prior marriages documentation.",
+    category: "Pakistan Docs",
+    href: "/guides/prior-marriage-termination",
+    icon: FileCheck,
+    disabled: true,
+    comingSoon: true,
+  },
+  {
+    id: "court-records",
+    title: "Court & Prison Records",
+    description: "Obtaining legal records for visa compliance.",
+    category: "Pakistan Docs",
+    href: "/guides/court-records",
+    icon: Scale,
+    disabled: true,
+    comingSoon: true,
+  },
+
+  // --- Embassy Logistics ---
+  {
+    id: "courier-passport",
+    title: "Courier & Passport Delivery",
+    description:
+      "Register, choose delivery options, and troubleshoot common courier issues.",
+    category: "Embassy Logistics",
+    href: "/guides/courier-registration",
+    icon: Map,
+  },
+  {
+    id: "interview-prep",
+    title: "Interview Preparation",
+    description: "Required documents and what to bring to the embassy.",
+    category: "Embassy Logistics",
+    href: "/interview-prep", // Tool Link
     icon: Users,
-    color: "from-amber-500/10 to-amber-500/5",
-    textColor: "text-amber-600",
+  },
+  {
+    id: "ds260",
+    title: "DS-260 Form",
+    description: "How to complete the online immigrant visa application.",
+    category: "Embassy Logistics",
+    href: "/guides/ds260",
+    icon: Globe,
+    disabled: true,
+    comingSoon: true,
+  },
+
+  // --- Arrival & Travel ---
+  {
+    id: "customs",
+    title: "Customs & Declarations",
+    description:
+      "What to declare, what to avoid, and common pitfalls when traveling.",
+    category: "Arrival & Travel",
+    href: "/guides/custom-requirements",
+    icon: FileCheck,
+  },
+
+  // --- Financial & Sponsorship ---
+  {
+    id: "asset-docs",
+    title: "Asset Documentation",
+    description: "Prove your financial standing with correct asset documents.",
+    category: "Pakistan Docs",
+    href: "/guides/asset-document-guide",
+    icon: DollarSign,
+  },
+  {
+    id: "employment-verification",
+    title: "Employment Verification",
+    description: "Employment letters, paystubs, and income proof.",
+    category: "Pakistan Docs",
+    href: "/guides/employment-certificate-guide",
+    icon: Briefcase,
+  },
+  {
+    id: "tax-documents",
+    title: "Tax Transcripts",
+    description: "IRS tax documents and W-2 forms for sponsorship.",
+    category: "Financial & Sponsorship",
+    href: "/guides/tax-documents",
+    icon: FileText,
+    disabled: true,
+    comingSoon: true,
+  },
+  {
+    id: "affidavit-support",
+    title: "I-864 Affidavit",
+    description: "Complete guide to financial sponsorship requirements.",
+    category: "Financial & Sponsorship",
+    href: "/affidavit-support-calculator", // Redirect to tool
+    icon: DollarSign,
+  },
+
+  // --- Medical & Exam ---
+  {
+    id: "medical-exam",
+    title: "Medical Examination",
+    description: "Panel physicians, appointments, and requirements.",
+    category: "Medical & Exam",
+    href: "/guides/medical-exam",
+    icon: Activity,
+    disabled: true,
+    comingSoon: true,
+  },
+  {
+    id: "vaccinations",
+    title: "Vaccination Guide",
+    description: "CDC-required vaccinations and polio certificate.",
+    category: "Medical & Exam",
+    href: "/guides/polio-vaccination-guide",
+    icon: Syringe,
+  },
+
+  // --- Relationship Evidence ---
+  {
+    id: "relationship-evidence",
+    title: "Bona Fide Marriage",
+    description: "Photos, chat logs, and proof of genuine relationship.",
+    category: "Relationship Evidence",
+    href: "/guides/relationship-evidence",
+    icon: Heart,
+    disabled: true,
+    comingSoon: true,
+  },
+
+  // --- Visa Strategy ---
+  {
+    id: "visa-strength",
+    title: "Visa Case Strength",
+    description: "Understand your visa case strength and improve it.",
+    category: "Visa Strategy",
+    href: "/guides/visa-strength-guide",
+    icon: GraduationCap,
   },
 ];
 
-export default function VisaStrengthGuidePage() {
+const CATEGORIES: ("All" | GuideCategory)[] = [
+  "All",
+  "Pakistan Docs",
+  "Embassy Logistics",
+  "Arrival & Travel",
+  "Financial & Sponsorship",
+  "Medical & Exam",
+  "Relationship Evidence",
+  "Visa Strategy",
+];
+
+// --- Components ---
+
+export default function GuidesPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<
+    "All" | GuideCategory
+  >("All");
+
+  const filteredGuides = GUIDES.filter((guide) => {
+    const matchesSearch =
+      guide.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      guide.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || guide.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  }).sort((a, b) => a.title.localeCompare(b.title));
+
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <HeroSection />
+    <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden selection:bg-primary selection:text-primary-foreground">
+      {/* Ambient Glow */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10">
+        <div className="absolute top-[10%] left-[15%] w-[500px] h-[500px] bg-[#0d7377]/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] bg-[#32e0c4]/5 rounded-full blur-3xl" />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-20 pb-20">
-        
-        {/* Navigation / Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-slate-400 mb-12 bg-white/50 backdrop-blur-md w-fit px-6 py-3 rounded-full border border-slate-200/50 shadow-sm mx-auto">
-          <Link href="/" className="hover:text-cyan-500 transition-colors">
-            <Home className="w-4 h-4" />
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-slate-900 font-bold">Adjudication Strategy Guide</span>
-        </nav>
-
-        {/* Section 1: The Four Pillars */}
-        <section className="mb-20 mt-10">
-          <div className="text-center mb-2 mt-10">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4 font-serif italic mt-20">The Strategic Pillars</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">These four metrics determine the majority of interview outcomes. Mastering them is key to a smooth approval.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PILLARS.map((pillar, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                viewport={{ once: true }}
-                className={cn(
-                  "relative group p-8 rounded-[2.5rem] border border-slate-200 bg-linear-to-br transition-all hover:shadow-2xl hover:-translate-y-1 overflow-hidden",
-                  pillar.color
-                )}
-              >
-                <div className="relative z-10">
-                  <div className={cn("p-4 rounded-2xl bg-white shadow-sm w-fit mb-6", pillar.textColor)}>
-                    <pillar.icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-3">{pillar.title}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">{pillar.desc}</p>
-                </div>
-                {/* Decorative circle */}
-                <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
-              </motion.div>
-            ))}
-          </div>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Hero Section */}
+        <section className="text-center mb-16">
+          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-foreground to-muted-foreground animate-fade-up">
+            Master the Paperwork.
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto animate-fade-up [animation-delay:100ms]">
+            Step-by-step guides for every document you need. Clear instructions,
+            timelines, and common pitfalls to avoid.
+          </p>
         </section>
 
-        {/* Section 2: Link to Tracker Tool */}
-        <section className="mb-32">
-          <motion.div 
-            whileHover={{ scale: 1.01 }}
-            className="relative overflow-hidden rounded-[3rem] bg-slate-900 p-12 text-white shadow-3xl group"
-          >
-             {/* Background glow */}
-             <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/20 rounded-full blur-[100px] -mr-48 -mt-48 transition-all group-hover:bg-cyan-500/30" />
-             
-             <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
-                <div className="max-w-2xl text-center lg:text-left">
-                   <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-cyan-500/10 rounded-full text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6 border border-cyan-500/20">
-                      <Zap className="w-4 h-4" /> Recommended Tool
-                   </div>
-                   <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">Ready to check your <br/> <span className="text-cyan-400">Actual Case Score?</span></h2>
-                   <p className="text-slate-400 text-lg mb-0 leading-relaxed font-medium">
-                     While this guide teaches you the logic, our interactive checker actually calculates your strength based on your real data.
-                   </p>
-                </div>
-                <Link 
-                  href="/visa-case-strength-checker" 
-                  className="px-10 py-5 bg-white text-slate-900 rounded-2xl font-black text-lg hover:bg-cyan-400 hover:text-white transition-all shadow-xl flex items-center gap-3 active:scale-95"
-                >
-                  GO TO STRENGTH CHECKER
-                  <ArrowRight className="w-6 h-6" />
-                </Link>
-             </div>
-          </motion.div>
-        </section>
+        {/* Search Bar */}
+        <div className="relative max-w-lg mx-auto mb-10 animate-scale-in [animation-delay:200ms]">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search guides... (e.g., 'passport', 'police')"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-card border-2 border-border pl-11 pr-4 py-3 rounded-full text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm placeholder:text-muted-foreground"
+          />
+        </div>
 
-        {/* Section 3: Indicators Grid */}
-        <section className="mb-32">
-          <div className="text-center mb-4">
-             <span className="text-sm font-bold text-cyan-600 uppercase tracking-widest">Scrutiny Metrics</span>
-             <h2 className="text-4xl font-bold text-slate-900 mt-2 font-serif italic">What Officers Look For</h2>
-          </div>
-          <StrategicIndicators />
-        </section>
+        {/* Categories */}
+        <div className="flex gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar animate-fade-in [animation-delay:300ms]">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 ${
+                selectedCategory === cat
+                  ? "bg-primary text-primary-foreground border-primary shadow-md"
+                  : "bg-card text-muted-foreground border-border hover:border-primary hover:bg-primary/5 hover:text-primary"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-        {/* Section 4: Vertical Timeline / Roadmap */}
-        <section className="mb-32 px-4">
-           <div className="max-w-4xl mx-auto">
-              <div className="flex flex-col items-center text-center mb-20">
-                 <div className="p-3 bg-slate-900 rounded-2xl text-white mb-6">
-                    <History className="w-8 h-8" />
-                 </div>
-                 <h2 className="text-4xl font-bold text-slate-900 font-serif italic">The Adjudication Lifecycle</h2>
-                 <p className="text-slate-500 mt-4">Follow the strategic flow from initial filing to the final handshake.</p>
-              </div>
-
-              <div className="space-y-24 relative">
-                 {/* Timeline Line */}
-                 <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-200 -translate-x-1/2 hidden md:block" />
-
-                 {[
-                   {
-                     stage: "Stage 01",
-                     title: "Document Hardening",
-                     desc: "Before filing I-130, ensure all certificates are certified and translations are accurate. Inconsistent addresses at this stage create RFEs.",
-                     icon: ShieldCheck,
-                     side: "left"
-                   },
-                   {
-                     stage: "Stage 02",
-                     title: "Financial Scrutiny",
-                     desc: "Your sponsor's income must meet the 125% line. If using a joint sponsor, ensure their paperwork is as robust as the primary sponsor's.",
-                     icon: Scale,
-                     side: "right"
-                   },
-                   {
-                     stage: "Stage 03",
-                     title: "Evidence Accumulation",
-                     desc: "Crucial period during the 12-18 month wait. Continue gathering joint bank statements, photos, and flight tickets to show a continuing marriage.",
-                     icon: Clock,
-                     side: "left"
-                   },
-                   {
-                     stage: "Stage 04",
-                     title: "The Interview Lab",
-                     desc: "The final 30 minutes. The officer is looking for natural interaction, consistency, and 'bona-fide' intent through your answers.",
-                     icon: Target,
-                     side: "right"
-                   }
-                 ].map((step, idx) => (
-                   <motion.div 
-                    key={idx}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className={cn(
-                      "flex flex-col md:flex-row gap-8 md:gap-24 items-center relative",
-                      step.side === "right" ? "md:flex-row-reverse" : ""
-                    )}
-                   >
-                     {/* Number bubble */}
-                     <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex w-12 h-12 rounded-full bg-white border border-slate-200 items-center justify-center font-bold text-slate-400 z-10 shadow-sm border-2 border-slate-100 group-hover:border-cyan-500 transition-colors">
-                        {idx + 1}
-                     </div>
-
-                     <div className="flex-1 w-full">
-                        <div className={cn(
-                          "p-8 rounded-[2rem] bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all",
-                          step.side === "right" ? "text-left" : "md:text-right"
-                        )}>
-                           <span className="text-xs font-black text-cyan-600 uppercase tracking-widest mb-4 block">{step.stage}</span>
-                           <h3 className="text-2xl font-bold text-slate-900 mb-4">{step.title}</h3>
-                           <p className="text-slate-500 leading-relaxed">{step.desc}</p>
-                        </div>
-                     </div>
-                     <div className="flex-1 hidden md:block" />
-                   </motion.div>
-                 ))}
-              </div>
-           </div>
-        </section>
-
-        {/* Section 5: Tips & Common Pitfalls */}
-        <section className="mb-32">
-           <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-1">
-                 <h2 className="text-4xl font-bold text-slate-900 font-serif italic mb-6">Expert <br/> <span className="text-cyan-600">Best Practices</span></h2>
-                 <p className="text-slate-500 leading-relaxed">Small tactical adjustments that can significantly impact the interviewer's perception of your case.</p>
-              </div>
-              <div className="lg:col-span-2 grid md:grid-cols-2 gap-6">
-                 <div className="p-8 rounded-4xl bg-white border border-slate-200">
-                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl w-fit mb-6">
-                       <CheckCircle className="w-6 h-6" />
-                    </div>
-                    <h4 className="font-bold text-xl mb-3">Be Specific, Not Vague</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">When asked about wedding details, give names and specific funny moments rather than generic 'it was good' answers.</p>
-                 </div>
-                 <div className="p-8 rounded-4xl bg-white border border-slate-200">
-                    <div className="p-3 bg-amber-50 text-amber-600 rounded-xl w-fit mb-6">
-                       <HelpCircle className="w-6 h-6" />
-                    </div>
-                    <h4 className="font-bold text-xl mb-3">Declare Everything</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed">Previous overstays or minor legal issues (FIRs) must be declared. Omission is considered fraud and is often a permanent bar.</p>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        <footer className="text-center text-sm text-slate-400 py-12 border-t border-slate-200 mt-20">
-          <div className="flex items-center justify-center gap-6 mb-4">
-             <Link href="https://uscis.gov" className="hover:text-cyan-500 transition-colors uppercase font-bold tracking-tighter flex items-center gap-1">USCIS.GOV <ExternalLink className="w-3 h-3"/></Link>
-             <Link href="https://travel.state.gov" className="hover:text-cyan-500 transition-colors uppercase font-bold tracking-tighter flex items-center gap-1">STATE.GOV <ExternalLink className="w-3 h-3"/></Link>
-          </div>
-          <p>© 2026 Rahvana Documentation Hub. All rights reserved.</p>
-          <p className="mt-2">IR-1/CR-1 Spousal Visa Adjudication Strategy • Revision 5.0</p>
-        </footer>
+        {/* Guides Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-6 pt-6">
+          {filteredGuides.length > 0 ? (
+            filteredGuides.map((guide, index) => (
+              <GuideCard key={guide.id} guide={guide} index={index} />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-muted-foreground">
+              No guides found matching your search.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
+// --- Guide Card Component ---
+
+const CATEGORY_STYLES: Record<
+  GuideCategory,
+  {
+    iconBox: string;
+    innerBox: string;
+    link: string;
+    borderGradient: string;
+  }
+> = {
+  "Pakistan Docs": {
+    iconBox: "bg-green-600 text-white border-transparent dark:bg-green-500",
+    innerBox: "bg-white/20",
+    link: "text-green-600 dark:text-green-400",
+    borderGradient:
+      "from-green-400 to-green-300 dark:from-green-400 dark:to-green-300",
+  },
+  "Embassy Logistics": {
+    iconBox: "bg-blue-600 text-white border-transparent dark:bg-blue-500",
+    innerBox: "bg-white/20",
+    link: "text-blue-600 dark:text-blue-400",
+    borderGradient:
+      "from-blue-400 to-blue-300 dark:from-blue-400 dark:to-blue-300",
+  },
+  "Arrival & Travel": {
+    iconBox: "bg-sky-600 text-white border-transparent dark:bg-sky-500",
+    innerBox: "bg-white/20",
+    link: "text-sky-600 dark:text-sky-400",
+    borderGradient: "from-sky-400 to-sky-300 dark:from-sky-400 dark:to-sky-300",
+  },
+  "Financial & Sponsorship": {
+    iconBox: "bg-emerald-600 text-white border-transparent dark:bg-emerald-500",
+    innerBox: "bg-white/20",
+    link: "text-emerald-600 dark:text-emerald-400",
+    borderGradient:
+      "from-emerald-400 to-emerald-300 dark:from-emerald-400 dark:to-emerald-300",
+  },
+  "Medical & Exam": {
+    iconBox: "bg-teal-600 text-white border-transparent dark:bg-teal-500",
+    innerBox: "bg-white/20",
+    link: "text-teal-600 dark:text-teal-400",
+    borderGradient:
+      "from-teal-400 to-teal-300 dark:from-teal-400 dark:to-teal-300",
+  },
+  "Relationship Evidence": {
+    iconBox: "bg-rose-600 text-white border-transparent dark:bg-rose-500",
+    innerBox: "bg-white/20",
+    link: "text-rose-600 dark:text-rose-400",
+    borderGradient:
+      "from-rose-400 to-rose-300 dark:from-rose-400 dark:to-rose-300",
+  },
+  "Visa Strategy": {
+    iconBox: "bg-violet-600 text-white border-transparent dark:bg-violet-500",
+    innerBox: "bg-white/20",
+    link: "text-violet-600 dark:text-violet-400",
+    borderGradient:
+      "from-violet-400 to-violet-300 dark:from-violet-400 dark:to-violet-300",
+  },
+};
+
+function GuideCard({ guide, index }: { guide: Guide; index: number }) {
+  const Icon = guide.icon;
+  const isClickable = !guide.disabled;
+  const CardWrapper = isClickable ? Link : "div";
+  const styles = CATEGORY_STYLES[guide.category];
+
+  return (
+    <CardWrapper
+      href={guide.href}
+      className={`group relative flex flex-col bg-card border border-border rounded-[30px] p-6 pt-7 mt-6 
+      transition-all duration-400 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] 
+      ${
+        isClickable
+          ? "hover:-translate-y-2 hover:shadow-xl cursor-pointer"
+          : "opacity-80 cursor-not-allowed grayscale-[0.5]"
+      }
+      animate-fade-up`}
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      {/* Floating Icon Box */}
+      <div
+        className={`absolute -top-6 left-6 w-14 h-14 rounded-2xl border flex items-center justify-center shadow-md transition-all duration-400 z-10 
+        group-hover:-translate-y-1 group-hover:-rotate-3 group-hover:shadow-lg 
+        ${styles.iconBox}`}
+      >
+        {/* Inner colored box for depth */}
+        <div
+          className={`absolute inset-1 rounded-[10px] -z-10 transition-colors duration-300 ${styles.innerBox}`}
+        />
+        <Icon className="w-6 h-6 stroke-2" />
+      </div>
+
+      {/* Floating Border Gradient (Pseudo-element emulation) */}
+      <div
+        className={`absolute inset-0 rounded-[30px] p-[2px] bg-linear-to-br ${styles.borderGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none [mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] mask-exclude`}
+      />
+
+      {/* Radial Glow Effect */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-0 bg-[radial-gradient(400px_circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),rgba(13,115,119,0.04),transparent_40%)] dark:bg-[radial-gradient(400px_circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),rgba(255,255,255,0.03),transparent_40%)]" />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col grow pt-2">
+        <h3 className="text-xl font-bold text-foreground mb-1 transition-colors">
+          {guide.title}
+        </h3>
+        <div className="mb-3">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground/80 bg-muted px-2 py-0.5 rounded">
+            {guide.category}
+          </span>
+        </div>
+        <p className="text-muted-foreground dark:text-white text-sm leading-relaxed mb-6 grow">
+          {guide.description}
+        </p>
+      </div>
+
+      {/* Footer / Action */}
+      <div className="relative z-10 flex items-center justify-between pt-4 border-t border-border mt-auto">
+        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+          {/* Placeholder for stats or extra info if needed */}
+        </span>
+
+        {isClickable ? (
+          <span
+            className={`text-sm font-semibold flex items-center gap-1.5 group-hover:underline decoration-2 underline-offset-2 ${styles.link}`}
+          >
+            Read Guide <ArrowRight className="w-4 h-4" />
+          </span>
+        ) : (
+          <span className="text-sm font-semibold text-muted-foreground/50 flex items-center gap-1.5 cursor-not-allowed">
+            {guide.comingSoon ? "Coming Soon" : "Unavailable"}
+          </span>
+        )}
+      </div>
+    </CardWrapper>
+  );
+}

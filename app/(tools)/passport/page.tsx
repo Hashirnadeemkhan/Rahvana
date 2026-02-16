@@ -3,17 +3,43 @@
 
 import { useState, useRef } from "react";
 import NextImage from "next/image";
-import { Upload, AlertCircle, Download, CheckCircle, X, } from "lucide-react";
+import { Upload, AlertCircle, Download, CheckCircle, X } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 // Photo size presets (width x height in pixels at 300 DPI)
 const SIZE_PRESETS = [
-  { name: "2x2 inch (US Passport)", width: 600, height: 600, description: "Standard US passport size" },
-  { name: "35x45 mm (UK/EU)", width: 413, height: 531, description: "UK and European passport" },
-  { name: "35x35 mm (India)", width: 413, height: 413, description: "Indian passport size" },
-  { name: "33x48 mm (Canada)", width: 390, height: 567, description: "Canadian passport" },
-  { name: "Custom", width: 600, height: 600, description: "Set your own dimensions" },
+  {
+    name: "2x2 inch (US Passport)",
+    width: 600,
+    height: 600,
+    description: "Standard US passport size",
+  },
+  {
+    name: "35x45 mm (UK/EU)",
+    width: 413,
+    height: 531,
+    description: "UK and European passport",
+  },
+  {
+    name: "35x35 mm (India)",
+    width: 413,
+    height: 413,
+    description: "Indian passport size",
+  },
+  {
+    name: "33x48 mm (Canada)",
+    width: 390,
+    height: 567,
+    description: "Canadian passport",
+  },
+  {
+    name: "Custom",
+    width: 600,
+    height: 600,
+    description: "Set your own dimensions",
+  },
 ];
 
 export default function PassportPhoto() {
@@ -22,7 +48,7 @@ export default function PassportPhoto() {
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSize, ] = useState(SIZE_PRESETS[0]);
+  const [selectedSize] = useState(SIZE_PRESETS[0]);
   const [customWidth] = useState(600);
   const [customHeight] = useState(600);
   const [, setProcessingStep] = useState<string>("");
@@ -94,7 +120,9 @@ export default function PassportPhoto() {
 
       if (!res.ok) {
         const errorText = await res.text();
-        throw new Error(`Server Error (${res.status}): ${errorText.substring(0, 100)}...`);
+        throw new Error(
+          `Server Error (${res.status}): ${errorText.substring(0, 100)}...`,
+        );
       }
 
       setProcessingStep("Finalizing photo...");
@@ -106,7 +134,7 @@ export default function PassportPhoto() {
       setError(
         err instanceof Error
           ? err.message
-          : `An unknown error occurred. API Base: ${API_BASE}`
+          : `An unknown error occurred. API Base: ${API_BASE}`,
       );
       setProcessingStep("");
     } finally {
@@ -122,7 +150,8 @@ export default function PassportPhoto() {
           Passport Photo Maker
         </h1>
         <p className="mt-2 text-lg text-gray-600">
-          Upload your photo → Get a compliant passport photo with clean white background
+          Upload your photo → Get a compliant passport photo with clean white
+          background
         </p>
       </header>
 
@@ -144,7 +173,7 @@ export default function PassportPhoto() {
             "Plain white or off-white background – no shadows, textures, or lines",
           ].map((req, i) => (
             <li key={i} className="flex items-start gap-3 md:col-span-1">
-              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
               <span>
                 <strong>{i + 1}.</strong> {req}
               </span>

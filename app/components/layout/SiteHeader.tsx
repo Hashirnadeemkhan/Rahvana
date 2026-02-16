@@ -33,14 +33,16 @@ import {
   Settings,
   Tag,
   FileCheck,
-  Moon,
-  Sun,
+  // Moon,
+  // Sun,
+  DollarSign,
+  Syringe,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
 import { UserProfile } from "@/app/context/AuthContext";
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 
 interface HeaderProps {
   activeSection?: string;
@@ -64,8 +66,12 @@ const HydrationSafeButton = (
 
   // Filter out problematic attributes that might be added by extensions
   const filteredRest = { ...rest };
-  const extensionAttributes = ['fdprocessedid', 'data-extension', 'data-extension-id'];
-  extensionAttributes.forEach(attr => {
+  const extensionAttributes = [
+    "fdprocessedid",
+    "data-extension",
+    "data-extension-id",
+  ];
+  extensionAttributes.forEach((attr) => {
     if (filteredRest[attr as keyof typeof filteredRest]) {
       delete filteredRest[attr as keyof typeof filteredRest];
     }
@@ -92,10 +98,10 @@ const useExtensionCleanup = () => {
         "data-extension",
         "data-extension-id",
         "_moz-generated-content-before",
-        "_moz-generated-content-after"
+        "_moz-generated-content-after",
       ];
 
-      extensionAttrs.forEach(attr => {
+      extensionAttrs.forEach((attr) => {
         document
           .querySelectorAll(`[${attr}]`)
           .forEach((el) => el.removeAttribute(attr));
@@ -135,12 +141,11 @@ export function SiteHeader({
   isSignedIn = false,
   onToggleAuth,
   user,
-  profile,
 }: HeaderProps = {}) {
   // Run cleanup once
   useExtensionCleanup();
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  // const { theme, setTheme } = useTheme();
 
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -198,8 +203,8 @@ export function SiteHeader({
         "courier-registration": "/courier-registration",
         "custom-requirements": "/custom-requirements",
         "interview-prep": "/interview-prep",
-        profile : "/profile",
-        settings: "/settings"
+        profile: "/profile",
+        settings: "/settings",
       };
 
       const targetRoute = routes[id] || "/";
@@ -1057,69 +1062,146 @@ export function SiteHeader({
                       items: [
                         {
                           icon: <FileText className="h-5 w-5" />,
-                          title: "PCC Playbook — Sindh",
+                          title: "PCC Playbooks (All Provinces)",
                           description:
-                            "Sindh police certificate guide: requirements, steps, timelines, and common mistakes.",
-                          href: "/guides/police-verification", // Assuming this links to custom requirements or similar
-                        },
-                        {
-                          icon: <Shield className="h-5 w-5" />,
-                          title: "PCC Playbook — Punjab",
-                          description:
-                            "Punjab police certificate guide (service coming soon).",
+                            "Guides for Sindh, Punjab, KPK, and Balochistan Police Certificates.",
                           href: "/guides/police-verification",
-                        },
-                        {
-                          icon: <Shield className="h-5 w-5" />,
-                          title: "PCC Playbook — KPK",
-                          description:
-                            "KPK police certificate guide (service coming soon).",
-                          href: "/guides/police-verification",
-                        },
-                        {
-                          icon: <Shield className="h-5 w-5" />,
-                          title: "PCC Playbook — Balochistan",
-                          description:
-                            "Balochistan police certificate guide (service coming soon).",
-                          href: "/guides/police-verification",
-                        },
-                        {
-                          icon: <Globe className="h-5 w-5" />,
-                          title: "Passport Guide",
-                          description:
-                            "Complete guide to obtaining or renewing your Pakistani passport.",
-                          href: "/guides/passport-guide",
-                          badge: "Live",
                         },
                         {
                           icon: <Shield className="h-5 w-5" />,
                           title: "PCC Reference Guide",
                           description:
-                            "Comprehensive overview of Police Character Certificates for all provinces.",
+                            "Comprehensive overview of Police Character Certificates.",
                           href: "/guides/police-certificate",
+                        },
+                        {
+                          icon: <Globe className="h-5 w-5" />,
+                          title: "Passport Guide",
+                          description:
+                            "Obtaining or renewing your Pakistani passport.",
+                          href: "/guides/passport-guide",
                           badge: "Live",
+                        },
+                        {
+                          icon: <FileText className="h-5 w-5" />,
+                          title: "CNIC Guide",
+                          description:
+                            "Obtaining and renewing your NADRA CNIC.",
+                          href: "/guides/cnic-guide",
+                          badge: "Live",
+                        },
+                        {
+                          icon: <FileText className="h-5 w-5" />,
+                          title: "Birth Certificate",
+                          description:
+                            "NADRA CRC, B-Form, and birth documentation.",
+                          href: "/guides/birth-certificate-guide",
                         },
                         {
                           icon: <Globe className="h-5 w-5" />,
                           title: "FRC Guide",
                           description:
-                            "Complete guide to obtaining your Family Registration Certificate (FRC).",
+                            "Family Registration Certificate (FRC) guide.",
                           href: "/guides/frc-guide",
                           badge: "Live",
                         },
+                        {
+                          icon: <Heart className="h-5 w-5" />,
+                          title: "Marriage Certificate",
+                          description: "Nikahnama and MRC guide.",
+                          href: "/guides/marriage-certificate",
+                          badge: "Soon",
+                          disabled: true,
+                        },
+                        {
+                          icon: <FileCheck className="h-5 w-5" />,
+                          title: "Divorce & Death",
+                          description: "Termination of prior marriages.",
+                          href: "/guides/prior-marriage-termination",
+                          badge: "Soon",
+                          disabled: true,
+                        },
+                        {
+                          icon: <DollarSign className="h-5 w-5" />,
+                          title: "Asset Documentation",
+                          description:
+                            "Prove financial standing with correct documents.",
+                          href: "/guides/asset-document-guide",
+                        },
+                        {
+                          icon: <Briefcase className="h-5 w-5" />,
+                          title: "Employment Verification",
+                          description: "Employment letters and income proof.",
+                          href: "/guides/employment-certificate-guide",
+                        },
                       ],
                     },
-                  
                     {
                       id: "embassy-logistics",
                       label: "Embassy Logistics",
                       items: [
                         {
                           icon: <Map className="h-5 w-5" />,
-                          title: "Courier & Passport Delivery Guide",
+                          title: "Courier & Passport Delivery",
                           description:
-                            "Register, choose delivery options, and troubleshoot common courier issues.",
+                            "Register, choose delivery options, and courier guide.",
                           href: "/guides/courier-registration",
+                        },
+                        {
+                          icon: <Users className="h-5 w-5" />,
+                          title: "Interview Preparation",
+                          description:
+                            "Required documents and what to bring to the embassy.",
+                          href: "/interview-prep",
+                        },
+                      ],
+                    },
+                    {
+                      id: "financial-sponsorship",
+                      label: "Financial & Sponsorship",
+                      items: [
+                        {
+                          icon: <DollarSign className="h-5 w-5" />,
+                          title: "Affidavit of Support",
+                          description:
+                            "I-864 guide and financial requirements.",
+                          href: "/affidavit-support-calculator",
+                        },
+                      ],
+                    },
+                    {
+                      id: "medical-exam",
+                      label: "Medical & Exam",
+                      items: [
+                        {
+                          icon: <Activity className="h-5 w-5" />,
+                          title: "Medical Examination",
+                          description:
+                            "Panel physicians and medical requirements.",
+                          href: "/guides/medical-exam",
+                          badge: "Soon",
+                          disabled: true,
+                        },
+                        {
+                          icon: <Syringe className="h-5 w-5" />,
+                          title: "Vaccination Guide",
+                          description:
+                            "CDC-required vaccinations and polio certificate.",
+                          href: "/guides/polio-vaccination-guide",
+                        },
+                      ],
+                    },
+                    {
+                      id: "relationship-evidence",
+                      label: "Relationship Evidence",
+                      items: [
+                        {
+                          icon: <Heart className="h-5 w-5" />,
+                          title: "Bona Fide Marriage",
+                          description: "Proof of genuine relationship.",
+                          href: "/guides/relationship-evidence",
+                          badge: "Soon",
+                          disabled: true,
                         },
                       ],
                     },
@@ -1129,15 +1211,14 @@ export function SiteHeader({
                       items: [
                         {
                           icon: <FileCheck className="h-5 w-5" />,
-                          title: "Customs & Declarations Guide",
-                          description:
-                            "What to declare, what to avoid, and common pitfalls when traveling.",
-                          href: "/guides/custom-requirements", // Placeholder
+                          title: "Customs & Declarations",
+                          description: "What to declare and common pitfalls.",
+                          href: "/guides/custom-requirements",
                         },
                       ],
                     },
                   ]}
-                  footerLink={{ label: "Browse all guides", href: "#" }}
+                  footerLink={{ label: "Browse all guides", href: "/guides" }}
                 />
               )}
               {activeMenu === "services" && (
@@ -1250,7 +1331,7 @@ export function SiteHeader({
 
         <div className="flex items-center gap-3">
           {/* Theme Toggle (Logged Out / Shared) */}
-          <HydrationSafeButton
+          {/* <HydrationSafeButton
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -1259,7 +1340,7 @@ export function SiteHeader({
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-2 left-2" />
-          </HydrationSafeButton>
+          </HydrationSafeButton> */}
 
           <HydrationSafeButton
             variant="outline"
@@ -1339,7 +1420,7 @@ export function SiteHeader({
                         Portal Locker
                       </button>
 
-                      <button
+                      {/* <button
                         onClick={() =>
                           setTheme(theme === "dark" ? "light" : "dark")
                         }
@@ -1350,7 +1431,7 @@ export function SiteHeader({
                           <Moon className="absolute w-4 h-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                         </div>
                         <span>Switch Theme</span>
-                      </button>
+                      </button> */}
                     </div>
 
                     {/* Section 2 */}
@@ -1626,7 +1707,7 @@ export function SiteHeader({
                     </div>
                   )}
                 </div>
-                
+
                 {/* Guides Section */}
                 <div className="mt-2">
                   <HydrationSafeButton
@@ -1652,21 +1733,21 @@ export function SiteHeader({
                   </HydrationSafeButton>
                   {expandedSections.includes("guides") && (
                     <div className="ml-9 mt-1 flex flex-col gap-1 border-l-2 border-slate-100 pl-4">
-                      {[
-                        { id: "passport-guide", label: "Passport Guide" },
-                      ].map((item) => (
-                        <HydrationSafeButton
-                          key={item.id}
-                          onClick={() => handleNav(item.id)}
-                          className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
-                            isActive(item.id)
-                              ? "text-[#0d9488] font-semibold bg-[#0d9488]/5"
-                              : "text-slate-500 hover:text-[#0d9488] hover:bg-slate-50"
-                          }`}
-                        >
-                          {item.label}
-                        </HydrationSafeButton>
-                      ))}
+                      {[{ id: "passport-guide", label: "Passport Guide" }].map(
+                        (item) => (
+                          <HydrationSafeButton
+                            key={item.id}
+                            onClick={() => handleNav(item.id)}
+                            className={`px-4 py-2 rounded-lg text-sm text-left transition-all ${
+                              isActive(item.id)
+                                ? "text-[#0d9488] font-semibold bg-[#0d9488]/5"
+                                : "text-slate-500 hover:text-[#0d9488] hover:bg-slate-50"
+                            }`}
+                          >
+                            {item.label}
+                          </HydrationSafeButton>
+                        ),
+                      )}
                     </div>
                   )}
                 </div>

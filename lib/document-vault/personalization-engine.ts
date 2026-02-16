@@ -138,16 +138,23 @@ export function calculateDocumentStats(
   requiredDocs: DocumentDefinition[],
   uploadedDocs: UploadedDocument[]
 ) {
-  const total = requiredDocs.length;
-  const uploaded = uploadedDocs.filter((d) => d.status === 'UPLOADED').length;
-  const missing = requiredDocs.filter(
-    (rd) =>
+  const mandatoryDocs = requiredDocs.filter(d => d.required);
+  const total = mandatoryDocs.length;
+  
+  const uploaded = mandatoryDocs.filter(
+    md => uploadedDocs.some(
+      (ud) => ud.documentDefId === md.id && (ud.status === 'UPLOADED' || ud.status === 'NEEDS_ATTENTION')
+    )
+  ).length;
+
+  const missing = mandatoryDocs.filter(
+    (md) =>
       !uploadedDocs.some(
-        (ud) => ud.documentDefId === rd.id && ud.status === 'UPLOADED'
+        (ud) => ud.documentDefId === md.id
       )
   ).length;
-  const expiring = uploadedDocs.filter((d) => d.status === 'NEEDS_ATTENTION')
-    .length;
+
+  const expiring = uploadedDocs.filter((d) => d.status === 'NEEDS_ATTENTION').length;
   const expired = uploadedDocs.filter((d) => d.status === 'EXPIRED').length;
 
   return {

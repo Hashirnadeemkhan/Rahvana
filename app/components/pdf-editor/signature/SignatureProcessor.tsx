@@ -1,19 +1,21 @@
-"use client"
-import { Loader2, CheckCircle2 } from "lucide-react"
+"use client";
+import { Loader2, CheckCircle2 } from "lucide-react";
 
 interface SignatureProcessorProps {
-  progress?: number
+  progress?: number;
 }
 
-export default function SignatureProcessor({ progress = 0 }: SignatureProcessorProps) {
+export default function SignatureProcessor({
+  progress = 0,
+}: SignatureProcessorProps) {
   const steps = [
     { id: 1, label: "Analyzing image" },
     { id: 2, label: "Removing background" },
     { id: 3, label: "Enhancing signature" },
     { id: 4, label: "Finalizing" },
-  ]
+  ];
 
-  const currentStep = Math.min(Math.floor(progress / 25) + 1, 4)
+  const currentStep = Math.min(Math.floor(progress / 25) + 1, 4);
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-8 sm:p-12 text-center max-w-2xl mx-auto border border-slate-200">
@@ -26,8 +28,12 @@ export default function SignatureProcessor({ progress = 0 }: SignatureProcessorP
       </div>
 
       {/* Main Title */}
-      <h2 className="text-xl font-semibold text-slate-900 mb-2">Processing Your Signature</h2>
-      <p className="text-slate-600 mb-8 text-sm">Please wait while we enhance your signature...</p>
+      <h2 className="text-xl font-semibold text-slate-900 mb-2">
+        Processing Your Signature
+      </h2>
+      <p className="text-slate-600 mb-8 text-sm">
+        Please wait while we enhance your signature...
+      </p>
 
       <div className="mb-8">
         <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
@@ -51,7 +57,7 @@ export default function SignatureProcessor({ progress = 0 }: SignatureProcessorP
                   : "bg-white border border-slate-200 opacity-50"
             }`}
           >
-            <div className="flex items-center justify-center w-5 h-5 flex-shrink-0">
+            <div className="flex items-center justify-center w-5 h-5 shrink-0">
               {step.id < currentStep ? (
                 <CheckCircle2 className="w-5 h-5 text-slate-600" />
               ) : step.id === currentStep ? (
@@ -62,7 +68,11 @@ export default function SignatureProcessor({ progress = 0 }: SignatureProcessorP
             </div>
             <p
               className={`text-sm font-medium ${
-                step.id === currentStep ? "text-slate-900" : step.id < currentStep ? "text-slate-700" : "text-slate-500"
+                step.id === currentStep
+                  ? "text-slate-900"
+                  : step.id < currentStep
+                    ? "text-slate-700"
+                    : "text-slate-500"
               }`}
             >
               {step.label}
@@ -71,5 +81,5 @@ export default function SignatureProcessor({ progress = 0 }: SignatureProcessorP
         ))}
       </div>
     </div>
-  )
+  );
 }

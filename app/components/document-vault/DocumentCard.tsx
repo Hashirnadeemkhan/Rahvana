@@ -11,6 +11,11 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
+  Package,
+  Eye,
+  MoreVertical,
+  ChevronDown,
+  Zap,
   FileText,
   Upload,
   Download,
@@ -19,10 +24,14 @@ import {
   CheckCircle,
   Clock,
   Info,
-  FileArchive,
-  Package,
-  Eye,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface DocumentCardProps {
   documentDef: DocumentDefinition;
@@ -47,11 +56,11 @@ export function DocumentCard({
 }: DocumentCardProps) {
   const getStatusBadge = () => {
     if (!uploadedDoc) {
-      // Show "Not Uploaded" for missing documents
+      // Show "Missing" for documents not yet uploaded
       return (
-        <Badge variant={documentDef.required ? 'destructive' : 'secondary'} className="flex items-center gap-1">
+        <Badge className="bg-red-50 text-red-500 border-red-100 hover:bg-red-50 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50 flex items-center gap-1 font-bold">
           <AlertCircle className="w-3 h-3" />
-          Not Uploaded
+          Missing
         </Badge>
       );
     }
@@ -122,208 +131,161 @@ export function DocumentCard({
   };
 
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <div className="flex items-start gap-2 mb-1">
-            <FileText className="w-5 h-5 text-muted-foreground mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-base">
+    <Card className="group relative overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 bg-white dark:bg-slate-900 flex flex-col h-full">
+      {/* Top Status Bar */}
+      <div className={`h-1.5 w-full ${
+        !uploadedDoc ? 'bg-red-400/50' : 
+        uploadedDoc.status === 'UPLOADED' ? 'bg-emerald-500' : 
+        uploadedDoc.status === 'NEEDS_ATTENTION' ? 'bg-amber-500' : 'bg-red-600'
+      }`}></div>
+
+      <div className="p-5 flex-1 flex flex-col">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`p-2 rounded-xl ${uploadedDoc ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>
+                <FileText className="w-5 h-5" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 dark:text-white leading-tight">
                 {documentDef.name}
                 {documentDef.required && (
-                  <span className="text-red-500 ml-1">*</span>
+                  <span className="text-red-500 ml-1 font-black">*</span>
                 )}
               </h3>
-              <p className="text-sm text-muted-foreground">
-                {documentDef.description}
-              </p>
             </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-2 leading-relaxed font-medium">
+              {documentDef.description}
+            </p>
+          </div>
+          <div className="ml-2">
+            {getStatusBadge()}
           </div>
         </div>
-        {getStatusBadge()}
-      </div>
 
-      {/* Document metadata */}
-      <div className="space-y-2 mb-4">
-        <div className="flex flex-wrap gap-2">
-          <div className="text-xs text-muted-foreground">Who provides:</div>
-          {getRoleBadges()}
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-5">
+           <div className="space-y-1">
+             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Owner</span>
+             <div className="flex flex-wrap gap-1">
+               {getRoleBadges()}
+             </div>
+           </div>
+           <div className="space-y-1">
+             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Process</span>
+             <div className="flex flex-wrap gap-1">
+               {getStageBadges()}
+             </div>
+           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <div className="text-xs text-muted-foreground">Used in:</div>
-          {getStageBadges()}
-        </div>
-      </div>
 
-      {/* Uploaded document info */}
-      {uploadedDoc && (
-        <div className="bg-muted/50 rounded-lg p-3 mb-4 space-y-2">
-          <div className="flex flex-col gap-1 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="font-medium">Saved As:</span>
-              <Badge variant="outline" className="text-xs">
-                {uploadedDoc.uploadedBy.replace('_', ' ')}
+        {/* Uploaded File Details (Glassmorphism card) */}
+        {uploadedDoc && (
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 mb-5 border border-slate-100 dark:border-slate-700/50 space-y-3 relative overflow-hidden">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="font-bold text-slate-500 uppercase tracking-tight">Active Version</span>
+              <Badge variant="secondary" className="h-5 px-1.5 text-[10px] font-black bg-white dark:bg-slate-700 shadow-sm border-none">
+                v{uploadedDoc.version}
               </Badge>
             </div>
-            <p className="text-xs font-medium text-foreground" title={uploadedDoc.standardizedFilename}>
-              {getShortDisplayName(uploadedDoc.standardizedFilename, documentDef.name)}
-            </p>
-            <p className="text-xs text-muted-foreground font-mono break-all bg-muted px-2 py-1 rounded">
-              {uploadedDoc.standardizedFilename}
-            </p>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">Size:</span>
-            <span className="text-muted-foreground">
-              {formatFileSize(uploadedDoc.fileSize)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">Uploaded:</span>
-            <span className="text-muted-foreground">
-              {new Date(uploadedDoc.uploadedAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              })}
-            </span>
-          </div>
-          {uploadedDoc.expirationDate && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">Validity:</span>
-              {getExpirationInfo()}
-            </div>
-          )}
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">Version:</span>
-            <Badge variant="secondary" className="text-xs">
-              v{uploadedDoc.version}
-            </Badge>
-          </div>
-          {uploadedDoc.notes && (
-            <div className="text-sm pt-2 border-t">
-              <span className="font-medium block mb-1">Notes:</span>
-              <p className="text-xs text-muted-foreground italic line-clamp-2">
-                {uploadedDoc.notes}
+            
+            <div className="space-y-1">
+               <p className="text-xs font-extrabold text-slate-900 dark:text-white truncate" title={uploadedDoc.standardizedFilename}>
+                {getShortDisplayName(uploadedDoc.standardizedFilename, documentDef.name)}
               </p>
+              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                <span>{formatFileSize(uploadedDoc.fileSize)}</span>
+                <span className="h-1 w-1 rounded-full bg-slate-300"></span>
+                <span>{new Date(uploadedDoc.uploadedAt).toLocaleDateString()}</span>
+              </div>
             </div>
-          )}
 
-          {/* Compressed File Info */}
-          {uploadedDoc.hasCompressedVersion && uploadedDoc.compressedFileSize && (
-            <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                <FileArchive className="w-4 h-4" />
+            {uploadedDoc.expirationDate && (
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Validity</span>
+                {getExpirationInfo()}
+              </div>
+            )}
+            
+            {uploadedDoc.hasCompressedVersion && (
+               <div className="absolute top-0 right-0 p-1">
+                 <div className="bg-blue-500 text-white p-1 rounded-bl-lg">
+                   <Zap className="w-3 h-3" />
+                 </div>
+               </div>
+            )}
+          </div>
+        )}
+
+        <div className="mt-auto pt-2">
+          {!uploadedDoc ? (
+            <div className="flex gap-2">
+              <Button onClick={onUpload} className="flex-1 font-bold h-10 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/95">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload
+              </Button>
+              <Button
+                onClick={onOpenWizard}
+                variant="outline"
+                className="flex-1 font-bold h-10 border-2"
+              >
+                Learn How
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={onPreview}
+                variant="secondary"
+                size="sm"
+                className="h-9 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200"
+                title="Preview"
+              >
+                <Eye className="w-4 h-4" />
+              </Button>
               
+              <div className="flex-1 flex gap-1">
+                <Button
+                  onClick={onDownload}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-9 font-bold text-xs border-2"
+                >
+                  <Download className="w-3.5 h-3.5 mr-1.5" />
+                  Files
+                </Button>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                     <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-2">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={onUpload}>
+                      <Upload className="w-4 h-4 mr-2" /> Replace
+                    </DropdownMenuItem>
+                    {onExport && (
+                      <DropdownMenuItem onClick={onExport}>
+                        <Package className="w-4 h-4 mr-2" /> Export ZIP
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={onOpenWizard}>
+                      <Info className="w-4 h-4 mr-2" /> Instructions
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={onDelete}
+                      className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" /> Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-xs text-blue-600 dark:text-blue-400">
-                  Compressed: {formatFileSize(uploadedDoc.compressedFileSize)}
-                </span>
-                <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-300">
-                  {((1 - uploadedDoc.compressedFileSize / uploadedDoc.fileSize) * 100).toFixed(0)}% smaller
-                </Badge>
-              </div>
-            </div>
-          )}
-
-          {/* Large file warning if > 4MB and no compressed version */}
-          {uploadedDoc.fileSize > 4 * 1024 * 1024 && !uploadedDoc.hasCompressedVersion && (
-            <div className="mt-3 p-2 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-              <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300">
-                <AlertCircle className="w-4 h-4" />
-                <span className="text-xs font-medium">File exceeds 4MB NVC/USCIS limit</span>
-              </div>
-              <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                Re-upload this file to auto-generate a compressed version
-              </p>
             </div>
           )}
         </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex gap-2">
-        {!uploadedDoc ? (
-          <>
-            <Button onClick={onUpload} size="sm" className="flex-1">
-              <Upload className="w-4 h-4 mr-2" />
-              Upload
-            </Button>
-            <Button
-              onClick={onOpenWizard}
-              size="sm"
-              variant="outline"
-              className="flex-1"
-            >
-              <Info className="w-4 h-4 mr-2" />
-              How to Obtain
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              onClick={onPreview}
-              size="sm"
-              variant="outline"
-              title="Preview document"
-            >
-              <Eye className="w-4 h-4" />
-            </Button>
-            <Button
-              onClick={onDownload}
-              size="sm"
-              variant="outline"
-              className="flex-1"
-              title="Download original file"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download
-            </Button>
-            {/* Export button - shows ZIP icon if compressed version exists */}
-            {onExport && (
-              <Button
-                onClick={onExport}
-                size="sm"
-                variant="outline"
-                className={uploadedDoc.hasCompressedVersion ? "bg-blue-50 hover:bg-blue-100 border-blue-300" : ""}
-                title={uploadedDoc.hasCompressedVersion
-                  ? "Export ZIP (original + compressed for NVC/USCIS)"
-                  : "Export document"
-                }
-              >
-                {uploadedDoc.hasCompressedVersion ? (
-                  <Package className="w-4 h-4 text-blue-600" />
-                ) : (
-                  <FileArchive className="w-4 h-4" />
-                )}
-              </Button>
-            )}
-            <Button onClick={onUpload} size="sm" variant="outline">
-              <Upload className="w-4 h-4 mr-2" />
-              Replace
-            </Button>
-            <Button
-              onClick={onDelete}
-              size="sm"
-              variant="outline"
-              className="text-red-600 hover:text-red-700"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </>
-        )}
       </div>
-
-      {/* Wizard link at bottom */}
-      {documentDef.wizardSteps && documentDef.wizardSteps.length > 0 && (
-        <button
-          onClick={onOpenWizard}
-          className="text-xs text-brand hover:underline mt-3 w-full text-center"
-        >
-          View step-by-step guide
-        </button>
-      )}
     </Card>
   );
 }
