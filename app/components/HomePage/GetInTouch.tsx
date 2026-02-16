@@ -6,12 +6,13 @@ import {
   MessageSquare,
   Instagram,
   Linkedin,
-  Twitter,
   Youtube,
   Loader2,
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { submitContactForm } from "@/app/actions/contact";
 
 export default function GetInTouch() {
@@ -99,8 +100,12 @@ export default function GetInTouch() {
                 ariaLabel="Connect on LinkedIn"
               />
               <SocialCard
-                icon={<Twitter size={20} />}
-                label="X (Twitter)"
+                icon={
+                  <FontAwesomeIcon
+                    icon={faXTwitter}
+                  />
+                }
+                label="X"
                 href="#"
                 ariaLabel="Follow us on X"
               />

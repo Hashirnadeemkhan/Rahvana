@@ -1,10 +1,27 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { ComingSoonModal } from "../shared/ComingSoonModal";
 
 export default function Footer() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+
+  const handleNav = (id: string, e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+
+    const routes: Record<string, string> = {
+      contact: "/#contact",
+      about: "/#about",
+    };
+
+    const targetRoute = routes[id] || "/";
+    router.push(targetRoute);
+  };
 
   // Keep existing administrator-specific logic
   if (pathname?.startsWith("/admin")) {
@@ -111,28 +128,18 @@ export default function Footer() {
             </h4>
             <nav className="flex flex-col gap-4 text-sm">
               <Link
-                href="#"
+                href="/#about"
+                onClick={(e) => handleNav("about", e)}
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 About Us
               </Link>
               <Link
-                href="#"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                Help Center
-              </Link>
-              <Link
-                href="#"
+                href="/#contact"
+                onClick={(e) => handleNav("contact", e)}
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 Contact
-              </Link>
-              <Link
-                href="#"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                Blog
               </Link>
             </nav>
           </div>
@@ -154,6 +161,8 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      <ComingSoonModal open={comingSoonOpen} onOpenChange={setComingSoonOpen} />
     </footer>
   );
 }
