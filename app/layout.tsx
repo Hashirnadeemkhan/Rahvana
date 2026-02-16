@@ -22,9 +22,9 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            // un comment if you want bydefault device theme 
+            // un comment if you want bydefault device theme
             // defaultTheme="system"
-            enableSystem
+            // enableSystem
             disableTransitionOnChange
           >
             <ClientHeader />
