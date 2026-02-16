@@ -10,6 +10,8 @@ import {
   CheckCircle,
   Camera,
   ChevronDown,
+  BookOpen,
+  Users,
   FileText,
   Globe2,
   MapPin,
@@ -20,7 +22,6 @@ import {
   Home,
   Sparkles,
   ChevronRight,
-  ChevronLeft,
   ExternalLink,
 } from "lucide-react";
 import { HeroSection } from "./components/hero-section";
@@ -64,6 +65,8 @@ const ePassportGuidelines2026: Record<string, Record<string, Record<string, numb
 };
 
 const sectionThemes: Record<string, { bg: string, border: string, accent: string, iconBg: string, hover: string }> = {
+  understanding: { bg: "bg-indigo-50/30", border: "border-indigo-100", accent: "text-indigo-600", iconBg: "bg-indigo-100/50", hover: "hover:border-indigo-300 hover:bg-indigo-50/50" },
+  eligibility: { bg: "bg-cyan-50/30", border: "border-cyan-100", accent: "text-cyan-600", iconBg: "bg-cyan-100/50", hover: "hover:border-cyan-300 hover:bg-cyan-50/50" },
   documents: { bg: "bg-emerald-50/30", border: "border-emerald-100", accent: "text-emerald-600", iconBg: "bg-emerald-100/50", hover: "hover:border-emerald-300 hover:bg-emerald-50/50" },
   photos: { bg: "bg-sky-50/30", border: "border-sky-100", accent: "text-sky-600", iconBg: "bg-sky-100/50", hover: "hover:border-sky-300 hover:bg-sky-50/50" },
   process: { bg: "bg-teal-50/30", border: "border-teal-100", accent: "text-[#0d7377]", iconBg: "bg-teal-100/50", hover: "hover:border-teal-300 hover:bg-teal-50/50" },
@@ -74,6 +77,46 @@ const sectionThemes: Record<string, { bg: string, border: string, accent: string
 };
 
 const sections = [
+  {
+    id: "understanding",
+    title: "Understanding Pakistani Passport",
+    icon: BookOpen,
+    description: "Learn about the types of passports and why you need one.",
+    content: [
+      {
+        heading: "What is a Pakistani Passport?",
+        text: "A Pakistani passport is an official document issued by the Directorate General of Immigration & Passports (DGIP) for international travel. It serves as proof of Pakistani citizenship and identity.",
+      },
+      {
+        heading: "When is it required?",
+        text: "Required for all international travel, including applying for visas to countries like the US. It must be valid for at least 6 months beyond your intended stay for most visas.",
+      },
+      {
+        heading: "Types of Passports",
+        text: "• Ordinary MRP: Common Machine Readable Passport for citizens.\n• e-Passport: Advanced with biometric chip for faster clearance.\n• Official/Diplomatic: Issued to government officials and diplomats.",
+      },
+    ],
+  },
+  {
+    id: "eligibility",
+    title: "Eligibility Criteria",
+    icon: Users,
+    description: "Check if you qualify to apply for a Pakistani passport.",
+    content: [
+      {
+        heading: "Who Can Apply?",
+        text: "Every Pakistani citizen, including newborns. No minimum age.",
+      },
+      {
+        heading: "Special Requirements",
+        text: "• Overseas Pakistanis: Can renew online (Full Process).\n• Govt Employees: Need NOC valid for <90 days.\n• Dual Nationals: Must provide copy of foreign passport.",
+      },
+      {
+        heading: "Special Cases",
+        text: "• Minors under 18 (require both parents).\n• Lost/Damaged cases (require FIR/Affidavit).\n• Name or status changes (require updated CNIC).",
+      },
+    ],
+  },
   {
     id: "documents",
     title: "Required Documents",
@@ -220,7 +263,7 @@ export default function PassportGuidePage() {
     "normal" | "urgent" | "fasttrack" | null
   >(null);
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [activeTab, setActiveTab] = React.useState<string>("documents");
+  const [activeTab, setActiveTab] = React.useState<string>("understanding");
   const [completedSections, setCompletedSections] = React.useState<string[]>([]);
   const [checkedItems, setCheckedItems] = React.useState<string[]>([]);
   const [journeyConfig, setJourneyConfig] = React.useState<{
@@ -342,13 +385,7 @@ export default function PassportGuidePage() {
     filteredSections.forEach(s => {
       if (s.id === "photos") count += 1;
       else if (s.id === "locations") count += 0;
-      else {
-        const content = getFilteredContent(s.id, s.content);
-        content.forEach(item => {
-          const lines = item.text.split('\n').filter((l: string) => l.trim().startsWith('•'));
-          count += lines.length > 0 ? lines.length : 1;
-        });
-      }
+      else count += getFilteredContent(s.id, s.content).length;
     });
     return count || 1;
   }, [filteredSections, journeyConfig, showJourneyForm]);
@@ -464,7 +501,7 @@ export default function PassportGuidePage() {
               <button
                 disabled={!journeyConfig.type || !journeyConfig.method || !journeyConfig.age}
                 onClick={() => setShowJourneyForm(false)}
-                className="w-full sm:w-auto px-10 py-4 bg-linear-to-r from-[#0d7377] to-[#14a0a6] text-white rounded-2xl font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-[#0d7377]/20"
+                className="w-full sm:w-auto px-10 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-slate-200"
               >
                 Start My Tailored Guide
               </button>
@@ -598,7 +635,6 @@ export default function PassportGuidePage() {
                 </div>
               </div>
 
-<<<<<<< HEAD
               {/* Fee Quick Preview */}
               <div className="bg-[#e8f6f6] rounded-4xl p-8 text-[#0d7377] shadow-xl">
                  <div className="flex items-center gap-3 mb-6">
@@ -617,9 +653,6 @@ export default function PassportGuidePage() {
                    View Full Fee Breakdown
                  </Link>
               </div>
-=======
-
->>>>>>> hashir
             </div>
 
             {/* Middle/Right Column: Checklist Content */}
@@ -628,13 +661,15 @@ export default function PassportGuidePage() {
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-[2.5rem] p-8 lg:p-10 text-slate-900 relative overflow-hidden shadow-xl border border-[#14a0a6]/20"
+                className="bg-slate-900 rounded-[2.5rem] p-8 lg:p-10 text-white relative overflow-hidden shadow-2xl"
               >
-
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                  <Sparkles className="w-32 h-32" />
+                </div>
                 <div className="relative z-10">
-                  <p className="text-[#0d7377] text-[10px] font-black uppercase tracking-[0.2em] mb-3">System Synchronized</p>
+                  <p className="text-[#14a0a6] text-[10px] font-black uppercase tracking-[0.2em] mb-3">System Synchronized</p>
                   <h2 className="text-2xl md:text-3xl font-black mb-8 leading-tight">
-                    Your Personalized <span className="text-[#0d7377]">Journey Dashboard</span>
+                    Your Personalized <span className="text-[#14a0a6]">Journey Dashboard</span>
                   </h2>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -650,25 +685,24 @@ export default function PassportGuidePage() {
                             : "OFFICE VISIT" 
                       }
                     ].map((item, idx) => (
-                      <div key={idx} className="bg-[#e8f6f6]/50 backdrop-blur-md border border-[#14a0a6]/10 rounded-2xl p-4 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#0d7377] flex items-center justify-center shrink-0">
+                      <div key={idx} className="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#14a0a6] flex items-center justify-center shrink-0">
                           <CheckCircle className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{item.label}</p>
-                          <p className="text-xs font-black text-slate-800">{item.value}</p>
+                          <p className="text-[10px] text-white/50 font-bold uppercase tracking-wider">{item.label}</p>
+                          <p className="text-xs font-black text-white">{item.value}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="mt-8 flex items-center gap-2 text-[10px] font-medium text-slate-400 italic">
+                  <div className="mt-8 flex items-center gap-2 text-[10px] font-medium text-white/40 italic">
                     <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                     Irrelevant information hides automatically based on your case.
                   </div>
                 </div>
               </motion.div>
-<<<<<<< HEAD
               {filteredSections.map((section, sIdx) => {
                 const isDocSection = section.id === "documents";
                 const content = getFilteredContent(section.id, section.content);
@@ -710,56 +744,31 @@ export default function PassportGuidePage() {
                       </div>
                       <motion.div
                         animate={{ rotate: isCollapsed ? 0 : 180 }}
-=======
-              
-              {/* Step Navigation Content */}
-              <div className="space-y-6 min-h-[600px]">
-                {filteredSections
-                  .filter(section => section.id === activeTab)
-                  .map((section, sIdx) => {
-                    const content = getFilteredContent(section.id, section.content);
-                    const theme = sectionThemes[section.id] || sectionThemes.process;
-                    const currentIndex = filteredSections.findIndex(s => s.id === activeTab);
-                    const nextSection = filteredSections[currentIndex + 1];
-                    const prevSection = filteredSections[currentIndex - 1];
-
-                    return (
-                      <motion.div 
-                        key={section.id}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
->>>>>>> hashir
                         className={cn(
-                          "bg-white rounded-[2rem] border overflow-hidden shadow-sm flex flex-col transition-all duration-300",
-                          theme.border,
-                          theme.bg
+                          "p-2 rounded-xl bg-white border text-slate-400 transition-colors",
+                          !isCollapsed ? theme.border : "border-slate-200",
+                          "group-hover:" + theme.accent
                         )}
                       >
-                        {/* Section Header (Non-collapsible title) */}
-                        <div className="w-full text-left p-6 lg:p-8 border-b flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className={cn("p-3 rounded-2xl shadow-sm border", theme.iconBg)}>
-                              <section.icon className={cn("w-5 h-5", theme.accent)} />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Step {currentIndex + 1} of {filteredSections.length}</span>
-                                {completedSections.includes(section.id) && (
-                                  <CheckCircle className="w-3 h-3 text-emerald-500" />
-                                )}
-                              </div>
-                              <h3 className={cn("font-bold", theme.accent)}>{section.title}</h3>
-                            </div>
-                          </div>
-                        </div>
+                        <ChevronDown className="w-5 h-5" />
+                      </motion.div>
+                    </button>
 
-                        <div className="p-6 lg:p-8">
-                          {section.id === "photos" ? (
-                            <PhotoGuideSection />
-                          ) : section.id === "locations" ? (
-                            <LocationGuideSection />
-                          ) : section.id === "fees" ? (
-                            <div className="space-y-6">
+                    <AnimatePresence>
+                      {!isCollapsed && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-6 lg:p-8">
+                            {section.id === "photos" ? (
+                              <PhotoGuideSection />
+                            ) : section.id === "locations" ? (
+                              <LocationGuideSection />
+                            ) : section.id === "fees" ? (
+                              <div className="space-y-6">
                                 <div className="bg-linear-to-br from-[#0d7377] to-[#14a0a6] p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
                                   <div className="absolute top-0 right-0 p-6 opacity-10">
                                     <DollarSign className="w-24 h-24" />
@@ -856,69 +865,8 @@ export default function PassportGuidePage() {
                                 )}
                               </div>
                             ) : (
-                              <div className="space-y-6">
+                              <div className="space-y-4">
                                 {content.map((item: any, idx: number) => {
-                                  const textLines = item.text.split('\n').map((l: string) => l.trim());
-                                  const bulletLines = textLines.filter((l: string) => l.startsWith('•'));
-                                  
-                                  if (bulletLines.length > 0) {
-                                    return (
-                                      <div key={idx} className="space-y-3">
-                                        <h4 className="font-bold text-sm text-slate-900 mb-3 px-1">{item.heading}</h4>
-                                        <div className="grid gap-2">
-                                          {bulletLines.map((bullet: string, bIdx: number) => {
-                                            const itemId = `${section.id}-${idx}-${bIdx}`;
-                                            const isChecked = checkedItems.includes(itemId);
-                                            return (
-                                              <div 
-                                                key={bIdx}
-                                                onClick={() => toggleChecked(itemId)}
-                                                className={cn(
-                                                  "group flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer",
-                                                  isChecked 
-                                                    ? "bg-emerald-50/50 border-emerald-200 shadow-xs" 
-                                                    : "bg-white border-slate-100 hover:border-[#14a0a6]/30"
-                                                )}
-                                              >
-                                                <div className={cn(
-                                                  "mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all",
-                                                  isChecked ? "bg-emerald-500 border-emerald-500 text-white" : "border-slate-200"
-                                                )}>
-                                                  {isChecked && <CheckCircle className="w-3.5 h-3.5" />}
-                                                </div>
-                                                <span className={cn(
-                                                  "text-xs leading-relaxed transition-colors",
-                                                  isChecked ? "text-emerald-800 font-medium" : "text-slate-600"
-                                                )}>
-                                                  {/* Render link if present */}
-                                                  {bullet.replace(/^•\s*/, '').split(/(\[.*?\]\(.*?\))/g).map((part, i) => {
-                                                    const match = part.match(/\[(.*?)\]\((.*?)\)/);
-                                                    if (match) {
-                                                      return (
-                                                        <a 
-                                                          key={i} 
-                                                          href={match[2]} 
-                                                          target="_blank" 
-                                                          rel="noopener noreferrer"
-                                                          className="text-[#0d7377] font-bold hover:underline inline-flex items-center gap-0.5"
-                                                          onClick={(e) => e.stopPropagation()}
-                                                        >
-                                                          {match[1]}
-                                                          <ExternalLink className="w-2 h-2" />
-                                                        </a>
-                                                      );
-                                                    }
-                                                    return part;
-                                                  })}
-                                                </span>
-                                              </div>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-
                                   const itemId = `${section.id}-${idx}`;
                                   const isChecked = checkedItems.includes(itemId);
                                   
@@ -976,49 +924,13 @@ export default function PassportGuidePage() {
                                 })}
                               </div>
                             )}
-
-                          {/* Navigation Buttons */}
-                          <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-between">
-                            {prevSection ? (
-                              <button
-                                onClick={() => {
-                                  setActiveTab(prevSection.id);
-                                }}
-                                className="flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all"
-                              >
-                                <ChevronLeft className="w-4 h-4" />
-                                Previous: {prevSection.title}
-                              </button>
-                            ) : <div></div>}
-
-                            {nextSection ? (
-                              <button
-                                onClick={() => {
-                                  setActiveTab(nextSection.id);
-                                  markComplete(section.id);
-                                }}
-                                className="flex items-center gap-2 px-8 py-3 rounded-xl bg-[#0d7377] text-white font-bold text-sm hover:bg-[#0a5a5d] transition-all shadow-lg shadow-[#0d7377]/20"
-                              >
-                                Next Step
-                                <ChevronRight className="w-4 h-4" />
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => {
-                                   markComplete(section.id);
-                                }}
-                                className="flex items-center gap-2 px-8 py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
-                              >
-                                Complete Guide
-                                <CheckCircle className="w-4 h-4" />
-                              </button>
-                            )}
                           </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-              </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         )}
