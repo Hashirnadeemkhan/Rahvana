@@ -1,7 +1,13 @@
 // app/context/AuthContext.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { createClient } from "@/lib/supabase/client";
 import { AuthError, User, Session } from "@supabase/supabase-js";
 
@@ -136,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Fetch user profile to check admin status
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = useCallback(async (userId: string) => {
     try {
       // Use API route to check admin status (which uses service role)
       const response = await fetch("/api/auth/check-admin", {
@@ -146,27 +152,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
+        console.error(
+          "Failed to check admin status:",
+          response.status,
+          response.statusText,
+        );
         return false;
       }
 
       const data = await response.json();
       return data.isAdmin || false;
     } catch (error) {
-      console.error("Error checking admin status:", error);
+      console.error(
+        "Error checking admin status (network or parsing error):",
+        error,
+      );
       return false;
     }
-  };
+  }, []);
 
   // Fetch profile
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-  
-    if (!error) setProfile(data);
-  };
+  const fetchProfile = useCallback(
+    async (userId: string) => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (!error) setProfile(data);
+    },
+    [supabase],
+  );
 
   useEffect(() => {
     const getInitialSession = async () => {
@@ -208,7 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, [supabase, fetchProfile, fetchUserProfile]);
 
   const enableMFA = async () => {
     try {

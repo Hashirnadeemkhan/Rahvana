@@ -5,21 +5,17 @@ import { createClient } from '@supabase/supabase-js';
 // Specific admin emails - ONLY these emails have admin access
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'hammadnooralam@gmail.com').split(',').map(email => email.trim());
 
-// Create admin client with service role
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
-
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json();
+    // Check if body is readable
+    if (!request.body) {
+      return NextResponse.json(
+        { error: 'Request body is required' },
+        { status: 400 }
+      );
+    }
+
+    const { userId } = await request.json().catch(() => ({ userId: null }));
 
     if (!userId) {
       return NextResponse.json(
@@ -27,6 +23,30 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Check for required environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      console.error('Missing Supabase environment variables for admin check');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
+    // Create admin client with service role
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      serviceRoleKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    );
 
     // Use service role to bypass RLS and get user profile
     const { data: profile, error: profileError } = await supabaseAdmin
@@ -36,10 +56,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (profileError || !profile) {
-      console.error('Error fetching profile:', profileError);
+      console.error('Error fetching profile for admin check:', profileError);
       return NextResponse.json(
         { isAdmin: false },
-        { status: 200 }
+        { status: 200 } // Not an error, just not an admin or profile not found
       );
     }
 
