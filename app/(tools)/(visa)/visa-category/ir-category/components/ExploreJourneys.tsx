@@ -1159,7 +1159,7 @@ export default function ExploreJourneys({
                     Process Type:
                   </h4>
                   <ul className="space-y-3 list-none pl-0">
-                    <li className="flex gap-2 items-start">
+                    <li className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start">
                       <span className="font-bold text-slate-900 shrink-0">
                         • Consular Processing:
                       </span>
@@ -1168,7 +1168,7 @@ export default function ExploreJourneys({
                         abroad. You&apos;ll attend an interview outside the U.S.
                       </span>
                     </li>
-                    <li className="flex gap-2 items-start">
+                    <li className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start">
                       <span className="font-bold text-slate-900 shrink-0">
                         • Adjustment of Status (AOS):
                       </span>
@@ -1189,13 +1189,13 @@ export default function ExploreJourneys({
                     you are:
                   </p>
                   <ul className="space-y-2 list-none pl-0">
-                    <li className="flex gap-2 items-start">
+                    <li className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start">
                       <span className="font-bold text-slate-900 shrink-0">
                         • Not started:
                       </span>
                       <span>You haven&apos;t filed anything yet</span>
                     </li>
-                    <li className="flex gap-2 items-start">
+                    <li className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start">
                       <span className="font-bold text-slate-900 shrink-0">
                         • USCIS:
                       </span>
@@ -1204,13 +1204,13 @@ export default function ExploreJourneys({
                         Services
                       </span>
                     </li>
-                    <li className="flex gap-2 items-start">
+                    <li className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start">
                       <span className="font-bold text-slate-900 shrink-0">
                         • NVC:
                       </span>
                       <span>Your case is at the National Visa Center</span>
                     </li>
-                    <li className="flex gap-2 items-start">
+                    <li className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start">
                       <span className="font-bold text-slate-900 shrink-0">
                         • Interview:
                       </span>
@@ -1219,7 +1219,7 @@ export default function ExploreJourneys({
                         interview
                       </span>
                     </li>
-                    <li className="flex gap-2 items-start">
+                    <li className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start">
                       <span className="font-bold text-slate-900 shrink-0">
                         • 221(g)/AP:
                       </span>
@@ -1246,7 +1246,7 @@ export default function ExploreJourneys({
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="flex justify-end">
+              <div className="flex justify-center md:justify-end">
                 <Button
                   variant="outline"
                   onClick={() => setIsVisaWizardOpen(true)}
@@ -1851,37 +1851,41 @@ export default function ExploreJourneys({
 
       {/* Compare Tray */}
       {selectedJourneys.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-6">
-          <div className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl shadow-indigo-500/20 flex items-center gap-6 border border-slate-800">
-            <div className="flex items-center gap-3">
-              <span className="font-semibold">
-                {selectedJourneys.length}/3 selected
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-6 w-[92%] md:w-auto max-w-2xl">
+          <div className="bg-slate-900 text-white px-4 md:px-6 py-3 rounded-full shadow-2xl shadow-indigo-500/20 flex items-center justify-between md:justify-start gap-3 md:gap-6 border border-slate-800 w-full">
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                {selectedJourneys.length}/3
+                <span className="hidden sm:inline"> selected</span>
               </span>
               <div className="flex -space-x-2">
                 {selectedJourneys.map((id) => (
                   <div
                     key={id}
-                    className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-xs font-bold"
+                    className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] md:text-xs font-bold"
                   >
                     {JOURNEYS.find((j) => j.id === id)?.title.charAt(0)}
                   </div>
                 ))}
               </div>
             </div>
-            <Button
-              size="sm"
-              onClick={() => setIsCompareModalOpen(true)}
-              className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full"
-            >
-              Compare Journeys <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-            <button
-              onClick={() => setSelectedJourneys([])}
-              className="text-slate-400 hover:text-white transition-colors"
-              aria-label="Clear selection"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={() => setIsCompareModalOpen(true)}
+                className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full text-xs md:text-sm px-3 md:px-4"
+              >
+                Compare <span className="hidden sm:inline ml-1">Journeys</span>{" "}
+                <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" />
+              </Button>
+              <button
+                onClick={() => setSelectedJourneys([])}
+                className="text-slate-400 hover:text-white transition-colors p-1"
+                aria-label="Clear selection"
+              >
+                <X className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1935,8 +1939,11 @@ function JourneyCard({
             {journey.category}
           </span>
           {journey.matchScore > 90 && (
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" /> {journey.matchScore}% Match
+            <span className="hidden md:block">
+              {" "}
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 flex items-center gap-1 ">
+                <CheckCircle className="w-3 h-3 " /> {journey.matchScore}% Match
+              </span>
             </span>
           )}
         </div>

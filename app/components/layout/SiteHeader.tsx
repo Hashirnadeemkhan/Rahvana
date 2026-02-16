@@ -166,11 +166,11 @@ export function SiteHeader({
     } else {
       // Fallback: Use router navigation if no handler is provided (e.g., in layout.tsx)
       const routes: Record<string, string> = {
-        home: "/?section=home",
+        home: "/",
         journeys: "/?section=journeys",
         "ir1-journey": "/?section=ir1-journey",
-        services: "/?section=services",
-        tools: "/?section=tools",
+        services: "/services",
+        tools: "/tools",
         pricing: "/pricing",
         dashboard: "/user-dashboard",
         mfa: "/mfa-setup",
@@ -733,7 +733,7 @@ export function SiteHeader({
                                   >
                                     <span className="flex items-center gap-2">
                                       {item.title}
-                                      {item.badge && (
+                                      {/* {item.badge && (
                                         <span
                                           className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                                             item.badge === "Live"
@@ -743,7 +743,7 @@ export function SiteHeader({
                                         >
                                           {item.badge}
                                         </span>
-                                      )}
+                                      )} */}
                                     </span>
                                   </Link>
                                 ))}
@@ -766,7 +766,7 @@ export function SiteHeader({
                               >
                                 <span className="flex items-center gap-2">
                                   {item.title}
-                                  {item.badge && (
+                                  {/* {item.badge && (
                                     <span
                                       className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                                         item.badge === "Live"
@@ -776,7 +776,7 @@ export function SiteHeader({
                                     >
                                       {item.badge}
                                     </span>
-                                  )}
+                                  )} */}
                                 </span>
                               </Link>
                             ))}

@@ -17,7 +17,15 @@ import {
   Wand2,
   FolderLock,
   ArrowRight,
+  ChevronDown,
 } from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // --- Data & Types ---
 
@@ -189,6 +197,81 @@ export default function ToolsPage() {
   const [selectedCategory, setSelectedCategory] = useState<
     "All" | ToolCategory
   >("All");
+  const [visibleCount, setVisibleCount] = useState(7); // Default to all
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const measureRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const calculateVisible = () => {
+      if (!containerRef.current || !measureRef.current) return;
+
+      const containerWidth = containerRef.current.clientWidth;
+      const measureItems = Array.from(
+        measureRef.current.children,
+      ) as HTMLDivElement[];
+
+      // Extract the More button width (last item) and Category widths
+      const moreButtonEl = measureItems[measureItems.length - 1];
+      const categoryEls = measureItems.slice(0, measureItems.length - 1);
+
+      const moreButtonWidth = moreButtonEl.offsetWidth;
+      const gap = 12; // gap-3 is 12px (0.75rem)
+
+      let totalWidth = 0;
+      let visible = 0;
+
+      // First pass: Check if ALL fit
+      for (let i = 0; i < categoryEls.length; i++) {
+        const itemWidth = categoryEls[i].offsetWidth;
+        const isLast = i === categoryEls.length - 1;
+        totalWidth += itemWidth;
+        if (!isLast) totalWidth += gap;
+      }
+
+      if (totalWidth <= containerWidth) {
+        setVisibleCount(CATEGORIES.length);
+        return;
+      }
+
+      // Second pass: Calculate how many fit WITH "More" button
+      totalWidth = 0;
+
+      for (let i = 0; i < categoryEls.length; i++) {
+        const itemWidth = categoryEls[i].offsetWidth;
+        // Check if adding this item + gap + MoreButton exceeds container
+        // Current accumulated + this item + (gap if not first) + gap + MoreButton
+        const gapWidth = i > 0 ? gap : 0;
+        const projectedWidth =
+          totalWidth + gapWidth + itemWidth + gap + moreButtonWidth;
+
+        if (projectedWidth <= containerWidth) {
+          visible++;
+          totalWidth += gapWidth + itemWidth;
+        } else {
+          break;
+        }
+      }
+
+      // Ensure at least 0 (or 1?) items are shown if possible, or 0 if even "More" doesn't fit?
+      // If "More" button alone doesn't fit, we have bigger layouts problems, but let's assume it fits.
+      setVisibleCount(visible);
+    };
+
+    calculateVisible();
+
+    // Add resize listener
+    const observer = new ResizeObserver(calculateVisible);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const visibleCategories = CATEGORIES.slice(0, visibleCount);
+  const hiddenCategories = CATEGORIES.slice(visibleCount);
+  const isMoreSelected = hiddenCategories.includes(selectedCategory as any);
 
   const filteredTools = TOOLS.filter((tool) => {
     const matchesSearch =
@@ -239,20 +322,79 @@ export default function ToolsPage() {
         </div>
 
         {/* Categories */}
-        <div className="flex gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar animate-fade-in [animation-delay:300ms]">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 ${
-                selectedCategory === cat
-                  ? "bg-primary text-primary-foreground border-primary shadow-md"
-                  : "bg-card text-muted-foreground border-border hover:border-primary hover:bg-primary/5 hover:text-primary"
-              }`}
+        <div ref={containerRef} className="relative w-full mb-8">
+          {/* Hidden container for measuring */}
+          <div
+            ref={measureRef}
+            aria-hidden="true"
+            className="absolute top-0 left-0 w-full flex flex-wrap gap-3 pointer-events-none opacity-0 z-[-1]"
+          >
+            {/* Render all categories to measure them */}
+            {CATEGORIES.map((cat) => (
+              <div
+                key={cat}
+                className="px-4 py-2.5 text-sm font-medium whitespace-nowrap border"
+                data-category={cat}
+              >
+                {cat}
+              </div>
+            ))}
+            {/* Force render the More button to measure it */}
+            <div
+              data-more-button="true"
+              className="px-4 py-2.5 text-sm font-medium whitespace-nowrap border flex items-center gap-1"
             >
-              {cat}
-            </button>
-          ))}
+              More <ChevronDown className="w-4 h-4 ml-1" />
+            </div>
+          </div>
+
+          {/* Visible Container */}
+          <div className="flex flex-wrap gap-3 animate-fade-in [animation-delay:300ms]">
+            {visibleCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 ${
+                  selectedCategory === cat
+                    ? "bg-primary text-primary-foreground border-primary shadow-md"
+                    : "bg-card text-muted-foreground border-border hover:border-primary hover:bg-primary/5 hover:text-primary"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+
+            {hiddenCategories.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={`px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 flex items-center gap-1 ${
+                      isMoreSelected
+                        ? "bg-primary text-primary-foreground border-primary shadow-md"
+                        : "bg-card text-muted-foreground border-border hover:border-primary hover:bg-primary/5 hover:text-primary"
+                    }`}
+                  >
+                    More <ChevronDown className="w-4 h-4 ml-1" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-[200px]">
+                  {hiddenCategories.map((cat) => (
+                    <DropdownMenuItem
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`cursor-pointer ${
+                        selectedCategory === cat
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : ""
+                      }`}
+                    >
+                      {cat}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
 
         {/* Tools Grid */}
