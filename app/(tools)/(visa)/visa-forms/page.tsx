@@ -588,7 +588,7 @@ export default function VisaFormSelector() {
   const [currentJourney, setCurrentJourney] = useState("IR1-CR1");
   const [currentStage, setCurrentStage] = useState("USCIS Filing");
   // const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
+  // const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
   const [selectedForm, setSelectedForm] = useState<VisaForm | null>(null);
   const [toast, setToast] = useState<{
     message: string;
@@ -663,6 +663,11 @@ export default function VisaFormSelector() {
         form.category.some((cat) => activeFilters.category.includes(cat)));
 
     return matchAgency && matchCategory;
+  }).sort((a, b) => {
+    if (currentView === "all") {
+      return a.code.localeCompare(b.code);
+    }
+    return 0;
   });
 
   return (
@@ -969,14 +974,20 @@ export default function VisaFormSelector() {
                   return (
                     <div
                       key={form.code}
-                      className="group relative bg-white rounded-tl-[3.5rem] rounded-br-[3.5rem] rounded-tr-2xl rounded-bl-2xl shadow-sm hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-1 transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col h-[340px]"
+                      className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-1 transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col h-[340px]"
                     >
                       {/* Top Accent Line */}
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-[#0d7377] to-teal-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                      <div className="absolute top-0 left-0 right-10 h-1 bg-linear-to-r from-[#0d7377] to-teal-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+
+                      {/* Folded Corner Effect */}
+                      <div className="absolute top-0 right-0 w-10 h-10 overflow-hidden">
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-40 border-l-40 border-t-gray-50 border-l-transparent drop-shadow-sm group-hover:border-t-gray-50 transition-colors duration-300 z-10" />
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-40 border-l-40 border-t-gray-50 border-l-gray-50 shadow-md" />
+                      </div>
 
                       <div className="p-7 flex flex-col h-full relative">
                         {/* Header */}
-                        <div className="flex justify-between items-start mb-5">
+                        <div className="flex justify-between items-start mb-5 mr-8">
                           <div>
                             <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight group-hover:text-[#0d7377] transition-colors">
                               {form.code}

@@ -590,7 +590,6 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Track interview scheduling movement and trends by category.",
             href: "#",
-            disabled: true,
           },
           {
             icon: <Search className="h-5 w-5" />,
@@ -830,7 +829,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             icon: <MessageSquare className="h-5 w-5" />,
             title: "Book a Consultation",
             description: "Book a call — your first consult is free.",
-            href: "/book-appointment",
+            href: "/book-consultation",
           },
           {
             icon: <Users className="h-5 w-5" />,
@@ -851,6 +850,8 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "PCC Filing Service — Sindh",
             description: "Done-for-you police certificate filing for Sindh.",
             href: "#",
+            badge: "Soon",
+            disabled: true,
           },
           {
             icon: <Shield className="h-5 w-5" />,
@@ -889,9 +890,8 @@ export const NAV_DATA: Record<string, NavSection> = {
             icon: <Heart className="h-5 w-5" />,
             title: "Book Medical Appointment",
             description: "Book your panel physician medical exam appointment.",
-            href: "#",
-            badge: "Soon",
-            disabled: true,
+            href: "/book-appointment",
+            badge: "Live",
           },
         ],
       },
