@@ -11,7 +11,7 @@ import {
   Users,
   Briefcase,
   FileCheck,
-  // BookOpen,
+  BookOpen,
   ArrowRight,
   GraduationCap,
   Scale,
@@ -32,6 +32,7 @@ type GuideCategory =
   | "Financial & Sponsorship"
   | "Medical & Exam"
   | "Relationship Evidence"
+  | "Education & Process"
   | "Visa Strategy";
 
 interface Guide {
@@ -90,58 +91,11 @@ const GUIDES: Guide[] = [
     icon: Globe,
   },
   {
-<<<<<<< HEAD
     id: "pcc-reference",
     title: "PCC Reference Guide",
     description:
       "Comprehensive overview of Police Character Certificates for all provinces.",
     category: "Pakistan Docs",
-=======
-    title: "CNIC (National ID Card)",
-    description: "Complete guide to obtaining and renewing your NADRA CNIC",
-    href: "/guides/cnic",
-    icon: <FileText className="h-6 w-6" />,
-    category: "Identity & Civil Documents",
-    difficulty: "Easy",
-  },
-  {
-    title: "Birth Certificate",
-    description: "NADRA CRC, B-Form, and alternative birth documentation",
-    href: "/guides/birth-certificate",
-    icon: <FileText className="h-6 w-6" />,
-    category: "Identity & Civil Documents",
-    difficulty: "Medium",
-  },
-  {
-    title: "Nikahnama & Marriage Certificate",
-    description: "How to obtain and register your Nikah Nama and NADRA Marriage Certificate",
-    href: "/guides/nikah-nama-guide",
-    icon: <Heart className="h-6 w-6" />,
-    category: "Identity & Civil Documents",
-    difficulty: "Medium",
-  },
-  {
-    title: "Family Registration Certificate (FRC)",
-    description: "How to obtain FRC from NADRA for relationship proof",
-    href: "/guides/frc",
-    icon: <Users className="h-6 w-6" />,
-    category: "Identity & Civil Documents",
-    difficulty: "Easy",
-  },
-  {
-    title: "Divorce & Death Certificates",
-    description: "Termination of prior marriages documentation",
-    href: "/guides/prior-marriage-termination",
-    icon: <FileCheck className="h-6 w-6" />,
-    category: "Identity & Civil Documents",
-    difficulty: "Medium",
-  },
-
-  // Police & Legal Documents
-  {
-    title: "Police Character Certificate (PCC)",
-    description: "Complete guide for all provinces: Sindh, Punjab, KPK, Balochistan",
->>>>>>> hashir
     href: "/guides/police-certificate",
     icon: Shield,
   },
@@ -319,12 +273,13 @@ const GUIDES: Guide[] = [
     icon: GraduationCap,
   },
   {
+    id: "educational-docs",
     title: "Educational Certificates (US Visa)",
-    description: "Complete roadmap: HEC/IBCC attestation, WES evaluation, and I-20 requirements",
+    description:
+      "Complete roadmap: HEC/IBCC attestation, WES evaluation, and I-20 requirements.",
     href: "/guides/educational-certificates-us-visa",
-    icon: <BookOpen className="h-6 w-6" />,
+    icon: BookOpen,
     category: "Education & Process",
-    difficulty: "Complex",
   },
 ];
 
@@ -336,6 +291,7 @@ const CATEGORIES: ("All" | GuideCategory)[] = [
   "Financial & Sponsorship",
   "Medical & Exam",
   "Relationship Evidence",
+  "Education & Process",
   "Visa Strategy",
 ];
 
@@ -480,6 +436,13 @@ const CATEGORY_STYLES: Record<
     link: "text-violet-600 dark:text-violet-400",
     borderGradient:
       "from-violet-400 to-violet-300 dark:from-violet-400 dark:to-violet-300",
+  },
+  "Education & Process": {
+    iconBox: "bg-amber-600 text-white border-transparent dark:bg-amber-500",
+    innerBox: "bg-white/20",
+    link: "text-amber-600 dark:text-amber-400",
+    borderGradient:
+      "from-amber-400 to-amber-300 dark:from-amber-400 dark:to-amber-300",
   },
 };
 
