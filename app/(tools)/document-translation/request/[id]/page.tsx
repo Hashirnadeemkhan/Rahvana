@@ -235,7 +235,7 @@ export default function TranslationRequestDetails({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-gray-800 py-12 px-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 text-gray-800 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -273,7 +273,7 @@ export default function TranslationRequestDetails({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-gray-800 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 text-gray-800 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <header className="mb-8">
@@ -318,7 +318,7 @@ export default function TranslationRequestDetails({
               </h3>
               <div className="space-y-3">
                 <div className="flex items-start">
-                  <FileText className="w-5 h-5 text-primary/80 mt-0.5 mr-3 flex-shrink-0" />
+                  <FileText className="w-5 h-5 text-primary/80 mt-0.5 mr-3 shrink-0" />
                   <div>
                     <p className="text-sm text-gray-500">Document Type</p>
                     <p className="font-medium">
@@ -329,7 +329,7 @@ export default function TranslationRequestDetails({
                 </div>
 
                 <div className="flex items-start">
-                  <Calendar className="w-5 h-5 text-primary/80 mt-0.5 mr-3 flex-shrink-0" />
+                  <Calendar className="w-5 h-5 text-primary/80 mt-0.5 mr-3 shrink-0" />
                   <div>
                     <p className="text-sm text-gray-500">Submitted Date</p>
                     <p className="font-medium">
@@ -340,7 +340,7 @@ export default function TranslationRequestDetails({
 
                 {request.translatedUploadedAt && (
                   <div className="flex items-start">
-                    <Clock className="w-5 h-5 text-primary/80 mt-0.5 mr-3 flex-shrink-0" />
+                    <Clock className="w-5 h-5 text-primary/80 mt-0.5 mr-3 shrink-0" />
                     <div>
                       <p className="text-sm text-gray-500">Translated On</p>
                       <p className="font-medium">

@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     const emailHtml = getEmailConfirmationHtml(confirmLink);
     const { success, error: emailError } = await sendEmail({
       to: email,
-      subject: "Confirm Your Email - Arachnie",
+      subject: "Confirm Your Email - Rahvana",
       html: emailHtml,
     });
 

@@ -10,10 +10,10 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
   'visaType': ['visaType', 'caseType', 'visa_type', 'case_type', 'visa_category', 'visaCategory', 'visa_class', 'Visa Type', 'visa-type'],
   
   // --- Personal ---
-  'name.first': ['p1_given_name', 'first_name', 'given_name', 'applicant_first_name', 'sponsor_first_name', 'givenName', 'firstName', 'S01-Q001_first'],
-  'name.middle': ['p1_middle_name', 'middle_name', 'applicant_middle_name', 'sponsor_middle_name', 'middleName', 'S01-Q001_middle'],
-  'name.last': ['p1_family_name', 'family_name', 'surname', 'last_name', 'applicant_last_name', 'sponsor_last_name', 'S01-Q001_last', 'S01-Q001'],
-  'dateOfBirth': ['S01-Q006', 'dob', 'date_of_birth', 'birth_date', 'sponsor_dob', 'applicant_dob', 'dateOfBirth', 'beneficiary_dob'],
+  'name.first': ['pt1_l6b_givenname', 'p1_given_name', 'first_name', 'given_name', 'applicant_first_name', 'sponsor_first_name', 'givenName', 'firstName', 'S01-Q001_first'],
+  'name.middle': ['pt1_l6c_middlename', 'p1_middle_name', 'middle_name', 'applicant_middle_name', 'sponsor_middle_name', 'middleName', 'S01-Q001_middle'],
+  'name.last': ['pt1_l6a_familyname', 'p1_family_name', 'family_name', 'surname', 'last_name', 'applicant_last_name', 'sponsor_last_name', 'S01-Q001_last', 'S01-Q001', 'last_name'],
+  'dateOfBirth': ['pt1_l22_dateofbirth', 'S01-Q006', 'dob', 'date_of_birth', 'birth_date', 'sponsor_dob', 'applicant_dob', 'dateOfBirth', 'beneficiary_dob', 'dob'],
   'placeOfBirth.city': ['S01-Q007', 'city_of_birth', 'birth_city'],
   'placeOfBirth.state': ['S01-Q008', 'state_of_birth', 'province_of_birth', 'birth_state'],
   'placeOfBirth.country': ['S01-Q009', 'country_of_birth', 'birth_country'],
@@ -22,13 +22,13 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
   'maritalStatus': ['S01-Q005', 'marital_status', 'civil_status', 'current_marital_status'],
 
   // --- Contact ---
-  'phone': ['p4_phone', 'phone_number', 'telephone', 'contact_number', 'daytime_phone', 'contactNumber', 'mobile', 'sponsor_phone', 'contactNumber'],
-  'email': ['p4_email', 'email_address', 'contact_email', 'email', 'sponsor_email'],
-  'currentAddress.street': ['p1_addr1_street', 'street_address', 'address_line_1', 'current_street', 'mailing_street', 'address', 'sponsor_street'],
-  'currentAddress.city': ['p1_addr1_city', 'city_name', 'current_city', 'mailing_city', 'city', 'sponsor_city'],
-  'currentAddress.state': ['p1_addr1_state', 'state_province', 'current_state', 'mailing_state', 'state', 'sponsor_state'],
-  'currentAddress.zipCode': ['p1_addr1_zip', 'zip', 'postal_code', 'zip_code', 'current_zip', 'mailing_zip', 'zipCode', 'sponsor_zip'],
-  'currentAddress.country': ['p1_addr1_country', 'country_name', 'current_country', 'mailing_country', 'country_of_residence', 'beneficiary_country', 'destinationCountry', 'country', 'sponsor_country'],
+  'phone': ['pt5_l1_daytimephonenumber1', 'pt5_l2_mobilenumber1', 'p4_phone', 'phone_number', 'telephone', 'contact_number', 'daytime_phone', 'contactNumber', 'mobile', 'sponsor_phone', 'contactNumber'],
+  'email': ['pt5_l3_email', 'p4_email', 'email_address', 'contact_email', 'email', 'sponsor_email'],
+  'currentAddress.street': ['pt1_l9_streetnumbername', 'pt1_l8_streetnumbername', 'p1_addr1_street', 'street_address', 'address_line_1', 'current_street', 'mailing_street', 'address', 'sponsor_street'],
+  'currentAddress.city': ['pt1_l9_cityortown', 'pt1_l8_cityortown', 'p1_addr1_city', 'city_name', 'current_city', 'mailing_city', 'city', 'sponsor_city'],
+  'currentAddress.state': ['pt1_l9_state', 'pt1_l8_state', 'p1_addr1_state', 'state_province', 'current_state', 'mailing_state', 'state', 'sponsor_state'],
+  'currentAddress.zipCode': ['pt1_l9_zipcode', 'pt1_l8_zipcode', 'p1_addr1_zip', 'zip', 'postal_code', 'zip_code', 'current_zip', 'mailing_zip', 'zipCode', 'sponsor_zip'],
+  'currentAddress.country': ['pt1_l9_country', 'pt1_l8_country', 'p1_addr1_country', 'country_name', 'current_country', 'mailing_country', 'country_of_residence', 'beneficiary_country', 'destinationCountry', 'country', 'sponsor_country'],
   'intendedUSState': ['intended_us_state_of_residence', 'intended_state', 'destination_state', 'state_of_residence'],
 
   // --- Identifiers ---
@@ -38,7 +38,7 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
   'passportCountry': ['passport_country', 'passportCountry', 'country_of_passport', 'issuing_country'],
   'ssn': ['ssn', 'social_security_number'],
   'alienNumber': ['p1_alien_number', 'a_number', 'alien_registration_number', 'alien_number'],
-  'uscisAccountNumber': ['uscis_account_number', 'uscisAccountNumber', 'uscis_number'],
+  'uscisAccountNumber': ['uscis_account_number', 'uscisAccountNumber', 'uscis_number', 'uscis_account'],
   'cnic': ['cnic', 'national_id', 'id_number', 'national_id_number'],
 
   // --- Relationship ---
@@ -175,11 +175,18 @@ export const FIELD_MAPPINGS: Record<string, string[]> = {
   'sponsor.address.country': ['sponsor_country'],
   
   // --- Beneficiary Information (when user is sponsor) ---
-  'beneficiary.name.first': ['beneficiary_first_name', 'beneficiary_given_name', 'applicant_first_name'],
-  'beneficiary.name.middle': ['beneficiary_middle_name', 'applicant_middle_name'],
-  'beneficiary.name.last': ['beneficiary_last_name', 'beneficiary_family_name', 'applicant_last_name'],
-  'beneficiary.dateOfBirth': ['beneficiary_dob', 'beneficiary_date_of_birth', 'applicant_dob'],
-  'beneficiary.countryOfResidence': ['beneficiary_country', 'country_of_residence', 'applicant_country'],
+  'beneficiary.name.first': ['pt2_l1b_givenname', 'beneficiary_first_name', 'beneficiary_given_name', 'applicant_first_name', 'fiance_given_name'],
+  'beneficiary.name.middle': ['pt2_l1c_middlename', 'beneficiary_middle_name', 'applicant_middle_name', 'fiance_middle_name'],
+  'beneficiary.name.last': ['pt2_l1a_familyname', 'beneficiary_last_name', 'beneficiary_family_name', 'applicant_last_name', 'fiance_family_name'],
+  'beneficiary.dateOfBirth': ['pt2_l4_dateofbirth', 'beneficiary_dob', 'beneficiary_date_of_birth', 'applicant_dob', 'fiance_dob'],
+  'beneficiary.countryOfResidence': ['pt2_l11_country', 'beneficiary_country', 'country_of_residence', 'applicant_country', 'fiance_addr_country'],
+  'beneficiary.alienNumber': ['pt2_l2_aliennumber', 'beneficiary_a_number', 'fiance_a_number', 'beneficiary_alien_number'],
+  'beneficiary.ssn': ['pt2_l3_ssn', 'beneficiary_ssn', 'fiance_ssn'],
+  'beneficiary.address.street': ['pt2_l11_streetnumbername', 'beneficiary_street', 'fiance_street'],
+  'beneficiary.address.city': ['pt2_l11_cityortown', 'beneficiary_city', 'fiance_city'],
+  'beneficiary.address.state': ['pt2_l11_state', 'beneficiary_state', 'fiance_state'],
+  'beneficiary.address.zipCode': ['pt2_l11_postalcode', 'pt2_l11_zipcode', 'beneficiary_zip'],
+  'beneficiary.address.country': ['pt2_l11_country', 'beneficiary_country', 'fiance_country'],
   
   // --- Full Name Fields (for forms that ask for full name in one field) ---
   'fullName': ['full_name', 'fullName', 'sponsor_full_name', 'beneficiary_full_name', 'applicant_full_name'],

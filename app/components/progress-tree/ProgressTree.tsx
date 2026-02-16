@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, ChevronDown, ChevronRight, Circle, CheckCircle2, Clock, Lock } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Circle,
+  CheckCircle2,
+  Clock,
+  Lock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type StepStatus = "completed" | "in-progress" | "pending" | "locked";
@@ -22,7 +30,7 @@ interface ProgressTreeProps {
   showProgress?: boolean;
 }
 
-const getStatusIcon = (status: StepStatus,) => {
+const getStatusIcon = (status: StepStatus) => {
   switch (status) {
     case "completed":
       return <CheckCircle2 className="w-5 h-5 text-green-600" />;
@@ -92,7 +100,7 @@ const TreeNode: React.FC<{
           "flex items-start gap-3 mb-2 p-3 rounded-lg border-2 transition-all",
           getStatusColor(step.status),
           step.status !== "locked" && "cursor-pointer hover:shadow-md",
-          "relative"
+          "relative",
         )}
         style={{ marginLeft: `${level * 24}px` }}
         onClick={step.status !== "locked" ? handleClick : undefined}
@@ -104,7 +112,7 @@ const TreeNode: React.FC<{
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
-            className="flex-shrink-0 p-1 hover:bg-gray-200 rounded transition-colors"
+            className="shrink-0 p-1 hover:bg-gray-200 rounded transition-colors"
           >
             {isExpanded ? (
               <ChevronDown className="w-4 h-4" />
@@ -115,23 +123,27 @@ const TreeNode: React.FC<{
         )}
 
         {/* Status icon */}
-        <div className="flex-shrink-0 mt-0.5">{getStatusIcon(step.status)}</div>
+        <div className="shrink-0 mt-0.5">{getStatusIcon(step.status)}</div>
 
         {/* Step details */}
         <div className="flex-1 min-w-0">
-          <h4 className={cn(
-            "font-semibold text-sm",
-            step.status === "completed" && "text-green-700",
-            step.status === "in-progress" && "text-blue-700",
-            step.status === "locked" && "text-gray-400"
-          )}>
+          <h4
+            className={cn(
+              "font-semibold text-sm",
+              step.status === "completed" && "text-green-700",
+              step.status === "in-progress" && "text-blue-700",
+              step.status === "locked" && "text-gray-400",
+            )}
+          >
             {step.title}
           </h4>
           {step.description && (
-            <p className={cn(
-              "text-xs mt-1",
-              step.status === "locked" ? "text-gray-400" : "text-gray-600"
-            )}>
+            <p
+              className={cn(
+                "text-xs mt-1",
+                step.status === "locked" ? "text-gray-400" : "text-gray-600",
+              )}
+            >
               {step.description}
             </p>
           )}
@@ -139,7 +151,7 @@ const TreeNode: React.FC<{
 
         {/* Completion badge */}
         {step.status === "completed" && (
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
               <Check className="w-3 h-3" />
               Done
@@ -166,7 +178,9 @@ const TreeNode: React.FC<{
   );
 };
 
-const calculateProgress = (steps: TreeStep[]): { completed: number; total: number } => {
+const calculateProgress = (
+  steps: TreeStep[],
+): { completed: number; total: number } => {
   let completed = 0;
   let total = 0;
 
@@ -214,7 +228,9 @@ export const ProgressTree: React.FC<ProgressTreeProps> = ({
               style={{ width: `${percentage}%` }}
             >
               {percentage > 10 && (
-                <span className="text-white text-xs font-bold">{percentage}%</span>
+                <span className="text-white text-xs font-bold">
+                  {percentage}%
+                </span>
               )}
             </div>
           </div>

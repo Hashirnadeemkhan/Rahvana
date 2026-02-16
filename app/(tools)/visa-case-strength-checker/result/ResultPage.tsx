@@ -269,7 +269,7 @@ export function ResultPage({ sessionId, onRestart, onEdit, onSaveToProfile }: Re
                       {flag.explanation}
                     </p>
                     <div className="flex gap-3 text-base text-red-700">
-                      <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                      <Info className="h-5 w-5 mt-0.5 shrink-0" />
                       <span>
                         <span className="font-medium">Action needed:</span>{" "}
                         {flag.improvementSuggestions}
@@ -315,7 +315,7 @@ export function ResultPage({ sessionId, onRestart, onEdit, onSaveToProfile }: Re
                       {flag.explanation}
                     </p>
                     <div className="flex gap-3 text-base text-yellow-700">
-                      <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                      <Info className="h-5 w-5 mt-0.5 shrink-0" />
                       <span>
                         <span className="font-medium">Consider:</span>{" "}
                         {flag.improvementSuggestions}
@@ -361,7 +361,7 @@ export function ResultPage({ sessionId, onRestart, onEdit, onSaveToProfile }: Re
                       {flag.explanation}
                     </p>
                     <div className="flex gap-3 text-base text-blue-700">
-                      <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                      <Info className="h-5 w-5 mt-0.5 shrink-0" />
                       <span>
                         <span className="font-medium">Suggestion:</span>{" "}
                         {flag.improvementSuggestions}

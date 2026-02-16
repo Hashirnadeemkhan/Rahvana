@@ -69,13 +69,14 @@ export async function POST(request: NextRequest) {
 
     // Build reset URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.headers.get("origin") || "http://localhost:3000";
-    const resetLink = `${baseUrl}/auth/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
+    const resetLink = `${baseUrl}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
+    console.log("DEBUG: Generated Reset Link:", resetLink);
 
     // Send email via Resend
     const emailHtml = getPasswordResetEmailHtml(resetLink);
     const { success, error: emailError } = await sendEmail({
       to: email,
-      subject: "Reset Your Password - Arachnie",
+      subject: "Reset Your Password - Rahvana",
       html: emailHtml,
     });
 
