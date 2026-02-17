@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,14 +32,20 @@ export default function SettingsPage() {
   const [message, setMessage] = useState("");
   const [profile, setProfile] = useState<{ mfa_enabled: boolean } | null>(null);
 
+  // Track if we've already fetched for this user
+  const hasFetchedRef = useRef<string | null>(null);
+
+  // Memoize user ID to prevent unnecessary re-renders
+  const userId = useMemo(() => user?.id, [user?.id]);
+
   const fetchProfile = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("mfa_enabled")
-        .eq("id", user.id)
+        .eq("id", userId)
         .maybeSingle();
 
       if (error) {
@@ -57,9 +63,15 @@ export default function SettingsPage() {
     } catch (err) {
       console.error("Unexpected fetchProfile error:", err);
     }
-  }, [supabase, user?.id]);
+  }, [supabase, userId]);
 
   const fetchSettings = useCallback(async () => {
+    // Skip if we've already fetched for this user
+    if (!userId || hasFetchedRef.current === userId) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -67,7 +79,7 @@ export default function SettingsPage() {
       const { data, error } = await supabase
         .from("user_settings")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", userId)
         .single();
 
       if (error) {
@@ -86,17 +98,20 @@ export default function SettingsPage() {
           push: data.push_notifications || true,
         });
 
-        setAccountSettings({
-          twoFactorEnabled: data.two_factor_enabled || false,
+        setAccountSettings((prev) => ({
+          ...prev,
           autoBackup: data.auto_backup || true,
-        });
+        }));
       }
+
+      // Mark as fetched for this user
+      hasFetchedRef.current = userId;
     } catch (error) {
       console.error("Error in fetchSettings:", error);
     } finally {
       setLoading(false);
     }
-  }, [supabase, user?.id]);
+  }, [supabase, userId]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -104,11 +119,13 @@ export default function SettingsPage() {
       return;
     }
 
-    if (user) {
+    if (userId && hasFetchedRef.current !== userId) {
       fetchSettings();
-      fetchProfile(); // Fetch MFA from profiles
+      fetchProfile();
+    } else if (userId) {
+      setLoading(false);
     }
-  }, [user, isLoading, router, fetchSettings]);
+  }, [userId, isLoading, router, fetchSettings, fetchProfile]);
 
   const handleNotificationChange = (type: string) => {
     setNotifications((prev) => ({
