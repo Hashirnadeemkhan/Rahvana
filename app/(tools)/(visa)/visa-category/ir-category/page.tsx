@@ -23,7 +23,7 @@ export default function IRCategorySection() {
   // Modal state
   // const [isRoadmapOpen, setIsRoadmapOpen] = useState(false);
   // const [activeRoadmap, setActiveRoadmap] = useState({ title: "" });
-  const [selectedOrigin, setSelectedOrigin] = useState<string>("Pakistan");
+  const [selectedOrigin, setSelectedOrigin] = useState<string>("");
   const [selectedDestination, setSelectedDestination] = useState<string>("United States");
 
   // IR Category items

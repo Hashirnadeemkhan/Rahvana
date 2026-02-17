@@ -106,7 +106,7 @@ const JOURNEY_DETAILS: Record<string, Station[]> = {
       label: "Interview",
       summary: "Embassy interview",
       whatYouDo:
-        "Attend visa interview at U.S. embassy in Pakistan (Islamabad or Karachi).",
+        "Attend visa interview at a U.S. embassy or consulate.",
       uploadsNeeded: [
         "Passport",
         "Medical exam results",
@@ -162,7 +162,7 @@ const JOURNEY_DETAILS: Record<string, Station[]> = {
       key: "interview",
       label: "Interview",
       summary: "Consulate Visit",
-      whatYouDo: "Parent attends interview at U.S. Embassy.",
+      whatYouDo: "Parent attends interview at a U.S. Embassy or Consulate.",
       uploadsNeeded: ["Medical Exam", "Passport", "Photos"],
       pitfalls: ["Medical inadmissibility", "Missing original docs"],
     },
@@ -274,19 +274,19 @@ const JOURNEYS: Journey[] = [
     bestFor: "Married couples where one spouse is a U.S. citizen",
     stations: 5,
     difficulty: "Medium",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "File I-130 with USCIS (4-12 months)",
       "NVC document processing (2-4 months)",
       "Schedule embassy interview (1-3 months)",
-      "Attend interview in Pakistan",
+      "Attend embassy interview",
       "Receive visa and travel to U.S.",
     ],
     introVideo: {
       title: "Spouse & Fiancé Visa Process Explained",
       duration: "4:30",
       description:
-        "Learn how to bring your spouse to the U.S. using the IR-1/CR-1 visa. This guide covers the I-130 petition, NVC processing, and the crucial interview stage in Islamabad or Karachi.",
+        "Learn how to bring your spouse to the U.S. using the IR-1/CR-1 visa. This guide covers the I-130 petition, NVC processing, and the crucial interview stage.",
     },
   },
   {
@@ -303,7 +303,7 @@ const JOURNEYS: Journey[] = [
     bestFor: "Parents of U.S. citizens (over 21)",
     stations: 5,
     difficulty: "Medium",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "File I-130 with USCIS",
       "NVC processing",
@@ -332,7 +332,7 @@ const JOURNEYS: Journey[] = [
     bestFor: "Students accepted into U.S. academic programs",
     stations: 3,
     difficulty: "Low",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "Apply to School",
       "Receive I-20",
@@ -362,7 +362,7 @@ const JOURNEYS: Journey[] = [
       "Professionals with bachelor's degree or higher in specialty occupations",
     stations: 4,
     difficulty: "High",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "Employer files Petition",
       "USCIS Approval",
@@ -1231,13 +1231,13 @@ export default function ExploreJourneys({
                     </tr>
                     <tr>
                       <td className="py-4 px-4 font-bold text-slate-800">
-                        Pakistan-Focused
+                        Priority Path
                       </td>
                       {selectedJourneys.map((id) => {
                         const journey = JOURNEYS.find((j) => j.id === id);
                         return (
                           <td key={id} className="py-4 px-4 text-slate-600">
-                            {journey?.pakistanFocused ? "Yes" : "No"}
+                            {journey?.matchScore > 90 ? "Yes" : "Standard"}
                           </td>
                         );
                       })}
@@ -1439,10 +1439,10 @@ export default function ExploreJourneys({
               <div className="flex flex-col justify-end">
                 <Button
                   onClick={() => setIsVisaWizardOpen(true)}
-                  className="w-full h-[46px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2 group"
+                  className="w-full h-[54px] bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-900/20 transition-all flex items-center justify-center gap-3 group active:scale-[0.98] border border-teal-500/30"
                 >
-                  <CheckCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  Check Best Visa
+                  <CheckCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                  Check Your Visa Eligibility
                 </Button>
               </div>
             </div>
@@ -1913,9 +1913,9 @@ function JourneyCard({
           {journey.stations} stations
         </div>
         {/* Removed difficulty level as per request */}
-        {journey.pakistanFocused && (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 border border-teal-200 text-xs font-medium text-teal-700">
-            Pakistan-focused
+        {journey.matchScore > 95 && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
+            High Approval Rate
           </div>
         )}
       </div>
