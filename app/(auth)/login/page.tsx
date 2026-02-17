@@ -137,6 +137,8 @@ function LoginContent() {
         } else {
           // setError(signInError.message);
         }
+        setIsSubmitting(false);
+        return;
       }
 
       // MFA required
@@ -169,6 +171,8 @@ function LoginContent() {
         challengeId,
         mfaCode
       );
+
+      console.log("IP:", await fetch("https://api.ipify.org").then(r => r.text()))
 
       if (success) {
         router.replace("/");
