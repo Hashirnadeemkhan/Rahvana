@@ -98,9 +98,16 @@ export default function SignupPage() {
 
   const handleGoogleSignIn = async () => {
     setError("");
-    const { error: googleError } = await signInWithGoogle();
-    if (googleError) {
-      setError("Failed to sign up with Google. Please try again.");
+    setIsSubmitting(true);
+    try {
+      const { error: googleError } = await signInWithGoogle();
+      if (googleError) {
+        setError("Failed to sign up with Google. Please try again.");
+        setIsSubmitting(false);
+      }
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
@@ -473,6 +480,26 @@ export default function SignupPage() {
           </Link>
         </p>
       </div>
+
+      {/* Full-screen Loading Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background/60 backdrop-blur-md transition-all duration-300">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-10 h-10 border-4 border-primary/10 border-b-primary rounded-full animate-spin-reverse" />
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <h2 className="text-2xl font-bold text-foreground">
+              Creating Account...
+            </h2>
+            <p className="text-muted-foreground animate-pulse text-lg">
+              Setting up your secure workspace
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
