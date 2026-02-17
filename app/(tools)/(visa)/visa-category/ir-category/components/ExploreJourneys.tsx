@@ -106,7 +106,7 @@ const JOURNEY_DETAILS: Record<string, Station[]> = {
       label: "Interview",
       summary: "Embassy interview",
       whatYouDo:
-        "Attend visa interview at U.S. embassy in Pakistan (Islamabad or Karachi).",
+        "Attend visa interview at a U.S. embassy or consulate.",
       uploadsNeeded: [
         "Passport",
         "Medical exam results",
@@ -162,7 +162,7 @@ const JOURNEY_DETAILS: Record<string, Station[]> = {
       key: "interview",
       label: "Interview",
       summary: "Consulate Visit",
-      whatYouDo: "Parent attends interview at U.S. Embassy.",
+      whatYouDo: "Parent attends interview at a U.S. Embassy or Consulate.",
       uploadsNeeded: ["Medical Exam", "Passport", "Photos"],
       pitfalls: ["Medical inadmissibility", "Missing original docs"],
     },
@@ -274,19 +274,19 @@ const JOURNEYS: Journey[] = [
     bestFor: "Married couples where one spouse is a U.S. citizen",
     stations: 5,
     difficulty: "Medium",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "File I-130 with USCIS (4-12 months)",
       "NVC document processing (2-4 months)",
       "Schedule embassy interview (1-3 months)",
-      "Attend interview in Pakistan",
+      "Attend embassy interview",
       "Receive visa and travel to U.S.",
     ],
     introVideo: {
       title: "Spouse & Fiancé Visa Process Explained",
       duration: "4:30",
       description:
-        "Learn how to bring your spouse to the U.S. using the IR-1/CR-1 visa. This guide covers the I-130 petition, NVC processing, and the crucial interview stage in Islamabad or Karachi.",
+        "Learn how to bring your spouse to the U.S. using the IR-1/CR-1 visa. This guide covers the I-130 petition, NVC processing, and the crucial interview stage.",
     },
   },
   {
@@ -303,7 +303,7 @@ const JOURNEYS: Journey[] = [
     bestFor: "Parents of U.S. citizens (over 21)",
     stations: 5,
     difficulty: "Medium",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "File I-130 with USCIS",
       "NVC processing",
@@ -332,7 +332,7 @@ const JOURNEYS: Journey[] = [
     bestFor: "Students accepted into U.S. academic programs",
     stations: 3,
     difficulty: "Low",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "Apply to School",
       "Receive I-20",
@@ -362,7 +362,7 @@ const JOURNEYS: Journey[] = [
       "Professionals with bachelor's degree or higher in specialty occupations",
     stations: 4,
     difficulty: "High",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "Employer files Petition",
       "USCIS Approval",
@@ -1165,7 +1165,7 @@ export default function ExploreJourneys({
                         return (
                           <th
                             key={id}
-                            className="py-4 px-4 font-bold text-slate-900 min-w-[200px]"
+                            className="py-4 px-4 font-bold text-slate-900 min-w-50"
                           >
                             {journey?.title || "Unknown"}
                           </th>
@@ -1231,13 +1231,13 @@ export default function ExploreJourneys({
                     </tr>
                     <tr>
                       <td className="py-4 px-4 font-bold text-slate-800">
-                        Pakistan-Focused
+                        Priority Path
                       </td>
                       {selectedJourneys.map((id) => {
                         const journey = JOURNEYS.find((j) => j.id === id);
                         return (
                           <td key={id} className="py-4 px-4 text-slate-600">
-                            {journey?.pakistanFocused ? "Yes" : "No"}
+                            {(journey?.matchScore ?? 0) > 90 ? "Yes" : "Standard"}
                           </td>
                         );
                       })}
@@ -1439,10 +1439,10 @@ export default function ExploreJourneys({
               <div className="flex flex-col justify-end">
                 <Button
                   onClick={() => setIsVisaWizardOpen(true)}
-                  className="w-full h-[46px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2 group"
+                  className="w-full h-13.5 bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-900/20 transition-all flex items-center justify-center gap-3 group active:scale-[0.98] border border-teal-500/30"
                 >
-                  <CheckCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  Check Best Visa
+                  <CheckCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                  Check Your Visa Eligibility
                 </Button>
               </div>
             </div>
@@ -1507,7 +1507,7 @@ export default function ExploreJourneys({
 
         {/* Preview Panel */}
         <div className="lg:col-span-3 lg:h-[calc(100vh-180px)] lg:overflow-y-auto h-auto pb-24 scroll-smooth">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-[300px] lg:min-h-[600px] flex flex-col">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-75 lg:min-h-150 flex flex-col">
             {highlightedJourney ? (
               <>
                 {/* Header */}
@@ -1527,7 +1527,7 @@ export default function ExploreJourneys({
                 <div className="flex-1 flex flex-col p-4 md:p-6 space-y-6 md:space-y-8">
                   {/* Roadmap Stepper */}
                   <div className="px-2 md:px-4 pt-24 md:pt-32 pb-6 bg-slate-50/50 rounded-xl border border-slate-100 overflow-x-auto">
-                    <div className="relative flex items-start justify-between min-w-[300px]">
+                    <div className="relative flex items-start justify-between min-w-75">
                       {/* Connecting Line */}
                       <div className="absolute left-0 right-0 top-4 -translate-y-1/2 h-1 bg-slate-200 z-0 mx-8"></div>
 
@@ -1621,7 +1621,7 @@ export default function ExploreJourneys({
                                 >
                                   {station.label}
                                 </p>
-                                <p className="text-[10px] text-slate-400 hidden md:block max-w-[80px] leading-tight mt-1">
+                                <p className="text-[10px] text-slate-400 hidden md:block max-w-20 leading-tight mt-1">
                                   {station.summary}
                                 </p>
                               </div>
@@ -1913,9 +1913,9 @@ function JourneyCard({
           {journey.stations} stations
         </div>
         {/* Removed difficulty level as per request */}
-        {journey.pakistanFocused && (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 border border-teal-200 text-xs font-medium text-teal-700">
-            Pakistan-focused
+        {journey.matchScore > 95 && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
+            High Approval Rate
           </div>
         )}
       </div>

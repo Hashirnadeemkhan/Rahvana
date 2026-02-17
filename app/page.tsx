@@ -626,7 +626,7 @@ function HomePageContent() {
         {activeSection === "home" && (
           <div className="flex flex-col">
             {/* HERO SECTION */}
-            <section className="relative py-20 lg:py-32 overflow-hidden bg-background">
+            <section className="relative py-12 overflow-hidden bg-background">
               <div className="container mx-auto px-6">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                   <motion.div
@@ -796,7 +796,7 @@ function HomePageContent() {
                   ))}
                 </div>
 
-                <div className="relative group min-h-[500px] flex items-center justify-center">
+                <div className="relative group min-h-125 flex items-center justify-center">
                   <StackedCarousel
                     items={JOURNEYS.filter((j) => j.category === journeyTab)}
                     onNavigate={handleNavigate}
@@ -929,7 +929,7 @@ function HomePageContent() {
                         Book a Consultation
                       </HydrationSafeButton>
                     </div>
-                    <div className="relative h-64 lg:h-full min-h-[400px] rounded-r-2xl">
+                    <div className="relative h-64 lg:h-full min-h-100 rounded-r-2xl">
                       <Image
                         src="/assets/images/consultation.jpg"
                         alt="Consultation"
@@ -980,7 +980,7 @@ function HomePageContent() {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="relative aspect-square max-w-[500px] mx-auto w-full"
+                    className="relative aspect-square max-w-125 mx-auto w-full"
                   >
                     {/* SVG Layer for all lines */}
                     <svg

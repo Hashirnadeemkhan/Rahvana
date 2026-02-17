@@ -449,14 +449,16 @@ export function SiteHeader({
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-2 left-2" />
           </HydrationSafeButton> */}
 
-          <HydrationSafeButton
-            variant="outline"
-            size="icon"
-            aria-label="Search"
-            className="bg-transparent hover:bg-primary/10 p-2 rounded-md text-muted-foreground hover:text-primary"
-          >
-            <Bell className="h-5 w-5" aria-hidden="true" />
-          </HydrationSafeButton>
+          {isSignedIn && (
+            <HydrationSafeButton
+              variant="outline"
+              size="icon"
+              aria-label="Search"
+              className="bg-transparent hover:bg-primary/10 p-2 rounded-md text-muted-foreground hover:text-primary"
+            >
+              <Bell className="h-5 w-5" aria-hidden="true" />
+            </HydrationSafeButton>
+          )}
 
           {/* LOGIN / PROFILE toggle */}
           {isSignedIn ? (
@@ -606,7 +608,7 @@ export function SiteHeader({
           />
 
           {/* Sidebar Content */}
-          <div className="absolute top-0 left-0 bottom-0 w-[280px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
+          <div className="absolute top-0 left-0 bottom-0 w-70 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               {/* <Link
                 href="/"

@@ -879,7 +879,7 @@ export default function VisaFormSelector() {
               <div className="mb-10">
                 {/* Metro Map */}
                 <div className="relative overflow-x-auto pb-4 mb-8">
-                  <div className="min-w-[700px] px-4">
+                  <div className="min-w-175 px-4">
                     <div className="relative flex justify-between pt-4">
                       {/* Connection Line */}
                       <div className="absolute top-[26px] left-0 right-0 h-1 bg-gray-200 rounded-full w-full" />
