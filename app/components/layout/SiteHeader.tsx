@@ -37,6 +37,8 @@ import {
   // Sun,
   DollarSign,
   Syringe,
+  BookOpen,
+  GraduationCap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
@@ -452,6 +454,7 @@ export function SiteHeader({
                               description: "Fiancé(e) of U.S. Citizen",
                               href: "/visa-category/ir-category",
                               badge: "Soon",
+                              disabled: true,
                             },
                             {
                               icon: <Globe className="h-5 w-5" />,
@@ -1109,9 +1112,8 @@ export function SiteHeader({
                           icon: <Heart className="h-5 w-5" />,
                           title: "Marriage Certificate",
                           description: "Nikahnama and MRC guide.",
-                          href: "/guides/marriage-certificate",
-                          badge: "Soon",
-                          disabled: true,
+                          href: "/guides/nikah-nama-guide",
+                          badge: "Live",
                         },
                         {
                           icon: <FileCheck className="h-5 w-5" />,
@@ -1199,9 +1201,8 @@ export function SiteHeader({
                           icon: <Heart className="h-5 w-5" />,
                           title: "Bona Fide Marriage",
                           description: "Proof of genuine relationship.",
-                          href: "/guides/relationship-evidence",
-                          badge: "Soon",
-                          disabled: true,
+                          href: "/guides/bona-marriage-guide",
+                          badge: "Live",
                         },
                       ],
                     },
@@ -1214,6 +1215,34 @@ export function SiteHeader({
                           title: "Customs & Declarations",
                           description: "What to declare and common pitfalls.",
                           href: "/guides/custom-requirements",
+                        },
+                      ],
+                    },
+                    {
+                      id: "education-process",
+                      label: "Education & Process",
+                      items: [
+                        {
+                          icon: <BookOpen className="h-5 w-5" />,
+                          title: "Educational Certificates",
+                          description:
+                            "HEC/IBCC attestation, WES evaluation, and I-20 requirements.",
+                          href: "/guides/educational-certificates-us-visa",
+                          badge: "Live",
+                        },
+                      ],
+                    },
+                    {
+                      id: "visa-strategy",
+                      label: "Visa Strategy",
+                      items: [
+                        {
+                          icon: <GraduationCap className="h-5 w-5" />,
+                          title: "Visa Case Strength",
+                          description:
+                            "Understand your visa case strength and improve it.",
+                          href: "/guides/visa-strength-guide",
+                          badge: "Live",
                         },
                       ],
                     },

@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  HelpCircle,
   MapPin,
   Search,
   Info,
@@ -13,13 +12,6 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -28,6 +20,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { VisaEligibilityTool } from "@/app/(tools)/visa-eligibility/components/VisaEligibilityTool";
 import Link from "next/link";
 
@@ -1072,7 +1070,6 @@ export default function ExploreJourneys({
   const [selectedJourneys, setSelectedJourneys] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isMatcherOpen, setIsMatcherOpen] = useState(false);
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [isQuickRoadmapOpen, setIsQuickRoadmapOpen] = useState(false);
   const [videoModalJourney, setVideoModalJourney] = useState<Journey | null>(
@@ -1128,111 +1125,10 @@ export default function ExploreJourneys({
               Explore Filters
             </h3>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsVisaWizardOpen(true)}
-                className="text-sm font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-full transition-colors flex items-center gap-2 border border-emerald-200"
-              >
-                <CheckCircle className="w-4 h-4" /> Check Best Visa
-              </button>
-              <button
-                onClick={() => setIsHelpOpen(true)}
-                className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
-              >
-                <HelpCircle className="w-4 h-4" /> Why these filters?
-              </button>
             </div>
           </div>
 
-          <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
-            <DialogContent className="max-h-[85vh] overflow-y-auto w-[95%] max-w-2xl p-4 md:p-6 rounded-xl gap-4">
-              <DialogHeader>
-                <DialogTitle className="pr-8">
-                  Understanding Filters
-                </DialogTitle>
-                <DialogDescription className="sr-only">
-                  Explanation of visa process types and stages.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-6 pt-4 text-sm text-slate-700">
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-slate-900 text-base">
-                    Process Type:
-                  </h4>
-                  <ul className="space-y-3 list-none pl-0">
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • Consular Processing:
-                      </span>
-                      <span>
-                        Apply for your visa at a U.S. embassy or consulate
-                        abroad. You&apos;ll attend an interview outside the U.S.
-                      </span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • Adjustment of Status (AOS):
-                      </span>
-                      <span>
-                        Apply for a green card while you&apos;re already in the
-                        United States. No interview abroad required.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
 
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-slate-900 text-base">
-                    Stage:
-                  </h4>
-                  <p>
-                    Select your current stage to see journeys relevant to where
-                    you are:
-                  </p>
-                  <ul className="space-y-2 list-none pl-0">
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • Not started:
-                      </span>
-                      <span>You haven&apos;t filed anything yet</span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • USCIS:
-                      </span>
-                      <span>
-                        Your petition is with U.S. Citizenship and Immigration
-                        Services
-                      </span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • NVC:
-                      </span>
-                      <span>Your case is at the National Visa Center</span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • Interview:
-                      </span>
-                      <span>
-                        You&apos;re preparing for or awaiting your embassy
-                        interview
-                      </span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • 221(g)/AP:
-                      </span>
-                      <span>
-                        Your case is in administrative processing or you
-                        received a 221(g) notice
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
 
           <Dialog
             open={isCompareModalOpen}
@@ -1443,6 +1339,12 @@ export default function ExploreJourneys({
 
           <Dialog open={isVisaWizardOpen} onOpenChange={setIsVisaWizardOpen}>
             <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 bg-transparent border-none shadow-none overflow-hidden">
+              <DialogHeader className="sr-only">
+                <DialogTitle>Visa Eligibility Wizard</DialogTitle>
+                <DialogDescription>
+                  Help you determine the best visa category for your situation.
+                </DialogDescription>
+              </DialogHeader>
               <div className="w-full h-full bg-white rounded-xl overflow-hidden shadow-2xl">
                 <VisaEligibilityTool />
               </div>
@@ -1496,9 +1398,25 @@ export default function ExploreJourneys({
             {/* Process & Stage */}
             <div className="md:col-span-12 lg:col-span-4 grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <div className="flex items-center gap-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Process Type
-                  <Info className="w-3 h-3 text-slate-400 cursor-help" />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-primary cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs p-4 bg-white border border-slate-200 shadow-xl">
+                        <div className="space-y-3 text-sm">
+                          <p>
+                             <span className="font-bold text-slate-900">• Consular Processing:</span> Apply abroad at a U.S. embassy. You&apos;ll attend an interview outside the U.S.
+                          </p>
+                          <p>
+                             <span className="font-bold text-slate-900">• Adjustment of Status (AOS):</span> Apply for a green card while already in the U.S. No interview abroad required.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
                   {["Consular", "AOS"].map((proc) => (
@@ -1518,22 +1436,14 @@ export default function ExploreJourneys({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Stage
-                </div>
-                <Select defaultValue="all">
-                  <SelectTrigger className="w-full h-[38px] bg-white border-slate-200">
-                    <SelectValue placeholder="All Stages" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All stages</SelectItem>
-                    <SelectItem value="not_started">Not started</SelectItem>
-                    <SelectItem value="uscis">USCIS</SelectItem>
-                    <SelectItem value="nvc">NVC</SelectItem>
-                    <SelectItem value="interview">Interview</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-col justify-end">
+                <Button
+                  onClick={() => setIsVisaWizardOpen(true)}
+                  className="w-full h-[46px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2 group"
+                >
+                  <CheckCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  Check Best Visa
+                </Button>
               </div>
             </div>
           </div>
@@ -1802,18 +1712,21 @@ export default function ExploreJourneys({
 
                 {/* Footer Actions */}
                 <div className="p-6 border-t border-slate-100 flex items-center gap-3 bg-slate-50/50">
-                  <Link href="/visa-category/ir-category/ir1-journey">
-                    <Button className="bg-teal-700 hover:bg-teal-800 text-white shadow-sm shadow-teal-900/10">
-                      Start Journey
+                  {highlightedJourney === "ir1" ? (
+                    <Link href="/visa-category/ir-category/ir1-journey">
+                      <Button className="bg-teal-700 hover:bg-teal-800 text-white shadow-sm shadow-teal-900/10 transition-all active:scale-95">
+                        Start Journey
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button 
+                      disabled 
+                      className="bg-slate-200 text-slate-500 cursor-not-allowed border-slate-300"
+                    >
+                      Coming Soon
                     </Button>
-                  </Link>
-                  <Button
-                    onClick={() => setIsQuickRoadmapOpen(true)}
-                    variant="outline"
-                    className="border-teal-200 text-teal-700 hover:bg-teal-50 hover:text-teal-800"
-                  >
-                    Quick Roadmap
-                  </Button>
+                  )}
+                  {/* Removed Quick Roadmap button as per request */}
                   <Button
                     variant="outline"
                     className="ml-auto border-slate-200 text-slate-600 hover:text-slate-900"
@@ -1992,9 +1905,7 @@ function JourneyCard({
           <div className="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
           {journey.stations} stations
         </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-50 border border-orange-200 text-xs font-medium text-orange-700">
-          {journey.difficulty} difficulty
-        </div>
+        {/* Removed difficulty level as per request */}
         {journey.pakistanFocused && (
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 border border-teal-200 text-xs font-medium text-teal-700">
             Pakistan-focused
@@ -2005,42 +1916,37 @@ function JourneyCard({
       {/* Action Buttons (Only Visible/Highligted when active or hover? Design implies they are always there or show on active) */}
       {/* We'll show them always to match the 'card' look, maybe slightly faded if inactive? */}
       <div className="flex items-center flex-wrap gap-3">
-        <Link href="/visa-category/ir-category/ir1-journey">
+        {journey.id === "ir1" ? (
+          <Link href="/visa-category/ir-category/ir1-journey">
+            <Button
+              className={cn(
+                "h-9 px-4 rounded-lg font-medium shadow-none transition-colors",
+                "bg-teal-700 text-white hover:bg-teal-800",
+              )}
+            >
+              Start Journey
+            </Button>
+          </Link>
+        ) : (
           <Button
-            className={cn(
-              "h-9 px-4 rounded-lg font-medium shadow-none transition-colors",
-              // isActive
-              "bg-teal-700 text-white hover:bg-teal-800",
-              // : "bg-slate-900 text-white hover:bg-slate-800",
-            )}
+            disabled
+            className="h-9 px-4 rounded-lg font-medium bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
           >
-            Start Journey
+            Coming Soon
           </Button>
-        </Link>
-        <Button
-          variant="outline"
-          className={cn(
-            "h-9 px-4 rounded-lg font-medium border transition-colors",
-            isActive
-              ? "border-teal-200 text-teal-700 hover:bg-teal-50"
-              : "border-slate-200 text-slate-600 hover:bg-slate-50",
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect();
-          }}
-        >
-          Preview Roadmap
-        </Button>
-        <button
-          className="text-sm font-medium text-teal-600 hover:text-teal-700 hover:underline ml-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            onWatchIntro();
-          }}
-        >
-          Watch intro
-        </button>
+        )}
+        {/* Preview Roadmap removed as per request */}
+        {journey.id === "ir1" && (
+          <button
+            className="text-sm font-medium text-teal-600 hover:text-teal-700 hover:underline ml-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              onWatchIntro();
+            }}
+          >
+            Watch intro
+          </button>
+        )}
       </div>
     </div>
   );

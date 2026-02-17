@@ -109,6 +109,9 @@ export default function JourneyRouteMap({
 
     if (!country) return;
 
+    // Only allow Pakistan and United States to be clickable
+    if (country !== "Pakistan" && country !== "United States") return;
+
     if (!selectedOrigin || (selectedOrigin && selectedDestination)) {
       // 1st click (fresh) or 3rd click (reset cycle)
       setSelectedOrigin(country);
@@ -390,21 +393,37 @@ export default function JourneyRouteMap({
   const getOriginOptions = () => {
     return countries
       .filter((country) => country !== selectedDestination)
-      .map((country) => (
-        <option key={`origin-${country}`} value={country}>
-          {country}
-        </option>
-      ));
+      .map((country) => {
+        const isFunctional =
+          country === "Pakistan" || country === "United States";
+        return (
+          <option
+            key={`origin-${country}`}
+            value={country}
+            disabled={!isFunctional}
+          >
+            {country} {!isFunctional ? "(Coming Soon)" : ""}
+          </option>
+        );
+      });
   };
 
   const getDestinationOptions = () => {
     return countries
       .filter((country) => country !== selectedOrigin)
-      .map((country) => (
-        <option key={`dest-${country}`} value={country}>
-          {country}
-        </option>
-      ));
+      .map((country) => {
+        const isFunctional =
+          country === "Pakistan" || country === "United States";
+        return (
+          <option
+            key={`dest-${country}`}
+            value={country}
+            disabled={!isFunctional}
+          >
+            {country} {!isFunctional ? "(Coming Soon)" : ""}
+          </option>
+        );
+      });
   };
 
   // Helper to get path class names
@@ -495,15 +514,22 @@ export default function JourneyRouteMap({
   }, [selectedOrigin, selectedDestination, zoom]);
 
   const getPathClassName = (countryTitle: string) => {
-    const baseClass =
-      "map-country cursor-pointer transition-colors duration-300";
+    const isFunctional =
+      countryTitle === "Pakistan" || countryTitle === "United States";
+    const baseClass = `map-country transition-colors duration-300 ${isFunctional ? "cursor-pointer" : "cursor-default"}`;
+
     if (countryTitle === selectedOrigin) {
       return `${baseClass} fill-[#138b8b] stroke-[#0d6363] stroke-2 filter drop-shadow-[0_0_8px_rgba(19,159,159,0.4)]`;
     }
     if (countryTitle === selectedDestination) {
       return `${baseClass} fill-[#f8f5f0] stroke-[#138b8b] stroke-2`;
     }
-    return `${baseClass} stroke-white stroke-1 fill-gray-300 hover:fill-primary/40`;
+
+    if (isFunctional) {
+      return `${baseClass} stroke-white stroke-1 fill-gray-300 hover:fill-[#138b8b]/40`;
+    }
+
+    return `${baseClass} stroke-white stroke-1 fill-gray-200 hover:fill-gray-300`;
   };
 
   return (
@@ -593,7 +619,15 @@ export default function JourneyRouteMap({
                     transform: "translateX(-50%)",
                   }}
                 >
-                  {hoveredCountry}
+                  <div className="flex flex-col items-center">
+                    <span>{hoveredCountry}</span>
+                    {hoveredCountry !== "Pakistan" &&
+                      hoveredCountry !== "United States" && (
+                        <span className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider font-bold">
+                          Coming Soon
+                        </span>
+                      )}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

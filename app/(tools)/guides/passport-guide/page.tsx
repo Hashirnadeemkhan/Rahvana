@@ -1112,7 +1112,7 @@ export default function PassportGuidePage() {
           <p className="mt-2">
             This guide is for informational purposes only.
           </p>
-        </footer>
+        </footer> 
       </div>
     </div>
   );

@@ -437,7 +437,7 @@ const LIFECYCLE_STEPS = [
     step: 5,
     title: "Visa Issuance",
     icon: Icons.IdCard,
-    desc: "Upon interview approval, your immigrant visa will be printed and returned to you along with a sealed packet.",
+    desc: "Upon interview approval, your immigrant visa will be printed.",
     items: [
       "Receive visa in passport",
       "Review visa details",
@@ -461,28 +461,28 @@ const LIFECYCLE_STEPS = [
 
 const FAQS = [
   {
-    q: "How long does the IR-1 visa process take?",
-    a: "Current processing times for IR-1/CR-1 visas typically range from 12 to 18 months, depending on USCIS case volume and embassy scheduling. Rahvana helps you stay on track and avoid unnecessary delays.",
+    q: "How does Rahvana help simplify my visa journey?",
+    a: "Rahvana acts as your personal digital guide, breaking down the complex U.S. immigration process into clear, manageable steps. We combine expert-level roadmaps (specific to your location) with AI-powered tools to automate paperwork, track timelines, and prepare you for your interview, reducing the stress and uncertainty of doing it alone.",
   },
   {
-    q: "What's the difference between IR-1 and CR-1 visas?",
-    a: "Both visas are for spouses of U.S. citizens. The CR-1 (Conditional Resident) is issued if you've been married less than 2 years at the time of entry, giving you a 2-year conditional green card. The IR-1 (Immediate Relative) is for marriages of 2+ years and provides a 10-year permanent green card directly.",
+    q: "Is the Roadmap tailored for the Islamabad Embassy?",
+    a: "Yes! Rahvana includes specific guidance for Pakistan, including NADRA document requirements, Union Council registrations, local police certificate procedures, and IOM medical exam details specific to Islamabad, Karachi, and Lahore.",
   },
   {
-    q: "What documents do I need for the I-130 petition?",
-    a: "Key documents include: proof of U.S. citizenship (passport, birth certificate, naturalization certificate), marriage certificate, passport photos, proof of termination of prior marriages (if any), and evidence of bona fide marriage (photos, joint accounts, correspondence). Rahvana provides a complete checklist tailored to your situation.",
+    q: "Can Rahvana really auto-fill my USCIS forms?",
+    a: "Absolutely. Our AI 'Brain' takes your profile data and maps it directly onto official USCIS PDFs like the I-130 and Form I-864, generating a perfectly filled, compliant form in seconds, ready for your review and submission.",
   },
   {
-    q: "Can my spouse work while the visa is being processed?",
-    a: "During consular processing (when your spouse is abroad), they cannot work in the U.S. However, once they enter the U.S. on their immigrant visa, they can work immediately. The immigrant visa stamp in their passport serves as proof of work authorization while waiting for the physical green card.",
+    q: "Does Rahvana provide legal representation?",
+    a: "No, Rahvana is an educational AI assistant designed to simplify your journey. While we provide expert-level guidance and tools, we are not a law firm. We always recommend consulting a licensed attorney for complex legal cases.",
   },
   {
-    q: "What are the income requirements for sponsorship?",
-    a: "The petitioner must demonstrate income at or above 125% of the Federal Poverty Guidelines for their household size. For 2024, this is approximately $24,650 for a household of 2. Assets can also be used, valued at 3x the shortfall. Joint sponsors are permitted if you don't meet the requirement alone.",
+    q: "How accurate is the Interview Prep Question Bank?",
+    a: "Our bank contains 50+ real-world questions reported from the Islamabad Embassy, with suggested answers and tips on how to present your case honestly and effectively based on successful approval historical data.",
   },
   {
-    q: "How does Rahvana help with my immigration case?",
-    a: "Rahvana provides step-by-step guidance through each stage of your journey. We offer personalized document checklists, timeline tracking, AI-powered case insights, secure document storage, and access to immigration experts for consultations. Our goal is to simplify the complex process and reduce stress.",
+    q: "Is my document data secure in the Vault?",
+    a: "Yes. We use bank-level encryption (AES-256) to secure your files. For Free users, progress is stored locally in your browser. Plus users benefit from secure, encrypted cloud synchronization across all devices.",
   },
 ];
 
@@ -1087,7 +1087,7 @@ function HomePageContent() {
                         <p className="text-muted-foreground leading-relaxed mb-8 text-lg">
                           {LIFECYCLE_STEPS[activeStep - 1].desc}
                         </p>
-                        <ul className="space-y-4">
+                        <ul className="space-y-4 mb-10">
                           {LIFECYCLE_STEPS[activeStep - 1].items.map(
                             (item, i) => (
                               <li
@@ -1100,6 +1100,43 @@ function HomePageContent() {
                             ),
                           )}
                         </ul>
+
+                        <div className="flex items-center justify-between pt-6 border-t border-border">
+                          <button
+                            onClick={() => setActiveStep(prev => Math.max(1, prev - 1))}
+                            disabled={activeStep === 1}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                              activeStep === 1 
+                                ? "opacity-30 cursor-not-allowed text-muted-foreground" 
+                                : "text-rahvana-primary hover:bg-rahvana-primary-pale"
+                            }`}
+                          >
+                            <Icons.ChevronLeft className="w-5 h-5" />
+                            Previous
+                          </button>
+                          
+                          <div className="flex gap-1.5">
+                            {LIFECYCLE_STEPS.map((_, i) => (
+                              <div 
+                                key={i}
+                                className={`w-2 h-2 rounded-full transition-all ${i + 1 === activeStep ? "bg-rahvana-primary w-4" : "bg-border"}`}
+                              />
+                            ))}
+                          </div>
+
+                          <button
+                            onClick={() => setActiveStep(prev => Math.min(LIFECYCLE_STEPS.length, prev + 1))}
+                            disabled={activeStep === LIFECYCLE_STEPS.length}
+                            className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold transition-all ${
+                              activeStep === LIFECYCLE_STEPS.length 
+                                ? "opacity-30 cursor-not-allowed text-muted-foreground" 
+                                : "bg-rahvana-primary text-white shadow-lg hover:bg-rahvana-primary-dark hover:-translate-y-0.5"
+                            }`}
+                          >
+                            Next
+                            <Icons.ChevronRight className="w-5 h-5" />
+                          </button>
+                        </div>
                       </motion.div>
                     </AnimatePresence>
                   </div>

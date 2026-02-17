@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { Instagram, Facebook, Twitter, MessageSquare } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -14,7 +15,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-900 overflow-hidden py-24 pb-12 text-slate-200">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
           {/* Brand Column */}
           <div className="max-w-[280px]">
             <div className="mb-6">
@@ -133,6 +134,49 @@ export default function Footer() {
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 Blog
+              </Link>
+            </nav>
+          </div>
+
+          {/* Social Column */}
+          <div>
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-6">
+              Connect With Us
+            </h4>
+            <nav className="flex flex-col gap-4 text-sm">
+              <Link
+                href="#"
+                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+              >
+                <Instagram size={18} className="group-hover:scale-110 transition-transform" />
+                Instagram
+              </Link>
+              <Link
+                href="#"
+                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+              >
+                <Facebook size={18} className="group-hover:scale-110 transition-transform" />
+                Facebook
+              </Link>
+              <Link
+                href="#"
+                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="h-4.5 w-4.5 fill-current group-hover:scale-110 transition-transform"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                </svg>
+                Twitter
+              </Link>
+              <Link
+                href="#"
+                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+              >
+                <MessageSquare size={18} className="group-hover:scale-110 transition-transform" />
+                Reddit
               </Link>
             </nav>
           </div>
