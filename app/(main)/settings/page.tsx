@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
+import useSWR, { mutate } from "swr";
 
 export default function SettingsPage() {
   const { user, isLoading, signOut } = useAuth();
@@ -28,87 +29,92 @@ export default function SettingsPage() {
     autoBackup: true,
   });
 
-  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [profile, setProfile] = useState<{ mfa_enabled: boolean } | null>(null);
 
-  const fetchProfile = useCallback(async () => {
-    if (!user) return;
+  // Fetcher for profile data
+  const profileFetcher = async () => {
+    if (!user?.id) return null;
 
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("mfa_enabled")
-        .eq("id", user.id)
-        .maybeSingle();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("mfa_enabled")
+      .eq("id", user.id)
+      .maybeSingle();
 
-      if (error) {
-        console.error("Error fetching profile:", error.message);
-        return;
-      }
+    if (error) throw error;
+    return data;
+  };
 
-      if (data) {
-        setProfile(data);
-        setAccountSettings((prev) => ({
-          ...prev,
-          twoFactorEnabled: data.mfa_enabled,
-        }));
-      }
-    } catch (err) {
-      console.error("Unexpected fetchProfile error:", err);
+  // Fetcher for settings data
+  const settingsFetcher = async () => {
+    if (!user?.id) return null;
+
+    const { data, error } = await supabase
+      .from("user_settings")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+
+    if (error && !error.message?.toLowerCase().includes("not found")) {
+      throw error;
     }
-  }, [supabase, user?.id]);
+    return data;
+  };
 
-  const fetchSettings = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      // Fetch user settings from database
-      const { data, error } = await supabase
-        .from("user_settings")
-        .select("*")
-        .eq("user_id", user?.id)
-        .single();
-
-      if (error) {
-        // If no settings exist yet, use defaults
-        // Check if it's a "Row not found" error (which is normal for new users)
-        if (
-          error.message &&
-          !error.message.toLowerCase().includes("not found")
-        ) {
-          console.warn("Error fetching settings:", error);
-        }
-      } else if (data) {
-        setNotifications({
-          email: data.email_notifications || true,
-          sms: data.sms_notifications || false,
-          push: data.push_notifications || true,
-        });
-
-        setAccountSettings({
-          twoFactorEnabled: data.two_factor_enabled || false,
-          autoBackup: data.auto_backup || true,
-        });
-      }
-    } catch (error) {
-      console.error("Error in fetchSettings:", error);
-    } finally {
-      setLoading(false);
+  // Use SWR for profile data
+  const { data: profile } = useSWR(
+    user?.id ? `profile-mfa-${user.id}` : null,
+    profileFetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000,
     }
-  }, [supabase, user?.id]);
+  );
+
+  // Use SWR for settings data
+  const { data: settingsData, isValidating } = useSWR(
+    user?.id ? `settings-${user.id}` : null,
+    settingsFetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000,
+    }
+  );
+
+  // Update state when profile data changes
+  useEffect(() => {
+    if (profile) {
+      setAccountSettings((prev) => ({
+        ...prev,
+        twoFactorEnabled: profile.mfa_enabled,
+      }));
+    }
+  }, [profile]);
+
+  // Update state when settings data changes
+  useEffect(() => {
+    if (settingsData) {
+      setNotifications({
+        email: settingsData.email_notifications ?? true,
+        sms: settingsData.sms_notifications ?? false,
+        push: settingsData.push_notifications ?? true,
+      });
+
+      setAccountSettings((prev) => ({
+        ...prev,
+        autoBackup: settingsData.auto_backup ?? true,
+      }));
+    }
+  }, [settingsData]);
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login");
       return;
     }
-
-    if (user) {
-      fetchSettings();
-      fetchProfile(); // Fetch MFA from profiles
-    }
-  }, [user, isLoading, router, fetchSettings]);
+  }, [user, isLoading, router]);
 
   const handleNotificationChange = (type: string) => {
     setNotifications((prev) => ({
@@ -126,7 +132,6 @@ export default function SettingsPage() {
 
   const handleSaveSettings = async () => {
     try {
-      setLoading(true);
       setMessage("");
 
       // Save settings to database
@@ -149,12 +154,13 @@ export default function SettingsPage() {
         throw error;
       }
 
+      // Invalidate and refetch the cache
+      await mutate(`settings-${user?.id}`);
+
       setMessage("Settings saved successfully!");
     } catch (error) {
       console.error("Error saving settings:", error);
       setMessage("Error saving settings. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -195,7 +201,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (isLoading || loading) {
+  if (isLoading || (isValidating && !settingsData && !profile)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 p-4">
         <div className="text-center">
@@ -408,7 +414,6 @@ export default function SettingsPage() {
             <Button
               onClick={handleSaveSettings}
               className="bg-slate-900 hover:bg-slate-800 text-white px-8"
-              disabled={loading}
             >
               Save All Settings
             </Button>

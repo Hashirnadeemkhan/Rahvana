@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { MasterProfile } from "@/types/profile";
 import { ChevronDown, Loader2, Pencil, Check, X } from "lucide-react";
 import { getProfileCompleteness } from "@/lib/profile/helpers";
 import { FormField, FormSelect, FormCheckbox } from "./form-field";
+import useSWR, { mutate } from "swr";
 
 export default function ProfilePage() {
   const { user, isLoading } = useAuth();
@@ -20,7 +21,6 @@ export default function ProfilePage() {
   );
 
   const [formData, setFormData] = useState<MasterProfile>({} as MasterProfile);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -39,44 +39,44 @@ export default function ProfilePage() {
     visaEligibility: true
   });
 
-  const fetchProfile = useCallback(async () => {
-    try {
-      setLoading(true);
-      if (!user?.id) {
-        throw new Error('User ID is required');
-      }
+  // Fetcher function for SWR
+  const fetcher = async (url: string) => {
+    if (!user?.id) return null;
+    
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('profile_details')
+      .eq('id', user.id)
+      .single();
 
-      const { data, error: dbError } = await supabase
-        .from('user_profiles')
-        .select('profile_details')
-        .eq('id', user.id)
-        .single();
+    if (error) throw error;
+    return data?.profile_details as MasterProfile;
+  };
 
-      if (dbError) {
-        console.error('Database error fetching profile:', dbError);
-        throw dbError;
-      }
-
-      if (data?.profile_details) {
-        setFormData(data.profile_details as MasterProfile);
-      }
-    } catch (fetchError) {
-      console.error('Error fetching profile:', fetchError);
-    } finally {
-      setLoading(false);
+  // Use SWR for data fetching with caching
+  const { data: profileData, error: profileError, isValidating } = useSWR(
+    user?.id ? `profile-${user.id}` : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // Cache for 1 minute
     }
-  }, [user, supabase]);
+  );
+
+  // Update formData when profileData changes
+  useEffect(() => {
+    if (profileData) {
+      setFormData(profileData);
+    }
+  }, [profileData]);
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login');
       return;
     }
-
-    if (user) {
-      fetchProfile();
-    }
-  }, [user, isLoading, router, fetchProfile]);
+  }, [user, isLoading, router]);
 
   const handleSave = async () => {
     try {
@@ -93,6 +93,9 @@ export default function ProfilePage() {
 
       if (error) throw error;
 
+      // Invalidate and refetch the cache
+      await mutate(`profile-${user?.id}`);
+
       setIsEditing(false);
       setMessage("Profile updated successfully!");
       setTimeout(() => setMessage(""), 3000);
@@ -106,7 +109,10 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    fetchProfile();
+    // Restore from cached data
+    if (profileData) {
+      setFormData(profileData);
+    }
   };
 
   const toggleSection = (key: keyof typeof sections) => {
@@ -146,7 +152,7 @@ export default function ProfilePage() {
     }));
   };
 
-  if (isLoading || loading) {
+  if (isLoading || (isValidating && !profileData)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="h-8 w-8 animate-spin text-slate-900" />
