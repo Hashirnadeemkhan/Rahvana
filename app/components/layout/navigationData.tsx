@@ -85,6 +85,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 description: "Fiancé(e) of U.S. Citizen",
                 href: "/visa-category/ir-category",
                 badge: "Soon",
+                disabled: true,
               },
               {
                 icon: <Globe className="h-5 w-5" />,
