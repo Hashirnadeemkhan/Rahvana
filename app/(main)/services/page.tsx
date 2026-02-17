@@ -2,8 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Search, ArrowRight } from "lucide-react";
+import { Search, ArrowRight, ChevronDown } from "lucide-react";
 import { NAV_DATA } from "@/app/components/layout/navigationData";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // --- Data & Types ---
 
@@ -14,7 +20,7 @@ interface Service {
   category: string;
   href: string;
   icon: React.ReactNode;
-  badge?: "Live" | "Soon";
+  //   badge?: "Live" | "Soon";
   disabled?: boolean;
 }
 
@@ -27,7 +33,7 @@ const SERVICES: Service[] = NAV_DATA.services.tabs.flatMap((tab) =>
     category: tab.label, // Use the tab label as category
     href: item.href,
     icon: item.icon,
-    badge: item.badge,
+    // badge: item.badge,
     disabled: item.disabled,
   })),
 );
@@ -39,6 +45,79 @@ const CATEGORIES = ["All", ...NAV_DATA.services.tabs.map((tab) => tab.label)];
 export default function ServicesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [visibleCount, setVisibleCount] = useState(7); // Default to all
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const measureRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const calculateVisible = () => {
+      if (!containerRef.current || !measureRef.current) return;
+
+      const containerWidth = containerRef.current.clientWidth;
+      const measureItems = Array.from(
+        measureRef.current.children,
+      ) as HTMLDivElement[];
+
+      // Extract the More button width (last item) and Category widths
+      const moreButtonEl = measureItems[measureItems.length - 1];
+      const categoryEls = measureItems.slice(0, measureItems.length - 1);
+
+      const moreButtonWidth = moreButtonEl.offsetWidth;
+      const gap = 12; // gap-3 is 12px (0.75rem)
+
+      let totalWidth = 0;
+      let visible = 0;
+
+      // First pass: Check if ALL fit
+      for (let i = 0; i < categoryEls.length; i++) {
+        const itemWidth = categoryEls[i].offsetWidth;
+        const isLast = i === categoryEls.length - 1;
+        totalWidth += itemWidth;
+        if (!isLast) totalWidth += gap;
+      }
+
+      if (totalWidth <= containerWidth) {
+        setVisibleCount(CATEGORIES.length);
+        return;
+      }
+
+      // Second pass: Calculate how many fit WITH "More" button
+      totalWidth = 0;
+
+      for (let i = 0; i < categoryEls.length; i++) {
+        const itemWidth = categoryEls[i].offsetWidth;
+        // Check if adding this item + gap + MoreButton exceeds container
+        // Current accumulated + this item + (gap if not first) + gap + MoreButton
+        const gapWidth = i > 0 ? gap : 0;
+        const projectedWidth =
+          totalWidth + gapWidth + itemWidth + gap + moreButtonWidth;
+
+        if (projectedWidth <= containerWidth) {
+          visible++;
+          totalWidth += gapWidth + itemWidth;
+        } else {
+          break;
+        }
+      }
+
+      setVisibleCount(visible);
+    };
+
+    calculateVisible();
+
+    // Add resize listener
+    const observer = new ResizeObserver(calculateVisible);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const visibleCategories = CATEGORIES.slice(0, visibleCount);
+  const hiddenCategories = CATEGORIES.slice(visibleCount);
+  const isMoreSelected = hiddenCategories.includes(selectedCategory);
 
   const filteredServices = SERVICES.filter((service) => {
     const matchesSearch =
@@ -59,11 +138,11 @@ export default function ServicesPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Hero Section */}
-        <section className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-foreground to-muted-foreground animate-fade-up">
+        <section className="text-center mb-5 md:mb-10">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-foreground to-muted-foreground animate-fade-up">
             Expert Services & Support
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto animate-fade-up [animation-delay:100ms]">
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto animate-fade-up [animation-delay:100ms]">
             Professional assistance for every step of your immigration journey.
             From document preparation to expert consultations.
           </p>
@@ -82,20 +161,75 @@ export default function ServicesPage() {
         </div>
 
         {/* Categories */}
-        <div className="flex flex-wrap justify-center gap-3 pb-4 mb-8 animate-fade-in [animation-delay:300ms]">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 ${
-                selectedCategory === cat
-                  ? "bg-primary text-primary-foreground border-primary shadow-md"
-                  : "bg-card text-muted-foreground border-border hover:border-primary hover:bg-primary/5 hover:text-primary"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        <div ref={containerRef} className="relative w-full mb-8">
+          {/* Hidden container for measuring */}
+          <div
+            ref={measureRef}
+            aria-hidden="true"
+            className="absolute top-0 left-0 w-full flex flex-wrap gap-3 pointer-events-none opacity-0 z-[-1]"
+          >
+            {/* Render all categories to measure them */}
+            {CATEGORIES.map((cat) => (
+              <div
+                key={cat}
+                className="px-5 py-2.5 text-sm font-medium whitespace-nowrap border"
+              >
+                {cat}
+              </div>
+            ))}
+            {/* Force render the More button to measure it */}
+            <div className="px-5 py-2.5 text-sm font-medium whitespace-nowrap border flex items-center gap-1">
+              More <ChevronDown className="w-4 h-4 ml-1" />
+            </div>
+          </div>
+
+          {/* Visible Container */}
+          <div className="flex flex-wrap gap-3 animate-fade-in [animation-delay:300ms]">
+            {visibleCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 ${
+                  selectedCategory === cat
+                    ? "bg-primary text-primary-foreground border-primary shadow-md"
+                    : "bg-card text-muted-foreground border-border hover:border-primary hover:bg-primary/5 hover:text-primary"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+
+            {hiddenCategories.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 flex items-center gap-1 ${
+                      isMoreSelected
+                        ? "bg-primary text-primary-foreground border-primary shadow-md"
+                        : "bg-card text-muted-foreground border-border hover:border-primary hover:bg-primary/5 hover:text-primary"
+                    }`}
+                  >
+                    More <ChevronDown className="w-4 h-4 ml-1" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-[200px]">
+                  {hiddenCategories.map((cat) => (
+                    <DropdownMenuItem
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`cursor-pointer ${
+                        selectedCategory === cat
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : ""
+                      }`}
+                    >
+                      {cat}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
 
         {/* Services Grid */}
@@ -213,8 +347,8 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-0 bg-[radial-gradient(400px_circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),rgba(13,115,119,0.04),transparent_40%)] dark:bg-[radial-gradient(400px_circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),rgba(255,255,255,0.03),transparent_40%)]" />
 
       {/* Header (Badge) */}
-      <div className="flex justify-end items-start mb-2 min-h-[24px] relative z-10">
-        {service.badge && (
+      {/* <div className="flex justify-end items-start mb-2 min-h-[24px] relative z-10"> */}
+      {/* {service.badge && (
           <span
             className={`text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full border 
             ${
@@ -225,8 +359,8 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
           >
             {service.badge}
           </span>
-        )}
-      </div>
+        )} */}
+      {/* </div> */}
 
       {/* Content */}
       <div className="relative z-10 flex flex-col grow pt-2">
