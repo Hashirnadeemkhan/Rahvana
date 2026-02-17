@@ -1165,7 +1165,7 @@ export default function ExploreJourneys({
                         return (
                           <th
                             key={id}
-                            className="py-4 px-4 font-bold text-slate-900 min-w-[200px]"
+                            className="py-4 px-4 font-bold text-slate-900 min-w-50"
                           >
                             {journey?.title || "Unknown"}
                           </th>
@@ -1237,7 +1237,7 @@ export default function ExploreJourneys({
                         const journey = JOURNEYS.find((j) => j.id === id);
                         return (
                           <td key={id} className="py-4 px-4 text-slate-600">
-                            {journey?.matchScore > 90 ? "Yes" : "Standard"}
+                            {(journey?.matchScore ?? 0) > 90 ? "Yes" : "Standard"}
                           </td>
                         );
                       })}
@@ -1527,7 +1527,7 @@ export default function ExploreJourneys({
                 <div className="flex-1 flex flex-col p-4 md:p-6 space-y-6 md:space-y-8">
                   {/* Roadmap Stepper */}
                   <div className="px-2 md:px-4 pt-24 md:pt-32 pb-6 bg-slate-50/50 rounded-xl border border-slate-100 overflow-x-auto">
-                    <div className="relative flex items-start justify-between min-w-[300px]">
+                    <div className="relative flex items-start justify-between min-w-75">
                       {/* Connecting Line */}
                       <div className="absolute left-0 right-0 top-4 -translate-y-1/2 h-1 bg-slate-200 z-0 mx-8"></div>
 

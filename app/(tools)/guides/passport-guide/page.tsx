@@ -15,9 +15,6 @@ import {
   FileText,
   Globe2,
   MapPin,
-  Search,
-  Lightbulb,
-  TrendingUp,
   AlertTriangle,
   Home,
   Sparkles,
@@ -262,7 +259,6 @@ export default function PassportGuidePage() {
   const [urgency, setUrgency] = React.useState<
     "normal" | "urgent" | "fasttrack" | null
   >(null);
-  const [searchTerm, setSearchTerm] = React.useState("");
   const [activeTab, setActiveTab] = React.useState<string>("understanding");
   const [completedSections, setCompletedSections] = React.useState<string[]>([]);
   const [checkedItems, setCheckedItems] = React.useState<string[]>([]);
@@ -291,11 +287,7 @@ export default function PassportGuidePage() {
     return guidelines[urgency][pages][validity];
   };
 
-  const markComplete = (section: string) => {
-    if (!completedSections.includes(section)) {
-      setCompletedSections([...completedSections, section]);
-    }
-  };
+
 
   const toggleChecked = (id: string) => {
     setCheckedItems(prev => 
@@ -308,7 +300,7 @@ export default function PassportGuidePage() {
     return true;
   });
 
-  const getFilteredContent = (sectionId: string, content: any[]) => {
+  const getFilteredContent = React.useCallback((sectionId: string, content: any[]) => {
     if (showJourneyForm) return content;
 
     if (sectionId === "documents") {
@@ -316,34 +308,34 @@ export default function PassportGuidePage() {
       
       // Filter by Type
       if (journeyConfig.type === "renewal") {
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("new") || c.heading.toLowerCase().includes("renewal"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("new") || c.heading.toLowerCase().includes("renewal"));
       }
       if (journeyConfig.type === "new") {
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("renewal") || c.heading.toLowerCase().includes("new"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("renewal") || c.heading.toLowerCase().includes("new"));
       }
       if (journeyConfig.type === "lost") {
-        filtered = filtered.filter(c => c.heading.toLowerCase().includes("lost") || c.heading.toLowerCase().includes("general"));
+        filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("lost") || c.heading.toLowerCase().includes("general"));
       }
       if (journeyConfig.type === "damaged") {
-        filtered = filtered.filter(c => c.heading.toLowerCase().includes("damaged") || c.heading.toLowerCase().includes("general"));
+        filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("damaged") || c.heading.toLowerCase().includes("general"));
       }
       
       // Filter by Age
       if (journeyConfig.age === "adult") {
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("minor") && !c.heading.toLowerCase().includes("b-form") && !c.heading.toLowerCase().includes("crc"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("minor") && !c.heading.toLowerCase().includes("b-form") && !c.heading.toLowerCase().includes("crc"));
       }
       if (journeyConfig.age === "minor") {
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("adult"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("adult"));
       }
 
       // Filter by Method (For General items)
       if (journeyConfig.method === "online") {
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("(visit)"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("(visit)"));
       }
       if (journeyConfig.method === "in-person") {
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("(online)"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("(online)"));
       }
 
       return filtered;
@@ -354,19 +346,19 @@ export default function PassportGuidePage() {
       
       if (journeyConfig.type === "new" || journeyConfig.type === "lost" || journeyConfig.type === "damaged") {
         // New, Lost, and Damaged always allow Hybrid or Full Office visit
-        filtered = filtered.filter(c => c.heading.toLowerCase().includes("hybrid") || c.heading.toLowerCase().includes("standard"));
+        filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("hybrid") || c.heading.toLowerCase().includes("standard"));
       } else if (journeyConfig.type === "renewal") {
         // Renewals depend on the selected method
         if (journeyConfig.method === "online") {
-          filtered = filtered.filter(c => c.heading.toLowerCase().includes("online"));
+          filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("online"));
         } else {
-          filtered = filtered.filter(c => c.heading.toLowerCase().includes("standard"));
+          filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("standard"));
         }
       }
 
       // Age-based filtering for process
       if (journeyConfig.age !== "minor") {
-        filtered = filtered.filter(c => !c.heading.toLowerCase().includes("minor"));
+        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("minor"));
       }
 
       return filtered;
@@ -374,11 +366,11 @@ export default function PassportGuidePage() {
 
     if (sectionId === "time") {
       if (!urgency) return content;
-      return content.filter(c => c.heading.toLowerCase().includes(urgency.toLowerCase()) || c.heading.toLowerCase().includes("delivery"));
+      return content.filter((c: any) => c.heading.toLowerCase().includes(urgency.toLowerCase()) || c.heading.toLowerCase().includes("delivery"));
     }
 
     return content;
-  };
+  }, [showJourneyForm, journeyConfig, urgency]);
 
   const totalCheckItems = React.useMemo(() => {
     let count = 0;
@@ -388,16 +380,12 @@ export default function PassportGuidePage() {
       else count += getFilteredContent(s.id, s.content).length;
     });
     return count || 1;
-  }, [filteredSections, journeyConfig, showJourneyForm]);
+  }, [filteredSections, getFilteredContent]);
 
   const progressPercentage = (checkedItems.length / totalCheckItems) * 100;
 
 
 
-
-
-  const activeSectionData = filteredSections.find(s => s.id === activeTab) || filteredSections[0];
-  const activeContent = getFilteredContent(activeSectionData.id, activeSectionData.content);
 
 
   return (
@@ -441,7 +429,7 @@ export default function PassportGuidePage() {
                     {["new", "renewal", "lost", "damaged"].map((t) => (
                       <button
                         key={t}
-                        onClick={() => setJourneyConfig({ ...journeyConfig, type: t as any })}
+                        onClick={() => setJourneyConfig({ ...journeyConfig, type: t as "new" | "renewal" | "lost" | "damaged" })}
                         className={cn(
                           "px-4 py-2.5 rounded-xl border text-left transition-all",
                           journeyConfig.type === t 
@@ -462,7 +450,7 @@ export default function PassportGuidePage() {
                     {["online", "in-person"].map((m) => (
                       <button
                         key={m}
-                        onClick={() => setJourneyConfig({ ...journeyConfig, method: m as any })}
+                        onClick={() => setJourneyConfig({ ...journeyConfig, method: m as "online" | "in-person" })}
                         className={cn(
                           "px-4 py-3 rounded-xl border text-left transition-all",
                           journeyConfig.method === m 
@@ -483,7 +471,7 @@ export default function PassportGuidePage() {
                     {["adult", "minor"].map((a) => (
                       <button
                         key={a}
-                        onClick={() => setJourneyConfig({ ...journeyConfig, age: a as any })}
+                        onClick={() => setJourneyConfig({ ...journeyConfig, age: a as "adult" | "minor" })}
                         className={cn(
                           "px-4 py-3 rounded-xl border text-left transition-all",
                           journeyConfig.age === a 
@@ -563,7 +551,7 @@ export default function PassportGuidePage() {
                          ].map((t) => (
                            <button
                              key={t.id}
-                             onClick={() => setPassportType(t.id as any)}
+                             onClick={() => setPassportType(t.id as "mrp" | "e-passport")}
                              className={cn(
                                "py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all",
                                passportType === t.id 
@@ -583,7 +571,7 @@ export default function PassportGuidePage() {
                          {["normal", "urgent", "fasttrack"].map((t) => (
                            <button
                              key={t}
-                             onClick={() => setUrgency(t as any)}
+                             onClick={() => setUrgency(t as "normal" | "urgent" | "fasttrack")}
                              className={cn(
                                "py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all",
                                urgency === t 
@@ -602,7 +590,7 @@ export default function PassportGuidePage() {
                           <label className="text-[10px] font-bold text-slate-400 uppercase">Pages</label>
                           <select 
                             value={pages || ""} 
-                            onChange={(e) => setPages(e.target.value as any)}
+                            onChange={(e) => setPages(e.target.value as "36" | "72" | "100")}
                             className="w-full bg-slate-100 border-none rounded-xl py-2 px-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-[#0d7377]/20 outline-none"
                           >
                             <option value="" disabled>Select</option>
@@ -615,7 +603,7 @@ export default function PassportGuidePage() {
                           <label className="text-[10px] font-bold text-slate-400 uppercase">Validity</label>
                           <select 
                             value={validity || ""} 
-                            onChange={(e) => setValidity(e.target.value as any)}
+                            onChange={(e) => setValidity(e.target.value as "5" | "10")}
                             className="w-full bg-slate-100 border-none rounded-xl py-2 px-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-[#0d7377]/20 outline-none"
                           >
                             <option value="" disabled>Select</option>
@@ -704,7 +692,6 @@ export default function PassportGuidePage() {
                 </div>
               </motion.div>
               {filteredSections.map((section, sIdx) => {
-                const isDocSection = section.id === "documents";
                 const content = getFilteredContent(section.id, section.content);
                 const theme = sectionThemes[section.id] || sectionThemes.process;
                 
@@ -836,8 +823,8 @@ export default function PassportGuidePage() {
                             ) : section.id === "time" ? (
                               <div className="space-y-4">
                                 <div className="grid gap-4">
-                                  {content.map((item: any, idx: number) => {
-                                    const isActive = urgency === item.heading.toLowerCase().replace(" ", "");
+                                  {content.map((item: { heading: string; text: string }, idx: number) => {
+                                    const isActive = urgency === item.heading.toLowerCase().replace(" ", "") as "normal" | "urgent" | "fasttrack";
                                     return (
                                       <div 
                                         key={idx}
@@ -866,7 +853,7 @@ export default function PassportGuidePage() {
                               </div>
                             ) : (
                               <div className="space-y-4">
-                                {content.map((item: any, idx: number) => {
+                                {content.map((item: { heading: string; text: string }, idx: number) => {
                                   const itemId = `${section.id}-${idx}`;
                                   const isChecked = checkedItems.includes(itemId);
                                   
@@ -966,7 +953,7 @@ export default function PassportGuidePage() {
                 ].map((t) => (
                   <button
                     key={t.id}
-                    onClick={() => setPassportType(t.id as any)}
+                    onClick={() => setPassportType(t.id as "mrp" | "e-passport")}
                     className={cn(
                       "px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition-all whitespace-nowrap",
                       passportType === t.id 

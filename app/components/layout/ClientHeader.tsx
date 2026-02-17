@@ -29,7 +29,7 @@ export function ClientHeader() {
         router.push("/login");
       } else {
         // User is not signed in, redirect to login page
-        router.push("/login");
+        router.push("/");
       }
     } finally {
       setIsAuthLoading(false);

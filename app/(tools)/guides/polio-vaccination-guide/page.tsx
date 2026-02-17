@@ -435,7 +435,7 @@ function ProvincesSection({
                   <TabsTrigger
                     key={prov}
                     value={prov.toLowerCase()}
-                    className="flex-1 min-w-[100px] py-2.5 rounded-lg font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    className="flex-1 min-w-25 py-2.5 rounded-lg font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm"
                   >
                     {prov}
                   </TabsTrigger>
