@@ -1117,9 +1117,9 @@ export default function ExploreJourneys({
   return (
     <div className="w-full bg-slate-50/50 min-h-screen font-sans text-slate-800">
       {/* Filters Section */}
-      <section className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-4">
+      <section className="top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-4">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
             <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
               <Search className="w-5 h-5 text-primary" />
               Explore Filters
@@ -1142,7 +1142,7 @@ export default function ExploreJourneys({
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="flex justify-end">
+              <div className="flex justify-center md:justify-end">
                 <Button
                   variant="outline"
                   onClick={() => setIsVisaWizardOpen(true)}
@@ -1351,7 +1351,7 @@ export default function ExploreJourneys({
             </DialogContent>
           </Dialog>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
             {/* Route */}
             <div className="md:col-span-3 lg:col-span-2 space-y-2">
               <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -1375,8 +1375,8 @@ export default function ExploreJourneys({
                   "Family",
                   "Work",
                   "Study",
-                  "Visit",
                   "Humanitarian",
+                  "Visit",
                   "Other",
                 ].map((cat) => (
                   <button
@@ -1396,7 +1396,7 @@ export default function ExploreJourneys({
             </div>
 
             {/* Process & Stage */}
-            <div className="md:col-span-12 lg:col-span-4 grid grid-cols-2 gap-4">
+            <div className="md:col-span-12 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Process Type
@@ -1507,12 +1507,12 @@ export default function ExploreJourneys({
 
         {/* Preview Panel */}
         <div className="lg:col-span-3 lg:h-[calc(100vh-180px)] lg:overflow-y-auto h-auto pb-24 scroll-smooth">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-[600px] flex flex-col">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-[300px] lg:min-h-[600px] flex flex-col">
             {highlightedJourney ? (
               <>
                 {/* Header */}
-                <div className="p-6 border-b border-slate-100">
-                  <h3 className="text-2xl font-bold text-slate-900">
+                <div className="p-4 md:p-6 border-b border-slate-100">
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900">
                     {JOURNEYS.find((j) => j.id === highlightedJourney)?.title}
                   </h3>
                   <p className="text-sm text-slate-500 font-medium mt-1">
@@ -1524,12 +1524,12 @@ export default function ExploreJourneys({
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col p-6 space-y-8">
+                <div className="flex-1 flex flex-col p-4 md:p-6 space-y-6 md:space-y-8">
                   {/* Roadmap Stepper */}
-                  <div className="px-4 pt-32 pb-6 bg-slate-50/50 rounded-xl border border-slate-100">
-                    <div className="relative flex items-start justify-between">
+                  <div className="px-2 md:px-4 pt-24 md:pt-32 pb-6 bg-slate-50/50 rounded-xl border border-slate-100 overflow-x-auto">
+                    <div className="relative flex items-start justify-between min-w-[300px]">
                       {/* Connecting Line */}
-                      <div className="absolute left-0 right-0 top-4 -translate-y-1/2 h-1 bg-slate-200 z-0 mx-8 hidden md:block"></div>
+                      <div className="absolute left-0 right-0 top-4 -translate-y-1/2 h-1 bg-slate-200 z-0 mx-8"></div>
 
                       {JOURNEY_DETAILS[highlightedJourney]
                         ?.filter((s) => s.key !== "221g")
@@ -1634,7 +1634,7 @@ export default function ExploreJourneys({
                   {/* Detail Card */}
                   {selectedStationKey && (
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <div className="p-6 space-y-6">
+                      <div className="p-4 md:p-6 space-y-6">
                         <div className="flex items-center gap-3 mb-2">
                           <h4 className="text-lg font-bold text-slate-800">
                             {
@@ -1742,9 +1742,9 @@ export default function ExploreJourneys({
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 h-full">
-                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                  <MapPin className="w-8 h-8 text-slate-300" />
+              <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-8 text-center text-slate-400 h-full">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                  <MapPin className="w-6 h-6 md:w-8 md:h-8 text-slate-300" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-700 mb-1">
                   No Journey Selected
@@ -1761,37 +1761,41 @@ export default function ExploreJourneys({
 
       {/* Compare Tray */}
       {selectedJourneys.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-6">
-          <div className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl shadow-indigo-500/20 flex items-center gap-6 border border-slate-800">
-            <div className="flex items-center gap-3">
-              <span className="font-semibold">
-                {selectedJourneys.length}/3 selected
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-6 w-[92%] md:w-auto max-w-2xl">
+          <div className="bg-slate-900 text-white px-4 md:px-6 py-3 rounded-full shadow-2xl shadow-indigo-500/20 flex items-center justify-between md:justify-start gap-3 md:gap-6 border border-slate-800 w-full">
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                {selectedJourneys.length}/3
+                <span className="hidden sm:inline"> selected</span>
               </span>
               <div className="flex -space-x-2">
                 {selectedJourneys.map((id) => (
                   <div
                     key={id}
-                    className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-xs font-bold"
+                    className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] md:text-xs font-bold"
                   >
                     {JOURNEYS.find((j) => j.id === id)?.title.charAt(0)}
                   </div>
                 ))}
               </div>
             </div>
-            <Button
-              size="sm"
-              onClick={() => setIsCompareModalOpen(true)}
-              className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full"
-            >
-              Compare Journeys <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-            <button
-              onClick={() => setSelectedJourneys([])}
-              className="text-slate-400 hover:text-white transition-colors"
-              aria-label="Clear selection"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={() => setIsCompareModalOpen(true)}
+                className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full text-xs md:text-sm px-3 md:px-4"
+              >
+                Compare <span className="hidden sm:inline ml-1">Journeys</span>{" "}
+                <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" />
+              </Button>
+              <button
+                onClick={() => setSelectedJourneys([])}
+                className="text-slate-400 hover:text-white transition-colors p-1"
+                aria-label="Clear selection"
+              >
+                <X className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1845,8 +1849,11 @@ function JourneyCard({
             {journey.category}
           </span>
           {journey.matchScore > 90 && (
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" /> {journey.matchScore}% Match
+            <span className="hidden md:block">
+              {" "}
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 flex items-center gap-1 ">
+                <CheckCircle className="w-3 h-3 " /> {journey.matchScore}% Match
+              </span>
             </span>
           )}
         </div>

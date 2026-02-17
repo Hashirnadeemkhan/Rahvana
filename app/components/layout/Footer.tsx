@@ -1,11 +1,28 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { ComingSoonModal } from "../shared/ComingSoonModal";
 import { Instagram, Facebook, Twitter, MessageSquare } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+
+  const handleNav = (id: string, e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+
+    const routes: Record<string, string> = {
+      contact: "/#contact",
+      about: "/#about",
+    };
+
+    const targetRoute = routes[id] || "/";
+    router.push(targetRoute);
+  };
 
   // Keep existing administrator-specific logic
   if (pathname?.startsWith("/admin")) {
@@ -112,28 +129,25 @@ export default function Footer() {
             </h4>
             <nav className="flex flex-col gap-4 text-sm">
               <Link
-                href="#"
+                href="/#about"
+                onClick={(e) => handleNav("about", e)}
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 About Us
               </Link>
               <Link
-                href="#"
+                href="/#contact"
+                onClick={(e) => handleNav("contact", e)}
                 className="text-slate-400 hover:text-white transition-colors"
               >
-                Help Center
-              </Link>
-              <Link
-                href="#"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                Contact
-              </Link>
-              <Link
-                href="#"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                Blog
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="h-4.5 w-4.5 fill-current group-hover:scale-110 transition-transform"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                </svg>
+                Twitter
               </Link>
             </nav>
           </div>
@@ -198,6 +212,8 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      <ComingSoonModal open={comingSoonOpen} onOpenChange={setComingSoonOpen} />
     </footer>
   );
 }

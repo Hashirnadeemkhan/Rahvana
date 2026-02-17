@@ -50,7 +50,7 @@ Arachnie mein consultant feature ek powerful system hai jo users ko US immigrati
 ## Data Flow and API Endpoints
 
 ### 1. Frontend Components
-- `app/services/page.tsx`: Main consultation booking form
+- `app/book-consultation/page.tsx`: Main consultation booking form
 - `app/admin/components/consultation-requests/ConsultationRequestsTable.tsx`: Admin dashboard for managing requests
 
 ### 2. Backend API Routes

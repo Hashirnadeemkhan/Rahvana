@@ -1,0 +1,106 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
+
+interface ComingSoonModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function ComingSoonModal({ open, onOpenChange }: ComingSoonModalProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => setIsVisible(true), 100);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [open]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl w-[95%] bg-background overflow-hidden rounded-2xl p-0">
+        <div className="relative w-full overflow-hidden flex items-center justify-center guide-grid-bg py-20 px-6">
+          {/* Background Blobs */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/5 blur-3xl animate-pulse" />
+            <div className="absolute bottom-1/3 right-1/3 w-48 h-48 rounded-full bg-secondary/10 blur-2xl animate-pulse delay-1000" />
+            <div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-primary/10 blur-xl animate-pulse delay-500" />
+          </div>
+
+          <div className="relative z-10 text-center max-w-2xl mx-auto">
+            {/* Title */}
+            <div
+              className={`transform transition-all duration-1000 ${
+                isVisible
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
+            >
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
+                <span className="text-[#0D7377]">Coming Soon</span>
+              </h1>
+            </div>
+
+            {/* Subtitle */}
+            <div
+              className={`transform transition-all duration-1000 delay-300 ${
+                isVisible
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
+            >
+              <p className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed">
+                We&apos;re crafting something extraordinary for you. Stay tuned
+                for an experience that redefines excellence.
+              </p>
+            </div>
+
+            {/* Loader */}
+            <div
+              className={`transform transition-all duration-1000 delay-500 ${
+                isVisible
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
+              }`}
+            >
+              <div className="inline-flex items-center gap-4 bg-card/60 backdrop-blur-sm rounded-full px-8 py-4 border border-border shadow-lg">
+                <div className="flex gap-1">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                      style={{ animationDelay: `${i * 0.2}s` }}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-medium text-foreground">
+                  Preparing something amazing
+                </span>
+              </div>
+
+              <div className="mt-8 text-center">
+                <p className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed">
+                  Be among the first to experience Rahvana&apos;s full journey
+                  assistant! Sign up now to get early access and never miss an
+                  update.
+                </p>
+                <button
+                  onClick={() => router.push("/signup")}
+                  className="font-semibold text-white bg-primary hover:bg-primary/90 shadow-md px-6 py-4 rounded-lg transition-all"
+                >
+                  Sign Up Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

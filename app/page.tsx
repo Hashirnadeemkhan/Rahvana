@@ -648,7 +648,7 @@ function HomePageContent() {
                       </span>
                     </h1>
                     <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                      Navigate the complexities of U.S. immigration with
+                      Navigate the complexities of immigration with
                       confidence. Rahvana provides step-by-step guidance, smart
                       tools, and expert support to help you reunite with loved
                       ones.
@@ -919,7 +919,7 @@ function HomePageContent() {
                         Get personalized advice from immigration specialists who
                         understand your journey.{" "}
                         <span className="inline-block px-3 py-1 rounded-md bg-white/20 font-bold">
-                          First consult is free.
+                          Sign up to get the first free consultation.
                         </span>
                       </p>
                       <HydrationSafeButton
@@ -945,7 +945,7 @@ function HomePageContent() {
             </section>
 
             {/* HOW RAHVANA WORKS SECTION */}
-            <section className="py-24 bg-muted/30" id="how-it-works">
+            <section className="py-24 bg-muted/30" id="about">
               <div className="container mx-auto px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <motion.span
@@ -963,9 +963,16 @@ function HomePageContent() {
                   <p className="text-lg text-muted-foreground">
                     From preparation to arrival, we guide you through every step
                     of your immigration journey.
-                    {/* A streamlined, 6-step process designed to remove stress and
-                    uncertainty from your journey. */}
                   </p>
+                  <motion.span
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rahvana-primary-pale text-rahvana-primary text-sm font-semibold my-2"
+                  >
+                    <Icons.Route className="w-4 h-4" />
+                    See steps below for a typical US immigration journey
+                  </motion.span>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
@@ -1184,7 +1191,7 @@ function HomePageContent() {
                           {faq.q}
                         </span>
                         <div
-                          className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
+                          className={`w-16 h-6 md:h-8 md:w-8 rounded-full  border flex items-center justify-center transition-all ${
                             openFAQ === i
                               ? "bg-rahvana-primary border-rahvana-primary text-white rotate-45"
                               : "border-border text-muted-foreground group-hover:border-rahvana-primary group-hover:text-rahvana-primary"

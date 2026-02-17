@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClientHeader } from "./components/layout/ClientHeader";
 import { AuthProvider } from "./context/AuthContext";
-import { ThemeProvider } from "./components/theme-provider";
+// import { ThemeProvider } from "./components/theme-provider";
 import { ClientWidgets } from "./components/layout/ClientWidgets";
 import Footer from "./components/layout/Footer";
 
@@ -20,17 +20,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className="bg-background">
         <AuthProvider>
-          <ThemeProvider
+          {/* <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            // un comment if you want bydefault device theme
+            // defaultTheme="system"
+            // enableSystem
             disableTransitionOnChange
-          >
+          > */}
             <ClientHeader />
             {children}
             <ClientWidgets />
             <Footer />
-          </ThemeProvider>
+          {/* </ThemeProvider> */}
         </AuthProvider>
       </body>
     </html>
