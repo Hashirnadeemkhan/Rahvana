@@ -71,6 +71,8 @@ export function MFASetup() {
 
     const result = await enableMFA();
 
+    console.log("IP:", await fetch("https://api.ipify.org").then(r => r.text()))
+
     if (result.success && result.qrCode && result.secret && result.factorId) {
       setQrCode(result.qrCode);
       setSecret(result.secret);
@@ -94,6 +96,8 @@ export function MFASetup() {
 
     try {
       const result = await verifyMFASetup(factorId, code);
+
+      console.log("IP:", await fetch("https://api.ipify.org").then(r => r.text()))
 
       if (result.success) {
         setStep("complete");

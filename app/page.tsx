@@ -626,7 +626,7 @@ function HomePageContent() {
         {activeSection === "home" && (
           <div className="flex flex-col">
             {/* HERO SECTION */}
-            <section className="relative py-20 lg:py-32 overflow-hidden bg-background">
+            <section className="relative py-12 overflow-hidden bg-background">
               <div className="container mx-auto px-6">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                   <motion.div
