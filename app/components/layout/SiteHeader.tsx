@@ -294,7 +294,7 @@ export function SiteHeader({
             >
               <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  activeMenu === "journeys"
+                  isActive("journeys") || activeMenu === "journeys"
                     ? "bg-muted text-primary"
                     : "text-muted-foreground hover:bg-muted hover:text-primary"
                 }`}
@@ -314,7 +314,7 @@ export function SiteHeader({
             >
               <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  activeMenu === "tools"
+                  isActive("tools", "/tools") || activeMenu === "tools"
                     ? "bg-muted text-primary"
                     : "text-muted-foreground hover:bg-muted hover:text-primary"
                 }`}
@@ -334,7 +334,7 @@ export function SiteHeader({
             >
               <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  activeMenu === "guides"
+                  isActive("guides") || activeMenu === "guides"
                     ? "bg-muted text-primary"
                     : "text-muted-foreground hover:bg-muted hover:text-primary"
                 }`}
@@ -354,7 +354,7 @@ export function SiteHeader({
             >
               <HydrationSafeButton
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  activeMenu === "services"
+                  isActive("services", "/services") || activeMenu === "services"
                     ? "bg-muted text-primary"
                     : "text-muted-foreground hover:bg-muted hover:text-primary"
                 }`}
@@ -371,8 +371,8 @@ export function SiteHeader({
               onClick={(e) => handleNav("pricing", e)}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 isActive("pricing", "/pricing")
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                  ? "bg-muted text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-primary"
               }`}
             >
               Pricing
@@ -397,8 +397,8 @@ export function SiteHeader({
               onClick={(e) => handleNav("contact", e)}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 isActive("contact")
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                  ? "bg-muted text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-primary"
               }`}
             >
               Contact
