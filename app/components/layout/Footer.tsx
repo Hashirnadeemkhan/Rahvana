@@ -4,7 +4,7 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ComingSoonModal } from "../shared/ComingSoonModal";
-import { Instagram, Facebook, Twitter, MessageSquare } from "lucide-react";
+import { Instagram, Facebook, Twitter, MessageSquare, Linkedin } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -96,25 +96,25 @@ export default function Footer() {
             </h4>
             <nav className="flex flex-col gap-4 text-sm">
               <Link
-                href="#"
+                href="/visa-case-strength-checker"
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 CasePulse AI
               </Link>
               <Link
-                href="#"
+                href="/visa-eligibility"
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 VisaPath Finder
               </Link>
               <Link
-                href="#"
+                href="/affidavit-support-calculator"
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 SponsorReady
               </Link>
               <Link
-                href="#"
+                href="/pdf-processing"
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 PDF PowerKit
@@ -140,14 +140,7 @@ export default function Footer() {
                 onClick={(e) => handleNav("contact", e)}
                 className="text-slate-400 hover:text-white transition-colors"
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="h-4.5 w-4.5 fill-current group-hover:scale-110 transition-transform"
-                >
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-                </svg>
-                Twitter
+                Contact
               </Link>
             </nav>
           </div>
@@ -162,14 +155,20 @@ export default function Footer() {
                 href="#"
                 className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
               >
-                <Instagram size={18} className="group-hover:scale-110 transition-transform" />
+                <Instagram
+                  size={18}
+                  className="group-hover:scale-110 transition-transform"
+                />
                 Instagram
               </Link>
               <Link
                 href="#"
                 className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
               >
-                <Facebook size={18} className="group-hover:scale-110 transition-transform" />
+                <Facebook
+                  size={18}
+                  className="group-hover:scale-110 transition-transform"
+                />
                 Facebook
               </Link>
               <Link
@@ -189,8 +188,11 @@ export default function Footer() {
                 href="#"
                 className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
               >
-                <MessageSquare size={18} className="group-hover:scale-110 transition-transform" />
-                Reddit
+                <Linkedin
+                  size={18}
+                  className="group-hover:scale-110 transition-transform"
+                />
+                LinkedIn
               </Link>
             </nav>
           </div>

@@ -288,6 +288,10 @@ export default function AffidavitSupportCalculator() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   // Auto-fill profile data
   useEffect(() => {
     const fetchProfile = async () => {
