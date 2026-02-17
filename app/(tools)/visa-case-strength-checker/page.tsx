@@ -1469,6 +1469,10 @@ export default function VisaCaseStrengthChecker() {
   const { user } = useAuth();
   const [profileLoaded, setProfileLoaded] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   // Auto-fill profile data & Restore saved session
   useEffect(() => {
     const fetchProfile = async () => {

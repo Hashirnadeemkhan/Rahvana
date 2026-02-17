@@ -38,10 +38,51 @@ const LOGO_IMAGE = `
   />
 `;
 
+const CLOCK_SVG = `<img 
+src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/clock.png"
+alt="Clock" 
+style="width:24px; height:auto;" 
+/>`;
+
+const SHIELD_SVG = `<img 
+src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/shield-check.png"
+alt="Shield Check" 
+style="width:24px; height:auto;" 
+/>
+`;
+
+const LOCK = `<img 
+src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/lock.png"
+alt="Lock" 
+style="width:24px; height:auto;" 
+/>
+`;
+
+const UNSHIELD_SVG = `<img 
+src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/shield-off.png"
+alt="UnShield" 
+style="width:24px; height:auto;" 
+/>
+`;
+
+const WARNING_SVG = `<img 
+src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/circle-alert.png"
+alt="Warning" 
+style="width:24px; height:auto;" 
+/>
+`;
+
+const FEATURE_SVG = `<img 
+src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/rocket.png"
+alt="Feature" 
+style="width:24px; height:auto;" 
+/>
+`;
+
 export function getEmailConfirmationHtml(confirmLink: string): string {
   // Create a more user-friendly display link
-  const displayLink = confirmLink.replace(/^https?:\/\/[^\/]+/, '');
-  
+  const displayLink = confirmLink.replace(/^https?:\/\/[^\/]+/, "");
+
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -61,7 +102,7 @@ export function getEmailConfirmationHtml(confirmLink: string): string {
             
             <!-- Top Accent Bar -->
             <tr>
-              <td style="height:6px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+              <td style="height:3px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
             </tr>
 
             <tr>
@@ -69,7 +110,7 @@ export function getEmailConfirmationHtml(confirmLink: string): string {
 
                 <!-- Logo -->
                 <div style="text-align:center; margin-bottom:32px;">
-                  <div style="display:inline-block; padding:18px; background:#e8f6f6; border-radius:16px;">
+                  <div style="display:inline-block; padding:18px;">
                     <!-- Logo Image -->
                     ${LOGO_IMAGE}
                   </div>
@@ -117,7 +158,7 @@ export function getEmailConfirmationHtml(confirmLink: string): string {
                 <!-- Expiry Box -->
                 <div style="background:#e8f6f6; border-radius:12px; padding:16px;">
                   <p style="margin:0; font-size:14px; color:#0a5a5d; font-weight:500;">
-                    ⏰ This link will expire in 24 hours.
+                    ${CLOCK_SVG} This link will expire in 24 hours.
                   </p>
                 </div>
 
@@ -165,17 +206,19 @@ export function getPasswordResetEmailHtml(resetLink: string): string {
 
             <!-- Top Gradient Accent -->
             <tr>
-              <td style="height:6px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+              <td style="height:3px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
             </tr>
 
             <tr>
               <td style="padding:48px 40px;">
 
-                <!-- Logo Section -->
-                <div style="text-align:center; margin-bottom:32px;">
+              <!-- Logo -->
+              <div style="text-align:center; margin-bottom:32px;">
+                <div style="display:inline-block; padding:18px;">
                   <!-- Logo Image -->
                   ${LOGO_IMAGE}
                 </div>
+              </div>
 
                 <!-- Heading -->
                 <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
@@ -219,7 +262,7 @@ export function getPasswordResetEmailHtml(resetLink: string): string {
                 <!-- Security Notice Box -->
                 <div style="background:#fff4e5; border-radius:12px; padding:16px; margin-bottom:24px;">
                   <p style="margin:0; font-size:14px; color:#92400e; font-weight:500;">
-                    ⏰ This link will expire in 1 hour for security reasons.
+                    ${CLOCK_SVG} This link will expire in 1 hour for security reasons.
                   </p>
                 </div>
 
@@ -266,37 +309,23 @@ export function getMFAEnabledEmailHtml(): string {
 
             <!-- Top Gradient Accent -->
             <tr>
-              <td style="height:6px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+              <td style="height:3px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
             </tr>
 
             <tr>
               <td style="padding:48px 40px;">
 
-                <!-- Logo Section -->
-                <div style="text-align:center; margin-bottom:32px;">
+              <!-- Logo -->
+              <div style="text-align:center; margin-bottom:32px;">
+                <div style="display:inline-block; padding:18px;">
                   <!-- Logo Image -->
                   ${LOGO_IMAGE}
                 </div>
-
-                <!-- Success Icon Circle -->
-                <div style="text-align:center; margin-bottom:20px;">
-                  <div style="
-                    display:inline-block;
-                    width:70px;
-                    height:70px;
-                    background:#e8f6f6;
-                    border-radius:50%;
-                    line-height:70px;
-                    font-size:28px;
-                    color:#0d7377;
-                    font-weight:700;">
-                    ✓
-                  </div>
-                </div>
+              </div>
 
                 <!-- Heading -->
                 <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
-                  Two-Factor Authentication Enabled
+                  ${SHIELD_SVG} Two-Factor Authentication Enabled
                 </h1>
 
                 <!-- Main Message -->
@@ -307,7 +336,7 @@ export function getMFAEnabledEmailHtml(): string {
                 <!-- Success Highlight Box -->
                 <div style="background:#e8f6f6; border-radius:12px; padding:16px; margin:24px 0;">
                   <p style="margin:0; font-size:14px; color:#0a5a5d; font-weight:500;">
-                    🔒 Your account now has an additional layer of protection.
+                    ${LOCK} Your account now has an additional layer of protection.
                   </p>
                 </div>
 
@@ -378,36 +407,23 @@ export function getMFADisabledEmailHtml(): string {
 
             <!-- Top Gradient Accent -->
             <tr>
-              <td style="height:6px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+              <td style="height:3px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
             </tr>
 
             <tr>
               <td style="padding:48px 40px;">
 
-                <!-- Logo -->
-                <div style="text-align:center; margin-bottom:32px;">
+              <!-- Logo -->
+              <div style="text-align:center; margin-bottom:32px;">
+                <div style="display:inline-block; padding:18px;">
+                  <!-- Logo Image -->
                   ${LOGO_IMAGE}
                 </div>
-
-                <!-- Warning Icon -->
-                <div style="text-align:center; margin-bottom:20px;">
-                  <div style="
-                    display:inline-block;
-                    width:70px;
-                    height:70px;
-                    background:#fff4e5;
-                    border-radius:50%;
-                    line-height:70px;
-                    font-size:28px;
-                    color:#92400e;
-                    font-weight:700;">
-                    !
-                  </div>
-                </div>
+              </div>
 
                 <!-- Heading -->
                 <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
-                  Two-Factor Authentication Disabled
+${UNSHIELD_SVG} Two-Factor Authentication Disabled
                 </h1>
 
                 <!-- Main Text -->
@@ -418,7 +434,7 @@ export function getMFADisabledEmailHtml(): string {
                 <!-- Security Reduced Notice -->
                 <div style="background:#fff4e5; border-radius:12px; padding:16px; margin:24px 0;">
                   <p style="margin:0; font-size:14px; color:#92400e; font-weight:500;">
-                    ⚠️ Your account security has been reduced. We strongly recommend enabling 2FA again.
+                    ${WARNING_SVG} Your account security has been reduced. We strongly recommend enabling 2FA again.
                   </p>
                 </div>
 
@@ -474,5 +490,90 @@ export function getMFADisabledEmailHtml(): string {
 
   </body>
   </html>
+  `;
+}
+
+export function getFeatureAnnouncementEmailHtml(
+  title: string,
+  description: string,
+  featureUrl: string,
+): string {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>New Feature Released</title>
+    </head>
+    <body style="margin:0; padding:0; background-color:#e8f6f6; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+        <tr>
+          <td align="center">
+
+            <!-- Main Card -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; background:#ffffff; border-radius:18px; box-shadow:0 8px 24px rgba(13,115,119,0.08); overflow:hidden;">
+              
+              <!-- Top Accent Bar -->
+              <tr>
+                <td style="height:3px; background:linear-gradient(90deg,#0d7377,#14a0a6,#32e0c4);"></td>
+              </tr>
+
+              <tr>
+                <td style="padding:48px 40px;">
+
+                  <!-- Logo -->
+                  <div style="text-align:center; margin-bottom:32px;">
+                    <div style="display:inline-block; padding:18px;">
+                      ${LOGO_IMAGE}
+                    </div>
+                  </div>
+
+                  <!-- Heading -->
+                  <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
+${FEATURE_SVG} ${title}
+                  </h1>
+
+                  <!-- Description -->
+                  <p style="margin:0 0 24px; font-size:16px; line-height:1.7; color:#475569; text-align:center;">
+                    ${description}
+                  </p>
+
+                  <!-- Highlight Box -->
+                  <div style="background-color:#ecfeff; border-radius:12px; padding:16px; margin:24px 0;">
+                    <p style="margin:0; font-size:14px; color:#0e7490; font-weight:500; text-align:center;">
+                      This feature is now live and ready for you to explore.
+                    </p>
+                  </div>
+
+                  <!-- CTA Button -->
+                  <div style="text-align:center; margin:32px 0;">
+                    <a href="${featureUrl}" 
+                       style="display:inline-block; padding:16px 40px; background-color:#0d7377; color:#ffffff; text-decoration:none; font-size:16px; font-weight:600; border-radius:14px; box-shadow:0 6px 18px rgba(13,115,119,0.25);">
+                      Explore Feature
+                    </a>
+                  </div>
+
+                  <!-- Footer Text -->
+                  <p style="margin:0; font-size:14px; color:#94a3b8; text-align:center;">
+                    Thank you for being part of Rahvana. We’re constantly improving to make your experience better.
+                  </p>
+
+                </td>
+              </tr>
+            </table>
+
+            <!-- Bottom Footer -->
+            <p style="margin-top:28px; font-size:12px; color:#94a3b8; text-align:center;">
+              © ${new Date().getFullYear()} Rahvana. All rights reserved.
+            </p>
+
+          </td>
+        </tr>
+      </table>
+
+    </body>
+    </html>
   `;
 }

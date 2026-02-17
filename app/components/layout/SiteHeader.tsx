@@ -449,14 +449,16 @@ export function SiteHeader({
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 top-2 left-2" />
           </HydrationSafeButton> */}
 
-          <HydrationSafeButton
-            variant="outline"
-            size="icon"
-            aria-label="Search"
-            className="bg-transparent hover:bg-primary/10 p-2 rounded-md text-muted-foreground hover:text-primary"
-          >
-            <Bell className="h-5 w-5" aria-hidden="true" />
-          </HydrationSafeButton>
+          {isSignedIn && (
+            <HydrationSafeButton
+              variant="outline"
+              size="icon"
+              aria-label="Search"
+              className="bg-transparent hover:bg-primary/10 p-2 rounded-md text-muted-foreground hover:text-primary"
+            >
+              <Bell className="h-5 w-5" aria-hidden="true" />
+            </HydrationSafeButton>
+          )}
 
           {/* LOGIN / PROFILE toggle */}
           {isSignedIn ? (

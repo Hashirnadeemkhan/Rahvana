@@ -283,19 +283,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     code: string,
   ) => {
     try {
-      const response = await fetch("/api/auth/mfa/verify-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ factorId, challengeId, code }),
+      const { error } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId,
+        code,
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { success: false, error: data.error };
+  
+      if (error) {
+        return { success: false, error: error.message };
       }
-
-      return { success: true, user: data.user, session: data.session };
+  
+      // 🔥 Get updated session AFTER successful verification
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+  
+      if (sessionError || !session) {
+        return {
+          success: false,
+          error: "Failed to retrieve upgraded session",
+        };
+      }
+  
+      return {
+        success: true,
+        user: session.user,
+        session,
+      };
     } catch {
       return {
         success: false,
