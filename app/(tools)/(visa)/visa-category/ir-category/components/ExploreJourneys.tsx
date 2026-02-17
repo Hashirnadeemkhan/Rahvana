@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  HelpCircle,
   MapPin,
   Search,
   Info,
@@ -13,13 +12,6 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -28,6 +20,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { VisaEligibilityTool } from "@/app/(tools)/visa-eligibility/components/VisaEligibilityTool";
 import Link from "next/link";
 
@@ -108,7 +106,7 @@ const JOURNEY_DETAILS: Record<string, Station[]> = {
       label: "Interview",
       summary: "Embassy interview",
       whatYouDo:
-        "Attend visa interview at U.S. embassy in Pakistan (Islamabad or Karachi).",
+        "Attend visa interview at a U.S. embassy or consulate.",
       uploadsNeeded: [
         "Passport",
         "Medical exam results",
@@ -164,7 +162,7 @@ const JOURNEY_DETAILS: Record<string, Station[]> = {
       key: "interview",
       label: "Interview",
       summary: "Consulate Visit",
-      whatYouDo: "Parent attends interview at U.S. Embassy.",
+      whatYouDo: "Parent attends interview at a U.S. Embassy or Consulate.",
       uploadsNeeded: ["Medical Exam", "Passport", "Photos"],
       pitfalls: ["Medical inadmissibility", "Missing original docs"],
     },
@@ -276,19 +274,19 @@ const JOURNEYS: Journey[] = [
     bestFor: "Married couples where one spouse is a U.S. citizen",
     stations: 5,
     difficulty: "Medium",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "File I-130 with USCIS (4-12 months)",
       "NVC document processing (2-4 months)",
       "Schedule embassy interview (1-3 months)",
-      "Attend interview in Pakistan",
+      "Attend embassy interview",
       "Receive visa and travel to U.S.",
     ],
     introVideo: {
       title: "Spouse & Fiancé Visa Process Explained",
       duration: "4:30",
       description:
-        "Learn how to bring your spouse to the U.S. using the IR-1/CR-1 visa. This guide covers the I-130 petition, NVC processing, and the crucial interview stage in Islamabad or Karachi.",
+        "Learn how to bring your spouse to the U.S. using the IR-1/CR-1 visa. This guide covers the I-130 petition, NVC processing, and the crucial interview stage.",
     },
   },
   {
@@ -305,7 +303,7 @@ const JOURNEYS: Journey[] = [
     bestFor: "Parents of U.S. citizens (over 21)",
     stations: 5,
     difficulty: "Medium",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "File I-130 with USCIS",
       "NVC processing",
@@ -334,7 +332,7 @@ const JOURNEYS: Journey[] = [
     bestFor: "Students accepted into U.S. academic programs",
     stations: 3,
     difficulty: "Low",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "Apply to School",
       "Receive I-20",
@@ -364,7 +362,7 @@ const JOURNEYS: Journey[] = [
       "Professionals with bachelor's degree or higher in specialty occupations",
     stations: 4,
     difficulty: "High",
-    pakistanFocused: true,
+    pakistanFocused: false,
     quickRoadmap: [
       "Employer files Petition",
       "USCIS Approval",
@@ -1072,7 +1070,6 @@ export default function ExploreJourneys({
   const [selectedJourneys, setSelectedJourneys] = useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isMatcherOpen, setIsMatcherOpen] = useState(false);
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [isQuickRoadmapOpen, setIsQuickRoadmapOpen] = useState(false);
   const [videoModalJourney, setVideoModalJourney] = useState<Journey | null>(
@@ -1120,119 +1117,18 @@ export default function ExploreJourneys({
   return (
     <div className="w-full bg-slate-50/50 min-h-screen font-sans text-slate-800">
       {/* Filters Section */}
-      <section className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-4">
+      <section className="top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-4">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
             <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
               <Search className="w-5 h-5 text-primary" />
               Explore Filters
             </h3>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsVisaWizardOpen(true)}
-                className="text-sm font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-full transition-colors flex items-center gap-2 border border-emerald-200"
-              >
-                <CheckCircle className="w-4 h-4" /> Check Best Visa
-              </button>
-              <button
-                onClick={() => setIsHelpOpen(true)}
-                className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
-              >
-                <HelpCircle className="w-4 h-4" /> Why these filters?
-              </button>
             </div>
           </div>
 
-          <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
-            <DialogContent className="max-h-[85vh] overflow-y-auto w-[95%] max-w-2xl p-4 md:p-6 rounded-xl gap-4">
-              <DialogHeader>
-                <DialogTitle className="pr-8">
-                  Understanding Filters
-                </DialogTitle>
-                <DialogDescription className="sr-only">
-                  Explanation of visa process types and stages.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-6 pt-4 text-sm text-slate-700">
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-slate-900 text-base">
-                    Process Type:
-                  </h4>
-                  <ul className="space-y-3 list-none pl-0">
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • Consular Processing:
-                      </span>
-                      <span>
-                        Apply for your visa at a U.S. embassy or consulate
-                        abroad. You&apos;ll attend an interview outside the U.S.
-                      </span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • Adjustment of Status (AOS):
-                      </span>
-                      <span>
-                        Apply for a green card while you&apos;re already in the
-                        United States. No interview abroad required.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
 
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-slate-900 text-base">
-                    Stage:
-                  </h4>
-                  <p>
-                    Select your current stage to see journeys relevant to where
-                    you are:
-                  </p>
-                  <ul className="space-y-2 list-none pl-0">
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • Not started:
-                      </span>
-                      <span>You haven&apos;t filed anything yet</span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • USCIS:
-                      </span>
-                      <span>
-                        Your petition is with U.S. Citizenship and Immigration
-                        Services
-                      </span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • NVC:
-                      </span>
-                      <span>Your case is at the National Visa Center</span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • Interview:
-                      </span>
-                      <span>
-                        You&apos;re preparing for or awaiting your embassy
-                        interview
-                      </span>
-                    </li>
-                    <li className="flex gap-2 items-start">
-                      <span className="font-bold text-slate-900 shrink-0">
-                        • 221(g)/AP:
-                      </span>
-                      <span>
-                        Your case is in administrative processing or you
-                        received a 221(g) notice
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
 
           <Dialog
             open={isCompareModalOpen}
@@ -1246,7 +1142,7 @@ export default function ExploreJourneys({
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="flex justify-end">
+              <div className="flex justify-center md:justify-end">
                 <Button
                   variant="outline"
                   onClick={() => setIsVisaWizardOpen(true)}
@@ -1269,7 +1165,7 @@ export default function ExploreJourneys({
                         return (
                           <th
                             key={id}
-                            className="py-4 px-4 font-bold text-slate-900 min-w-[200px]"
+                            className="py-4 px-4 font-bold text-slate-900 min-w-50"
                           >
                             {journey?.title || "Unknown"}
                           </th>
@@ -1335,13 +1231,13 @@ export default function ExploreJourneys({
                     </tr>
                     <tr>
                       <td className="py-4 px-4 font-bold text-slate-800">
-                        Pakistan-Focused
+                        Priority Path
                       </td>
                       {selectedJourneys.map((id) => {
                         const journey = JOURNEYS.find((j) => j.id === id);
                         return (
                           <td key={id} className="py-4 px-4 text-slate-600">
-                            {journey?.pakistanFocused ? "Yes" : "No"}
+                            {(journey?.matchScore ?? 0) > 90 ? "Yes" : "Standard"}
                           </td>
                         );
                       })}
@@ -1443,13 +1339,19 @@ export default function ExploreJourneys({
 
           <Dialog open={isVisaWizardOpen} onOpenChange={setIsVisaWizardOpen}>
             <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 bg-transparent border-none shadow-none overflow-hidden">
+              <DialogHeader className="sr-only">
+                <DialogTitle>Visa Eligibility Wizard</DialogTitle>
+                <DialogDescription>
+                  Help you determine the best visa category for your situation.
+                </DialogDescription>
+              </DialogHeader>
               <div className="w-full h-full bg-white rounded-xl overflow-hidden shadow-2xl">
                 <VisaEligibilityTool />
               </div>
             </DialogContent>
           </Dialog>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
             {/* Route */}
             <div className="md:col-span-3 lg:col-span-2 space-y-2">
               <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -1473,8 +1375,8 @@ export default function ExploreJourneys({
                   "Family",
                   "Work",
                   "Study",
-                  "Visit",
                   "Humanitarian",
+                  "Visit",
                   "Other",
                 ].map((cat) => (
                   <button
@@ -1494,11 +1396,27 @@ export default function ExploreJourneys({
             </div>
 
             {/* Process & Stage */}
-            <div className="md:col-span-12 lg:col-span-4 grid grid-cols-2 gap-4">
+            <div className="md:col-span-12 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <div className="flex items-center gap-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Process Type
-                  <Info className="w-3 h-3 text-slate-400 cursor-help" />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-primary cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs p-4 bg-white border border-slate-200 shadow-xl">
+                        <div className="space-y-3 text-sm">
+                          <p>
+                             <span className="font-bold text-slate-900">• Consular Processing:</span> Apply abroad at a U.S. embassy. You&apos;ll attend an interview outside the U.S.
+                          </p>
+                          <p>
+                             <span className="font-bold text-slate-900">• Adjustment of Status (AOS):</span> Apply for a green card while already in the U.S. No interview abroad required.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
                   {["Consular", "AOS"].map((proc) => (
@@ -1518,22 +1436,14 @@ export default function ExploreJourneys({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Stage
-                </div>
-                <Select defaultValue="all">
-                  <SelectTrigger className="w-full h-[38px] bg-white border-slate-200">
-                    <SelectValue placeholder="All Stages" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All stages</SelectItem>
-                    <SelectItem value="not_started">Not started</SelectItem>
-                    <SelectItem value="uscis">USCIS</SelectItem>
-                    <SelectItem value="nvc">NVC</SelectItem>
-                    <SelectItem value="interview">Interview</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-col justify-end">
+                <Button
+                  onClick={() => setIsVisaWizardOpen(true)}
+                  className="w-full h-13.5 bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-900/20 transition-all flex items-center justify-center gap-3 group active:scale-[0.98] border border-teal-500/30"
+                >
+                  <CheckCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                  Check Your Visa Eligibility
+                </Button>
               </div>
             </div>
           </div>
@@ -1597,12 +1507,12 @@ export default function ExploreJourneys({
 
         {/* Preview Panel */}
         <div className="lg:col-span-3 lg:h-[calc(100vh-180px)] lg:overflow-y-auto h-auto pb-24 scroll-smooth">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-[600px] flex flex-col">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-75 lg:min-h-150 flex flex-col">
             {highlightedJourney ? (
               <>
                 {/* Header */}
-                <div className="p-6 border-b border-slate-100">
-                  <h3 className="text-2xl font-bold text-slate-900">
+                <div className="p-4 md:p-6 border-b border-slate-100">
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900">
                     {JOURNEYS.find((j) => j.id === highlightedJourney)?.title}
                   </h3>
                   <p className="text-sm text-slate-500 font-medium mt-1">
@@ -1614,12 +1524,12 @@ export default function ExploreJourneys({
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col p-6 space-y-8">
+                <div className="flex-1 flex flex-col p-4 md:p-6 space-y-6 md:space-y-8">
                   {/* Roadmap Stepper */}
-                  <div className="px-4 pt-32 pb-6 bg-slate-50/50 rounded-xl border border-slate-100">
-                    <div className="relative flex items-start justify-between">
+                  <div className="px-2 md:px-4 pt-24 md:pt-32 pb-6 bg-slate-50/50 rounded-xl border border-slate-100 overflow-x-auto">
+                    <div className="relative flex items-start justify-between min-w-75">
                       {/* Connecting Line */}
-                      <div className="absolute left-0 right-0 top-4 -translate-y-1/2 h-1 bg-slate-200 z-0 mx-8 hidden md:block"></div>
+                      <div className="absolute left-0 right-0 top-4 -translate-y-1/2 h-1 bg-slate-200 z-0 mx-8"></div>
 
                       {JOURNEY_DETAILS[highlightedJourney]
                         ?.filter((s) => s.key !== "221g")
@@ -1711,7 +1621,7 @@ export default function ExploreJourneys({
                                 >
                                   {station.label}
                                 </p>
-                                <p className="text-[10px] text-slate-400 hidden md:block max-w-[80px] leading-tight mt-1">
+                                <p className="text-[10px] text-slate-400 hidden md:block max-w-20 leading-tight mt-1">
                                   {station.summary}
                                 </p>
                               </div>
@@ -1724,7 +1634,7 @@ export default function ExploreJourneys({
                   {/* Detail Card */}
                   {selectedStationKey && (
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <div className="p-6 space-y-6">
+                      <div className="p-4 md:p-6 space-y-6">
                         <div className="flex items-center gap-3 mb-2">
                           <h4 className="text-lg font-bold text-slate-800">
                             {
@@ -1802,18 +1712,21 @@ export default function ExploreJourneys({
 
                 {/* Footer Actions */}
                 <div className="p-6 border-t border-slate-100 flex items-center gap-3 bg-slate-50/50">
-                  <Link href="/visa-category/ir-category/ir1-journey">
-                    <Button className="bg-teal-700 hover:bg-teal-800 text-white shadow-sm shadow-teal-900/10">
-                      Start Journey
+                  {highlightedJourney === "ir1" ? (
+                    <Link href="/visa-category/ir-category/ir1-journey">
+                      <Button className="bg-teal-700 hover:bg-teal-800 text-white shadow-sm shadow-teal-900/10 transition-all active:scale-95">
+                        Start Journey
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button 
+                      disabled 
+                      className="bg-slate-200 text-slate-500 cursor-not-allowed border-slate-300"
+                    >
+                      Coming Soon
                     </Button>
-                  </Link>
-                  <Button
-                    onClick={() => setIsQuickRoadmapOpen(true)}
-                    variant="outline"
-                    className="border-teal-200 text-teal-700 hover:bg-teal-50 hover:text-teal-800"
-                  >
-                    Quick Roadmap
-                  </Button>
+                  )}
+                  {/* Removed Quick Roadmap button as per request */}
                   <Button
                     variant="outline"
                     className="ml-auto border-slate-200 text-slate-600 hover:text-slate-900"
@@ -1829,9 +1742,9 @@ export default function ExploreJourneys({
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 h-full">
-                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                  <MapPin className="w-8 h-8 text-slate-300" />
+              <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-8 text-center text-slate-400 h-full">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                  <MapPin className="w-6 h-6 md:w-8 md:h-8 text-slate-300" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-700 mb-1">
                   No Journey Selected
@@ -1848,37 +1761,41 @@ export default function ExploreJourneys({
 
       {/* Compare Tray */}
       {selectedJourneys.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-6">
-          <div className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl shadow-indigo-500/20 flex items-center gap-6 border border-slate-800">
-            <div className="flex items-center gap-3">
-              <span className="font-semibold">
-                {selectedJourneys.length}/3 selected
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-6 w-[92%] md:w-auto max-w-2xl">
+          <div className="bg-slate-900 text-white px-4 md:px-6 py-3 rounded-full shadow-2xl shadow-indigo-500/20 flex items-center justify-between md:justify-start gap-3 md:gap-6 border border-slate-800 w-full">
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                {selectedJourneys.length}/3
+                <span className="hidden sm:inline"> selected</span>
               </span>
               <div className="flex -space-x-2">
                 {selectedJourneys.map((id) => (
                   <div
                     key={id}
-                    className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-xs font-bold"
+                    className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] md:text-xs font-bold"
                   >
                     {JOURNEYS.find((j) => j.id === id)?.title.charAt(0)}
                   </div>
                 ))}
               </div>
             </div>
-            <Button
-              size="sm"
-              onClick={() => setIsCompareModalOpen(true)}
-              className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full"
-            >
-              Compare Journeys <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-            <button
-              onClick={() => setSelectedJourneys([])}
-              className="text-slate-400 hover:text-white transition-colors"
-              aria-label="Clear selection"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={() => setIsCompareModalOpen(true)}
+                className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full text-xs md:text-sm px-3 md:px-4"
+              >
+                Compare <span className="hidden sm:inline ml-1">Journeys</span>{" "}
+                <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1" />
+              </Button>
+              <button
+                onClick={() => setSelectedJourneys([])}
+                className="text-slate-400 hover:text-white transition-colors p-1"
+                aria-label="Clear selection"
+              >
+                <X className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1932,8 +1849,11 @@ function JourneyCard({
             {journey.category}
           </span>
           {journey.matchScore > 90 && (
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" /> {journey.matchScore}% Match
+            <span className="hidden md:block">
+              {" "}
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 flex items-center gap-1 ">
+                <CheckCircle className="w-3 h-3 " /> {journey.matchScore}% Match
+              </span>
             </span>
           )}
         </div>
@@ -1992,12 +1912,10 @@ function JourneyCard({
           <div className="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
           {journey.stations} stations
         </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-50 border border-orange-200 text-xs font-medium text-orange-700">
-          {journey.difficulty} difficulty
-        </div>
-        {journey.pakistanFocused && (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 border border-teal-200 text-xs font-medium text-teal-700">
-            Pakistan-focused
+        {/* Removed difficulty level as per request */}
+        {journey.matchScore > 95 && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
+            High Approval Rate
           </div>
         )}
       </div>
@@ -2005,42 +1923,37 @@ function JourneyCard({
       {/* Action Buttons (Only Visible/Highligted when active or hover? Design implies they are always there or show on active) */}
       {/* We'll show them always to match the 'card' look, maybe slightly faded if inactive? */}
       <div className="flex items-center flex-wrap gap-3">
-        <Link href="/visa-category/ir-category/ir1-journey">
+        {journey.id === "ir1" ? (
+          <Link href="/visa-category/ir-category/ir1-journey">
+            <Button
+              className={cn(
+                "h-9 px-4 rounded-lg font-medium shadow-none transition-colors",
+                "bg-teal-700 text-white hover:bg-teal-800",
+              )}
+            >
+              Start Journey
+            </Button>
+          </Link>
+        ) : (
           <Button
-            className={cn(
-              "h-9 px-4 rounded-lg font-medium shadow-none transition-colors",
-              // isActive
-              "bg-teal-700 text-white hover:bg-teal-800",
-              // : "bg-slate-900 text-white hover:bg-slate-800",
-            )}
+            disabled
+            className="h-9 px-4 rounded-lg font-medium bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
           >
-            Start Journey
+            Coming Soon
           </Button>
-        </Link>
-        <Button
-          variant="outline"
-          className={cn(
-            "h-9 px-4 rounded-lg font-medium border transition-colors",
-            isActive
-              ? "border-teal-200 text-teal-700 hover:bg-teal-50"
-              : "border-slate-200 text-slate-600 hover:bg-slate-50",
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect();
-          }}
-        >
-          Preview Roadmap
-        </Button>
-        <button
-          className="text-sm font-medium text-teal-600 hover:text-teal-700 hover:underline ml-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            onWatchIntro();
-          }}
-        >
-          Watch intro
-        </button>
+        )}
+        {/* Preview Roadmap removed as per request */}
+        {journey.id === "ir1" && (
+          <button
+            className="text-sm font-medium text-teal-600 hover:text-teal-700 hover:underline ml-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              onWatchIntro();
+            }}
+          >
+            Watch intro
+          </button>
+        )}
       </div>
     </div>
   );

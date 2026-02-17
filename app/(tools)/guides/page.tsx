@@ -129,10 +129,8 @@ const GUIDES: Guide[] = [
     title: "Marriage Certificate",
     description: "Nikahnama, MRC, and certified English translations.",
     category: "Pakistan Docs",
-    href: "/guides/marriage-certificate",
+    href: "/guides/nikah-nama-guide",
     icon: Heart,
-    disabled: true,
-    comingSoon: true,
   },
   {
     id: "divorce-death",
@@ -257,10 +255,8 @@ const GUIDES: Guide[] = [
     title: "Bona Fide Marriage",
     description: "Photos, chat logs, and proof of genuine relationship.",
     category: "Relationship Evidence",
-    href: "/guides/relationship-evidence",
+    href: "/guides/bona-marriage-guide",
     icon: Heart,
-    disabled: true,
-    comingSoon: true,
   },
 
   // --- Visa Strategy ---

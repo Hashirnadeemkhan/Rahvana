@@ -384,6 +384,19 @@
   }
 }
 
+@keyframes spin-reverse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 1s linear infinite;
+}
+
 .animate-rotate-line {
   animation: rotate-line 8s linear infinite;
 }
