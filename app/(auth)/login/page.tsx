@@ -13,14 +13,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogDescription,
+//   DialogFooter,
+// } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
@@ -46,7 +46,7 @@ function LoginContent() {
   const [factorId, setFactorId] = useState("");
   const [challengeId, setChallengeId] = useState("");
   const [mfaCode, setMfaCode] = useState("");
-  const [showMfaPrompt, setShowMfaPrompt] = useState(false);
+  // const [showMfaPrompt, setShowMfaPrompt] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
   // Check for messages from URL params
@@ -100,22 +100,22 @@ function LoginContent() {
     }
 
     setProfile(data);
-    checkMfaPrompt(data);
+    // checkMfaPrompt(data);
   };
 
-  const checkMfaPrompt = (profile: Profile) => {
-    const showPrompt =
-      !profile.mfa_enabled &&
-      (!profile.mfa_prompt_dismissed_at ||
-        daysSince(profile.mfa_prompt_dismissed_at) >= 7);
+  // const checkMfaPrompt = (profile: Profile) => {
+  //   const showPrompt =
+  //     !profile.mfa_enabled &&
+  //     (!profile.mfa_prompt_dismissed_at ||
+  //       daysSince(profile.mfa_prompt_dismissed_at) >= 7);
 
-    setShowMfaPrompt(showPrompt);
-  };
+  //   setShowMfaPrompt(showPrompt);
+  // };
 
-  const daysSince = (date: string) => {
-    const diffTime = Math.abs(new Date().getTime() - new Date(date).getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
+  // const daysSince = (date: string) => {
+  //   const diffTime = Math.abs(new Date().getTime() - new Date(date).getTime());
+  //   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,7 +218,7 @@ function LoginContent() {
       return;
     }
 
-    setShowMfaPrompt(false);
+    // setShowMfaPrompt(false);
   };
 
   if (isLoading) {
@@ -520,24 +520,6 @@ function LoginContent() {
           </Link>
         </p>
       </div>
-
-      {showMfaPrompt && (
-        <Dialog open={showMfaPrompt} onOpenChange={setShowMfaPrompt}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Enable Two-Factor Authentication</DialogTitle>
-              <DialogDescription>
-                Add an extra layer of security to your account by enabling
-                two-factor authentication.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button onClick={handleEnableMfa}>Enable MFA</Button>
-              <Button onClick={handleRemindMeLater}>Remind me later</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
 
       {/* Full-screen Loading Overlay */}
       {isSubmitting && (
