@@ -418,43 +418,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { factorId, challengeId } = extractMFAErrorDetails(error);
 
           if (!factorId || !challengeId) {
-            const { totp, error: factorsError } = await listMFACheckFactors();
+            const { totp: fetchedTotp, error: factorsError } = await listMFACheckFactors();
+      
+              if (factorsError) {
+                return {
+                  error: {
+                    message: "MFA setup error",
+                    code: "mfa_error",
+                  } as unknown as AuthError,
+                };
+              }
 
-            if (factorsError) {
-              return {
-                error: {
-                  message: "MFA setup error",
-                  code: "mfa_error",
-                } as unknown as AuthError,
+              if (!fetchedTotp || fetchedTotp.length === 0) {
+                 return {
+                    error: {
+                      message: "No MFA factors found",
+                      code: "mfa_no_factors",
+                    } as unknown as AuthError,
+                  };
+              }
+
+              // Create challenge for the first factor
+              const { data: challengeData, error: challengeError } =
+                await supabase.auth.mfa.challenge({
+                  factorId: fetchedTotp[0].id,
+                });
+
+               if (challengeError) {
+                  return { error: challengeError };
+               }
+
+               return {
+                  error: null,
+                  mfaRequired: true,
+                  factorId: fetchedTotp[0].id,
+                  challengeId: challengeData.id,
               };
-            }
-
-            if (!totp || totp.length === 0) {
-              return {
-                error: {
-                  message: "No MFA factors found",
-                  code: "mfa_no_factors",
-                } as unknown as AuthError,
-              };
-            }
-
-            // Create challenge for the first factor
-            const { data: challengeData, error: challengeError } =
-              await supabase.auth.mfa.challenge({
-                factorId: totp[0].id,
-              });
-
-            if (challengeError) {
-              return { error: challengeError };
-            }
-
-            return {
-              error: null,
-              mfaRequired: true,
-              factorId: totp[0].id,
-              challengeId: challengeData.id,
-            };
-          }
+           }
 
           // Return the MFA challenge information
           return {
@@ -471,29 +471,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Check if user has MFA factors but is only at AAL1
       if (data?.session) {
-        // Get user factors to see if MFA should be enforced
-        const { totp } = await listMFACheckFactors();
+        // Use factors from the session if available, otherwise fetch them
+        const factors = (data.session.user as any)?.factors || [];
+        const totpFactors = factors.filter((f: any) => f.factor_type === 'totp' && f.status === 'verified');
+        
+        if (totpFactors.length > 0) {
+           const factorId = totpFactors[0].id;
+           
+           // Only challenge if we have a valid factor
+           if (factorId) {
+              const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+                factorId: factorId
+              });
 
-        if (totp && totp.length > 0) {
-          // Create a challenge for the first factor
-          const { data: challengeData, error: challengeError } =
-            await supabase.auth.mfa.challenge({
-              factorId: totp[0].id,
-            });
-
-          if (challengeError) {
-            console.error("Error creating MFA challenge:", challengeError);
-            // Continue with normal login if challenge creation fails
-            return { error: null };
-          }
-
-          // Return with MFA required info
-          return {
-            error: null,
-            mfaRequired: true,
-            factorId: totp[0].id,
-            challengeId: challengeData.id,
-          };
+              if (!challengeError && challengeData) {
+                return {
+                  error: null,
+                  mfaRequired: true,
+                  factorId: factorId,
+                  challengeId: challengeData.id,
+                };
+              }
+           }
         }
       }
 

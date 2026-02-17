@@ -259,8 +259,7 @@ export default function PassportGuidePage() {
   const [urgency, setUrgency] = React.useState<
     "normal" | "urgent" | "fasttrack" | null
   >(null);
-  const [activeTab, setActiveTab] = React.useState<string>("understanding");
-  const [completedSections, setCompletedSections] = React.useState<string[]>([]);
+
   const [checkedItems, setCheckedItems] = React.useState<string[]>([]);
   const [journeyConfig, setJourneyConfig] = React.useState<{
     type: "new" | "renewal" | "lost" | "damaged" | null;
@@ -300,7 +299,7 @@ export default function PassportGuidePage() {
     return true;
   });
 
-  const getFilteredContent = React.useCallback((sectionId: string, content: any[]) => {
+  const getFilteredContent = React.useCallback((sectionId: string, content: { heading: string; text?: string; [key: string]: unknown }[]) => {
     if (showJourneyForm) return content;
 
     if (sectionId === "documents") {
@@ -308,34 +307,34 @@ export default function PassportGuidePage() {
       
       // Filter by Type
       if (journeyConfig.type === "renewal") {
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("new") || c.heading.toLowerCase().includes("renewal"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("new") || c.heading.toLowerCase().includes("renewal"));
       }
       if (journeyConfig.type === "new") {
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("renewal") || c.heading.toLowerCase().includes("new"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("lost") && !c.heading.toLowerCase().includes("damaged"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("renewal") || c.heading.toLowerCase().includes("new"));
       }
       if (journeyConfig.type === "lost") {
-        filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("lost") || c.heading.toLowerCase().includes("general"));
+        filtered = filtered.filter((c) => c.heading.toLowerCase().includes("lost") || c.heading.toLowerCase().includes("general"));
       }
       if (journeyConfig.type === "damaged") {
-        filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("damaged") || c.heading.toLowerCase().includes("general"));
+        filtered = filtered.filter((c) => c.heading.toLowerCase().includes("damaged") || c.heading.toLowerCase().includes("general"));
       }
       
       // Filter by Age
       if (journeyConfig.age === "adult") {
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("minor") && !c.heading.toLowerCase().includes("b-form") && !c.heading.toLowerCase().includes("crc"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("minor") && !c.heading.toLowerCase().includes("b-form") && !c.heading.toLowerCase().includes("crc"));
       }
       if (journeyConfig.age === "minor") {
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("adult"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("adult"));
       }
 
       // Filter by Method (For General items)
       if (journeyConfig.method === "online") {
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("(visit)"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("(visit)"));
       }
       if (journeyConfig.method === "in-person") {
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("(online)"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("(online)"));
       }
 
       return filtered;
@@ -346,19 +345,19 @@ export default function PassportGuidePage() {
       
       if (journeyConfig.type === "new" || journeyConfig.type === "lost" || journeyConfig.type === "damaged") {
         // New, Lost, and Damaged always allow Hybrid or Full Office visit
-        filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("hybrid") || c.heading.toLowerCase().includes("standard"));
+        filtered = filtered.filter((c) => c.heading.toLowerCase().includes("hybrid") || c.heading.toLowerCase().includes("standard"));
       } else if (journeyConfig.type === "renewal") {
         // Renewals depend on the selected method
         if (journeyConfig.method === "online") {
-          filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("online"));
+          filtered = filtered.filter((c) => c.heading.toLowerCase().includes("online"));
         } else {
-          filtered = filtered.filter((c: any) => c.heading.toLowerCase().includes("standard"));
+          filtered = filtered.filter((c) => c.heading.toLowerCase().includes("standard"));
         }
       }
 
       // Age-based filtering for process
       if (journeyConfig.age !== "minor") {
-        filtered = filtered.filter((c: any) => !c.heading.toLowerCase().includes("minor"));
+        filtered = filtered.filter((c) => !c.heading.toLowerCase().includes("minor"));
       }
 
       return filtered;
@@ -366,7 +365,7 @@ export default function PassportGuidePage() {
 
     if (sectionId === "time") {
       if (!urgency) return content;
-      return content.filter((c: any) => c.heading.toLowerCase().includes(urgency.toLowerCase()) || c.heading.toLowerCase().includes("delivery"));
+      return content.filter((c) => c.heading.toLowerCase().includes(urgency.toLowerCase()) || c.heading.toLowerCase().includes("delivery"));
     }
 
     return content;
@@ -823,7 +822,7 @@ export default function PassportGuidePage() {
                             ) : section.id === "time" ? (
                               <div className="space-y-4">
                                 <div className="grid gap-4">
-                                  {content.map((item: { heading: string; text: string }, idx: number) => {
+                                  {content.map((item: { heading: string; text?: string; [key: string]: unknown }, idx: number) => {
                                     const isActive = urgency === item.heading.toLowerCase().replace(" ", "") as "normal" | "urgent" | "fasttrack";
                                     return (
                                       <div 
@@ -853,7 +852,7 @@ export default function PassportGuidePage() {
                               </div>
                             ) : (
                               <div className="space-y-4">
-                                {content.map((item: { heading: string; text: string }, idx: number) => {
+                                {content.map((item: { heading: string; text?: string; [key: string]: unknown }, idx: number) => {
                                   const itemId = `${section.id}-${idx}`;
                                   const isChecked = checkedItems.includes(itemId);
                                   
@@ -885,7 +884,7 @@ export default function PassportGuidePage() {
                                           "text-xs leading-relaxed transition-colors whitespace-pre-line",
                                           isChecked ? "text-emerald-700/80" : "text-slate-500"
                                         )}>
-                                          {item.text.split(/(\[.*?\]\(.*?\))/g).map((part: string, i: number) => {
+                                          {(item.text || "").split(/(\[.*?\]\(.*?\))/g).map((part: string, i: number) => {
                                             const match = part.match(/\[(.*?)\]\((.*?)\)/);
                                             if (match) {
                                               return (

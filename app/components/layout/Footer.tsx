@@ -34,7 +34,7 @@ export default function Footer() {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
           {/* Brand Column */}
-          <div className="max-w-[280px]">
+          <div className="max-w-70">
             <div className="mb-6">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

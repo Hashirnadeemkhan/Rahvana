@@ -1439,7 +1439,7 @@ export default function ExploreJourneys({
               <div className="flex flex-col justify-end">
                 <Button
                   onClick={() => setIsVisaWizardOpen(true)}
-                  className="w-full h-[54px] bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-900/20 transition-all flex items-center justify-center gap-3 group active:scale-[0.98] border border-teal-500/30"
+                  className="w-full h-13.5 bg-linear-to-br from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-900/20 transition-all flex items-center justify-center gap-3 group active:scale-[0.98] border border-teal-500/30"
                 >
                   <CheckCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                   Check Your Visa Eligibility
@@ -1507,7 +1507,7 @@ export default function ExploreJourneys({
 
         {/* Preview Panel */}
         <div className="lg:col-span-3 lg:h-[calc(100vh-180px)] lg:overflow-y-auto h-auto pb-24 scroll-smooth">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-[300px] lg:min-h-[600px] flex flex-col">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden min-h-75 lg:min-h-150 flex flex-col">
             {highlightedJourney ? (
               <>
                 {/* Header */}
@@ -1621,7 +1621,7 @@ export default function ExploreJourneys({
                                 >
                                   {station.label}
                                 </p>
-                                <p className="text-[10px] text-slate-400 hidden md:block max-w-[80px] leading-tight mt-1">
+                                <p className="text-[10px] text-slate-400 hidden md:block max-w-20 leading-tight mt-1">
                                   {station.summary}
                                 </p>
                               </div>

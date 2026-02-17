@@ -26,10 +26,10 @@ export function ClientHeader() {
       if (user) {
         // User is signed in, sign them out
         await signOut();
-        router.push("/login");
+        router.push("/");
       } else {
         // User is not signed in, redirect to login page
-        router.push("/");
+        router.push("/login");
       }
     } finally {
       setIsAuthLoading(false);
