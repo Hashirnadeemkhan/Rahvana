@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePDFStore } from "@/lib/store";
 
@@ -17,6 +17,10 @@ export default function PDFProcessingPage() {
   const [activeTab, setActiveTab] = useState<"upload" | "merge" | "compress" | "convert">("upload");
 
   const handleCloseEditor = () => reset();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">

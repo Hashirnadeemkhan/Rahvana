@@ -1,5 +1,10 @@
 "use client";
 
+interface Profile {
+  mfa_enabled: boolean;
+  mfa_prompt_dismissed_at: string | null;
+}
+
 import React, { useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +24,20 @@ import Image from "next/image";
 import { StackedCarousel } from "./components/StackedCarousel";
 import Link from "next/link";
 import HydrationSafeButton from "@/app/components/HydrationSafeButton";
+import { useAuth } from "./context/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+
+const supabase = createClient();
 
 const JOURNEYS = [
   // Family & Protection
@@ -504,6 +523,10 @@ function HomePageContent() {
   const [activeSection, setActiveSection] = useState("home");
   const searchParams = useSearchParams();
 
+  const {user} = useAuth();
+  const [showMfaPrompt, setShowMfaPrompt] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
   // Listen for section changes in URL
   useEffect(() => {
     const section = searchParams.get("section");
@@ -602,6 +625,55 @@ function HomePageContent() {
       handleToggleAuth();
     }
     setActiveSection("ir1-journey");
+  };
+
+  useEffect(() => {
+    if (!user) return;
+
+    fetchProfile(user.id);
+  }, [user]);
+
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("mfa_enabled, mfa_prompt_dismissed_at")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error || !data) return;
+
+    setProfile(data);
+
+    if (
+      !data.mfa_enabled &&
+      (!data.mfa_prompt_dismissed_at ||
+        daysSince(data.mfa_prompt_dismissed_at) >= 7)
+    ) {
+      setShowMfaPrompt(true);
+    }
+  };
+
+  const daysSince = (date: string) => {
+    const diffTime =
+      new Date().getTime() - new Date(date).getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const handleEnableMfa = () => {
+    window.location.href = "/mfa-setup";
+  };
+
+  const handleRemindLater = async () => {
+    if (!user) return;
+
+    await supabase
+      .from("profiles")
+      .update({
+        mfa_prompt_dismissed_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    setShowMfaPrompt(false);
   };
 
   // const scrollCarousel = (amount: number) => {
@@ -1329,6 +1401,23 @@ function HomePageContent() {
       </main>
 
       {/* <Footer /> */}
+      {showMfaPrompt && (
+            <Dialog open={showMfaPrompt} onOpenChange={setShowMfaPrompt}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Enable Two-Factor Authentication</DialogTitle>
+                  <DialogDescription>
+                    Add an extra layer of security to your account by enabling
+                    two-factor authentication.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button onClick={handleEnableMfa}>Enable MFA</Button>
+                  <Button onClick={handleRemindLater}>Remind me later</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
     </div>
 
     // <div className="min-h-screen flex flex-col bg-white text-gray-800">
