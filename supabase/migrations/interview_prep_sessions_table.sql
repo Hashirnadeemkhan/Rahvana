@@ -1,5 +1,5 @@
 -- Create ENUM for Case type
-DROP TYPE IF EXISTS case_type CASCADE;;
+DROP TYPE IF EXISTS case_type CASCADE;
 CREATE TYPE case_type AS ENUM (
     'Spouse'     -- Spouse-related case
 );

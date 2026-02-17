@@ -155,7 +155,14 @@ export default function Footer() {
             <Link href="#" className="hover:text-white transition-colors">
               Terms of Service
             </Link>
-            <Link href="#" className="hover:text-white transition-colors">
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault(); // Stop browser jump
+                setComingSoonOpen(true);
+              }}
+              className="hover:text-white transition-colors"
+            >
               Cookie Policy
             </Link>
           </div>

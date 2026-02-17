@@ -22,6 +22,15 @@ export function ComingSoonModal({ open, onOpenChange }: ComingSoonModalProps) {
     }
   }, [open]);
 
+  const handleSignupRedirect = () => {
+    onOpenChange(false);
+
+    // Small delay so modal close animation feels smooth
+    setTimeout(() => {
+      router.push("/signup");
+    }, 150);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-[95%] bg-background overflow-hidden rounded-2xl p-0">
@@ -91,7 +100,7 @@ export function ComingSoonModal({ open, onOpenChange }: ComingSoonModalProps) {
                   update.
                 </p>
                 <button
-                  onClick={() => router.push("/signup")}
+                  onClick={handleSignupRedirect}
                   className="font-semibold text-white bg-primary hover:bg-primary/90 shadow-md px-6 py-4 rounded-lg transition-all"
                 >
                   Sign Up Now
