@@ -31,7 +31,7 @@ export interface NavItem {
   title: string;
   description: string;
   href: string;
-  badge?: "Soon" | "Live";
+  // badge?: "Soon" | "Live";
   disabled?: boolean;
 }
 
@@ -77,14 +77,14 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "IR-1 / CR-1",
                 description: "Spouse of U.S. Citizen",
                 href: "#",
-                badge: "Live",
+                // badge: "Live",
               },
               {
                 icon: <Briefcase className="h-5 w-5" />,
                 title: "K-1",
                 description: "Fiancé(e) of U.S. Citizen",
                 href: "/visa-category/ir-category",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -92,7 +92,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "K-3",
                 description: "Spouse (short-separation option)",
                 href: "#", // No live path
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -100,7 +100,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "IR-5",
                 description: "Parent of U.S. Citizen (21+)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -108,7 +108,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "IR-2 / CR-2",
                 description: "Child of U.S. Citizen",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -116,7 +116,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "IR-3 / IR-4 (and Hague variants)",
                 description: "Intercountry Adoption",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -129,7 +129,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "F-1",
                 description: "Adult Child (Unmarried) of U.S. Citizen",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -137,7 +137,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "F-2A",
                 description: "Spouse/Child of Green Card Holder",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -145,7 +145,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "F-2B",
                 description: "Adult Child (Unmarried) of Green Card Holder",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -153,7 +153,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "F-3",
                 description: "Adult Child (Married) of U.S. Citizen",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -161,7 +161,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "F-4",
                 description: "Sibling of U.S. Citizen",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -174,7 +174,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "Refugee",
                 description: "Refugee (USRAP)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -182,7 +182,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "Asylum",
                 description: "Asylum (typically filed in U.S.)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -190,7 +190,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "Parole",
                 description: "Humanitarian Parole (case-by-case)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -209,7 +209,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "H-1B",
                 description: "Specialty Job (Tech / Engineer / Analyst)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -217,7 +217,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "L-1A / L-1B",
                 description: "Company Transfer (Manager / Specialist)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -230,7 +230,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "O-1A / O-1B",
                 description: "Extraordinary Talent (Science / Business / Arts)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -238,7 +238,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "O-2",
                 description: "Support Staff for O-1",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -251,7 +251,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "P-1 / P-2 / P-3",
                 description: "Athlete / Entertainer / Tour Group",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -264,7 +264,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "E-1",
                 description: "Treaty Trader",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -272,7 +272,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "E-2",
                 description: "Treaty Investor",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -285,7 +285,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "R-1",
                 description: "Religious Worker",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -293,7 +293,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "Q-1",
                 description: "Cultural Exchange (Work + Culture)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -306,7 +306,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "I",
                 description: "Journalist / Media",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -319,7 +319,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "H-2A",
                 description: "Seasonal Agriculture (eligibility list applies)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -328,7 +328,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 description:
                   "Seasonal Non-Agriculture (eligibility list applies)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -341,7 +341,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "H-3",
                 description: "Trainee / Special Education Exchange",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -360,7 +360,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "EB-1",
                 description: "Extraordinary Ability / Top Talent",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -373,7 +373,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "EB-2",
                 description: "Advanced Degree / Exceptional Ability",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -381,7 +381,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "EB-2 (NIW Path)",
                 description: "National Interest Waiver (NIW)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -394,7 +394,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "EB-3",
                 description: "Skilled Worker / Professional",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -407,7 +407,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "EB-4",
                 description: "Special Immigrants (varies)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -420,7 +420,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "EB-5",
                 description: "Investor Green Card",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -433,7 +433,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "DV",
                 description: "Diversity Visa (DV Lottery)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -452,7 +452,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "B-2",
                 description: "Tourism / Family Visit",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -460,7 +460,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "B-1",
                 description: "Business Visitor",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -473,7 +473,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "F-1",
                 description: "University / College Student",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -481,7 +481,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "F-2",
                 description: "Student Dependent",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -489,7 +489,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "M-1",
                 description: "Vocational / Technical Student",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -497,7 +497,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "M-2",
                 description: "Vocational Dependent",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -510,7 +510,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "J-1",
                 description: "Exchange Visitor (Programs)",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
               {
@@ -518,7 +518,7 @@ export const NAV_DATA: Record<string, NavSection> = {
                 title: "J-2",
                 description: "Exchange Dependent",
                 href: "#",
-                badge: "Soon",
+                // badge: "Soon",
                 disabled: true,
               },
             ],
@@ -542,7 +542,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Instant AI case strength score + gaps to fix before NVC/Interview.",
             href: "/visa-case-strength-checker",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <Map className="h-5 w-5" />,
@@ -550,7 +550,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Step-by-step next moves after 221(g) or Administrative Processing.",
             href: "/221g-action-planner",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <FileText className="h-5 w-5" />,
@@ -558,7 +558,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Quick quiz that points you to the right visa path + next steps.",
             href: "/visa-eligibility",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <ShieldCheck className="h-5 w-5" />,
@@ -566,7 +566,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Prepare smarter and deliver confident answers when it matters most.",
             href: "/interview-prep",
-            badge: "Live",
+            // badge: "Live",
           },
         ],
       },
@@ -600,7 +600,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Check your priority date progress against the Visa Bulletin.",
             href: "/visa-checker",
-            badge: "Live",
+            // badge: "Live",
             disabled: false,
           },
         ],
@@ -614,7 +614,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "PhotoPass",
             description: "Make a compliant passport/visa photo in minutes.",
             href: "/passport",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <Layers className="h-5 w-5" />,
@@ -622,7 +622,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Merge • compress • convert • edit — all in one toolkit.",
             href: "/pdf-processing",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <FileText className="h-5 w-5" />,
@@ -688,14 +688,14 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "Passport Guide",
             description: "Obtaining or renewing your Pakistani passport.",
             href: "/guides/passport-guide",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <FileText className="h-5 w-5" />,
             title: "CNIC Guide",
             description: "Obtaining and renewing your NADRA CNIC.",
             href: "/guides/cnic-guide",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <FileText className="h-5 w-5" />,
@@ -708,21 +708,21 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "FRC Guide",
             description: "Family Registration Certificate (FRC) guide.",
             href: "/guides/frc-guide",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <Heart className="h-5 w-5" />,
             title: "Marriage Certificate",
             description: "Nikahnama and MRC guide.",
             href: "/guides/nikah-nama-guide",
-            badge: "Live",
+            // badge: "Live",
           },
           {
             icon: <FileCheck className="h-5 w-5" />,
             title: "Divorce & Death",
             description: "Termination of prior marriages.",
             href: "/guides/prior-marriage-termination",
-            badge: "Soon",
+            // badge: "Soon",
             disabled: true,
           },
           {
@@ -779,7 +779,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "Medical Examination",
             description: "Panel physicians and medical requirements.",
             href: "/guides/medical-exam",
-            badge: "Soon",
+            // badge: "Soon",
             disabled: true,
           },
           {
@@ -799,7 +799,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "Bona Fide Marriage",
             description: "Proof of genuine relationship.",
             href: "/guides/bona-marriage-guide",
-            badge: "Live",
+            // badge: "Live",
           },
         ],
       },
@@ -825,7 +825,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "HEC/IBCC attestation, WES evaluation, and I-20 requirements.",
             href: "/guides/educational-certificates-us-visa",
-            badge: "Live",
+            // badge: "Live",
           },
         ],
       },
@@ -838,7 +838,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "Visa Case Strength",
             description: "Understand your visa case strength and improve it.",
             href: "/guides/visa-strength-guide",
-            badge: "Live",
+            // badge: "Live",
           },
         ],
       },
@@ -865,7 +865,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Human review of your documents + a tailored improvement plan.",
             href: "#",
-            badge: "Soon",
+            // badge: "Soon",
           },
         ],
       },
@@ -878,7 +878,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "PCC Filing Service — Sindh",
             description: "Done-for-you police certificate filing for Sindh.",
             href: "#",
-            badge: "Soon",
+            // badge: "Soon",
             disabled: true,
           },
           {
@@ -887,7 +887,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Join the waitlist for done-for-you PCC filing in Punjab.",
             href: "#",
-            badge: "Soon",
+            // badge: "Soon",
             disabled: true,
           },
           {
@@ -896,7 +896,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Join the waitlist for done-for-you PCC filing in KPK.",
             href: "#",
-            badge: "Soon",
+            // badge: "Soon",
             disabled: true,
           },
           {
@@ -905,7 +905,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             description:
               "Join the waitlist for done-for-you PCC filing in Balochistan.",
             href: "#",
-            badge: "Soon",
+            // badge: "Soon",
             disabled: true,
           },
         ],
@@ -919,7 +919,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "Book Medical Appointment",
             description: "Book your panel physician medical exam appointment.",
             href: "/book-appointment",
-            badge: "Live",
+            // badge: "Live",
           },
         ],
       },

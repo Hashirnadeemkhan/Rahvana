@@ -271,7 +271,7 @@ export default function ToolsPage() {
 
   const visibleCategories = CATEGORIES.slice(0, visibleCount);
   const hiddenCategories = CATEGORIES.slice(visibleCount);
-  const isMoreSelected = hiddenCategories.includes(selectedCategory as any);
+  const isMoreSelected = hiddenCategories.includes(selectedCategory);
 
   const filteredTools = TOOLS.filter((tool) => {
     const matchesSearch =
@@ -299,11 +299,11 @@ export default function ToolsPage() {
         </header> */}
 
         {/* Hero Section */}
-        <section className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-foreground to-muted-foreground animate-fade-up">
+        <section className="text-center mb-10 md:mb-16">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-foreground to-muted-foreground animate-fade-up">
             Create. Check. Comply.
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto animate-fade-up [animation-delay:100ms]">
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto animate-fade-up [animation-delay:100ms]">
             A suite of powerful tools designed to simplify complex processes and
             boost your productivity.
           </p>
