@@ -42,18 +42,7 @@ export function Dashboard({ state, isSignedIn, onContinue, onNavigate, onToggleA
 
                 {isSignedIn && (
                     <div id="signed-in-dashboard">
-                        {/* Video Placeholder: Getting Started */}
-                        <div className="bg-secondary text-white rounded-xl p-10 mb-10">
-                            <h4 className="text-lg font-bold mb-3">📹 Getting Started with Rahvana (3 min)</h4>
-                            <ul className="space-y-2 mb-4">
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Goals:</strong> Quick platform tour, how to use wizard, where to find tools</li>
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Target:</strong> New users</li>
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Topics:</strong> Dashboard overview, starting your first journey, marking steps complete, using document vault</li>
-                            </ul>
-                            <button className="px-6 py-3 rounded-lg border-2 border-white text-white font-bold opacity-50 cursor-not-allowed">
-                                ▶ Play Video (Placeholder)
-                            </button>
-                        </div>
+
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
                             <div className="lg:col-span-2">

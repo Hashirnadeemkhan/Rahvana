@@ -1,11 +1,6 @@
 "use client";
 
-interface Profile {
-  mfa_enabled: boolean;
-  mfa_prompt_dismissed_at: string | null;
-}
-
-import React, { useState, useEffect, Suspense, useRef } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "lucide-react";
@@ -26,7 +21,6 @@ import HydrationSafeButton from "@/app/components/HydrationSafeButton";
 import { ComingSoonModal } from "./components/shared/ComingSoonModal";
 import { useAuth } from "./context/AuthContext";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
 import GetInTouch from "./components/Contact/GetInTouch";
 import { AuthRequiredModal } from "./components/shared/AuthRequiredModal";
 import { MfaPromptModal } from "./components/shared/MFAPromptModal";
@@ -521,7 +515,6 @@ function HomePageContent() {
   const router = useRouter();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMfaPrompt, setShowMfaPrompt] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
 
   // Listen for section changes in URL
   useEffect(() => {
@@ -584,28 +577,26 @@ function HomePageContent() {
   useEffect(() => {
     if (!user) return;
 
+    const fetchProfile = async (userId: string) => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("mfa_enabled, mfa_prompt_dismissed_at")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (error || !data) return;
+
+      if (
+        !data.mfa_enabled &&
+        (!data.mfa_prompt_dismissed_at ||
+          daysSince(data.mfa_prompt_dismissed_at) >= 7)
+      ) {
+        setShowMfaPrompt(true);
+      }
+    };
+
     fetchProfile(user.id);
   }, [user]);
-
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("mfa_enabled, mfa_prompt_dismissed_at")
-      .eq("id", userId)
-      .maybeSingle();
-
-    if (error || !data) return;
-
-    setProfile(data);
-
-    if (
-      !data.mfa_enabled &&
-      (!data.mfa_prompt_dismissed_at ||
-        daysSince(data.mfa_prompt_dismissed_at) >= 7)
-    ) {
-      setShowMfaPrompt(true);
-    }
-  };
 
   const daysSince = (date: string) => {
     const diffTime = new Date().getTime() - new Date(date).getTime();
@@ -669,15 +660,17 @@ function HomePageContent() {
                       expert support to help you reunite with loved ones.
                     </p>
                     <div className="flex flex-wrap gap-4 mb-10">
-                      <Link href={"/visa-category/ir-category"}>
-                        <HydrationSafeButton
-                          onClick={() => {}}
-                          className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
-                        >
-                          Begin Your Journey
-                          <Icons.ArrowRight className="w-5 h-5" />
-                        </HydrationSafeButton>
-                      </Link>
+                      {user && (
+                        <Link href={"/visa-category/ir-category/ir1-journey"}>
+                          <HydrationSafeButton
+                            onClick={() => {}}
+                            className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                          >
+                            Begin Your Journey
+                            <Icons.ArrowRight className="w-5 h-5" />
+                          </HydrationSafeButton>
+                        </Link>
+                      )}
                       <Link href={"/visa-category/ir-category"}>
                         <HydrationSafeButton
                           onClick={() => {
@@ -903,7 +896,7 @@ function HomePageContent() {
                 </div>
                 <div className="mt-12 text-center">
                   <HydrationSafeButton
-                    onClick={() => handleNavigate("tools")}
+                    onClick={() => router.push("/tools")}
                     className="inline-flex items-center gap-2 px-8 py-3 text-base font-bold text-rahvana-primary border-2 border-rahvana-primary rounded-full hover:bg-rahvana-primary hover:text-white transition-all"
                   >
                     Explore all tools <Icons.ArrowRight className="w-5 h-5" />

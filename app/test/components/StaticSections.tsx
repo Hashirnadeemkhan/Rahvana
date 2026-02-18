@@ -1,4 +1,5 @@
-// import React, { useState } from 'react';
+import React from 'react';
+import { FileText, Layout, Users, IdCard, Plane, ArrowRight, Loader2 } from 'lucide-react';
 
 
 
@@ -278,47 +279,43 @@ export function IR1JourneyDetail({ isSignedIn, onToggleAuth, children }: { isSig
                         </p>
                     </div>
 
-                    <h2 className="text-xl font-bold mb-6 text-slate-800">The 5 Stages</h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-primary font-bold text-sm mb-1 uppercase tracking-wide">Stage I</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">USCIS Petition</p>
-                            <p className="text-slate-500 text-sm">17-65 months</p>
+                    {/* Stage Overview */}
+                    <div className="mb-12">
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="w-1 h-8 bg-[#0d9488] rounded-full" />
+                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">The 5 Stages of Your Journey</h2>
                         </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage II</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">NVC/CEAC Processing</p>
-                            <p className="text-slate-500 text-sm">4-9 months</p>
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage III</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">Medical + Interview</p>
-                            <p className="text-slate-500 text-sm">2-4 weeks</p>
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage IV</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">Post-Interview & Travel</p>
-                            <p className="text-slate-500 text-sm">1-2 weeks</p>
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage V</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">U.S. Arrival</p>
-                            <p className="text-slate-500 text-sm">90 days</p>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            {[
+                                { stage: 'I', title: 'USCIS Petition', time: '17-65 months', icon: FileText, color: 'bg-blue-50 text-blue-600' },
+                                { stage: 'II', title: 'NVC Processing', time: '4-9 months', icon: Layout, color: 'bg-indigo-50 text-indigo-600' },
+                                { stage: 'III', title: 'Med + Interview', time: '2-4 weeks', icon: Users, color: 'bg-emerald-50 text-emerald-600' },
+                                { stage: 'IV', title: 'Visa & Travel', time: '1-2 weeks', icon: IdCard, color: 'bg-amber-50 text-amber-600' },
+                                { stage: 'V', title: 'U.S. Arrival', time: '90 days', icon: Plane, color: 'bg-rose-50 text-rose-600' },
+                            ].map(({ stage, title, time, icon: Icon, color }) => (
+                                <div key={stage} className="relative group">
+                                    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-[#0d9488]/30 hover:-translate-y-1 h-full flex flex-col">
+                                        <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-4 transition-transform group-hover:scale-110`}>
+                                            <Icon className="w-5 h-5" />
+                                        </div>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Stage {stage}</span>
+                                        <h4 className="font-bold text-slate-800 text-[15px] mb-2 leading-tight">{title}</h4>
+                                        <div className="mt-auto pt-2 flex items-center gap-1.5 text-slate-500">
+                                            <Loader2 className="w-3 h-3 animate-spin-slow" />
+                                            <span className="text-[11px] font-medium">{time}</span>
+                                        </div>
+                                    </div>
+                                    {/* Connectivity Line for Desktop */}
+                                    {stage !== 'V' && (
+                                        <div className="hidden lg:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
+                                            <ArrowRight className="w-4 h-4 text-slate-300" />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     </div>
-
-                    <div className="bg-secondary text-white rounded-xl p-10 mb-10">
-                            <h4 className="text-lg font-bold mb-3">📹 Getting Started with Rahvana (3 min)</h4>
-                            <ul className="space-y-2 mb-4">
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Goals:</strong> Understand the 5 stages, set realistic expectations, feel supported</li>
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Target:</strong> Both petitioner and beneficiary</li>
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Topics:</strong> Timeline overview, cost breakdown, common mistakes to avoid, emotional support for separated couples</li>
-                            </ul>
-                            <button className="px-6 py-3 rounded-lg border-2 border-white text-white font-bold cursor-not-allowed bg-[#ffffff33]">
-                                ▶ Play Video (Placeholder)
-                            </button>
-                        </div>
 
 
 
