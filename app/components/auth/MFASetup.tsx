@@ -2,24 +2,24 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
-// import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createBrowserClient } from "@supabase/ssr/dist/main/createBrowserClient";
+import { useToast } from "../shared/ToastProvider";
 
 export function MFASetup() {
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
-  // const router = useRouter();
+  const { showToast } = useToast();
+  const router = useRouter();
 
-  const [step, setStep] = useState<"initial" | "qr" | "verify" | "complete">(
-    "initial"
-  );
+  const [step, setStep] = useState<"initial" | "qr" | "verify">("initial");
   const [qrCode, setQrCode] = useState<string>("");
   const [secret, setSecret] = useState<string>("");
   const [code, setCode] = useState<string>("");
@@ -29,6 +29,7 @@ export function MFASetup() {
   const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
   const [disableOTP, setDisableOTP] = useState<string>("");
   const [profile, setProfile] = useState<{ mfa_enabled: boolean } | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const {
     user,
@@ -40,6 +41,8 @@ export function MFASetup() {
 
   const fetchProfile = useCallback(async () => {
     if (!user) return;
+
+    setProfileLoading(true);
 
     try {
       const { data, error } = await supabase
@@ -58,6 +61,8 @@ export function MFASetup() {
       }
     } catch (err) {
       console.error("Unexpected fetchProfile error:", err);
+    } finally {
+      setProfileLoading(false);
     }
   }, [supabase, user?.id]);
 
@@ -70,8 +75,6 @@ export function MFASetup() {
     setError("");
 
     const result = await enableMFA();
-
-    console.log("IP:", await fetch("https://api.ipify.org").then(r => r.text()))
 
     if (result.success && result.qrCode && result.secret && result.factorId) {
       setQrCode(result.qrCode);
@@ -97,10 +100,16 @@ export function MFASetup() {
     try {
       const result = await verifyMFASetup(factorId, code);
 
-      console.log("IP:", await fetch("https://api.ipify.org").then(r => r.text()))
-
       if (result.success) {
-        setStep("complete");
+        showToast(
+          "Two-factor authentication has been enabled on your account.",
+          "success",
+        );
+        setTimeout(() => {
+          router.replace("/settings");
+        }, 800);
+
+        return;
       } else {
         setError(result.error || "Invalid verification code");
       }
@@ -143,9 +152,13 @@ export function MFASetup() {
         setIsDisableModalOpen(false);
         setDisableOTP("");
         setError("");
-        // Reset the MFA setup to initial state
-        setStep("initial");
-        // router.push("/settings");
+        showToast("Two-factor authentication has been disabled.", "success");
+
+        await supabase.auth.signOut();
+
+        router.replace("/login?mfaDisabled=true");
+
+        return;
       } else {
         setError(result.error || "Failed to disable MFA");
       }
@@ -155,6 +168,14 @@ export function MFASetup() {
 
     setLoading(false);
   };
+
+  if (profileLoading) {
+    return (
+      <div className="flex justify-center items-center">
+        <div className="w-8 h-8 border-4 border-[#0D7478] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (step === "initial") {
     return (
@@ -297,7 +318,7 @@ export function MFASetup() {
                 </Button>
                 <Button
                   onClick={handleDisableMFA}
-                  disabled={loading || disableOTP.length !== 6}
+                  disabled={loading || disableOTP.trim().length !== 6}
                   className="h-11 rounded-xl px-6 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                 >
                   {loading ? (
@@ -418,26 +439,6 @@ export function MFASetup() {
             {loading ? "Verifying..." : "Verify Code"}
           </Button>
         </div>
-      </Card>
-    );
-  }
-
-  if (step === "complete") {
-    return (
-      <Card className="p-6 max-w-md mx-auto">
-        <h2 className="text-xl font-bold mb-4 text-green-600">
-          ✓ 2FA Enabled Successfully!
-        </h2>
-        <p className="text-muted-foreground mb-6">
-          Two-factor authentication has been enabled on your account.
-        </p>
-
-        <Button
-          onClick={() => (window.location.href = "/settings")}
-          className="w-full"
-        >
-          Done
-        </Button>
       </Card>
     );
   }

@@ -71,6 +71,19 @@ function LoginContent() {
     }
   }, [searchParams]);
 
+  const redirect = searchParams.get("redirect");
+
+  useEffect(() => {
+    // If MFA screen is active, do NOT redirect
+    if (!user || mfaPending || mfaRequired) return;
+  
+    if (redirect) {
+      router.replace(redirect);
+    } else {
+      router.replace("/");
+    }
+  }, [user, redirect, router, mfaPending, mfaRequired]);
+
   // Listen for auth state changes
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
@@ -78,7 +91,7 @@ function LoginContent() {
         if (session?.user) {
           fetchProfile(session.user.id);
         }
-      }
+      },
     );
     return () => listener.subscription.unsubscribe();
   }, []);
@@ -102,20 +115,6 @@ function LoginContent() {
     setProfile(data);
     // checkMfaPrompt(data);
   };
-
-  // const checkMfaPrompt = (profile: Profile) => {
-  //   const showPrompt =
-  //     !profile.mfa_enabled &&
-  //     (!profile.mfa_prompt_dismissed_at ||
-  //       daysSince(profile.mfa_prompt_dismissed_at) >= 7);
-
-  //   setShowMfaPrompt(showPrompt);
-  // };
-
-  // const daysSince = (date: string) => {
-  //   const diffTime = Math.abs(new Date().getTime() - new Date(date).getTime());
-  //   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,7 +151,7 @@ function LoginContent() {
       }
 
       // no MFA, safe to redirect
-      router.push("/");
+      // router.push("/");
     } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
@@ -169,13 +168,11 @@ function LoginContent() {
       const { success, error: mfaError } = await verifyMFALogin(
         factorId,
         challengeId,
-        mfaCode
+        mfaCode,
       );
 
-      console.log("IP:", await fetch("https://api.ipify.org").then(r => r.text()))
-
       if (success) {
-        router.replace("/");
+        router.replace(redirect || "/");
       } else {
         setError(mfaError || "Invalid authentication code");
       }
@@ -199,26 +196,6 @@ function LoginContent() {
       setError("An unexpected error occurred. Please try again.");
       setIsSubmitting(false);
     }
-  };
-
-  const handleEnableMfa = () => {
-    router.push("/mfa-setup");
-  };
-
-  const handleRemindMeLater = async () => {
-    if (!user) return;
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({ mfa_prompt_dismissed_at: new Date().toISOString() })
-      .eq("id", user.id);
-
-    if (error) {
-      console.error("Failed to update dismiss time:", error);
-      return;
-    }
-
-    // setShowMfaPrompt(false);
   };
 
   if (isLoading) {
