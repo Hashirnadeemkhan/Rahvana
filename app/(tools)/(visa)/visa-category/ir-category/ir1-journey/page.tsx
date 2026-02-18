@@ -8,105 +8,253 @@ import { ProgressTree } from "@/app/test/components/ProgressTree";
 import { StepDetail } from "@/app/test/components/StepDetail";
 import { DocumentVault } from "@/app/test/components/DocumentVault";
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PlayCircle, RotateCcw, ArrowRight, Save, CheckCircle2, Loader2 } from 'lucide-react';
 
 export default function IR1JourneyPage() {
     const { user } = useAuth();
-    const { state, actions, isLoaded } = useWizard();
+    const userId = user?.id ?? null;
+
+    const { state, actions, isLoaded, hasExistingProgress, isSyncing } = useWizard({
+        userId,
+        journeyId: 'ir1',
+    });
+
     const router = useRouter();
     const isSignedIn = !!user;
 
-    const handleToggleAuth = () => {
-        router.push('/login');
+    // Show the resume/start-fresh screen only when:
+    // - user is logged in
+    // - there's existing progress
+    // - they haven't clicked "Resume" or "Start Fresh" yet
+    const [journeyDecisionMade, setJourneyDecisionMade] = useState(false);
+
+    const showDecisionScreen =
+        isLoaded &&
+        isSignedIn &&
+        hasExistingProgress &&
+        !journeyDecisionMade;
+
+    const handleResume = () => {
+        setJourneyDecisionMade(true);
     };
+
+    const handleStartFresh = async () => {
+        await actions.resetProgress();
+        setJourneyDecisionMade(true);
+    };
+
+    const handleStartJourney = () => {
+        actions.startJourney();
+        setJourneyDecisionMade(true);
+    };
+
+    // Loading state
+    if (!isLoaded) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-muted-foreground text-sm">Loading your journey...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <section id="ir1-journey" className="block">
             <div className="max-w-[1400px] mx-auto px-6 py-[60px]">
                 <div className='max-w-5xl mx-auto mb-12'>
-                    <h1 className="text-5xl font-bold mb-4">IR-1/CR-1 Spouse Visa Journey</h1>
-                    <p className="text-slate-500 mb-8 text-lg">Comprehensive roadmap for bringing your spouse to the United States via consular processing at U.S. Embassy Islamabad, Pakistan.</p>
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                        <div>
+                            <h1 className="text-5xl font-bold mb-4">IR-1/CR-1 Spouse Visa Journey</h1>
+                            <p className="text-slate-500 mb-8 text-lg">
+                                Comprehensive roadmap for bringing your spouse to the United States via consular processing at U.S. Embassy Islamabad, Pakistan.
+                            </p>
+                        </div>
+                        {/* Sync indicator */}
+                        {isSignedIn && (
+                            <div className="flex items-center gap-2 text-sm text-slate-500 mt-2 shrink-0">
+                                {isSyncing ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                                        <span>Saving...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="w-4 h-4 text-emerald-500" />
+                                        <span className="text-emerald-600 font-medium">Auto-saved</span>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     <div className="bg-[#e0f2fe] border-l-4 border-l-[#0d9488] p-4 rounded-xl mb-8 flex gap-3 items-start">
                         <p className="text-base text-slate-800 leading-relaxed font-medium">
                             <span className="font-bold">IR-1 vs CR-1:</span> If married less than 2 years at entry, you&apos;ll receive CR-1 (conditional, 2-year green card requiring I-751 filing). If married 2+ years, IR-1 (10-year green card).
                         </p>
                     </div>
 
+                    {/* Stage Overview */}
                     <h2 className="text-xl font-bold mb-6 text-slate-800">The 5 Stages</h2>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-primary font-bold text-sm mb-1 uppercase tracking-wide">Stage I</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">USCIS Petition</p>
-                            <p className="text-slate-500 text-sm">17-65 months</p>
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage II</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">NVC/CEAC Processing</p>
-                            <p className="text-slate-500 text-sm">4-9 months</p>
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage III</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">Medical + Interview</p>
-                            <p className="text-slate-500 text-sm">2-4 weeks</p>
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage IV</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">Post-Interview & Travel</p>
-                            <p className="text-slate-500 text-sm">1-2 weeks</p>
-                        </div>
-                        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                            <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">Stage V</h4>
-                            <p className="font-bold text-slate-800 text-lg mb-4">U.S. Arrival</p>
-                            <p className="text-slate-500 text-sm">90 days</p>
-                        </div>
+                        {[
+                            { stage: 'I', title: 'USCIS Petition', time: '17-65 months' },
+                            { stage: 'II', title: 'NVC/CEAC Processing', time: '4-9 months' },
+                            { stage: 'III', title: 'Medical + Interview', time: '2-4 weeks' },
+                            { stage: 'IV', title: 'Post-Interview & Travel', time: '1-2 weeks' },
+                            { stage: 'V', title: 'U.S. Arrival', time: '90 days' },
+                        ].map(({ stage, title, time }) => (
+                            <div key={stage} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                                <h4 className="text-primary font-bold text-sm mb-1 uppercase tracking-wide">Stage {stage}</h4>
+                                <p className="font-bold text-slate-800 text-lg mb-4">{title}</p>
+                                <p className="text-slate-500 text-sm">{time}</p>
+                            </div>
+                        ))}
                     </div>
 
+                    {/* Video Placeholder */}
                     <div className="bg-secondary text-white rounded-xl p-10 mb-10">
-                            <h4 className="text-lg font-bold mb-3">📹 Getting Started with Rahvana (3 min)</h4>
-                            <ul className="space-y-2 mb-4">
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Goals:</strong> Understand the 5 stages, set realistic expectations, feel supported</li>
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Target:</strong> Both petitioner and beneficiary</li>
-                                <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Topics:</strong> Timeline overview, cost breakdown, common mistakes to avoid, emotional support for separated couples</li>
-                            </ul>
-                            <button className="px-6 py-3 rounded-lg border-2 border-white text-white font-bold cursor-not-allowed bg-[#ffffff33]">
-                                ▶ Play Video (Placeholder)
-                            </button>
+                        <h4 className="text-lg font-bold mb-3">📹 Getting Started with Rahvana (3 min)</h4>
+                        <ul className="space-y-2 mb-4">
+                            <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Goals:</strong> Understand the 5 stages, set realistic expectations, feel supported</li>
+                            <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Target:</strong> Both petitioner and beneficiary</li>
+                            <li className="flex gap-2 text-sm"><span className="text-amber-500">▸</span> <strong>Topics:</strong> Timeline overview, cost breakdown, common mistakes to avoid, emotional support for separated couples</li>
+                        </ul>
+                        <button className="px-6 py-3 rounded-lg border-2 border-white text-white font-bold cursor-not-allowed bg-[#ffffff33]">
+                            ▶ Play Video (Placeholder)
+                        </button>
                     </div>
 
+                    {/* ── Decision Screen: Resume or Start Fresh ── */}
+                    <AnimatePresence>
+                        {showDecisionScreen && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                                className="bg-white border-2 border-primary/20 rounded-2xl p-8 mb-8 shadow-xl relative overflow-hidden group"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <PlayCircle className="w-24 h-24 text-primary" />
+                                </div>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <CheckCircle2 className="w-6 h-6 text-primary" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-slate-900">Welcome Back!</h3>
+                                        <p className="text-slate-500 text-sm">You have an existing IR-1 journey in progress.</p>
+                                    </div>
+                                </div>
+
+                                {/* Progress Summary */}
+                                <div className="bg-slate-50 rounded-xl p-4 mb-6">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm font-semibold text-slate-600">Journey Progress</span>
+                                        <span className="text-sm font-bold text-primary">
+                                            {state.completedSteps.size} steps completed
+                                        </span>
+                                    </div>
+                                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-primary transition-all duration-500 rounded-full"
+                                            style={{
+                                                width: `${Math.round(
+                                                    (state.completedSteps.size /
+                                                        roadmapData.stages.reduce((acc, s) => acc + s.steps.length, 0)) * 100
+                                                )}%`
+                                            }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-slate-400 mt-2">
+                                        Currently at: Stage {state.currentStage + 1} — {roadmapData.stages[state.currentStage]?.name ?? ''}
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <button
+                                        onClick={handleResume}
+                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg active:scale-95"
+                                    >
+                                        <PlayCircle className="w-5 h-5" />
+                                        Resume My Journey
+                                        <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={handleStartFresh}
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 font-semibold rounded-xl hover:border-red-300 hover:text-red-600 hover:bg-red-50 transition-all"
+                                    >
+                                        <RotateCcw className="w-4 h-4" />
+                                        Start Fresh
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* ── Guest Banner: Sign In to Save Progress ── */}
                     {!isSignedIn && (
                         <div className="bg-[#faba20] text-[#7c2d12] rounded-2xl p-6 mb-8 text-center shadow-sm">
                             <div className="flex items-center justify-center gap-2 mb-4">
                                 <span className="text-2xl" role="img" aria-label="lock">🔒</span>
-                                <h4 className="text-2xl font-bold">Full Wizard Access</h4>
+                                <h4 className="text-2xl font-bold">Save Your Progress</h4>
                             </div>
                             <p className="mb-4 text-lg opacity-90 mx-auto">
-                                Sign in free to save your progress, mark steps complete, and use the document vault.
+                                Sign in free to save your progress, mark steps complete, and resume anytime from any device.
                             </p>
-                            <button 
+                            <button
                                 className="px-8 py-3 rounded-xl bg-primary/90 text-white font-bold text-lg hover:bg-[#0f766e] transition-all shadow-lg active:scale-95"
-                                onClick={handleToggleAuth}
+                                onClick={() => router.push('/login')}
                             >
                                 Sign In Free
                             </button>
                         </div>
                     )}
 
+                    {/* ── Start Journey Button (logged in, no existing progress) ── */}
+                    {isSignedIn && !hasExistingProgress && !journeyDecisionMade && (
+                        <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-2xl p-6 mb-8 text-center">
+                            <h3 className="text-xl font-bold text-slate-900 mb-2">Ready to Begin?</h3>
+                            <p className="text-slate-500 mb-4">Your progress will be automatically saved to your account.</p>
+                            <button
+                                onClick={handleStartJourney}
+                                className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg active:scale-95"
+                            >
+                                <PlayCircle className="w-5 h-5" />
+                                Start My Journey
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
                 </div>
-                    <Wizard state={state} actions={actions} isLoaded={isLoaded} />
+
+                {/* ── Wizard (shown when decision is made or user is guest) ── */}
+                {(!showDecisionScreen) && (
+                    <Wizard
+                        state={state}
+                        actions={actions}
+                        isLoaded={isLoaded}
+                        isSignedIn={isSignedIn}
+                    />
+                )}
             </div>
         </section>
     );
 }
 
-type WizardActions = ReturnType<typeof useWizard>["actions"];
+type WizardActions = ReturnType<typeof useWizard>['actions'];
 
 interface WizardProps {
     state: WizardState;
     actions: WizardActions;
     isLoaded: boolean;
+    isSignedIn: boolean;
 }
 
-function Wizard({ state, actions, isLoaded }: WizardProps) {
+function Wizard({ state, actions, isLoaded, isSignedIn }: WizardProps) {
     const [isVaultOpen, setIsVaultOpen] = useState(false);
 
     if (!isLoaded) {
@@ -154,28 +302,35 @@ function Wizard({ state, actions, isLoaded }: WizardProps) {
                         <div className="h-full bg-[#0d9488] transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
                     </div>
                 </div>
-                <button 
-                    onClick={() => setIsVaultOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg font-semibold text-slate-700 hover:border-[#0d9488] hover:bg-[#ebf5f4] transition-all"
-                >
-                    📁 Document Vault
-                </button>
+                <div className="flex items-center gap-3">
+                    {!isSignedIn && (
+                        <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-medium">
+                            ⚠ Progress not saved — Sign in to save
+                        </span>
+                    )}
+                    <button
+                        onClick={() => setIsVaultOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg font-semibold text-slate-700 hover:border-[#0d9488] hover:bg-[#ebf5f4] transition-all"
+                    >
+                        📁 Document Vault
+                    </button>
+                </div>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm min-h-[600px] mb-12">
                 <aside className="w-full md:w-[320px] bg-slate-50 border-r border-slate-200 p-4 md:p-6 overflow-y-auto max-h-[800px]">
-                    <ProgressTree 
-                        state={state} 
+                    <ProgressTree
+                        state={state}
                         onSelectStep={(stageIdx, stepIdx) => {
                             actions.setStage(stageIdx);
                             actions.setCurrentStep(stepIdx);
-                        }} 
+                        }}
                     />
                 </aside>
 
                 <main className="flex-1 p-4 md:p-8 bg-white overflow-y-auto">
-                    <StepDetail 
-                        step={currentStep} 
+                    <StepDetail
+                        step={currentStep}
                         stage={currentStage}
                         state={state}
                         onToggleComplete={actions.toggleComplete}
@@ -187,8 +342,8 @@ function Wizard({ state, actions, isLoaded }: WizardProps) {
                 </main>
             </div>
 
-            <DocumentVault 
-                isOpen={isVaultOpen} 
+            <DocumentVault
+                isOpen={isVaultOpen}
                 onClose={() => setIsVaultOpen(false)}
                 state={state}
                 onToggleDocument={actions.toggleDocument}

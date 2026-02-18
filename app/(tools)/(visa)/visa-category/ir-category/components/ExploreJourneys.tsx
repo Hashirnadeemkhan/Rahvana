@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MapPin,
   Search,
@@ -10,6 +10,7 @@ import {
   Clock,
   ArrowRight,
   X,
+  PlayCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,9 @@ import {
 } from "@/components/ui/tooltip";
 import { VisaEligibilityTool } from "@/app/(tools)/visa-eligibility/components/VisaEligibilityTool";
 import Link from "next/link";
+import { useAuth } from "@/app/context/AuthContext";
+import { loadJourneyProgress, JourneyProgressRecord } from "@/lib/journey/journeyProgressService";
+import { roadmapData } from "@/app/(main)/dashboard/data/roadmap";
 
 // Mock Data
 type Journey = {
@@ -1062,6 +1066,34 @@ export default function ExploreJourneys({
   origin,
   destination,
 }: ExploreJourneysProps) {
+  const { user } = useAuth();
+  const [ir1Progress, setIr1Progress] = useState<JourneyProgressRecord | null>(null);
+
+  // Check if logged-in user has an existing IR-1 journey
+  useEffect(() => {
+    if (!user?.id) {
+      setIr1Progress(null);
+      return;
+    }
+    loadJourneyProgress(user.id, 'ir1').then(record => {
+      if (record && record.started) {
+        setIr1Progress(record);
+      } else {
+        setIr1Progress(null);
+      }
+    });
+  }, [user?.id]);
+
+  const ir1HasProgress = !!ir1Progress;
+  
+  // Calculate progress percentage for IR-1 if it exists
+  const ir1ProgressPercent = React.useMemo(() => {
+    if (!ir1Progress) return 0;
+    const totalSteps = roadmapData.stages.reduce((acc, s) => acc + s.steps.length, 0);
+    const completedCount = Array.isArray(ir1Progress.completed_steps) ? ir1Progress.completed_steps.length : 0;
+    return Math.round((completedCount / totalSteps) * 100);
+  }, [ir1Progress]);
+
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedProcess, setSelectedProcess] = useState("Consular");
   const [highlightedJourney, setHighlightedJourney] = useState<string | null>(
@@ -1472,6 +1504,8 @@ export default function ExploreJourneys({
                     onSelect={() => setHighlightedJourney(journey.id)}
                     onCompare={(e) => toggleCompare(journey.id, e)}
                     onWatchIntro={() => setVideoModalJourney(journey)}
+                    hasProgress={journey.id === 'ir1' && ir1HasProgress}
+                    progressPercent={journey.id === 'ir1' ? ir1ProgressPercent : undefined}
                   />
                 ))}
               </div>
@@ -1494,6 +1528,8 @@ export default function ExploreJourneys({
                     onSelect={() => setHighlightedJourney(journey.id)}
                     onCompare={(e) => toggleCompare(journey.id, e)}
                     onWatchIntro={() => setVideoModalJourney(journey)}
+                    hasProgress={journey.id === 'ir1' && ir1HasProgress}
+                    progressPercent={journey.id === 'ir1' ? ir1ProgressPercent : undefined}
                   />
                 ))}
               </div>
@@ -1820,6 +1856,8 @@ function JourneyCard({
   onSelect,
   onCompare,
   onWatchIntro,
+  hasProgress,
+  progressPercent,
 }: {
   journey: Journey;
   isActive: boolean;
@@ -1827,6 +1865,8 @@ function JourneyCard({
   onSelect: () => void;
   onCompare: (e: React.MouseEvent) => void;
   onWatchIntro: () => void;
+  hasProgress?: boolean;
+  progressPercent?: number;
 }) {
   return (
     <div
@@ -1840,7 +1880,7 @@ function JourneyCard({
     >
       {/* Top Row: Type Label & Match & Compare */}
       <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span
             className={cn(
               "px-3 py-1 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-600",
@@ -1854,6 +1894,13 @@ function JourneyCard({
               <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 flex items-center gap-1 ">
                 <CheckCircle className="w-3 h-3 " /> {journey.matchScore}% Match
               </span>
+            </span>
+          )}
+          {/* In Progress Badge with Percent */}
+          {hasProgress && (
+            <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded-full border border-teal-200 flex items-center gap-1">
+              <PlayCircle className="w-3 h-3" /> 
+              {progressPercent !== undefined ? `${progressPercent}% Complete` : 'In Progress'}
             </span>
           )}
         </div>
@@ -1912,7 +1959,6 @@ function JourneyCard({
           <div className="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
           {journey.stations} stations
         </div>
-        {/* Removed difficulty level as per request */}
         {journey.matchScore > 95 && (
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700">
             High Approval Rate
@@ -1920,18 +1966,23 @@ function JourneyCard({
         )}
       </div>
 
-      {/* Action Buttons (Only Visible/Highligted when active or hover? Design implies they are always there or show on active) */}
-      {/* We'll show them always to match the 'card' look, maybe slightly faded if inactive? */}
+      {/* Action Buttons */}
       <div className="flex items-center flex-wrap gap-3">
         {journey.id === "ir1" ? (
           <Link href="/visa-category/ir-category/ir1-journey">
             <Button
               className={cn(
                 "h-9 px-4 rounded-lg font-medium shadow-none transition-colors",
-                "bg-teal-700 text-white hover:bg-teal-800",
+                hasProgress
+                  ? "bg-teal-600 text-white hover:bg-teal-700"
+                  : "bg-teal-700 text-white hover:bg-teal-800",
               )}
             >
-              Start Journey
+              {hasProgress ? (
+                <><PlayCircle className="w-4 h-4 mr-1" /> Resume Journey</>
+              ) : (
+                "Start Journey"
+              )}
             </Button>
           </Link>
         ) : (
@@ -1942,7 +1993,6 @@ function JourneyCard({
             Coming Soon
           </Button>
         )}
-        {/* Preview Roadmap removed as per request */}
         {journey.id === "ir1" && (
           <button
             className="text-sm font-medium text-teal-600 hover:text-teal-700 hover:underline ml-1"
