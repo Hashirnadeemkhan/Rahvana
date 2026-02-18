@@ -41,41 +41,41 @@ const LOGO_IMAGE = `
 const CLOCK_SVG = `<img 
 src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/clock.png"
 alt="Clock" 
-style="width:24px; height:auto;" 
+style="width:24px; height:auto; color:#0Df7f8;" 
 />`;
 
 const SHIELD_SVG = `<img 
 src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/shield-check.png"
 alt="Shield Check" 
-style="width:24px; height:auto;" 
+style="width:24px; height:auto; color:#0Df7f8;" 
 />
 `;
 
 const LOCK = `<img 
 src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/lock.png"
 alt="Lock" 
-style="width:24px; height:auto;" 
+style="width:24px; height:auto; color:#0Df7f8;" 
 />
 `;
 
 const UNSHIELD_SVG = `<img 
 src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/shield-off.png"
 alt="UnShield" 
-style="width:24px; height:auto;" 
+style="width:24px; height:auto; color:#0Df7f8;" 
 />
 `;
 
 const WARNING_SVG = `<img 
 src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/circle-alert.png"
 alt="Warning" 
-style="width:24px; height:auto;" 
+style="width:24px; height:auto; color:#0Df7f8;" 
 />
 `;
 
 const FEATURE_SVG = `<img 
 src="${process.env.NEXT_PUBLIC_APP_URL}/assets/images/rocket.png"
 alt="Feature" 
-style="width:24px; height:auto;" 
+style="width:24px; height:auto; color:#0Df7f8;" 
 />
 `;
 
@@ -157,9 +157,12 @@ export function getEmailConfirmationHtml(confirmLink: string): string {
 
                 <!-- Expiry Box -->
                 <div style="background:#e8f6f6; border-radius:12px; padding:16px;">
-                  <p style="margin:0; font-size:14px; color:#0a5a5d; font-weight:500;">
-                    ${CLOCK_SVG} This link will expire in 24 hours.
+                <div style="display:flex;">
+                  <span>${CLOCK_SVG} </span>
+                  <p style="font-size:14px; margin-bottom:2px; color:#0a5a5d; font-weight:500;">
+                    This link will expire in 24 hours.
                   </p>
+                </div>
                 </div>
 
                 <!-- Footer Note -->
@@ -261,9 +264,12 @@ export function getPasswordResetEmailHtml(resetLink: string): string {
 
                 <!-- Security Notice Box -->
                 <div style="background:#fff4e5; border-radius:12px; padding:16px; margin-bottom:24px;">
-                  <p style="margin:0; font-size:14px; color:#92400e; font-weight:500;">
-                    ${CLOCK_SVG} This link will expire in 1 hour for security reasons.
-                  </p>
+                <div style="display:flex;">
+                <span>${CLOCK_SVG} </span>
+                <p style="font-size:14px; margin-bottom:2px; color:#0a5a5d; font-weight:500;">
+                  This link will expire in 1 hour for security reasons.
+                </p>
+              </div>
                 </div>
 
                 <!-- Footer Note -->
@@ -325,7 +331,12 @@ export function getMFAEnabledEmailHtml(): string {
 
                 <!-- Heading -->
                 <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
-                  ${SHIELD_SVG} Two-Factor Authentication Enabled
+                <div style="display:flex;">
+                <span>${SHIELD_SVG} </span>
+                <p style="font-size:14px; margin-bottom:2px; color:#0a5a5d; font-weight:500;">
+                  Two-Factor Authentication Enabled
+                </p>
+              </div>
                 </h1>
 
                 <!-- Main Message -->
@@ -335,9 +346,12 @@ export function getMFAEnabledEmailHtml(): string {
 
                 <!-- Success Highlight Box -->
                 <div style="background:#e8f6f6; border-radius:12px; padding:16px; margin:24px 0;">
-                  <p style="margin:0; font-size:14px; color:#0a5a5d; font-weight:500;">
-                    ${LOCK} Your account now has an additional layer of protection.
-                  </p>
+                <div style="display:flex;">
+                <span>${LOCK} </span>
+                <p style="font-size:14px; margin-bottom:2px; color:#0a5a5d; font-weight:500;">
+                  Your account now has an additional layer of protection.
+                </p>
+              </div>
                 </div>
 
                 <!-- Explanation -->
@@ -423,7 +437,12 @@ export function getMFADisabledEmailHtml(): string {
 
                 <!-- Heading -->
                 <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
-${UNSHIELD_SVG} Two-Factor Authentication Disabled
+                <div style="display:flex;">
+                <span>${UNSHIELD_SVG} </span>
+                <p style="font-size:14px; margin-bottom:2px; color:#0a5a5d; font-weight:500;">
+                  Two-Factor Authentication Disabled
+                </p>
+              </div>
                 </h1>
 
                 <!-- Main Text -->
@@ -433,9 +452,12 @@ ${UNSHIELD_SVG} Two-Factor Authentication Disabled
 
                 <!-- Security Reduced Notice -->
                 <div style="background:#fff4e5; border-radius:12px; padding:16px; margin:24px 0;">
-                  <p style="margin:0; font-size:14px; color:#92400e; font-weight:500;">
-                    ${WARNING_SVG} Your account security has been reduced. We strongly recommend enabling 2FA again.
-                  </p>
+                <div style="display:flex;">
+                <span>${WARNING_SVG} </span>
+                <p style="font-size:14px; margin-bottom:2px; color:#0a5a5d; font-weight:500;">
+                  Your account is now more vulnerable to unauthorized access.
+                </p>
+              </div>
                 </div>
 
                 <!-- Explanation -->
@@ -532,7 +554,10 @@ export function getFeatureAnnouncementEmailHtml(
 
                   <!-- Heading -->
                   <h1 style="margin:0 0 20px; font-size:26px; font-weight:700; color:#0d7377; text-align:center;">
-${FEATURE_SVG} ${title}
+                  <div style="display:flex;">
+                  <span>${FEATURE_SVG} </span>
+                    ${title}
+                </div>
                   </h1>
 
                   <!-- Description -->

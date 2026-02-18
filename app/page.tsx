@@ -9,7 +9,7 @@ import React, { useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "lucide-react";
-// import { Header } from './test/components/Header';
+import { useRouter } from "next/navigation";
 import { Wizard } from "./test/components/Wizard";
 import { Dashboard } from "./test/components/Dashboard";
 import {
@@ -24,18 +24,11 @@ import Image from "next/image";
 import { StackedCarousel } from "./components/StackedCarousel";
 import Link from "next/link";
 import HydrationSafeButton from "@/app/components/HydrationSafeButton";
+import { ComingSoonModal } from "./components/shared/ComingSoonModal";
 import { useAuth } from "./context/AuthContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
+import { AuthRequiredModal } from "./components/shared/AuthRequiredModal";
+import { MfaPromptModal } from "./components/shared/MFAPromptModal";
 
 const supabase = createClient();
 
@@ -523,7 +516,9 @@ function HomePageContent() {
   const [activeSection, setActiveSection] = useState("home");
   const searchParams = useSearchParams();
 
-  const {user} = useAuth();
+  const { user } = useAuth();
+  const router = useRouter();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMfaPrompt, setShowMfaPrompt] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -556,48 +551,6 @@ function HomePageContent() {
   const [activeStep, setActiveStep] = useState(1);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
-  const toastContainerRef = useRef<HTMLDivElement>(null);
-
-  const showToast = (
-    message: string,
-    type: "info" | "success" | "error" = "info",
-  ) => {
-    const container = toastContainerRef.current;
-    if (!container) return;
-
-    const toast = document.createElement("div");
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-      <div class="toast-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-      </div>
-      <span class="toast-message">${message}</span>
-      <button class="toast-close" aria-label="Dismiss">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>
-    `;
-
-    container.appendChild(toast);
-
-    // Trigger animation
-    requestAnimationFrame(() => {
-      toast.classList.add("show");
-    });
-
-    // Close button
-    toast.querySelector(".toast-close")?.addEventListener("click", () => {
-      toast.classList.remove("show");
-      setTimeout(() => toast.remove(), 300);
-    });
-
-    // Auto-remove
-    setTimeout(() => {
-      if (toast.parentElement) {
-        toast.classList.remove("show");
-        setTimeout(() => toast.remove(), 300);
-      }
-    }, 4000);
-  };
 
   // Lifted wizard state to share with Dashboard
   const { state, actions, isLoaded } = useWizard();
@@ -654,8 +607,7 @@ function HomePageContent() {
   };
 
   const daysSince = (date: string) => {
-    const diffTime =
-      new Date().getTime() - new Date(date).getTime();
+    const diffTime = new Date().getTime() - new Date(date).getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
@@ -676,24 +628,16 @@ function HomePageContent() {
     setShowMfaPrompt(false);
   };
 
-  // const scrollCarousel = (amount: number) => {
-  //   if (carouselRef.current) {
-  //     carouselRef.current.scrollBy({ left: amount, behavior: "smooth" });
-  //   }
-  // };
-
-  // Auto-redirect to dashboard on login if explicitly toggled there?
-  // The original app didn't do this, just showed the link. We'll keep it simple.
+  const handleConsultationClick = () => {
+    if (user) {
+      router.push("/book-consultation");
+    } else {
+      setShowAuthModal(true);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
-      {/* <Header 
-                    activeSection={activeSection} 
-                    onNavigate={handleNavigate}
-                    isSignedIn={isSignedIn}
-                    onToggleAuth={handleToggleAuth}
-                /> */}
-
       <main className="min-h-[calc(100vh-200px)]">
         {activeSection === "home" && (
           <div className="flex flex-col">
@@ -993,12 +937,12 @@ function HomePageContent() {
                           Sign up to get the first free consultation.
                         </span>
                       </p>
-                      <HydrationSafeButton
-                        onClick={() => setShowComingSoon(true)}
+                      <button
+                        onClick={handleConsultationClick}
                         className="inline-flex items-center px-10 py-5 bg-background text-rahvana-primary text-lg font-bold rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all"
                       >
                         Book a Consultation
-                      </HydrationSafeButton>
+                      </button>
                     </div>
                     <div className="relative h-64 lg:h-full min-h-100 rounded-r-2xl">
                       <Image
@@ -1183,17 +1127,17 @@ function HomePageContent() {
                               setActiveStep((prev) => Math.max(1, prev - 1))
                             }
                             disabled={activeStep === 1}
-                            className={`order-2 sm:order-0 flex items-center gap-2 px-2 md:px-4 py-2 rounded-lg font-semibold transition-all ${
-                              activeStep === 1
-                                ? "opacity-30 cursor-not-allowed text-muted-foreground"
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                              activeStep === 1 
+                                ? "opacity-30 cursor-not-allowed text-muted-foreground" 
                                 : "text-rahvana-primary hover:bg-rahvana-primary-pale"
                             }`}
                           >
                             <Icons.ChevronLeft className="w-5 h-5" />
                             Previous
                           </button>
-
-                          <div className="order-1 flex w-full justify-center gap-1.5 sm:order-0 sm:w-auto">
+                          
+                          <div className="flex gap-1.5">
                             {LIFECYCLE_STEPS.map((_, i) => (
                               <div
                                 key={i}
@@ -1209,9 +1153,9 @@ function HomePageContent() {
                               )
                             }
                             disabled={activeStep === LIFECYCLE_STEPS.length}
-                            className={`order-3 sm:order-0 flex items-center gap-2 md:px-6 px-2 py-2 rounded-lg font-semibold transition-all ${
-                              activeStep === LIFECYCLE_STEPS.length
-                                ? "opacity-30 cursor-not-allowed text-muted-foreground"
+                            className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold transition-all ${
+                              activeStep === LIFECYCLE_STEPS.length 
+                                ? "opacity-30 cursor-not-allowed text-muted-foreground" 
                                 : "bg-rahvana-primary text-white shadow-lg hover:bg-rahvana-primary-dark hover:-translate-y-0.5"
                             }`}
                           >
@@ -1307,70 +1251,19 @@ function HomePageContent() {
               <GetInTouch />
             </motion.div>
 
-            {/* COMING SOON MODAL */}
+            {/* AUTH MODAL */}
             <AnimatePresence>
-              {showComingSoon && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={() => setShowComingSoon(false)}
-                    className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                  />
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-md bg-card rounded-3xl p-8 shadow-2xl border border-border"
-                  >
-                    <HydrationSafeButton
-                      onClick={() => setShowComingSoon(false)}
-                      className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <Icons.X className="w-6 h-6" />
-                    </HydrationSafeButton>
-                    <div className="w-16 h-16 rounded-2xl bg-rahvana-primary-pale text-rahvana-primary flex items-center justify-center mx-auto mb-6">
-                      <Icons.Rocket className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-center text-foreground mb-2">
-                      Coming Soon!
-                    </h3>
-                    <p className="text-muted-foreground text-center mb-8">
-                      Want early access? Join the waitlist and be the first to
-                      know when this feature launches.
-                    </p>
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        setShowComingSoon(false);
-                        showToast(
-                          "You've been added to the waitlist!",
-                          "success",
-                        );
-                      }}
-                      className="space-y-4"
-                    >
-                      <input
-                        type="email"
-                        placeholder="Enter your email"
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-rahvana-primary focus:ring-4 focus:ring-rahvana-primary/10 transition-all font-medium bg-background text-foreground"
-                      />
-                      <HydrationSafeButton
-                        type="submit"
-                        className="w-full py-4 bg-rahvana-primary text-white font-bold rounded-xl shadow-lg hover:bg-rahvana-primary-dark transition-all active:scale-95"
-                      >
-                        Notify Me
-                      </HydrationSafeButton>
-                    </form>
-                  </motion.div>
-                </div>
+              {showAuthModal && (
+                <AuthRequiredModal
+                open={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                redirectTo="/book-consultation"
+              />
               )}
             </AnimatePresence>
 
             {/* Toast Container */}
-            <div ref={toastContainerRef} className="toast-container" />
+            {/* <div ref={toastContainerRef} className="toast-container" /> */}
           </div>
         )}
 
@@ -1403,81 +1296,20 @@ function HomePageContent() {
         )}
       </main>
 
-      {/* <Footer /> */}
       {showMfaPrompt && (
-            <Dialog open={showMfaPrompt} onOpenChange={setShowMfaPrompt}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Enable Two-Factor Authentication</DialogTitle>
-                  <DialogDescription>
-                    Add an extra layer of security to your account by enabling
-                    two-factor authentication.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button onClick={handleEnableMfa}>Enable MFA</Button>
-                  <Button onClick={handleRemindLater}>Remind me later</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
+        <MfaPromptModal
+        open={showMfaPrompt}
+        onEnable={handleEnableMfa}
+        onRemindLater={handleRemindLater}
+      />
+      )}
+
+      {showComingSoon && (
+        <ComingSoonModal
+          open={showComingSoon}
+          onOpenChange={setShowComingSoon}
+        />
+      )}
     </div>
-
-    // <div className="min-h-screen flex flex-col bg-white text-gray-800">
-
-    //   {/* Main Content */}
-    //   <main className="flex-1">
-    //     {/* Tagline Section */}
-    //     <section className="container mx-auto px-6 py-16 md:py-24">
-    //       <div className="mx-auto max-w-4xl bg-white border border-gray-200 shadow-md rounded-2xl p-8 md:p-12 text-center space-y-4">
-    //         <h2 className="text-2xl md:text-3xl font-bold text-primary/90 tracking-wide">
-    //           INFORMATION AND SERVICES TO MAKE YOUR GLOBAL TRAVEL CONVENIENT
-    //         </h2>
-    //         <p className="text-gray-600 leading-relaxed">
-    //           Explore step-by-step visa guidance, documentation support, and expert consultancy for your global
-    //           journey. Simplify your travel process with Rahvana — your trusted visa partner.
-    //         </p>
-    //         <div className="flex justify-center pt-4">
-    //           <button className="px-6 py-3 rounded-lg bg-primary/90 text-white font-semibold shadow-md hover:bg-primary/100 transition-all">
-    //             Get Started
-    //           </button>
-    //         </div>
-    //       </div>
-    //     </section>
-
-    //     {/* Additional Info Section (Optional - adds visual balance) */}
-    //     <section className="container mx-auto px-6 py-16 md:py-24">
-    //       <div className="grid md:grid-cols-3 gap-8">
-    //         <div className="p-6 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all">
-    //           <h3 className="text-lg font-semibold text-primary/90 mb-2">Easy Navigation</h3>
-    //           <p className="text-gray-600 text-sm leading-relaxed">
-    //             Clean and simple interface designed to help you find visa information quickly.
-    //           </p>
-    //         </div>
-    //         <div className="p-6 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all">
-    //           <h3 className="text-lg font-semibold text-primary/90 mb-2">Verified Data</h3>
-    //           <p className="text-gray-600 text-sm leading-relaxed">
-    //             All visa and service details are regularly verified for accuracy and reliability.
-    //           </p>
-    //         </div>
-    //         <div className="p-6 bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all">
-    //           <h3 className="text-lg font-semibold text-primary/90 mb-2">Step-by-Step Help</h3>
-    //           <p className="text-gray-600 text-sm leading-relaxed">
-    //             Follow simple instructions and video guides to complete your forms with confidence.
-    //           </p>
-    //         </div>
-
-    //       </div>
-    //     </section>
-    //   </main>
-
-    //   {/* Footer */}
-    //   <footer className="border-t border-blue-200 bg-white/70 backdrop-blur py-8">
-    //     <div className="container mx-auto px-6 text-center text-sm text-gray-600">
-    //       <p>© {new Date().getFullYear()} <span className="font-semibold text-primary/90">Rahvana</span>. All rights reserved.</p>
-    //       <p className="mt-2 text-xs text-gray-500">Designed to simplify your global travel experience.</p>
-    //     </div>
-    //   </footer>
-    // </div>
   );
 }
