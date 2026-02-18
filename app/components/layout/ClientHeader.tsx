@@ -12,11 +12,14 @@ export function ClientHeader() {
 
   const [isAuthLoading, setIsAuthLoading] = useState(false);
 
-  // Hide header on admin pages and admin-login page
-  const isAdminPage =
-    pathname.startsWith("/admin") || pathname === "/admin-login";
+  // Hide header on admin pages, admin-login, login and signup pages
+  const isExcludedPage =
+    pathname.startsWith("/admin") || 
+    pathname === "/admin-login" ||
+    pathname === "/login" ||
+    pathname === "/signup";
 
-  if (isAdminPage) {
+  if (isExcludedPage) {
     return null;
   }
 

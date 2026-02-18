@@ -1468,6 +1468,7 @@ export default function VisaCaseStrengthChecker() {
   );
   const { user } = useAuth();
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [lastUserId, setLastUserId] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1476,7 +1477,79 @@ export default function VisaCaseStrengthChecker() {
   // Auto-fill profile data & Restore saved session
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user) return;
+      // CRITICAL: If user is not logged in, clear all data
+      if (!user?.id) {
+        // User logged out - clear form data
+        setFormData({
+          caseType: "",
+          sponsor_full_name: "",
+          beneficiary_full_name: "",
+          sponsor_dob: "",
+          beneficiary_dob: "",
+          country_of_residence: "",
+          relationship_start_date: "",
+          marriage_date: "",
+          spousal_relationship_type: "",
+          intended_us_state_of_residence: "",
+          highest_education_level: "",
+          highest_education_field: "",
+          current_occupation_role: "",
+          industry_sector: "",
+          prior_military_service: false,
+          specialized_weapons_training: false,
+          unofficial_armed_groups: false,
+          employer_type: "",
+          how_did_you_meet: "",
+          number_of_in_person_visits: 0,
+          cohabitation_proof: false,
+          shared_financial_accounts: false,
+          wedding_photos_available: false,
+          communication_logs: false,
+          money_transfer_receipts_available: false,
+          driving_license_copy_available: false,
+          previous_visa_applications: false,
+          previous_visa_denial: false,
+          overstay_or_violation: false,
+          criminal_record: false,
+          sponsor_annual_income: 0,
+          household_size: 0,
+          has_tax_returns: false,
+          has_employment_letter: false,
+          has_paystubs: false,
+          joint_sponsor_available: false,
+          i864_affidavit_submitted: false,
+          i864_supporting_financial_documents: false,
+          urdu_marriage_certificate: false,
+          english_translation_certificate: false,
+          union_council_certificate: false,
+          family_registration_certificate: false,
+          birth_certificates: false,
+          passports_available: false,
+          passport_copy_available: false,
+          valid_police_clearance_certificate: false,
+          ds260_confirmation: false,
+          interview_letter: false,
+          courier_registration: false,
+          medical_report_available: false,
+          polio_vaccination_certificate: false,
+          covid_vaccination_certificate: false,
+          passport_photos_2x2: false,
+        });
+        setProfileLoaded(false);
+        setLastUserId(null);
+        return;
+      }
+
+      // If user changed, reset profileLoaded flag
+      if (lastUserId !== user.id) {
+        setProfileLoaded(false);
+        setLastUserId(user.id);
+      }
+
+      // Skip if already loaded for this user
+      if (profileLoaded && lastUserId === user.id) {
+        return;
+      }
       
       try {
         const { data } = await supabase
@@ -1485,7 +1558,7 @@ export default function VisaCaseStrengthChecker() {
           .eq('id', user.id)
           .single();
 
-        if (data?.profile_details && !profileLoaded) {
+        if (data?.profile_details) {
             const profile = data.profile_details as MasterProfile;
             
             // 1. Check for specific Saved Case Strength Session
@@ -1533,7 +1606,7 @@ export default function VisaCaseStrengthChecker() {
     };
 
     fetchProfile();
-  }, [user, profileLoaded, supabase]);
+  }, [user?.id, profileLoaded, lastUserId, supabase]);
 
   const [questionnaireData, setQuestionnaireData] =
     useState<QuestionnaireData | null>(null);

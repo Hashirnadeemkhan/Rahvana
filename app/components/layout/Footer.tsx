@@ -24,9 +24,17 @@ export default function Footer() {
     router.push(targetRoute);
   };
 
-  // Keep existing administrator-specific logic
-  if (pathname?.startsWith("/admin")) {
-    return <footer className="bg-background mt-20"></footer>;
+  // Hide footer on admin, login and signup pages
+  if (
+    pathname?.startsWith("/admin") ||
+    pathname === "/login" ||
+    pathname === "/signup"
+  ) {
+    // Return minimal footer for admin or null for auth
+    if (pathname?.startsWith("/admin")) {
+      return <footer className="bg-background mt-20"></footer>;
+    }
+    return null;
   }
 
   return (

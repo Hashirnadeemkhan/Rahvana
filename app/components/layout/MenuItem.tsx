@@ -24,12 +24,12 @@ export const MenuItem = ({ item, index, simple = false }: MenuItemProps) => (
       }`}
     >
       {!simple && (
-        <div className="shrink-0 w-10 h-10 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center transition-all group-hover:bg-primary/10 group-hover:text-primary">
+        <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center transition-all group-hover:bg-primary/20">
           {item.icon}
         </div>
       )}
       {simple && (
-        <div className="shrink-0 text-slate-400 group-hover:text-primary transition-colors">
+        <div className="shrink-0 text-primary group-hover:text-primary transition-colors">
           {item.icon}
         </div>
       )}

@@ -132,10 +132,10 @@ export function SiteHeader({
   // const { theme, setTheme } = useTheme();
 
   const MOBILE_ICONS: Record<string, React.ReactNode> = {
-    journeys: <Briefcase className="w-5 h-5 opacity-60" />,
-    tools: <FileText className="w-5 h-5 opacity-60" />,
-    guides: <Folder className="w-5 h-5 opacity-60" />,
-    services: <Zap className="w-5 h-5 opacity-60" />,
+    journeys: <Briefcase className="w-5 h-5 text-primary" />,
+    tools: <FileText className="w-5 h-5 text-primary" />,
+    guides: <Folder className="w-5 h-5 text-primary" />,
+    services: <Zap className="w-5 h-5 text-primary" />,
   };
 
   const pathname = usePathname();
@@ -497,35 +497,35 @@ export function SiteHeader({
                         onClick={() => handleNav("dashboard")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <Layout className="w-4 h-4" />
+                        <Layout className="w-4 h-4 text-primary" />
                         My Dashboard
                       </button>
                       <button
                         onClick={() => handleNav("profile")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <UserIcon className="w-4 h-4" />
+                        <UserIcon className="w-4 h-4 text-primary" />
                         My Profile
                       </button>
                       <button
                         onClick={() => handleNav("document-vault")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <Folder className="w-4 h-4" />
+                        <Folder className="w-4 h-4 text-primary" />
                         Document Vault
                       </button>
                       <button
                         onClick={() => handleNav("services")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <Tag className="w-4 h-4" />
+                        <Tag className="w-4 h-4 text-primary" />
                         My Services
                       </button>
                       <button
                         onClick={() => {}} // Placeholder
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <Lock className="w-4 h-4" />
+                        <Lock className="w-4 h-4 text-primary" />
                         Portal Locker
                       </button>
 
@@ -549,21 +549,21 @@ export function SiteHeader({
                         onClick={() => handleNav("settings")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <Settings className="w-4 h-4" />
+                        <Settings className="w-4 h-4 text-primary" />
                         Account Settings
                       </button>
                       <button
                         onClick={() => handleNav("view-security-questions")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <Shield className="w-4 h-4" />
+                        <Shield className="w-4 h-4 text-primary" />
                         Security & Login
                       </button>
                       <button
                         onClick={() => {}} // Placeholder
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <HelpCircle className="w-4 h-4" />
+                        <HelpCircle className="w-4 h-4 text-primary" />
                         Help Center
                       </button>
                     </div>
@@ -690,7 +690,7 @@ export function SiteHeader({
                     >
                       <div className="flex items-center gap-3">
                         {MOBILE_ICONS[section.id] || (
-                          <Briefcase className="w-5 h-5 opacity-60" />
+                          <Briefcase className="w-5 h-5 text-primary" />
                         )}
                         <span className="font-bold">{section.label}</span>
                       </div>
@@ -807,7 +807,7 @@ export function SiteHeader({
                       : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
-                  <CreditCard className="w-5 h-5 opacity-60" />
+                  <CreditCard className="w-5 h-5 text-primary" />
                   <span className="font-bold">Pricing</span>
                 </HydrationSafeButton>
                 {isSignedIn && (
@@ -820,7 +820,7 @@ export function SiteHeader({
                           : "text-muted-foreground hover:bg-muted"
                       }`}
                     >
-                      <Layout className="w-5 h-5 opacity-60" />
+                      <Layout className="w-5 h-5 text-primary" />
                       <span className="font-bold">My Dashboard</span>
                     </HydrationSafeButton>
                     <HydrationSafeButton
@@ -831,7 +831,7 @@ export function SiteHeader({
                           : "text-muted-foreground hover:bg-muted"
                       }`}
                     >
-                      <UserIcon className="w-5 h-5 opacity-60" />
+                      <UserIcon className="w-5 h-5 text-primary" />
                       <span className="font-bold">My Profile</span>
                     </HydrationSafeButton>
                     <HydrationSafeButton
@@ -842,7 +842,7 @@ export function SiteHeader({
                           : "text-muted-foreground hover:bg-muted"
                       }`}
                     >
-                      <Settings className="w-5 h-5 opacity-60" />
+                      <Settings className="w-5 h-5 text-primary" />
                       <span className="font-bold">Account Settings</span>
                     </HydrationSafeButton>
                   </>
@@ -855,7 +855,7 @@ export function SiteHeader({
                       : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
-                  <Mail className="w-5 h-5 opacity-60" />
+                  <Mail className="w-5 h-5 text-primary" />
                   <span className="font-bold">Contact</span>
                 </HydrationSafeButton>
               </nav>
