@@ -109,10 +109,9 @@ const TOOLS: Tool[] = [
     title: "QueueWatch",
     description: "Track interview scheduling movement and trends by category.",
     category: "Tracking",
-    href: "#",
+    href: "/iv-tool",
     icon: Clock,
-    disabled: true,
-    badge: "Soon",
+    badge: "Live",
   },
   {
     id: "bulletinbuddy",

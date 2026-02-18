@@ -25,9 +25,11 @@ function LoginContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const {
+    user,
     signIn,
     signInWithGoogle,
     isLoading,
+    mfaPending,
     verifyMFALogin,
   } = useAuth();
   const router = useRouter();
@@ -60,6 +62,19 @@ function LoginContent() {
     }
   }, [searchParams]);
 
+  const redirect = searchParams.get("redirect");
+
+  useEffect(() => {
+    // If MFA screen is active, do NOT redirect
+    if (!user || mfaPending || mfaRequired) return;
+  
+    if (redirect) {
+      router.replace(redirect);
+    } else {
+      router.replace("/");
+    }
+  }, [user, redirect, router, mfaPending, mfaRequired]);
+
   // Listen for auth state changes
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
@@ -67,7 +82,7 @@ function LoginContent() {
         if (session?.user) {
           fetchProfile(session.user.id);
         }
-      }
+      },
     );
     return () => listener.subscription.unsubscribe();
   }, []);
@@ -124,7 +139,7 @@ function LoginContent() {
       }
 
       // no MFA, safe to redirect
-      router.push("/");
+      // router.push("/");
     } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
@@ -141,10 +156,11 @@ function LoginContent() {
       const { success, error: mfaError } = await verifyMFALogin(
         factorId,
         challengeId,
-        mfaCode
+        mfaCode,
       );
+
       if (success) {
-        router.replace("/");
+        router.replace(redirect || "/");
       } else {
         setError(mfaError || "Invalid authentication code");
       }

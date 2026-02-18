@@ -9,6 +9,7 @@ import React, { useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Wizard } from "./test/components/Wizard";
 import { Dashboard } from "./test/components/Dashboard";
 import {
@@ -22,19 +23,13 @@ import Image from "next/image";
 import { StackedCarousel } from "./components/StackedCarousel";
 import Link from "next/link";
 import HydrationSafeButton from "@/app/components/HydrationSafeButton";
+import { ComingSoonModal } from "./components/shared/ComingSoonModal";
 import { useAuth } from "./context/AuthContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import GetInTouch from "./components/Contact/GetInTouch";
+import { AuthRequiredModal } from "./components/shared/AuthRequiredModal";
+import { MfaPromptModal } from "./components/shared/MFAPromptModal";
 
 const supabase = createClient();
 
@@ -522,7 +517,9 @@ function HomePageContent() {
   const [activeSection, setActiveSection] = useState("home");
   const searchParams = useSearchParams();
 
-  const {user} = useAuth();
+  const { user } = useAuth();
+  const router = useRouter();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMfaPrompt, setShowMfaPrompt] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -555,48 +552,6 @@ function HomePageContent() {
   const [activeStep, setActiveStep] = useState(1);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
-  const toastContainerRef = useRef<HTMLDivElement>(null);
-
-  const showToast = (
-    message: string,
-    type: "info" | "success" | "error" = "info",
-  ) => {
-    const container = toastContainerRef.current;
-    if (!container) return;
-
-    const toast = document.createElement("div");
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-      <div class="toast-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-      </div>
-      <span class="toast-message">${message}</span>
-      <button class="toast-close" aria-label="Dismiss">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>
-    `;
-
-    container.appendChild(toast);
-
-    // Trigger animation
-    requestAnimationFrame(() => {
-      toast.classList.add("show");
-    });
-
-    // Close button
-    toast.querySelector(".toast-close")?.addEventListener("click", () => {
-      toast.classList.remove("show");
-      setTimeout(() => toast.remove(), 300);
-    });
-
-    // Auto-remove
-    setTimeout(() => {
-      if (toast.parentElement) {
-        toast.classList.remove("show");
-        setTimeout(() => toast.remove(), 300);
-      }
-    }, 4000);
-  };
 
   // Lifted wizard state to share with Dashboard
   const { state, actions, isLoaded } = useWizard();
@@ -653,8 +608,7 @@ function HomePageContent() {
   };
 
   const daysSince = (date: string) => {
-    const diffTime =
-      new Date().getTime() - new Date(date).getTime();
+    const diffTime = new Date().getTime() - new Date(date).getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
@@ -675,6 +629,13 @@ function HomePageContent() {
     setShowMfaPrompt(false);
   };
 
+  const handleConsultationClick = () => {
+    if (user) {
+      router.push("/book-consultation");
+    } else {
+      setShowAuthModal(true);
+    }
+  };
   return (
     <div className="min-h-screen bg-background font-sans text-foreground">
       <main className="min-h-[calc(100vh-200px)]">
@@ -703,10 +664,9 @@ function HomePageContent() {
                       </span>
                     </h1>
                     <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                      Navigate the complexities of immigration with
-                      confidence. Rahvana provides step-by-step guidance, smart
-                      tools, and expert support to help you reunite with loved
-                      ones.
+                      Navigate the complexities of immigration with confidence.
+                      Rahvana provides step-by-step guidance, smart tools, and
+                      expert support to help you reunite with loved ones.
                     </p>
                     <div className="flex flex-wrap gap-4 mb-10">
                       <Link href={"/visa-category/ir-category"}>
@@ -977,12 +937,12 @@ function HomePageContent() {
                           Sign up to get the first free consultation.
                         </span>
                       </p>
-                      <HydrationSafeButton
-                        onClick={() => setShowComingSoon(true)}
+                      <button
+                        onClick={handleConsultationClick}
                         className="inline-flex items-center px-10 py-5 bg-background text-rahvana-primary text-lg font-bold rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all"
                       >
                         Book a Consultation
-                      </HydrationSafeButton>
+                      </button>
                     </div>
                     <div className="relative h-64 lg:h-full min-h-100 rounded-r-2xl">
                       <Image
@@ -1115,13 +1075,11 @@ function HomePageContent() {
                               translate: "-50% -50%",
                             }}
                           >
-                            <HydrationSafeButton
-                               className="w-full h-full rounded-full flex items-center justify-center p-0 bg-transparent border-0"
-                            > 
-                                <span className="sr-only">Step {step}</span>
-                                {React.createElement(LIFECYCLE_STEPS[i].icon, {
-                                    className: "w-6 h-6 pointer-events-none",
-                                })}
+                            <HydrationSafeButton className="w-full h-full rounded-full flex items-center justify-center p-0 bg-transparent border-0">
+                              <span className="sr-only">Step {step}</span>
+                              {React.createElement(LIFECYCLE_STEPS[i].icon, {
+                                className: "w-6 h-6 pointer-events-none",
+                              })}
                             </HydrationSafeButton>
                           </motion.div>
                         );
@@ -1163,9 +1121,11 @@ function HomePageContent() {
                           )}
                         </ul>
 
-                        <div className="flex items-center justify-between pt-6 border-t border-border">
+                        <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 pt-6 border-t border-border sm:flex-nowrap">
                           <button
-                            onClick={() => setActiveStep(prev => Math.max(1, prev - 1))}
+                            onClick={() =>
+                              setActiveStep((prev) => Math.max(1, prev - 1))
+                            }
                             disabled={activeStep === 1}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                               activeStep === 1 
@@ -1179,7 +1139,7 @@ function HomePageContent() {
                           
                           <div className="flex gap-1.5">
                             {LIFECYCLE_STEPS.map((_, i) => (
-                              <div 
+                              <div
                                 key={i}
                                 className={`w-2 h-2 rounded-full transition-all ${i + 1 === activeStep ? "bg-rahvana-primary w-4" : "bg-border"}`}
                               />
@@ -1187,7 +1147,11 @@ function HomePageContent() {
                           </div>
 
                           <button
-                            onClick={() => setActiveStep(prev => Math.min(LIFECYCLE_STEPS.length, prev + 1))}
+                            onClick={() =>
+                              setActiveStep((prev) =>
+                                Math.min(LIFECYCLE_STEPS.length, prev + 1),
+                              )
+                            }
                             disabled={activeStep === LIFECYCLE_STEPS.length}
                             className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold transition-all ${
                               activeStep === LIFECYCLE_STEPS.length 
@@ -1287,70 +1251,19 @@ function HomePageContent() {
               <GetInTouch />
             </motion.div>
 
-            {/* COMING SOON MODAL */}
+            {/* AUTH MODAL */}
             <AnimatePresence>
-              {showComingSoon && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={() => setShowComingSoon(false)}
-                    className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                  />
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-md bg-card rounded-3xl p-8 shadow-2xl border border-border"
-                  >
-                    <HydrationSafeButton
-                      onClick={() => setShowComingSoon(false)}
-                      className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <Icons.X className="w-6 h-6" />
-                    </HydrationSafeButton>
-                    <div className="w-16 h-16 rounded-2xl bg-rahvana-primary-pale text-rahvana-primary flex items-center justify-center mx-auto mb-6">
-                      <Icons.Rocket className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-center text-foreground mb-2">
-                      Coming Soon!
-                    </h3>
-                    <p className="text-muted-foreground text-center mb-8">
-                      Want early access? Join the waitlist and be the first to
-                      know when this feature launches.
-                    </p>
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        setShowComingSoon(false);
-                        showToast(
-                          "You've been added to the waitlist!",
-                          "success",
-                        );
-                      }}
-                      className="space-y-4"
-                    >
-                      <input
-                        type="email"
-                        placeholder="Enter your email"
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-rahvana-primary focus:ring-4 focus:ring-rahvana-primary/10 transition-all font-medium bg-background text-foreground"
-                      />
-                      <HydrationSafeButton
-                        type="submit"
-                        className="w-full py-4 bg-rahvana-primary text-white font-bold rounded-xl shadow-lg hover:bg-rahvana-primary-dark transition-all active:scale-95"
-                      >
-                        Notify Me
-                      </HydrationSafeButton>
-                    </form>
-                  </motion.div>
-                </div>
+              {showAuthModal && (
+                <AuthRequiredModal
+                open={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                redirectTo="/book-consultation"
+              />
               )}
             </AnimatePresence>
 
             {/* Toast Container */}
-            <div ref={toastContainerRef} className="toast-container" />
+            {/* <div ref={toastContainerRef} className="toast-container" /> */}
           </div>
         )}
 
@@ -1383,26 +1296,21 @@ function HomePageContent() {
         )}
       </main>
 
-      {/* <Footer /> */}
       {showMfaPrompt && (
-            <Dialog open={showMfaPrompt} onOpenChange={setShowMfaPrompt}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Enable Two-Factor Authentication</DialogTitle>
-                  <DialogDescription>
-                    Add an extra layer of security to your account by enabling
-                    two-factor authentication.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button onClick={handleEnableMfa}>Enable MFA</Button>
-                  <Button onClick={handleRemindLater}>Remind me later</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
+        <MfaPromptModal
+        open={showMfaPrompt}
+        onEnable={handleEnableMfa}
+        onRemindLater={handleRemindLater}
+      />
+      )}
+
+      {showComingSoon && (
+        <ComingSoonModal
+          open={showComingSoon}
+          onOpenChange={setShowComingSoon}
+        />
+      )}
     </div>
 
-   
   );
 }

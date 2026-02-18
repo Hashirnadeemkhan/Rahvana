@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 // import { ThemeProvider } from "./components/theme-provider";
 import { ClientWidgets } from "./components/layout/ClientWidgets";
 import Footer from "./components/layout/Footer";
+import { ToastProvider } from "./components/shared/ToastProvider";
 
 export const metadata: Metadata = {
   title: "Immigration Assistant",
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className="bg-background">
+        <ToastProvider>
         <AuthProvider>
           {/* <ThemeProvider
             attribute="class"
@@ -33,6 +35,7 @@ export default function RootLayout({
             <Footer />
           {/* </ThemeProvider> */}
         </AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );
