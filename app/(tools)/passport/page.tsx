@@ -143,26 +143,26 @@ export default function PassportPhoto() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-gray-800 flex flex-col items-center py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 text-gray-800 flex flex-col items-center py-8 md:py-12 px-4">
       {/* Header */}
-      <header className="text-center mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold text-primary/90">
+      <header className="text-center mb-8 md:mb-10 w-full max-w-2xl">
+        <h1 className="text-3xl md:text-5xl font-bold text-primary/90 leading-tight">
           Passport Photo Maker
         </h1>
-        <p className="mt-2 text-lg text-gray-600">
+        <p className="mt-3 md:mt-2 text-base md:text-lg text-gray-600 px-2">
           Upload your photo → Get a compliant passport photo with clean white
           background
         </p>
       </header>
 
       {/* Official Guidelines */}
-      <section className="w-full max-w-4xl mb-12 bg-white rounded-xl shadow-lg p-6 md:p-8">
-        <h2 className="flex items-center gap-2 text-2xl font-semibold text-primary/90 mb-6">
-          <AlertCircle className="w-6 h-6" />
+      <section className="w-full max-w-4xl mb-8 md:mb-12 bg-white rounded-xl shadow-lg p-5 md:p-8">
+        <h2 className="flex items-center gap-2 text-xl md:text-2xl font-semibold text-primary/90 mb-4 md:mb-6">
+          <AlertCircle className="w-5 h-5 md:w-6 md:h-6 shrink-0" />
           Official Passport Photo Requirements
         </h2>
 
-        <ul className="grid md:grid-cols-2 gap-6 text-gray-700">
+        <ul className="grid md:grid-cols-2 gap-4 md:gap-6 text-gray-700 text-sm md:text-base">
           {[
             "Submit one color photo",
             "Photo taken in the last 6 months",
@@ -184,13 +184,13 @@ export default function PassportPhoto() {
 
       {/* Upload Section */}
       <section className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Upload Your Photo
           </label>
 
           <div
-            className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
+            className={`border-2 border-dashed rounded-lg p-4 sm:p-6 text-center transition-colors cursor-pointer
               ${preview ? "border-indigo-500 bg-indigo-50" : "border-gray-300 hover:border-gray-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >
@@ -202,7 +202,7 @@ export default function PassportPhoto() {
               onChange={handleFileChange}
             />
             {preview ? (
-              <div className="relative flex justify-center w-64 h-64 mx-auto">
+              <div className="relative flex justify-center w-full max-w-[256px] aspect-square mx-auto">
                 <NextImage
                   src={preview}
                   alt="Preview"
@@ -246,7 +246,7 @@ export default function PassportPhoto() {
             ${
               !file || loading
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-primary/90 text-white hover:bg-primary/100"
+                : "bg-primary/90 text-white hover:bg-primary"
             }`}
         >
           {loading ? (
@@ -263,12 +263,12 @@ export default function PassportPhoto() {
       {/* Result */}
       {result && (
         <section className="mt-12 w-full max-w-md">
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 text-center">
             <p className="text-xl font-semibold text-green-600 mb-4 flex items-center justify-center gap-2">
               <CheckCircle className="w-6 h-6" />
               Photo Ready!
             </p>
-            <div className="relative flex justify-center w-64 h-64 mx-auto">
+            <div className="relative flex justify-center w-full max-w-[256px] aspect-square mx-auto">
               <NextImage
                 src={result}
                 alt="Passport photo result"

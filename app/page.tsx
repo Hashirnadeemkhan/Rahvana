@@ -648,10 +648,9 @@ function HomePageContent() {
                       </span>
                     </h1>
                     <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                      Navigate the complexities of immigration with
-                      confidence. Rahvana provides step-by-step guidance, smart
-                      tools, and expert support to help you reunite with loved
-                      ones.
+                      Navigate the complexities of immigration with confidence.
+                      Rahvana provides step-by-step guidance, smart tools, and
+                      expert support to help you reunite with loved ones.
                     </p>
                     <div className="flex flex-wrap gap-4 mb-10">
                       <Link href={"/visa-category/ir-category"}>
@@ -1060,13 +1059,11 @@ function HomePageContent() {
                               translate: "-50% -50%",
                             }}
                           >
-                            <HydrationSafeButton
-                               className="w-full h-full rounded-full flex items-center justify-center p-0 bg-transparent border-0"
-                            > 
-                                <span className="sr-only">Step {step}</span>
-                                {React.createElement(LIFECYCLE_STEPS[i].icon, {
-                                    className: "w-6 h-6 pointer-events-none",
-                                })}
+                            <HydrationSafeButton className="w-full h-full rounded-full flex items-center justify-center p-0 bg-transparent border-0">
+                              <span className="sr-only">Step {step}</span>
+                              {React.createElement(LIFECYCLE_STEPS[i].icon, {
+                                className: "w-6 h-6 pointer-events-none",
+                              })}
                             </HydrationSafeButton>
                           </motion.div>
                         );
@@ -1108,23 +1105,25 @@ function HomePageContent() {
                           )}
                         </ul>
 
-                        <div className="flex items-center justify-between pt-6 border-t border-border">
+                        <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 pt-6 border-t border-border sm:flex-nowrap">
                           <button
-                            onClick={() => setActiveStep(prev => Math.max(1, prev - 1))}
+                            onClick={() =>
+                              setActiveStep((prev) => Math.max(1, prev - 1))
+                            }
                             disabled={activeStep === 1}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                              activeStep === 1 
-                                ? "opacity-30 cursor-not-allowed text-muted-foreground" 
+                            className={`order-2 sm:order-0 flex items-center gap-2 px-2 md:px-4 py-2 rounded-lg font-semibold transition-all ${
+                              activeStep === 1
+                                ? "opacity-30 cursor-not-allowed text-muted-foreground"
                                 : "text-rahvana-primary hover:bg-rahvana-primary-pale"
                             }`}
                           >
                             <Icons.ChevronLeft className="w-5 h-5" />
                             Previous
                           </button>
-                          
-                          <div className="flex gap-1.5">
+
+                          <div className="order-1 flex w-full justify-center gap-1.5 sm:order-0 sm:w-auto">
                             {LIFECYCLE_STEPS.map((_, i) => (
-                              <div 
+                              <div
                                 key={i}
                                 className={`w-2 h-2 rounded-full transition-all ${i + 1 === activeStep ? "bg-rahvana-primary w-4" : "bg-border"}`}
                               />
@@ -1132,11 +1131,15 @@ function HomePageContent() {
                           </div>
 
                           <button
-                            onClick={() => setActiveStep(prev => Math.min(LIFECYCLE_STEPS.length, prev + 1))}
+                            onClick={() =>
+                              setActiveStep((prev) =>
+                                Math.min(LIFECYCLE_STEPS.length, prev + 1),
+                              )
+                            }
                             disabled={activeStep === LIFECYCLE_STEPS.length}
-                            className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold transition-all ${
-                              activeStep === LIFECYCLE_STEPS.length 
-                                ? "opacity-30 cursor-not-allowed text-muted-foreground" 
+                            className={`order-3 sm:order-0 flex items-center gap-2 md:px-6 px-2 py-2 rounded-lg font-semibold transition-all ${
+                              activeStep === LIFECYCLE_STEPS.length
+                                ? "opacity-30 cursor-not-allowed text-muted-foreground"
                                 : "bg-rahvana-primary text-white shadow-lg hover:bg-rahvana-primary-dark hover:-translate-y-0.5"
                             }`}
                           >

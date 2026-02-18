@@ -1660,7 +1660,7 @@ const ConsultationBookingPage = () => {
 
           <form onSubmit={handleSubmit} className="p-4 sm:p-8 md:p-12">
             <div>{renderStepContent()}</div>
-            <div className="px-4 py-3 sm:px-8 sm:py-5 bg-gray-50 border-t flex justify-between items-center gap-4">
+            <div className="mt-4 px-4 py-3 sm:px-8 sm:py-5 bg-gray-50 border-t flex justify-between items-center gap-4">
               <Button
                 type="button"
                 variant="ghost"

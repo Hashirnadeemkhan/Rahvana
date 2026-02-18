@@ -592,7 +592,7 @@ export const NAV_DATA: Record<string, NavSection> = {
             title: "QueueWatch (IV Scheduling)",
             description:
               "Track interview scheduling movement and trends by category.",
-            href: "#",
+            href: "/iv-tool",
           },
           {
             icon: <Search className="h-5 w-5" />,
