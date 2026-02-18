@@ -400,7 +400,7 @@ export default function GuidesPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Hero Section */}
-        <section className="text-center mb-10 md:mb-16">
+        <section className="text-center mb-5 md:mb-10">
           <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-linear-to-r from-foreground to-muted-foreground animate-fade-up">
             Master the Paperwork.
           </h1>
