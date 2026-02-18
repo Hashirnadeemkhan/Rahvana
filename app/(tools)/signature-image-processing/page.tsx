@@ -1,67 +1,75 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { AlertCircle, Loader2 } from "lucide-react"
-import dynamic from "next/dynamic"
+import { useState, useEffect } from "react";
+import { AlertCircle, Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
 
 // Dynamically import components that use browser APIs - disable SSR
 const SignatureUploader = dynamic(
   () => import("@/app/components/pdf-editor/signature/SignatureUploader"),
   {
     ssr: false,
-    loading: () => <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>
-  }
-)
+    loading: () => (
+      <div className="flex justify-center p-8">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      </div>
+    ),
+  },
+);
 const SignaturePreview = dynamic(
   () => import("@/app/components/pdf-editor/signature/SignaturePreview"),
   {
     ssr: false,
-    loading: () => <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>
-  }
-)
+    loading: () => (
+      <div className="flex justify-center p-8">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      </div>
+    ),
+  },
+);
 
 // Dynamic import to avoid SSR issues with browser-only APIs
-type ImageProcessorModule = typeof import("@/lib/imageProcessor")
-let imageProcessorModule: ImageProcessorModule | null = null
+type ImageProcessorModule = typeof import("@/lib/imageProcessor");
+let imageProcessorModule: ImageProcessorModule | null = null;
 
 export default function SignatureRemoverPage() {
-  const [originalImage, setOriginalImage] = useState<string | null>(null)
-  const [processedImage, setProcessedImage] = useState<string | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [, setIsModuleLoaded] = useState(false)
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [, setIsModuleLoaded] = useState(false);
 
   // Load the image processor module on client-side only
   useEffect(() => {
     import("@/lib/imageProcessor").then((mod) => {
-      imageProcessorModule = mod
-      setIsModuleLoaded(true)
-    })
-  }, [])
+      imageProcessorModule = mod;
+      setIsModuleLoaded(true);
+    });
+  }, []);
 
   const handleFileSelect = async (file: File) => {
     if (!imageProcessorModule) {
-      setError("Image processor is loading, please try again.")
-      return
+      setError("Image processor is loading, please try again.");
+      return;
     }
 
-    setError(null)
-    setOriginalImage(null)
-    setProcessedImage(null)
+    setError(null);
+    setOriginalImage(null);
+    setProcessedImage(null);
 
-    const validation = imageProcessorModule.validateImageFile(file)
+    const validation = imageProcessorModule.validateImageFile(file);
     if (!validation.valid) {
-      setError(validation.error || "Invalid file")
-      return
+      setError(validation.error || "Invalid file");
+      return;
     }
 
     try {
-      setIsProcessing(true)
+      setIsProcessing(true);
 
-      const imageData = await imageProcessorModule.readFileAsDataURL(file)
-      setOriginalImage(imageData)
+      const imageData = await imageProcessorModule.readFileAsDataURL(file);
+      setOriginalImage(imageData);
 
-      const processor = new imageProcessorModule.SignatureImageProcessor()
+      const processor = new imageProcessorModule.SignatureImageProcessor();
 
       const processed = await processor.processImage(imageData, {
         threshold: 140,
@@ -70,34 +78,36 @@ export default function SignatureRemoverPage() {
         noiseReduction: true,
         edgeSmoothing: true,
         aggressiveMode: true,
-      })
+      });
 
-      setProcessedImage(processed)
-      processor.destroy()
+      setProcessedImage(processed);
+      processor.destroy();
 
       setTimeout(() => {
-        setIsProcessing(false)
-      }, 500)
+        setIsProcessing(false);
+      }, 500);
     } catch (err) {
-      console.error("Processing error:", err)
-      setError("Failed to process image. Please try again.")
-      setIsProcessing(false)
+      console.error("Processing error:", err);
+      setError("Failed to process image. Please try again.");
+      setIsProcessing(false);
     }
-  }
+  };
 
   const handleDownload = () => {
     if (processedImage && imageProcessorModule) {
-      const timestamp = new Date().getTime()
-      imageProcessorModule.downloadImage(processedImage, `signature-transparent-${timestamp}.png`)
+      const timestamp = new Date().getTime();
+      imageProcessorModule.downloadImage(
+        processedImage,
+        `signature-transparent-${timestamp}.png`,
+      );
     }
-  }
+  };
 
   const handleReset = () => {
-    setOriginalImage(null)
-    setProcessedImage(null)
-    setError(null)
-   
-  }
+    setOriginalImage(null);
+    setProcessedImage(null);
+    setError(null);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -107,14 +117,16 @@ export default function SignatureRemoverPage() {
             Signature Background Remover
           </h1>
           <p className="text-slate-600 text-sm sm:text-base md:text-lg max-w-3xl mx-auto">
-            Convert your handwritten signature into a professional, transparent PNG. Ideal for documents, contracts, and
-            digital signing.
+            Convert your handwritten signature into a professional, transparent
+            PNG. Ideal for documents, contracts, and digital signing.
           </p>
         </header>
 
         <div className="bg-slate-50 rounded-lg border border-slate-200 p-6 sm:p-8 mb-8 max-w-5xl mx-auto">
-          <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-6">Best Practices</h2>
-          <div className="grid sm:grid-cols-3 gap-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-6">
+            Best Practices
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               {
                 title: "White Paper",
@@ -130,8 +142,12 @@ export default function SignatureRemoverPage() {
               },
             ].map((item, idx) => (
               <div key={idx} className="border-l-2 border-slate-300 pl-4">
-                <h3 className="font-medium text-slate-900 mb-1 text-sm">{item.title}</h3>
-                <p className="text-slate-600 text-xs sm:text-sm">{item.description}</p>
+                <h3 className="font-medium text-slate-900 mb-1 text-sm">
+                  {item.title}
+                </h3>
+                <p className="text-slate-600 text-xs sm:text-sm">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>
@@ -150,11 +166,13 @@ export default function SignatureRemoverPage() {
         )}
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           {!originalImage && !isProcessing && (
-            <SignatureUploader onFileSelect={handleFileSelect} disabled={isProcessing} />
+            <SignatureUploader
+              onFileSelect={handleFileSelect}
+              disabled={isProcessing}
+            />
           )}
-
 
           {processedImage && originalImage && !isProcessing && (
             <SignaturePreview
@@ -167,5 +185,5 @@ export default function SignatureRemoverPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

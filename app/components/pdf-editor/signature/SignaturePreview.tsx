@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import NextImage from "next/image"
-import { Download, RotateCcw, Check, Crop, Move } from "lucide-react"
-import TiltCorrectionTool from "./TiltCorrectionTool"
-import CropTool from "./CropTool"
+import React, { useState } from "react";
+import NextImage from "next/image";
+import { Download, RotateCcw, Check, Crop, Move } from "lucide-react";
+import TiltCorrectionTool from "./TiltCorrectionTool";
+import CropTool from "./CropTool";
 
 interface SignaturePreviewProps {
-  originalImage: string
-  processedImage: string
-  onDownload: () => void
-  onReset: () => void
+  originalImage: string;
+  processedImage: string;
+  onDownload: () => void;
+  onReset: () => void;
 }
 
 export default function SignaturePreview({
@@ -19,43 +19,43 @@ export default function SignaturePreview({
   // onDownload,
   onReset,
 }: SignaturePreviewProps) {
-  const [showCropMode, setShowCropMode] = useState(false)
-  const [showTiltMode, setShowTiltMode] = useState(false)
+  const [showCropMode, setShowCropMode] = useState(false);
+  const [showTiltMode, setShowTiltMode] = useState(false);
 
   // ✅ Step 1: Single State for the latest image
-  const [editedImage, setEditedImage] = useState<string | null>(null)
+  const [editedImage, setEditedImage] = useState<string | null>(null);
 
   // ✅ Step 2: Determine which image to show
-  const currentImage = editedImage || processedImage
+  const currentImage = editedImage || processedImage;
 
   const handleDownloadCropped = () => {
-    const link = document.createElement("a")
-    link.download = `signature-final-${new Date().getTime()}.png`
-    link.href = currentImage
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    const link = document.createElement("a");
+    link.download = `signature-final-${new Date().getTime()}.png`;
+    link.href = currentImage;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     // Note: Not calling onDownload() to prevent double download
-  }
+  };
 
   const handleReset = () => {
-    setEditedImage(null)
-    onReset()
-  }
+    setEditedImage(null);
+    onReset();
+  };
 
   // ✅ Step 3: Callback when Tilt is applied
   const handleTiltApply = (newImage: string) => {
-    console.log("📸 New Tilt Image Received, Length:", newImage.length)
-    setEditedImage(newImage) // Update State
-    setShowTiltMode(false)   // Close Modal
-  }
+    console.log("📸 New Tilt Image Received, Length:", newImage.length);
+    setEditedImage(newImage); // Update State
+    setShowTiltMode(false); // Close Modal
+  };
 
   // ✅ Step 4: Callback when Crop is applied
   const handleCropApply = (newImage: string) => {
-    console.log("✂️ New Crop Image Received")
-    setEditedImage(newImage)
-    setShowCropMode(false)
-  }
+    console.log("✂️ New Crop Image Received");
+    setEditedImage(newImage);
+    setShowCropMode(false);
+  };
 
   if (showTiltMode) {
     return (
@@ -64,7 +64,7 @@ export default function SignaturePreview({
         onApply={handleTiltApply}
         onCancel={() => setShowTiltMode(false)}
       />
-    )
+    );
   }
 
   if (showCropMode) {
@@ -75,7 +75,7 @@ export default function SignaturePreview({
         onToggleTilt={() => setShowTiltMode(true)}
         onExit={() => setShowCropMode(false)}
       />
-    )
+    );
   }
 
   return (
@@ -83,43 +83,45 @@ export default function SignaturePreview({
       <div className="flex justify-end">
         <button
           onClick={handleDownloadCropped}
-          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-12 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 text-lg shadow-lg"
+          className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 sm:px-12 sm:py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 text-base sm:text-lg shadow-lg"
         >
-          <Download className="w-6 h-6" />
+          <Download className="w-5 h-5 sm:w-6 sm:h-6" />
           Download Signature
         </button>
       </div>
 
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-md">
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <h2 className="text-2xl font-bold text-gray-900">Adjust Your Signature</h2>
-          <div className="flex items-center gap-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 w-full sm:w-auto text-center sm:text-left">
+            Adjust Your Signature
+          </h2>
+          <div className="flex flex-wrap justify-center sm:justify-end gap-3 w-full sm:w-auto">
             <button
               onClick={() => setShowCropMode(true)}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-base shadow-md"
+              className="flex-1 sm:flex-none justify-center px-4 py-2 sm:px-6 sm:py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm sm:text-base shadow-md"
             >
-              <Crop className="w-5 h-5" />
+              <Crop className="w-4 h-4 sm:w-5 sm:h-5" />
               Crop
             </button>
             <button
               onClick={() => setShowTiltMode(true)}
-              className="px-6 py-3 bg-primary/90 hover:bg-primary/100 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-base shadow-md"
+              className="flex-1 sm:flex-none justify-center px-4 py-2 sm:px-6 sm:py-3 bg-primary/90 hover:bg-primary text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm sm:text-base shadow-md"
             >
-              <Move className="w-5 h-5" />
+              <Move className="w-4 h-4 sm:w-5 sm:h-5" />
               Tilt / Rotate
             </button>
             <button
               onClick={handleDownloadCropped}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-base shadow-md"
+              className="flex-1 sm:flex-none justify-center px-4 py-2 sm:px-6 sm:py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm sm:text-base shadow-md"
             >
-              <Check className="w-5 h-5" />
+              <Check className="w-4 h-4 sm:w-5 sm:h-5" />
               Done
             </button>
           </div>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-gray-100 to-gray-200 border-b border-gray-300 px-6 py-4">
             <p className="text-gray-900 font-bold text-xl">Original Photo</p>
@@ -173,12 +175,12 @@ export default function SignaturePreview({
       <div className="flex justify-center">
         <button
           onClick={handleReset}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-10 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 text-lg shadow-md"
+          className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-900 px-6 py-3 sm:px-10 sm:py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 text-base sm:text-lg shadow-md"
         >
-          <RotateCcw className="w-6 h-6" />
+          <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />
           Start Over
         </button>
       </div>
     </div>
-  )
+  );
 }

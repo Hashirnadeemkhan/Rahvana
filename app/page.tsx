@@ -26,17 +26,7 @@ import Link from "next/link";
 import HydrationSafeButton from "@/app/components/HydrationSafeButton";
 import { ComingSoonModal } from "./components/shared/ComingSoonModal";
 import { useAuth } from "./context/AuthContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
 import { AuthRequiredModal } from "./components/shared/AuthRequiredModal";
 import { MfaPromptModal } from "./components/shared/MFAPromptModal";
 
@@ -561,7 +551,6 @@ function HomePageContent() {
   const [activeStep, setActiveStep] = useState(1);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
-  const toastContainerRef = useRef<HTMLDivElement>(null);
 
   // Lifted wizard state to share with Dashboard
   const { state, actions, isLoaded } = useWizard();
@@ -1132,22 +1121,22 @@ function HomePageContent() {
                           )}
                         </ul>
 
-                        <div className="flex items-center justify-between pt-6 border-t border-border">
+                        <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 pt-6 border-t border-border sm:flex-nowrap">
                           <button
                             onClick={() =>
                               setActiveStep((prev) => Math.max(1, prev - 1))
                             }
                             disabled={activeStep === 1}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                              activeStep === 1
-                                ? "opacity-30 cursor-not-allowed text-muted-foreground"
+                              activeStep === 1 
+                                ? "opacity-30 cursor-not-allowed text-muted-foreground" 
                                 : "text-rahvana-primary hover:bg-rahvana-primary-pale"
                             }`}
                           >
                             <Icons.ChevronLeft className="w-5 h-5" />
                             Previous
                           </button>
-
+                          
                           <div className="flex gap-1.5">
                             {LIFECYCLE_STEPS.map((_, i) => (
                               <div
@@ -1165,8 +1154,8 @@ function HomePageContent() {
                             }
                             disabled={activeStep === LIFECYCLE_STEPS.length}
                             className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold transition-all ${
-                              activeStep === LIFECYCLE_STEPS.length
-                                ? "opacity-30 cursor-not-allowed text-muted-foreground"
+                              activeStep === LIFECYCLE_STEPS.length 
+                                ? "opacity-30 cursor-not-allowed text-muted-foreground" 
                                 : "bg-rahvana-primary text-white shadow-lg hover:bg-rahvana-primary-dark hover:-translate-y-0.5"
                             }`}
                           >
