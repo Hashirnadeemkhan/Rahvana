@@ -12,11 +12,14 @@ export function ClientHeader() {
 
   const [isAuthLoading, setIsAuthLoading] = useState(false);
 
-  // Hide header on admin pages and admin-login page
-  const isAdminPage =
-    pathname.startsWith("/admin") || pathname === "/admin-login";
+  // Hide header on admin pages, admin-login, login and signup pages
+  const isExcludedPage =
+    pathname.startsWith("/admin") || 
+    pathname === "/admin-login" ||
+    pathname === "/login" ||
+    pathname === "/signup";
 
-  if (isAdminPage) {
+  if (isExcludedPage) {
     return null;
   }
 
@@ -47,7 +50,7 @@ export function ClientHeader() {
       
       {/* Global Auth Loading Overlay */}
       {isAuthLoading && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background/60 backdrop-blur-md transition-all duration-300">
+        <div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md transition-all duration-300">
           <div className="relative">
             <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">

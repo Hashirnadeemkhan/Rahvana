@@ -165,7 +165,7 @@ export const StackedCarousel = ({
                         : "text-rahvana-primary hover:bg-rahvana-primary-pale"
                     }`}
                   >
-                    {journey.live ? "Start Journey" : "Notify Me"}
+                    {journey.live ? "Start Journey" : "Get Early Access"}
                   </HydrationSafeButton>
                 </div>
               </motion.div>

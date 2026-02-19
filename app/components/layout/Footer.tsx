@@ -4,7 +4,12 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ComingSoonModal } from "../shared/ComingSoonModal";
-import { Instagram, Facebook, Twitter, MessageSquare, Linkedin } from "lucide-react";
+import {
+  Instagram,
+  Facebook,
+  Linkedin,
+  ArrowRight,
+} from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -24,9 +29,17 @@ export default function Footer() {
     router.push(targetRoute);
   };
 
-  // Keep existing administrator-specific logic
-  if (pathname?.startsWith("/admin")) {
-    return <footer className="bg-background mt-20"></footer>;
+  // Hide footer on admin, login and signup pages
+  if (
+    pathname?.startsWith("/admin") ||
+    pathname === "/login" ||
+    pathname === "/signup"
+  ) {
+    // Return minimal footer for admin or null for auth
+    if (pathname?.startsWith("/admin")) {
+      return <footer className="bg-background mt-20"></footer>;
+    }
+    return null;
   }
 
   return (
@@ -86,6 +99,13 @@ export default function Footer() {
               >
                 Students & Visitors
               </Link>
+              <Link
+                href="/visa-category/ir-category"
+                className="text-white font-medium underline hover:text-slate-200 transition-colors"
+              >
+                Explore all Journeys
+                <ArrowRight size={14} className="inline-block ml-1" />
+              </Link>
             </nav>
           </div>
 
@@ -118,6 +138,13 @@ export default function Footer() {
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 PDF PowerKit
+              </Link>
+              <Link
+                href="/tools"
+                className="text-white font-medium underline hover:text-slate-200 transition-colors"
+              >
+                Explore all Tools
+                <ArrowRight size={14} className="inline-block ml-1" />
               </Link>
             </nav>
           </div>
@@ -202,10 +229,24 @@ export default function Footer() {
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500">
           <p>© {2026} Rahvana. All rights reserved.</p>
           <div className="flex gap-8">
-            <Link href="#" className="hover:text-white transition-colors">
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault(); // Stop browser jump
+                setComingSoonOpen(true);
+              }}
+              className="hover:text-white transition-colors"
+            >
               Privacy Policy
             </Link>
-            <Link href="#" className="hover:text-white transition-colors">
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault(); // Stop browser jump
+                setComingSoonOpen(true);
+              }}
+              className="hover:text-white transition-colors"
+            >
               Terms of Service
             </Link>
             <Link

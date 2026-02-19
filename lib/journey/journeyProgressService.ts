@@ -1,0 +1,120 @@
+import { createClient } from '@/lib/supabase/client';
+import { WizardState } from '@/app/(main)/dashboard/hooks/useWizard';
+
+const supabase = createClient();
+
+export interface JourneyProgressRecord {
+  id: string;
+  user_id: string;
+  journey_id: string;
+  current_stage: number;
+  current_step: number;
+  completed_steps: string[];
+  collapsed_steps: Record<string, boolean>;
+  role: 'both' | 'petitioner' | 'beneficiary';
+  filing_type: 'online' | 'paper' | 'both';
+  document_checklist: Record<string, boolean>;
+  notes: Record<string, string>;
+  started: boolean;
+  started_at: string;
+  last_updated_at: string;
+}
+
+/**
+ * Load journey progress from Supabase for a logged-in user.
+ * Returns null if no progress exists yet.
+ */
+export async function loadJourneyProgress(
+  userId: string,
+  journeyId: string
+): Promise<JourneyProgressRecord | null> {
+  const { data, error } = await supabase
+    .from('user_journey_progress')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('journey_id', journeyId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[Journey] Failed to load progress:', error.message);
+    return null;
+  }
+
+  return data as JourneyProgressRecord | null;
+}
+
+/**
+ * Save (upsert) journey progress to Supabase.
+ * Uses ON CONFLICT (user_id, journey_id) to update existing record.
+ */
+export async function saveJourneyProgress(
+  userId: string,
+  journeyId: string,
+  state: WizardState
+): Promise<boolean> {
+  const payload = {
+    user_id: userId,
+    journey_id: journeyId,
+    current_stage: state.currentStage,
+    current_step: state.currentStep ?? 0,
+    completed_steps: Array.from(state.completedSteps),
+    collapsed_steps: state.collapsedSteps,
+    role: state.role,
+    filing_type: state.filingType,
+    document_checklist: state.documentChecklist,
+    notes: state.notes,
+    started: state.started,
+  };
+
+  const { error } = await supabase
+    .from('user_journey_progress')
+    .upsert(payload, {
+      onConflict: 'user_id,journey_id',
+    });
+
+  if (error) {
+    console.error('[Journey] Failed to save progress:', error.message);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Delete journey progress (for "Start Fresh" functionality).
+ */
+export async function deleteJourneyProgress(
+  userId: string,
+  journeyId: string
+): Promise<boolean> {
+  const { error } = await supabase
+    .from('user_journey_progress')
+    .delete()
+    .eq('user_id', userId)
+    .eq('journey_id', journeyId);
+
+  if (error) {
+    console.error('[Journey] Failed to delete progress:', error.message);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Convert a DB record back to WizardState format.
+ */
+export function recordToWizardState(record: JourneyProgressRecord): Partial<WizardState> {
+  return {
+    currentStage: record.current_stage,
+    currentStep: record.current_step,
+    completedSteps: new Set(record.completed_steps),
+    collapsedSteps: record.collapsed_steps,
+    role: record.role,
+    filingType: record.filing_type,
+    documentChecklist: record.document_checklist,
+    notes: record.notes,
+    started: record.started,
+    docUploads: {}, // File uploads are not stored in DB (only metadata)
+  };
+}

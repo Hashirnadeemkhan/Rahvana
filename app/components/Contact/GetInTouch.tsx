@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { submitContactForm } from "./contact-action";
 const XIcon = ({ size = 20 }: { size?: number }) => (
   <svg
     width={size}
@@ -22,7 +23,7 @@ const XIcon = ({ size = 20 }: { size?: number }) => (
     <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.901 1.153zM17.61 20.644h2.039L6.486 3.24H4.298l13.312 17.403z" />
   </svg>
 );
-import { submitContactForm } from "@/app/actions/contact";
+
 
 export default function GetInTouch() {
   const [isSubmitting, setIsSubmitting] = useState(false);

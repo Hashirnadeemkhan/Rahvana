@@ -1,264 +1,366 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { useAuth } from "@/app/context/AuthContext";
 import { useWizard, WizardState } from "@/app/(main)/dashboard/hooks/useWizard";
-import { roadmapData } from "@/data/roadmap";
+// import { roadmapData } from "@/app/(main)/dashboard/data/roadmap";
 import { ProgressTree } from "@/app/test/components/ProgressTree";
 import { StepDetail } from "@/app/test/components/StepDetail";
 import { DocumentVault } from "@/app/test/components/DocumentVault";
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PlayCircle, RotateCcw, ArrowRight, Save, CheckCircle2, Loader2, FileText, Layout, Users, IdCard, Plane } from 'lucide-react';
+import { roadmapData } from '@/data/roadmap';
 
 export default function IR1JourneyPage() {
-  const { user } = useAuth();
-  const { state, actions, isLoaded } = useWizard();
-  const router = useRouter();
-  const isSignedIn = !!user;
+    const { user } = useAuth();
+    const userId = user?.id ?? null;
 
-  const handleToggleAuth = () => {
-    router.push("/login");
-  };
+    const { state, actions, isLoaded, hasExistingProgress, isSyncing } = useWizard({
+        userId,
+        journeyId: 'ir1',
+    });
 
-  return (
-    <section id="ir1-journey" className="block">
-      <div className="max-w-[1400px] mx-auto px-6 py-[60px]">
-        <div className="max-w-5xl mx-auto mb-12">
-          <h1 className="text-5xl font-bold mb-4">
-            IR-1/CR-1 Spouse Visa Journey
-          </h1>
-          <p className="text-slate-500 mb-8 text-lg">
-            Comprehensive roadmap for bringing your spouse to the United States
-            via consular processing at U.S. Embassy Islamabad, Pakistan.
-          </p>
-          <div className="bg-[#e0f2fe] border-l-4 border-l-[#0d9488] p-4 rounded-xl mb-8 flex gap-3 items-start">
-            <p className="text-base text-slate-800 leading-relaxed font-medium">
-              <span className="font-bold">IR-1 vs CR-1:</span> If married less
-              than 2 years at entry, you&apos;ll receive CR-1 (conditional,
-              2-year green card requiring I-751 filing). If married 2+ years,
-              IR-1 (10-year green card).
-            </p>
-          </div>
+    const router = useRouter();
+    const isSignedIn = !!user;
 
-          <h2 className="text-xl font-bold mb-6 text-slate-800">
-            The 5 Stages
-          </h2>
+    // Show the resume/start-fresh screen only when:
+    // - user is logged in
+    // - there's existing progress
+    // - they haven't clicked "Resume" or "Start Fresh" yet
+    const [journeyDecisionMade, setJourneyDecisionMade] = useState(false);
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-              <h4 className="text-primary font-bold text-sm mb-1 uppercase tracking-wide">
-                Stage I
-              </h4>
-              <p className="font-bold text-slate-800 text-lg mb-4">
-                USCIS Petition
-              </p>
-              <p className="text-slate-500 text-sm">17-65 months</p>
-            </div>
-            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-              <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">
-                Stage II
-              </h4>
-              <p className="font-bold text-slate-800 text-lg mb-4">
-                NVC/CEAC Processing
-              </p>
-              <p className="text-slate-500 text-sm">4-9 months</p>
-            </div>
-            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-              <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">
-                Stage III
-              </h4>
-              <p className="font-bold text-slate-800 text-lg mb-4">
-                Medical + Interview
-              </p>
-              <p className="text-slate-500 text-sm">2-4 weeks</p>
-            </div>
-            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-              <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">
-                Stage IV
-              </h4>
-              <p className="font-bold text-slate-800 text-lg mb-4">
-                Post-Interview & Travel
-              </p>
-              <p className="text-slate-500 text-sm">1-2 weeks</p>
-            </div>
-            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-              <h4 className="text-[#0d9488] font-bold text-sm mb-1 uppercase tracking-wide">
-                Stage V
-              </h4>
-              <p className="font-bold text-slate-800 text-lg mb-4">
-                U.S. Arrival
-              </p>
-              <p className="text-slate-500 text-sm">90 days</p>
-            </div>
-          </div>
+    const showDecisionScreen =
+        isLoaded &&
+        isSignedIn &&
+        hasExistingProgress &&
+        !journeyDecisionMade;
 
-          <div className="bg-secondary text-white rounded-xl p-10 mb-10">
-            <h4 className="text-lg font-bold mb-3">
-              📹 Getting Started with Rahvana (3 min)
-            </h4>
-            <ul className="space-y-2 mb-4">
-              <li className="flex gap-2 text-sm">
-                <span className="text-amber-500">▸</span>{" "}
-                <strong>Goals:</strong> Understand the 5 stages, set realistic
-                expectations, feel supported
-              </li>
-              <li className="flex gap-2 text-sm">
-                <span className="text-amber-500">▸</span>{" "}
-                <strong>Target:</strong> Both petitioner and beneficiary
-              </li>
-              <li className="flex gap-2 text-sm">
-                <span className="text-amber-500">▸</span>{" "}
-                <strong>Topics:</strong> Timeline overview, cost breakdown,
-                common mistakes to avoid, emotional support for separated
-                couples
-              </li>
-            </ul>
-            <button className="px-6 py-3 rounded-lg border-2 border-white text-white font-bold cursor-not-allowed bg-[#ffffff33]">
-              ▶ Play Video (Placeholder)
-            </button>
-          </div>
+    const handleResume = () => {
+        setJourneyDecisionMade(true);
+    };
 
-          {!isSignedIn && (
-            <div className="bg-[#faba20] text-[#7c2d12] rounded-2xl p-6 mb-8 text-center shadow-sm">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="text-2xl" role="img" aria-label="lock">
-                  🔒
-                </span>
-                <h4 className="text-2xl font-bold">Full Wizard Access</h4>
-              </div>
-              <p className="mb-4 text-lg opacity-90 mx-auto">
-                Sign in free to save your progress, mark steps complete, and use
-                the document vault.
-              </p>
-              <button
-                className="px-8 py-3 rounded-xl bg-primary/90 text-white font-bold text-lg hover:bg-[#0f766e] transition-all shadow-lg active:scale-95"
-                onClick={handleToggleAuth}
-              >
-                Sign In Free
-              </button>
+    const handleStartFresh = async () => {
+        await actions.resetProgress();
+        setJourneyDecisionMade(true);
+    };
+
+    const handleStartJourney = () => {
+        actions.startJourney();
+        setJourneyDecisionMade(true);
+    };
+
+    // Loading state
+    if (!isLoaded) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-muted-foreground text-sm">Loading your journey...</p>
+                </div>
             </div>
-          )}
-        </div>
-        <Wizard state={state} actions={actions} isLoaded={isLoaded} />
-      </div>
-    </section>
-  );
+        );
+    }
+
+    return (
+        <section id="ir1-journey" className="block">
+            <div className="max-w-[1400px] mx-auto px-6 py-[60px]">
+                <div className='max-w-5xl mx-auto mb-12'>
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                        <div>
+                            <h1 className="text-5xl font-bold mb-4">IR-1/CR-1 Spouse Visa Journey</h1>
+                            <p className="text-slate-500 mb-8 text-lg">
+                                Comprehensive roadmap for bringing your spouse to the United States via consular processing at U.S. Embassy Islamabad, Pakistan.
+                            </p>
+                        </div>
+                        {/* Sync indicator */}
+                        {isSignedIn && (
+                            <div className="flex items-center gap-2 text-sm text-slate-500 mt-2 shrink-0">
+                                {isSyncing ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                                        <span>Saving...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="w-4 h-4 text-emerald-500" />
+                                        <span className="text-emerald-600 font-medium">Auto-saved</span>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="bg-[#e0f2fe] border-l-4 border-l-[#0d9488] p-4 rounded-xl mb-8 flex gap-3 items-start">
+                        <p className="text-base text-slate-800 leading-relaxed font-medium">
+                            <span className="font-bold">IR-1 vs CR-1:</span> If married less than 2 years at entry, you&apos;ll receive CR-1 (conditional, 2-year green card requiring I-751 filing). If married 2+ years, IR-1 (10-year green card).
+                        </p>
+                    </div>
+
+                    {/* Stage Overview */}
+                    <div className="mb-12">
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="w-1 h-8 bg-primary rounded-full" />
+                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">The 5 Stages of Your Journey</h2>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            {[
+                                { stage: 'I', title: 'USCIS Petition', time: '17-65 months', icon: FileText, color: 'bg-blue-50 text-blue-600' },
+                                { stage: 'II', title: 'NVC Processing', time: '4-9 months', icon: Layout, color: 'bg-indigo-50 text-indigo-600' },
+                                { stage: 'III', title: 'Med + Interview', time: '2-4 weeks', icon: Users, color: 'bg-emerald-50 text-emerald-600' },
+                                { stage: 'IV', title: 'Visa & Travel', time: '1-2 weeks', icon: IdCard, color: 'bg-amber-50 text-amber-600' },
+                                { stage: 'V', title: 'U.S. Arrival', time: '90 days', icon: Plane, color: 'bg-rose-50 text-rose-600' },
+                            ].map(({ stage, title, time, icon: Icon, color }) => (
+                                <div key={stage} className="relative group">
+                                    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30 hover:-translate-y-1 h-full flex flex-col">
+                                        <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-4 transition-transform group-hover:scale-110`}>
+                                            <Icon className="w-5 h-5" />
+                                        </div>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Stage {stage}</span>
+                                        <h4 className="font-bold text-slate-800 text-[15px] mb-2 leading-tight">{title}</h4>
+                                        <div className="mt-auto pt-2 flex items-center gap-1.5 text-slate-500">
+                                            <Loader2 className="w-3 h-3 animate-spin-slow" />
+                                            <span className="text-[11px] font-medium">{time}</span>
+                                        </div>
+                                    </div>
+                                    {/* Connectivity Line for Desktop */}
+                                    {stage !== 'V' && (
+                                        <div className="hidden lg:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
+                                            <ArrowRight className="w-4 h-4 text-slate-300" />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+
+
+                    {/* ── Decision Screen: Resume or Start Fresh ── */}
+                    <AnimatePresence>
+                        {showDecisionScreen && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                                className="bg-white border-2 border-primary/20 rounded-2xl p-8 mb-8 shadow-xl relative overflow-hidden group"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <PlayCircle className="w-24 h-24 text-primary" />
+                                </div>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <CheckCircle2 className="w-6 h-6 text-primary" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-slate-900">Welcome Back!</h3>
+                                        <p className="text-slate-500 text-sm">You have an existing IR-1 journey in progress.</p>
+                                    </div>
+                                </div>
+
+                                {/* Progress Summary */}
+                                <div className="bg-slate-50 rounded-xl p-4 mb-6">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-sm font-semibold text-slate-600">Journey Progress</span>
+                                        <span className="text-sm font-bold text-primary">
+                                            {state.completedSteps.size} steps completed
+                                        </span>
+                                    </div>
+                                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-primary transition-all duration-500 rounded-full"
+                                            style={{
+                                                width: `${Math.round(
+                                                    (state.completedSteps.size /
+                                                        roadmapData.stages.reduce((acc, s) => acc + s.steps.length, 0)) * 100
+                                                )}%`
+                                            }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-slate-400 mt-2">
+                                        Currently at: Stage {state.currentStage + 1} — {roadmapData.stages[state.currentStage]?.name ?? ''}
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <button
+                                        onClick={handleResume}
+                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg active:scale-95"
+                                    >
+                                        <PlayCircle className="w-5 h-5" />
+                                        Resume My Journey
+                                        <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={handleStartFresh}
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 font-semibold rounded-xl hover:border-red-300 hover:text-red-600 hover:bg-red-50 transition-all"
+                                    >
+                                        <RotateCcw className="w-4 h-4" />
+                                        Start Fresh
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* ── Guest Banner: Sign In to Save Progress ── */}
+                    {!isSignedIn && (
+                        <div className="bg-[#faba20] text-[#7c2d12] rounded-2xl p-6 mb-8 text-center shadow-sm">
+                            <div className="flex items-center justify-center gap-2 mb-4">
+                                <span className="text-2xl" role="img" aria-label="lock">🔒</span>
+                                <h4 className="text-2xl font-bold">Save Your Progress</h4>
+                            </div>
+                            <p className="mb-4 text-lg opacity-90 mx-auto">
+                                Sign in free to save your progress, mark steps complete, and resume anytime from any device.
+                            </p>
+                            <button
+                                className="px-8 py-3 rounded-xl bg-primary/90 text-white font-bold text-lg hover:bg-[#0f766e] transition-all shadow-lg active:scale-95"
+                                onClick={() => router.push('/login')}
+                            >
+                                Sign In Free
+                            </button>
+                        </div>
+                    )}
+
+                    {/* ── Start Journey Button (logged in, no existing progress) ── */}
+                    {isSignedIn && !hasExistingProgress && !journeyDecisionMade && (
+                        <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-2xl p-6 mb-8 text-center">
+                            <h3 className="text-xl font-bold text-slate-900 mb-2">Ready to Begin?</h3>
+                            <p className="text-slate-500 mb-4">Your progress will be automatically saved to your account.</p>
+                            <button
+                                onClick={handleStartJourney}
+                                className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg active:scale-95"
+                            >
+                                <PlayCircle className="w-5 h-5" />
+                                Start My Journey
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* ── Wizard (shown when decision is made or user is guest) ── */}
+                {(!showDecisionScreen) && (
+                    <Wizard
+                        state={state}
+                        actions={actions}
+                        isLoaded={isLoaded}
+                        isSignedIn={isSignedIn}
+                    />
+                )}
+            </div>
+        </section>
+    );
 }
 
-type WizardActions = ReturnType<typeof useWizard>["actions"];
+type WizardActions = ReturnType<typeof useWizard>['actions'];
 
 interface WizardProps {
-  state: WizardState;
-  actions: WizardActions;
-  isLoaded: boolean;
+    state: WizardState;
+    actions: WizardActions;
+    isLoaded: boolean;
+    isSignedIn: boolean;
 }
 
-function Wizard({ state, actions, isLoaded }: WizardProps) {
-  const [isVaultOpen, setIsVaultOpen] = useState(false);
+function Wizard({ state, actions, isLoaded, isSignedIn }: WizardProps) {
+    const [isVaultOpen, setIsVaultOpen] = useState(false);
 
-  if (!isLoaded) {
+    if (!isLoaded) {
+        return <div className="p-20 text-center text-slate-400">Loading your journey...</div>;
+    }
+
+    const currentStage = roadmapData.stages[state.currentStage];
+    const currentStep = currentStage.steps[state.currentStep || 0];
+    const totalSteps = roadmapData.stages.reduce((acc, s) => acc + s.steps.length, 0);
+    const completedTotal = state.completedSteps.size;
+    const progressPercent = Math.round((completedTotal / totalSteps) * 100);
+
+    const handleNext = () => {
+        const nextStepIdx = (state.currentStep || 0) + 1;
+        if (nextStepIdx < currentStage.steps.length) {
+            actions.setCurrentStep(nextStepIdx);
+        } else if (state.currentStage + 1 < roadmapData.stages.length) {
+            actions.setStage(state.currentStage + 1);
+            actions.setCurrentStep(0);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handlePrev = () => {
+        const prevStepIdx = (state.currentStep || 0) - 1;
+        if (prevStepIdx >= 0) {
+            actions.setCurrentStep(prevStepIdx);
+        } else if (state.currentStage - 1 >= 0) {
+            const prevStage = roadmapData.stages[state.currentStage - 1];
+            actions.setStage(state.currentStage - 1);
+            actions.setCurrentStep(prevStage.steps.length - 1);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
-      <div className="p-20 text-center text-slate-400">
-        Loading your journey...
-      </div>
-    );
-  }
+        <div className="flex flex-col gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div className="flex-1">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Overall Journey Progress</span>
+                        <span className="text-sm font-bold text-[#0d9488]">{progressPercent}% ({completedTotal}/{totalSteps} steps)</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#0d9488] transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    {!isSignedIn && (
+                        <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-medium">
+                            ⚠ Progress not saved — Sign in to save
+                        </span>
+                    )}
+                    <button
+                        onClick={() => setIsVaultOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg font-semibold text-slate-700 hover:border-[#0d9488] hover:bg-[#ebf5f4] transition-all"
+                    >
+                        📁 Document Vault
+                    </button>
+                </div>
+            </div>
 
-  const currentStage = roadmapData.stages[state.currentStage];
-  const currentStep = currentStage.steps[state.currentStep || 0];
-  const totalSteps = roadmapData.stages.reduce(
-    (acc, s) => acc + s.steps.length,
-    0,
-  );
-  const completedTotal = state.completedSteps.size;
-  const progressPercent = Math.round((completedTotal / totalSteps) * 100);
+            <div className="flex flex-col md:flex-row gap-6 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm min-h-[600px] mb-12">
+                <aside className="w-full md:w-[320px] bg-slate-50 border-r border-slate-200 p-4 md:p-6 overflow-y-auto max-h-[800px]">
+                    <ProgressTree
+                        state={state}
+                        onSelectStep={(stageIdx, stepIdx) => {
+                            actions.setStage(stageIdx);
+                            actions.setCurrentStep(stepIdx);
+                        }}
+                    />
+                </aside>
 
-  const handleNext = () => {
-    const nextStepIdx = (state.currentStep || 0) + 1;
-    if (nextStepIdx < currentStage.steps.length) {
-      actions.setCurrentStep(nextStepIdx);
-    } else if (state.currentStage + 1 < roadmapData.stages.length) {
-      actions.setStage(state.currentStage + 1);
-      actions.setCurrentStep(0);
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+                <main className="flex-1 p-4 md:p-8 bg-white overflow-y-auto">
+                    <StepDetail
+                        step={currentStep}
+                        stage={currentStage}
+                        state={state}
+                        onToggleComplete={actions.toggleComplete}
+                        onNext={handleNext}
+                        onPrev={handlePrev}
+                        isFirst={state.currentStage === 0 && state.currentStep === 0}
+                        isLast={state.currentStage === roadmapData.stages.length - 1 && state.currentStep === currentStage.steps.length - 1}
+                    />
+                </main>
+            </div>
 
-  const handlePrev = () => {
-    const prevStepIdx = (state.currentStep || 0) - 1;
-    if (prevStepIdx >= 0) {
-      actions.setCurrentStep(prevStepIdx);
-    } else if (state.currentStage - 1 >= 0) {
-      const prevStage = roadmapData.stages[state.currentStage - 1];
-      actions.setStage(state.currentStage - 1);
-      actions.setCurrentStep(prevStage.steps.length - 1);
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-        <div className="flex-1">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-              Overall Journey Progress
-            </span>
-            <span className="text-sm font-bold text-[#0d9488]">
-              {progressPercent}% ({completedTotal}/{totalSteps} steps)
-            </span>
-          </div>
-          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#0d9488] transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
-            ></div>
-          </div>
+            <DocumentVault
+                isOpen={isVaultOpen}
+                onClose={() => setIsVaultOpen(false)}
+                state={state}
+                onToggleDocument={actions.toggleDocument}
+                onUpdateNote={actions.updateNote}
+                onUpload={actions.uploadDocument}
+                onClearUpload={actions.clearDocument}
+            />
         </div>
-        <button
-          onClick={() => setIsVaultOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg font-semibold text-slate-700 hover:border-[#0d9488] hover:bg-[#ebf5f4] transition-all"
-        >
-          📁 Document Vault
-        </button>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-6 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm min-h-[600px] mb-12">
-        <aside className="w-full md:w-[320px] bg-slate-50 border-r border-slate-200 p-4 md:p-6 overflow-y-auto max-h-[800px]">
-          <ProgressTree
-            state={state}
-            onSelectStep={(stageIdx, stepIdx) => {
-              actions.setStage(stageIdx);
-              actions.setCurrentStep(stepIdx);
-            }}
-          />
-        </aside>
-
-        <main className="flex-1 p-4 md:p-8 bg-white overflow-y-auto">
-          <StepDetail
-            step={currentStep}
-            stage={currentStage}
-            state={state}
-            onToggleComplete={actions.toggleComplete}
-            onNext={handleNext}
-            onPrev={handlePrev}
-            isFirst={state.currentStage === 0 && state.currentStep === 0}
-            isLast={
-              state.currentStage === roadmapData.stages.length - 1 &&
-              state.currentStep === currentStage.steps.length - 1
-            }
-          />
-        </main>
-      </div>
-
-      <DocumentVault
-        isOpen={isVaultOpen}
-        onClose={() => setIsVaultOpen(false)}
-        state={state}
-        onToggleDocument={actions.toggleDocument}
-        onUpdateNote={actions.updateNote}
-        onUpload={actions.uploadDocument}
-        onClearUpload={actions.clearDocument}
-      />
-    </div>
-  );
+    );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,9 @@ export default function ProfilePage() {
   const [message, setMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   
+  // Track if we've already fetched for this user
+  const hasFetchedRef = useRef<string | null>(null);
+  
   const [sections, setSections] = useState({
     personal: true,
     contact: true,
@@ -39,17 +42,23 @@ export default function ProfilePage() {
     visaEligibility: true
   });
 
+  // Memoize user ID to prevent unnecessary re-renders
+  const userId = useMemo(() => user?.id, [user?.id]);
+
   const fetchProfile = useCallback(async () => {
+    // Skip if we've already fetched for this user
+    if (!userId || hasFetchedRef.current === userId) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      if (!user?.id) {
-        throw new Error('User ID is required');
-      }
-
+      
       const { data, error: dbError } = await supabase
         .from('user_profiles')
         .select('profile_details')
-        .eq('id', user.id)
+        .eq('id', userId)
         .single();
 
       if (dbError) {
@@ -59,13 +68,15 @@ export default function ProfilePage() {
 
       if (data?.profile_details) {
         setFormData(data.profile_details as MasterProfile);
+        // Mark as fetched for this user
+        hasFetchedRef.current = userId;
       }
     } catch (fetchError) {
       console.error('Error fetching profile:', fetchError);
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [userId, supabase]);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -73,10 +84,12 @@ export default function ProfilePage() {
       return;
     }
 
-    if (user) {
+    if (userId && hasFetchedRef.current !== userId) {
       fetchProfile();
+    } else if (userId) {
+      setLoading(false);
     }
-  }, [user, isLoading, router, fetchProfile]);
+  }, [userId, isLoading, router, fetchProfile]);
 
   const handleSave = async () => {
     try {
@@ -93,6 +106,10 @@ export default function ProfilePage() {
 
       if (error) throw error;
 
+      // Reset fetch tracking to allow refetch
+      hasFetchedRef.current = null;
+      await fetchProfile();
+
       setIsEditing(false);
       setMessage("Profile updated successfully!");
       setTimeout(() => setMessage(""), 3000);
@@ -106,6 +123,8 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     setIsEditing(false);
+    // Reset fetch tracking and refetch to restore original data
+    hasFetchedRef.current = null;
     fetchProfile();
   };
 
