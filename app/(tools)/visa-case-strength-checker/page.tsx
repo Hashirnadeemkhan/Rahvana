@@ -322,7 +322,7 @@ const CaseTypeStep = ({
         onClick={onBack}
         suppressHydrationWarning
         variant="outline"
-        className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-6 text-lg"
+        className="bg-white hover:bg-slate-50 text-secondary-foreground border-input py-6 text-lg"
       >
         ← Back
       </Button>

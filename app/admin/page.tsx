@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,13 @@ import PoliceVerificationTable from "./components/police-verifications/PoliceVer
 import BookAppointmentTable from "./components/book-appointment/BookAppointmentTable";
 import ConsultationRequestsTable from "./components/consultation-requests/ConsultationRequestsTable";
 import AvailabilityGrid from "./components/consultation-requests/AvailabilityGrid";
+import { FeatureAnnouncementModal } from "./components/feature-announcement/FeatureAnnouncementModal";
 
 export default function AdminPanel() {
   const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
   const router = useRouter();
+
+  const [openFeatureModal, setOpenFeatureModal] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -95,12 +99,12 @@ export default function AdminPanel() {
               <span className="text-sm text-muted-foreground">
                 Admin: {user?.email}
               </span>
-              <Link
-                href="/mfa-setup"
+              <button
+                onClick={() => setOpenFeatureModal(true)}
                 className="text-teal-600 border-2 border-teal-600 hover:bg-teal-100 hover:text-teal-700 rounded-lg p-1"
               >
-                MFA Setup Page
-              </Link>
+                Feature Announcement
+              </button>
               <Button
                 onClick={handleLogout}
                 variant="outline"
@@ -138,6 +142,14 @@ export default function AdminPanel() {
           <TranslationQueueTable />
 
           <PoliceVerificationTable />
+
+          <FeatureAnnouncementModal
+            open={openFeatureModal}
+            onOpenChange={setOpenFeatureModal}
+            onPublish={(data) => {
+              console.log("New feature:", data);
+            }}
+          />
         </div>
       </main>
     </div>
