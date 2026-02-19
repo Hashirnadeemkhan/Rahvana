@@ -31,7 +31,7 @@ import { VisaEligibilityTool } from "@/app/(tools)/visa-eligibility/components/V
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 import { loadJourneyProgress, JourneyProgressRecord } from "@/lib/journey/journeyProgressService";
-import { roadmapData } from "@/app/(main)/dashboard/data/roadmap";
+import { roadmapData } from "@/data/roadmap";
 
 // Mock Data
 type Journey = {
