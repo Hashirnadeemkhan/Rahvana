@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { WizardState } from "../../(main)/dashboard/hooks/useWizard";
-import { roadmapData } from "../../(main)/dashboard/data/roadmap";
+import { roadmapData } from "../../../data/roadmap";
 
 interface ProgressTreeProps {
   state: WizardState;

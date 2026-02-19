@@ -15,8 +15,16 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ResultPage } from "./result/ResultPage";
 import { createBrowserClient } from "@supabase/ssr";
 import { useAuth } from "@/app/context/AuthContext";
-import { mapProfileToVisaChecker, mapFormToProfile } from "@/lib/autoFill/mapper";
-import type { MasterProfile, QuestionnaireData, QuestionDefinition, QuestionnaireSection } from "@/types/profile";
+import {
+  mapProfileToVisaChecker,
+  mapFormToProfile,
+} from "@/lib/autoFill/mapper";
+import type {
+  MasterProfile,
+  QuestionnaireData,
+  QuestionDefinition,
+  QuestionnaireSection,
+} from "@/types/profile";
 
 type CaseType = "Spouse";
 
@@ -109,7 +117,9 @@ const CaseTypeStep = ({
       </p>
       <div className="mt-4">
         <button
-          onClick={() => window.location.href = '/visa-case-strength-checker/my-cases'}
+          onClick={() =>
+            (window.location.href = "/visa-case-strength-checker/my-cases")
+          }
           suppressHydrationWarning
           className="text-teal-600 hover:text-teal-700 hover:underline text-base font-medium"
         >
@@ -123,17 +133,17 @@ const CaseTypeStep = ({
       <button
         type="button"
         suppressHydrationWarning
-        className={`p-8 border-2 rounded-xl text-center transition-all cursor-pointer ${
+        className={`p-5 md:p-8 border-2 rounded-xl text-center transition-all cursor-pointer ${
           formData.caseType === "Spouse"
             ? "border-primary bg-primary/5 ring-2 ring-primary/20"
             : "border-border hover:border-primary/50 hover:bg-muted/50"
         }`}
         onClick={() => onCaseTypeChange("Spouse")}
       >
-        <div className="mx-auto bg-primary/10 text-primary w-16 h-16 rounded-full flex items-center justify-center mb-4">
+        <div className="mx-auto bg-primary/10 text-primary w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8"
+            className="h-6 w-6 md:h-8 md:w-8"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -146,7 +156,9 @@ const CaseTypeStep = ({
             />
           </svg>
         </div>
-        <h3 className="font-bold text-xl mb-2 text-foreground">Spouse Visa</h3>
+        <h3 className="font-bold text-lg md:text-xl mb-2 text-foreground">
+          Spouse Visa
+        </h3>
         <p className="text-base text-muted-foreground">
           IR-1 / CR-1 – Spouse of U.S. Citizen
         </p>
@@ -317,12 +329,12 @@ const CaseTypeStep = ({
       </div>
     )}
 
-    <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
+    <div className="flex flex-row justify-between gap-2 sm:gap-4 pt-6">
       <Button
         onClick={onBack}
         suppressHydrationWarning
         variant="outline"
-        className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-6 text-lg"
+        className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-4 md:py-6 text-lg"
       >
         ← Back
       </Button>
@@ -330,7 +342,7 @@ const CaseTypeStep = ({
       <Button
         onClick={onNext}
         suppressHydrationWarning
-        className="bg-teal-600 hover:bg-teal-700 text-white py-6 text-lg"
+        className="bg-teal-600 hover:bg-teal-700 text-white py-4 md:py-6 text-lg"
         disabled={!formData.caseType}
       >
         Next →
@@ -366,7 +378,7 @@ const QuestionStep = ({
   onChange,
   onNext,
   onBack,
-  onSaveForLater,
+  // onSaveForLater,
 }: QuestionStepProps) => {
   const renderInput = (question: {
     id: keyof FormData;
@@ -551,20 +563,19 @@ const QuestionStep = ({
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
+        <div className="flex flex-row justify-between gap-2 sm:gap-4 pt-6">
           <Button
             onClick={onBack}
             variant="outline"
-            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-6 text-lg"
+            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-4 md:py-6 text-lg"
           >
             ← Previous
           </Button>
-          <div className="flex flex-col sm:flex-row gap-3">
-      
+          <div className="flex flex-row gap-3">
             <Button
               onClick={onNext}
               suppressHydrationWarning
-              className="bg-teal-600 hover:bg-teal-700 text-white py-6 text-lg"
+              className="bg-teal-600 hover:bg-teal-700 text-white py-4 md:py-6 text-lg"
             >
               Next →
             </Button>
@@ -591,7 +602,7 @@ const ReviewStep = ({
   loading,
   onSubmit,
   onBack,
-  onSaveForLater,
+  // onSaveForLater,
   onSaveToProfile,
 }: ReviewStepProps) => {
   // Helper function to format boolean values
@@ -622,25 +633,26 @@ const ReviewStep = ({
         </p>
       </div>
 
-
-        {/* Save to Profile Option */}
-        {onSaveToProfile && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div>
-              <h3 className="font-semibold text-blue-900">Sync with your Profile</h3>
-              <p className="text-sm text-blue-700 mt-1">
-                Save these details to your main profile to auto-fill future forms.
-              </p>
-            </div>
-            <Button 
-              onClick={onSaveToProfile}
-              variant="outline"
-              className="bg-white hover:bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap"
-            >
-              Update Main Profile
-            </Button>
+      {/* Save to Profile Option */}
+      {onSaveToProfile && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <h3 className="font-semibold text-blue-900">
+              Sync with your Profile
+            </h3>
+            <p className="text-sm text-blue-700 mt-1">
+              Save these details to your main profile to auto-fill future forms.
+            </p>
           </div>
-        )}
+          <Button
+            onClick={onSaveToProfile}
+            variant="outline"
+            className="bg-white hover:bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap"
+          >
+            Update Main Profile
+          </Button>
+        </div>
+      )}
 
       <div className="space-y-8">
         {/* Case Type Section */}
@@ -1426,20 +1438,19 @@ const ReviewStep = ({
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
+        <div className="flex flex-row justify-between gap-2 sm:gap-4 pt-6">
           <Button
             onClick={onBack}
             variant="outline"
-            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-6 text-lg"
+            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border-input py-4 md:py-6 text-lg"
           >
             ← Previous
           </Button>
-          <div className="flex flex-col sm:flex-row gap-3">
-      
+          <div className="flex flex-row gap-3">
             <Button
               onClick={onSubmit}
               disabled={loading}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground py-4 md:py-6 text-lg"
             >
               {loading ? "Submitting..." : "Submit for Analysis →"}
             </Button>
@@ -1447,7 +1458,6 @@ const ReviewStep = ({
         </div>
       </div>
     </div>
-
   );
 };
 
@@ -1464,10 +1474,11 @@ export default function VisaCaseStrengthChecker() {
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
   const { user } = useAuth();
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [isRestoredSession, setIsRestoredSession] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1477,55 +1488,66 @@ export default function VisaCaseStrengthChecker() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
-      
+
       try {
         const { data } = await supabase
-          .from('user_profiles')
-          .select('profile_details')
-          .eq('id', user.id)
+          .from("user_profiles")
+          .select("profile_details")
+          .eq("id", user.id)
           .single();
 
         if (data?.profile_details && !profileLoaded) {
-            const profile = data.profile_details as MasterProfile;
-            
-            // 1. Check for specific Saved Case Strength Session
-            if (profile.caseStrength?.lastSessionId && profile.caseStrength?.answers) {
-                 // Restore specific tool state
-                  setFormData({
-                    caseType: (profile.caseStrength.caseType as CaseType) || "",
-                    ...profile.caseStrength.answers
-                  } as FormData);
-                 setSessionId(profile.caseStrength.lastSessionId);
-                 setProfileLoaded(true);
-                 
-                 // If we have a sessionId, we assume the user might have completed or wants to see results
-                 // But strictly speaking, sessionId just means a session exists.
-                 // The user wants "Direct Result" like Visa Eligibility.
-                 // In Visa Eligibility, we check if enough data exists.
-                 // Here, if we have a saved sessionId, it implies we saved result state?
-                 // Let's perform a check: if we have answers and sessionId, try to jump to results.
-                 // Note: questionnaireData might not be loaded yet, so we can't set step to length+2 reliably here.
-                 // We will set a flag or rely on the other useEffect.
-                 return; 
-            }
+          const profile = data.profile_details as MasterProfile;
 
-            // 2. Fallback: Generic Auto-fill
-            const mappedData = mapProfileToVisaChecker(profile);
-            
-            setFormData(prev => {
-                const newData = { ...prev };
-                let hasUpdates = false;
-                
-                Object.entries(mappedData).forEach(([key, value]) => {
-                    if (newData[key as keyof FormData] === undefined || newData[key as keyof FormData] === "") {
-                         (newData as { [k: string]: string | number | boolean | undefined })[key] = value as string | number | boolean | undefined;
-                         hasUpdates = true;
-                    }
-                });
-                
-                return hasUpdates ? newData : prev;
-            });
+          // 1. Check for specific Saved Case Strength Session
+          if (
+            profile.caseStrength?.lastSessionId &&
+            profile.caseStrength?.answers
+          ) {
+            // Restore specific tool state
+            setFormData({
+              caseType: (profile.caseStrength.caseType as CaseType) || "",
+              ...profile.caseStrength.answers,
+            } as FormData);
+            setSessionId(profile.caseStrength.lastSessionId);
             setProfileLoaded(true);
+            setIsRestoredSession(true);
+
+            // If we have a sessionId, we assume the user might have completed or wants to see results
+            // But strictly speaking, sessionId just means a session exists.
+            // The user wants "Direct Result" like Visa Eligibility.
+            // In Visa Eligibility, we check if enough data exists.
+            // Here, if we have a saved sessionId, it implies we saved result state?
+            // Let's perform a check: if we have answers and sessionId, try to jump to results.
+            // Note: questionnaireData might not be loaded yet, so we can't set step to length+2 reliably here.
+            // We will set a flag or rely on the other useEffect.
+            return;
+          }
+
+          // 2. Fallback: Generic Auto-fill
+          const mappedData = mapProfileToVisaChecker(profile);
+
+          setFormData((prev) => {
+            const newData = { ...prev };
+            let hasUpdates = false;
+
+            Object.entries(mappedData).forEach(([key, value]) => {
+              if (
+                newData[key as keyof FormData] === undefined ||
+                newData[key as keyof FormData] === ""
+              ) {
+                (
+                  newData as {
+                    [k: string]: string | number | boolean | undefined;
+                  }
+                )[key] = value as string | number | boolean | undefined;
+                hasUpdates = true;
+              }
+            });
+
+            return hasUpdates ? newData : prev;
+          });
+          setProfileLoaded(true);
         }
       } catch (err) {
         console.error("Error auto-filling profile:", err);
@@ -1560,72 +1582,79 @@ export default function VisaCaseStrengthChecker() {
 
   // Auto-jump to results if session restored
   useEffect(() => {
-    if (sessionId && questionnaireData && step !== questionnaireData.sections.length + 2 && !isEditing) {
-       // Only jump if we have substantial data? 
-       // For now, if sessionId is present (restored from profile), we jump.
-       setStep(questionnaireData.sections.length + 2);
+    if (
+      isRestoredSession &&
+      sessionId &&
+      questionnaireData &&
+      step !== questionnaireData.sections.length + 2 &&
+      !isEditing
+    ) {
+      // Only jump if we have substantial data?
+      // For now, if sessionId is present (restored from profile), we jump.
+      setStep(questionnaireData.sections.length + 2);
+      setIsRestoredSession(false);
     }
-  }, [sessionId, questionnaireData, step, isEditing]);
+  }, [sessionId, questionnaireData, step, isEditing, isRestoredSession]);
 
   // Define valid question keys to validate against the enum
   const validQuestionKeys: (keyof FormData)[] = [
     // Basic Profile
-    'sponsor_dob',
-    'beneficiary_dob',
-    'country_of_residence',
-    'marriage_date',
-    'spousal_relationship_type',
-    'intended_us_state_of_residence',
+    "sponsor_dob",
+    "beneficiary_dob",
+    "country_of_residence",
+    "marriage_date",
+    "spousal_relationship_type",
+    "intended_us_state_of_residence",
     // Education & Employment Background
-    'highest_education_level',
-    'highest_education_field',
-    'current_occupation_role',
-    'industry_sector',
-    'prior_military_service',
-    'specialized_weapons_training',
-    'unofficial_armed_groups',
-    'employer_type',
+    "highest_education_level",
+    "highest_education_field",
+    "current_occupation_role",
+    "industry_sector",
+    "prior_military_service",
+    "specialized_weapons_training",
+    "unofficial_armed_groups",
+    "employer_type",
     // Relationship Strength
-    'how_did_you_meet',
-    'number_of_in_person_visits',
-    'cohabitation_proof',
-    'shared_financial_accounts',
-    'wedding_photos_available',
-    'communication_logs',
-    'money_transfer_receipts_available',
-    'driving_license_copy_available',
+    "how_did_you_meet",
+    "number_of_in_person_visits",
+    "cohabitation_proof",
+    "shared_financial_accounts",
+    "wedding_photos_available",
+    "communication_logs",
+    "money_transfer_receipts_available",
+    "driving_license_copy_available",
     // Immigration History
-    'previous_visa_applications',
-    'previous_visa_denial',
-    'overstay_or_violation',
-    'criminal_record',
+    "previous_visa_applications",
+    "previous_visa_denial",
+    "overstay_or_violation",
+    "criminal_record",
     // Financial Profile
-    'sponsor_annual_income',
-    'household_size',
-    'has_tax_returns',
-    'has_employment_letter',
-    'has_paystubs',
-    'joint_sponsor_available',
-    'i864_affidavit_submitted',
-    'i864_supporting_financial_documents',
+    "sponsor_annual_income",
+    "household_size",
+    "has_tax_returns",
+    "has_employment_letter",
+    "has_paystubs",
+    "joint_sponsor_available",
+    "i864_affidavit_submitted",
+    "i864_supporting_financial_documents",
     // Core Identity Documents
-    'urdu_marriage_certificate',
-    'english_translation_certificate',
-    'union_council_certificate',
-    'family_registration_certificate',
-    'birth_certificates',
+    "urdu_marriage_certificate",
+    "english_translation_certificate",
+    "union_council_certificate",
+    "family_registration_certificate",
+    "birth_certificates",
     // Passport & Police Documents
-    'passports_available',
-    'passport_copy_available',
-    'valid_police_clearance_certificate',
+    "passports_available",
+    "passport_copy_available",
+    "valid_police_clearance_certificate",
     // Interview & Medical Documents
-    'ds260_confirmation',
-    'interview_letter',
-    'courier_registration',
-    'medical_report_available',
-    'polio_vaccination_certificate',
-    'covid_vaccination_certificate',
-    'passport_photos_2x2',
+    "ds260_confirmation",
+    "interview_letter",
+    "courier_registration",
+    "medical_report_available",
+    "polio_vaccination_certificate",
+    "covid_vaccination_certificate",
+    "passport_photos_2x2",
   ];
 
   const isValidQuestionKey = (key: string): key is keyof FormData => {
@@ -1653,8 +1682,8 @@ export default function VisaCaseStrengthChecker() {
           // Filter out non-question fields before saving and validate question keys
           const answers = Object.fromEntries(
             Object.entries(updatedFormData)
-              .filter(([key]) => key !== 'caseType')
-              .filter(([key]) => isValidQuestionKey(key))
+              .filter(([key]) => key !== "caseType")
+              .filter(([key]) => isValidQuestionKey(key)),
           );
           const answersResponse = await fetch(
             `/api/visa-checker/session/${sessionId}/answers`,
@@ -1878,8 +1907,8 @@ export default function VisaCaseStrengthChecker() {
         // Filter out non-question fields before saving and validate question keys
         const answers = Object.fromEntries(
           Object.entries(formData)
-            .filter(([key]) => key !== 'caseType')
-            .filter(([key]) => isValidQuestionKey(key))
+            .filter(([key]) => key !== "caseType")
+            .filter(([key]) => isValidQuestionKey(key)),
         );
         const answersResponse = await fetch(
           `/api/visa-checker/session/${sessionId}/answers`,
@@ -1922,8 +1951,8 @@ export default function VisaCaseStrengthChecker() {
       // Force save all current answers, filtering out non-question fields and validating question keys
       const answers = Object.fromEntries(
         Object.entries(formData)
-          .filter(([key]) => key !== 'caseType')
-          .filter(([key]) => isValidQuestionKey(key))
+          .filter(([key]) => key !== "caseType")
+          .filter(([key]) => isValidQuestionKey(key)),
       );
       const answersResponse = await fetch(
         `/api/visa-checker/session/${sessionId}/answers`,
@@ -2006,47 +2035,54 @@ export default function VisaCaseStrengthChecker() {
   };
 
   const handleSaveToProfile = async () => {
-     try {
-       setLoading(true);
-       
-       // 1. Map to generic profile for cross-tool sharing
-       const profileUpdate = mapFormToProfile(formData as unknown as Record<string, unknown>);
-       
-       // 2. Prepare specific caseStrength state
-       const caseStrengthData = {
-          caseType: formData.caseType,
-          answers: formData,
-          lastSessionId: sessionId 
-       };
+    try {
+      setLoading(true);
 
-       const { error } = await supabase
-         .from('user_profiles')
-         .upsert({
-           id: user?.id,
-           profile_details: {
-              ...profileUpdate,
-              caseStrength: caseStrengthData
-           },
-           updated_at: new Date().toISOString()
-         }, { onConflict: 'id' });
+      // 1. Map to generic profile for cross-tool sharing
+      const profileUpdate = mapFormToProfile(
+        formData as unknown as Record<string, unknown>,
+      );
 
-       if (error) throw error;
-       
-       // setSaveNotification("Profile updated & results saved!"); // We don't have this state exposed well to ResultPage maybe? 
-       // ResultPage has its own notification logic now.
-     } catch (err) {
-       console.error("Error updating profile:", err);
-       setError("Failed to update profile");
-       throw err; // Re-throw so ResultPage knows it failed
-     } finally {
-       setLoading(false);
-     }
+      // 2. Prepare specific caseStrength state
+      const caseStrengthData = {
+        caseType: formData.caseType,
+        answers: formData,
+        lastSessionId: sessionId,
+      };
+
+      const { error } = await supabase.from("user_profiles").upsert(
+        {
+          id: user?.id,
+          profile_details: {
+            ...profileUpdate,
+            caseStrength: caseStrengthData,
+          },
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "id" },
+      );
+
+      if (error) throw error;
+
+      // setSaveNotification("Profile updated & results saved!"); // We don't have this state exposed well to ResultPage maybe?
+      // ResultPage has its own notification logic now.
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setError("Failed to update profile");
+      throw err; // Re-throw so ResultPage knows it failed
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Render the appropriate step
   const renderStep = () => {
     if (!questionnaireData) {
-      return <div>Loading questionnaire...</div>;
+      return (
+        <div className="flex justify-center items-center min-h-60">
+          Loading questionnaire...
+        </div>
+      );
     }
 
     const renderWithNotification = (content: React.ReactNode) => (
@@ -2104,17 +2140,15 @@ export default function VisaCaseStrengthChecker() {
 
     // Check if we're on the review page (after completing all questions)
     if (step === questionnaireData.sections.length + 1) {
-      return (
-        renderWithNotification(
-          <ReviewStep
-            formData={formData}
-            error={error}
-            loading={loading}
-            onSubmit={handleSubmit}
-            onBack={prevStep}
-            onSaveToProfile={user ? handleSaveToProfile : undefined}
-          />
-        )
+      return renderWithNotification(
+        <ReviewStep
+          formData={formData}
+          error={error}
+          loading={loading}
+          onSubmit={handleSubmit}
+          onBack={prevStep}
+          onSaveToProfile={user ? handleSaveToProfile : undefined}
+        />,
       );
     }
 
@@ -2127,35 +2161,35 @@ export default function VisaCaseStrengthChecker() {
           </div>
         );
       }
-      return <ResultPage 
-        sessionId={sessionId} 
-        onRestart={() => {
-           setSessionId('');
-           setStep(0);
-           setFormData({} as FormData);
-           setSessionId(null);
-           setIsEditing(false);
-           localStorage.removeItem("visaCheckerSessionId");
-        }}
-        onEdit={() => {
-           setIsEditing(true);
-           // Go back to first question step (Case Type is 0, First Q is 1)
-           setStep(1); 
-        }}
-        onSaveToProfile={handleSaveToProfile}
-      />;
+      return (
+        <ResultPage
+          sessionId={sessionId}
+          onRestart={() => {
+            setSessionId("");
+            setStep(0);
+            setFormData({} as FormData);
+            setSessionId(null);
+            setIsEditing(false);
+            localStorage.removeItem("visaCheckerSessionId");
+          }}
+          onEdit={() => {
+            setIsEditing(true);
+            // Go back to first question step (Case Type is 0, First Q is 1)
+            setStep(1);
+          }}
+          onSaveToProfile={handleSaveToProfile}
+        />
+      );
     }
 
-    return (
-      renderWithNotification(
-        <ReviewStep
-          formData={formData}
-          error={error}
-          loading={loading}
-          onSubmit={handleSubmit}
-          onBack={prevStep}
-        />
-      )
+    return renderWithNotification(
+      <ReviewStep
+        formData={formData}
+        error={error}
+        loading={loading}
+        onSubmit={handleSubmit}
+        onBack={prevStep}
+      />,
     );
   };
 
@@ -2187,35 +2221,30 @@ export default function VisaCaseStrengthChecker() {
           ></div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {sections.map(
-            (
-              section: QuestionnaireSection,
-              index: number,
-            ) => {
-              const isActive = index === currentSectionIndex;
-              const isCompleted = index < currentSectionIndex;
+        <div className="mt-4 hidden sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {sections.map((section: QuestionnaireSection, index: number) => {
+            const isActive = index === currentSectionIndex;
+            const isCompleted = index < currentSectionIndex;
 
-              return (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg text-center text-xs font-medium transition-all ${
-                    isActive
-                      ? "bg-primary text-primary-foreground border-2 border-primary"
-                      : isCompleted
-                        ? "bg-primary/20 text-primary border-2 border-primary/30"
-                        : "bg-muted text-muted-foreground border-2 border-border"
-                  }`}
-                >
-                  <div className="font-semibold truncate">
-                    {section.title.substring(0, 20)}
-                    {section.title.length > 20 ? "..." : ""}
-                  </div>
-                  <div className="text-[10px] mt-1">Step {index + 1}</div>
+            return (
+              <div
+                key={index}
+                className={`p-3 rounded-lg text-center text-xs font-medium transition-all ${
+                  isActive
+                    ? "bg-primary text-primary-foreground border-2 border-primary"
+                    : isCompleted
+                      ? "bg-primary/20 text-primary border-2 border-primary/30"
+                      : "bg-muted text-muted-foreground border-2 border-border"
+                }`}
+              >
+                <div className="font-semibold truncate">
+                  {section.title.substring(0, 20)}
+                  {section.title.length > 20 ? "..." : ""}
                 </div>
-              );
-            },
-          )}
+                <div className="text-[10px] mt-1">Step {index + 1}</div>
+              </div>
+            );
+          })}
 
           {/* Review Step Indicator */}
           <div
@@ -2248,19 +2277,21 @@ export default function VisaCaseStrengthChecker() {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-foreground mb-3 tracking-tight">
+    <div className="container mx-auto py-4 md:py-8 max-w-4xl">
+      <div className="text-center mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">
           Visa Case Strength Checker
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Assess your IR-1/CR-1 visa case strength with our guided questionnaire
         </p>
       </div>
 
       {renderProgressSections()}
 
-      <Card className="p-8 shadow-lg border border-border">{renderStep()}</Card>
+      <Card className="p-4 md:p-8 shadow-lg border border-border mx-2">
+        {renderStep()}
+      </Card>
     </div>
   );
 }

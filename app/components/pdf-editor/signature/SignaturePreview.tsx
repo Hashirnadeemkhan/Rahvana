@@ -80,17 +80,7 @@ export default function SignaturePreview({
 
   return (
     <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
-      <div className="flex justify-end">
-        <button
-          onClick={handleDownloadCropped}
-          className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 sm:px-12 sm:py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 text-base sm:text-lg shadow-lg"
-        >
-          <Download className="w-5 h-5 sm:w-6 sm:h-6" />
-          Download Signature
-        </button>
-      </div>
-
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-md">
+      <div className="bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-md">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 w-full sm:w-auto text-center sm:text-left">
             Adjust Your Signature
@@ -123,7 +113,7 @@ export default function SignaturePreview({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-gray-100 to-gray-200 border-b border-gray-300 px-6 py-4">
+          <div className="bg-linear-to-r from-gray-100 to-gray-200 border-b border-gray-300 px-6 py-4">
             <p className="text-gray-900 font-bold text-xl">Original Photo</p>
           </div>
           <div className="p-8 bg-white">
@@ -140,7 +130,7 @@ export default function SignaturePreview({
         </div>
 
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-100 to-pink-100 border-b border-purple-300 px-6 py-4">
+          <div className="bg-linear-to-r from-purple-100 to-pink-100 border-b border-purple-300 px-6 py-4">
             <p className="text-gray-900 font-bold text-xl">
               {editedImage ? "Final Signature" : "Transparent Background"}
             </p>
@@ -170,6 +160,16 @@ export default function SignaturePreview({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          onClick={handleDownloadCropped}
+          className="w-full sm:w-auto bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 sm:px-12 sm:py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 text-base sm:text-lg shadow-lg"
+        >
+          <Download className="w-5 h-5 sm:w-6 sm:h-6" />
+          Download Signature
+        </button>
       </div>
 
       <div className="flex justify-center">

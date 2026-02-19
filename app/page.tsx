@@ -523,7 +523,7 @@ function HomePageContent() {
   const [activeSection, setActiveSection] = useState("home");
   const searchParams = useSearchParams();
 
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [showMfaPrompt, setShowMfaPrompt] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -654,8 +654,7 @@ function HomePageContent() {
   };
 
   const daysSince = (date: string) => {
-    const diffTime =
-      new Date().getTime() - new Date(date).getTime();
+    const diffTime = new Date().getTime() - new Date(date).getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
@@ -698,7 +697,7 @@ function HomePageContent() {
         {activeSection === "home" && (
           <div className="flex flex-col">
             {/* HERO SECTION */}
-            <section className="relative py-12 overflow-hidden bg-background">
+            <section className="relative py-8 md:py-12 overflow-hidden bg-background">
               <div className="container mx-auto px-6">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
                   <motion.div
@@ -712,7 +711,7 @@ function HomePageContent() {
                       <Icons.ShieldCheck className="w-4 h-4" />
                       Trusted by families worldwide
                     </div>
-                    <h1 className="text-4xl lg:text-6xl font-bold leading-tight text-foreground mb-6">
+                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground mb-6">
                       Your Immigration Journey,
                       <br />
                       <span className="bg-linear-to-r from-rahvana-primary to-rahvana-primary-light bg-clip-text text-fill-transparent">
@@ -792,7 +791,7 @@ function HomePageContent() {
 
             {/* JOURNEYS SECTION */}
             <section
-              className="relative py-24 bg-muted/30 overflow-hidden"
+              className="relative py-12 md:py-24 bg-muted/30 overflow-hidden"
               id="journeys"
             >
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
@@ -878,7 +877,10 @@ function HomePageContent() {
             </section>
 
             {/* QUICK TOOLS SECTION */}
-            <section className="relative py-24 bg-background" id="tools">
+            <section
+              className="relative py-12 md:py-24 bg-background"
+              id="tools"
+            >
               <div className="container mx-auto px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <motion.span
@@ -939,7 +941,7 @@ function HomePageContent() {
                       transition={{ delay: i * 0.1 }}
                       viewport={{ once: true }}
                       onClick={() => setShowComingSoon(true)}
-                      className="group relative bg-muted/30 rounded-2xl p-8 border border-border transition-all hover:border-rahvana-primary/30 hover:shadow-xl cursor-pointer overflow-hidden"
+                      className="group relative bg-muted/30 rounded-2xl p-6 md:p-8 border border-border transition-all hover:border-rahvana-primary/30 hover:shadow-xl cursor-pointer overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-linear-to-tr from-rahvana-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       <div className="w-14 h-14 rounded-xl bg-linear-to-br from-rahvana-primary to-rahvana-primary-light flex items-center justify-center text-white mb-6 transform group-hover:scale-110 transition-transform">
@@ -969,7 +971,7 @@ function HomePageContent() {
             </section>
 
             {/* CONSULTATION BANNER */}
-            <section className="py-24 bg-background">
+            <section className="py-12 md:py-24 bg-background">
               <div className="container mx-auto px-6">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -978,7 +980,7 @@ function HomePageContent() {
                   className="relative bg-linear-to-r from-rahvana-primary to-rahvana-primary-light rounded-3xl overflow-hidden shadow-2xl"
                 >
                   <div className="grid grid-cols-1 lg:grid-cols-2">
-                    <div className="p-10 lg:p-16 text-white self-center">
+                    <div className="p-6 md:p-10 lg:p-16 text-white self-center">
                       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 text-sm font-semibold mb-6">
                         <Icons.MessageSquare className="w-4 h-4" />
                         Expert Guidance
@@ -1016,7 +1018,7 @@ function HomePageContent() {
             </section>
 
             {/* HOW RAHVANA WORKS SECTION */}
-            <section className="py-24 bg-muted/30" id="about">
+            <section className="py-12 md:py-24 bg-muted/30" id="about">
               <div className="container mx-auto px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <motion.span
@@ -1051,7 +1053,7 @@ function HomePageContent() {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="relative aspect-square max-w-125 mx-auto w-full"
+                    className="relative aspect-square max-w-[300px] md:max-w-125 mx-auto w-full"
                   >
                     {/* SVG Layer for all lines */}
                     <svg
@@ -1120,9 +1122,9 @@ function HomePageContent() {
                             animate={{
                               scale: isActive ? 1.25 : 1,
                             }}
-                            className={`absolute w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 z-10 ${
+                            className={`absolute w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-500 z-10 ${
                               isActive
-                                ? "bg-rahvana-primary text-white shadow-xl ring-8 ring-rahvana-primary/10"
+                                ? "bg-rahvana-primary text-white shadow-xl ring-4 md:ring-8 ring-rahvana-primary/10"
                                 : "bg-card text-muted-foreground border border-border hover:border-rahvana-primary hover:text-rahvana-primary hover:scale-110 shadow-md"
                             }`}
                             style={{
@@ -1134,7 +1136,8 @@ function HomePageContent() {
                             <HydrationSafeButton className="w-full h-full rounded-full flex items-center justify-center p-0 bg-transparent border-0">
                               <span className="sr-only">Step {step}</span>
                               {React.createElement(LIFECYCLE_STEPS[i].icon, {
-                                className: "w-6 h-6 pointer-events-none",
+                                className:
+                                  "w-4 h-4 md:w-6 md:h-6 pointer-events-none",
                               })}
                             </HydrationSafeButton>
                           </motion.div>
@@ -1227,7 +1230,7 @@ function HomePageContent() {
             </section>
 
             {/* FAQ SECTION */}
-            <section className="py-24 bg-background" id="faq">
+            <section className="py-12 md:py-24 bg-background" id="faq">
               <div className="container mx-auto px-6">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <motion.span
@@ -1260,13 +1263,13 @@ function HomePageContent() {
                     >
                       <HydrationSafeButton
                         onClick={() => setOpenFAQ(openFAQ === i ? null : i)}
-                        className="w-full px-8 py-6 text-left flex items-center justify-between"
+                        className="w-full px-5 md:px-8 py-6 text-left flex items-center justify-between"
                       >
-                        <span className="text-lg font-bold text-foreground pr-8">
+                        <span className="text-lg font-bold text-foreground pr-4 md:pr-8">
                           {faq.q}
                         </span>
                         <div
-                          className={`w-16 h-6 md:h-8 md:w-8 rounded-full  border flex items-center justify-center transition-all ${
+                          className={`w-6 h-6 md:h-8 md:w-8 shrink-0 rounded-full  border flex items-center justify-center transition-all ${
                             openFAQ === i
                               ? "bg-rahvana-primary border-rahvana-primary text-white rotate-45"
                               : "border-border text-muted-foreground group-hover:border-rahvana-primary group-hover:text-rahvana-primary"
@@ -1405,22 +1408,22 @@ function HomePageContent() {
 
       {/* <Footer /> */}
       {showMfaPrompt && (
-            <Dialog open={showMfaPrompt} onOpenChange={setShowMfaPrompt}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Enable Two-Factor Authentication</DialogTitle>
-                  <DialogDescription>
-                    Add an extra layer of security to your account by enabling
-                    two-factor authentication.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button onClick={handleEnableMfa}>Enable MFA</Button>
-                  <Button onClick={handleRemindLater}>Remind me later</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
+        <Dialog open={showMfaPrompt} onOpenChange={setShowMfaPrompt}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enable Two-Factor Authentication</DialogTitle>
+              <DialogDescription>
+                Add an extra layer of security to your account by enabling
+                two-factor authentication.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={handleEnableMfa}>Enable MFA</Button>
+              <Button onClick={handleRemindLater}>Remind me later</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
 
     // <div className="min-h-screen flex flex-col bg-white text-gray-800">

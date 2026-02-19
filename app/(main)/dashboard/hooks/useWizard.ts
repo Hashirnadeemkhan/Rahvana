@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { roadmapData } from '../data/roadmap';
+import { roadmapData } from '../../../../data/roadmap';
 
 export interface WizardState {
     currentStage: number;

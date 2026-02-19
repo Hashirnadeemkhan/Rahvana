@@ -78,24 +78,24 @@ export const StackedCarousel = ({
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto h-112.5 flex items-center justify-center">
+    <div className="relative w-full max-w-4xl mx-auto h-[450px] md:h-112.5 flex items-center justify-center">
       {/* Navigation Buttons */}
       <HydrationSafeButton
         onClick={handlePrev}
-        className="absolute left-4 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-background/50 md:backdrop-blur-sm p-3 rounded-full shadow-lg border border-border text-muted-foreground hover:text-rahvana-primary hover:border-rahvana-primary transition-all"
+        className="absolute left-2 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-background/50 md:backdrop-blur-sm p-2 md:p-3 rounded-full shadow-lg border border-border text-muted-foreground hover:text-rahvana-primary hover:border-rahvana-primary transition-all"
       >
-        <Icons.ChevronLeft className="w-6 h-6" />
+        <Icons.ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
       </HydrationSafeButton>
 
       <HydrationSafeButton
         onClick={handleNext}
-        className="absolute right-4 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-background/50 md:backdrop-blur-sm p-3 rounded-full shadow-lg border border-border text-muted-foreground hover:text-rahvana-primary hover:border-rahvana-primary transition-all"
+        className="absolute right-2 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-background/50 md:backdrop-blur-sm p-2 md:p-3 rounded-full shadow-lg border border-border text-muted-foreground hover:text-rahvana-primary hover:border-rahvana-primary transition-all"
       >
-        <Icons.ChevronRight className="w-6 h-6" />
+        <Icons.ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
       </HydrationSafeButton>
 
       {/* Cards Container */}
-      <div className="relative w-87.5 h-100">
+      <div className="relative w-full max-w-[350px] px-4 md:px-0 h-100">
         <AnimatePresence mode="popLayout">
           {items.map((journey, index) => {
             const style = getCardStyle(index);
