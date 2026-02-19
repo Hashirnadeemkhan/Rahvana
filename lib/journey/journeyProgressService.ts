@@ -44,6 +44,24 @@ export async function loadJourneyProgress(
 }
 
 /**
+ * List all journey progress records for a user.
+ */
+export async function listUserJourneys(userId: string): Promise<JourneyProgressRecord[]> {
+  const { data, error } = await supabase
+    .from('user_journey_progress')
+    .select('*')
+    .eq('user_id', userId)
+    .order('last_updated_at', { ascending: false });
+
+  if (error) {
+    console.error('[Journey] Failed to list journeys:', error.message);
+    return [];
+  }
+
+  return data as JourneyProgressRecord[];
+}
+
+/**
  * Save (upsert) journey progress to Supabase.
  * Uses ON CONFLICT (user_id, journey_id) to update existing record.
  */
