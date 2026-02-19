@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { roadmapData } from '../data/roadmap';
+import { roadmapData } from '../../../../data/roadmap';
 import {
   loadJourneyProgress,
   saveJourneyProgress,

@@ -35,8 +35,8 @@ import {
   loadJourneyProgress,
   JourneyProgressRecord,
 } from "@/lib/journey/journeyProgressService";
-import { roadmapData } from "@/app/(main)/dashboard/data/roadmap";
 import { useRouter } from "next/navigation";
+import { roadmapData } from "@/data/roadmap";
 
 // Mock Data
 type Journey = {
