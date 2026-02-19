@@ -24,8 +24,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
-import { UserProfile } from "@/app/context/AuthContext";
+import { useAuth, UserProfile } from "@/app/context/AuthContext";
 import { NAV_DATA } from "./navigationData";
+import { profile } from "console";
 // import { useTheme } from "next-themes";
 
 interface HeaderProps {
@@ -144,6 +145,8 @@ export function SiteHeader({
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { profile } = useAuth();
 
   const handleMenuEnter = (menu: string) => {
     if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
@@ -485,8 +488,7 @@ export function SiteHeader({
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <h3 className="font-bold text-foreground">
-                        {user?.user_metadata?.full_name ||
-                          user?.user_metadata?.name ||
+                        {profile?.full_name ||
                           "Valued User"}
                       </h3>
                       <p className="text-sm text-muted-foreground">

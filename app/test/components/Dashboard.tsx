@@ -1,6 +1,6 @@
-import React from 'react';
-import { WizardState } from '../../(main)/dashboard/hooks/useWizard';
-import { roadmapData } from '../../(main)/dashboard/data/roadmap';
+import React from "react";
+import { WizardState } from "../../(main)/dashboard/hooks/useWizard";
+import { roadmapData } from "../../../data/roadmap";
 
 interface DashboardProps {
     state: WizardState;

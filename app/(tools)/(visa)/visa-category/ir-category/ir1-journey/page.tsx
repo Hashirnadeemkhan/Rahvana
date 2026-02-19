@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import { useAuth } from "@/app/context/AuthContext";
 import { useWizard, WizardState } from "@/app/(main)/dashboard/hooks/useWizard";
-import { roadmapData } from "@/app/(main)/dashboard/data/roadmap";
+// import { roadmapData } from "@/app/(main)/dashboard/data/roadmap";
 import { ProgressTree } from "@/app/test/components/ProgressTree";
 import { StepDetail } from "@/app/test/components/StepDetail";
 import { DocumentVault } from "@/app/test/components/DocumentVault";
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlayCircle, RotateCcw, ArrowRight, Save, CheckCircle2, Loader2, FileText, Layout, Users, IdCard, Plane } from 'lucide-react';
+import { roadmapData } from '@/data/roadmap';
 
 export default function IR1JourneyPage() {
     const { user } = useAuth();

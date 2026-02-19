@@ -215,6 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session ?? null);
 
       if (session?.user) {
+        await fetchProfile(session.user.id);
         const adminStatus = await fetchUserProfile(session.user.id);
         setIsAdmin(adminStatus);
       } else {

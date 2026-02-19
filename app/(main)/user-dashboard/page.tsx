@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useWizard } from "../dashboard/hooks/useWizard";
-import { roadmapData } from "../dashboard/data/roadmap";
+import { roadmapData } from "../../../data/roadmap";
 import { useRouter } from "next/navigation";
 
 interface PoliceRequest {

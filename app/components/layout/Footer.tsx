@@ -4,12 +4,7 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ComingSoonModal } from "../shared/ComingSoonModal";
-import {
-  Instagram,
-  Facebook,
-  Linkedin,
-  ArrowRight,
-} from "lucide-react";
+import { Instagram, Facebook, Linkedin, ArrowRight } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -78,25 +73,25 @@ export default function Footer() {
             </h4>
             <nav className="flex flex-col gap-4 text-sm">
               <Link
-                href="#"
+                href="/visa-category/ir-category?category=Family"
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 Family & Protection
               </Link>
               <Link
-                href="#"
+                href="/visa-category/ir-category?category=Work"
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 Work & Business
               </Link>
               <Link
-                href="#"
+                href="/visa-category/ir-category?category=Work"
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 Work Green Cards
               </Link>
               <Link
-                href="#"
+                href="/visa-category/ir-category?category=Study"
                 className="text-slate-400 hover:text-white transition-colors"
               >
                 Students & Visitors

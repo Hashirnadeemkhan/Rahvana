@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   MapPin,
   Search,
@@ -30,8 +31,12 @@ import {
 import { VisaEligibilityTool } from "@/app/(tools)/visa-eligibility/components/VisaEligibilityTool";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
-import { loadJourneyProgress, JourneyProgressRecord } from "@/lib/journey/journeyProgressService";
-import { roadmapData } from "@/app/(main)/dashboard/data/roadmap";
+import {
+  loadJourneyProgress,
+  JourneyProgressRecord,
+} from "@/lib/journey/journeyProgressService";
+import { useRouter } from "next/navigation";
+import { roadmapData } from "@/data/roadmap";
 
 // Mock Data
 type Journey = {
@@ -109,8 +114,7 @@ const JOURNEY_DETAILS: Record<string, Station[]> = {
       key: "interview",
       label: "Interview",
       summary: "Embassy interview",
-      whatYouDo:
-        "Attend visa interview at a U.S. embassy or consulate.",
+      whatYouDo: "Attend visa interview at a U.S. embassy or consulate.",
       uploadsNeeded: [
         "Passport",
         "Medical exam results",
@@ -1067,7 +1071,13 @@ export default function ExploreJourneys({
   destination,
 }: ExploreJourneysProps) {
   const { user } = useAuth();
-  const [ir1Progress, setIr1Progress] = useState<JourneyProgressRecord | null>(null);
+  const [ir1Progress, setIr1Progress] = useState<JourneyProgressRecord | null>(
+    null,
+  );
+
+  const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get("category");
+  const router = useRouter();
 
   // Check if logged-in user has an existing IR-1 journey
   useEffect(() => {
@@ -1075,7 +1085,7 @@ export default function ExploreJourneys({
       setIr1Progress(null);
       return;
     }
-    loadJourneyProgress(user.id, 'ir1').then(record => {
+    loadJourneyProgress(user.id, "ir1").then((record) => {
       if (record && record.started) {
         setIr1Progress(record);
       } else {
@@ -1085,12 +1095,17 @@ export default function ExploreJourneys({
   }, [user?.id]);
 
   const ir1HasProgress = !!ir1Progress;
-  
+
   // Calculate progress percentage for IR-1 if it exists
   const ir1ProgressPercent = React.useMemo(() => {
     if (!ir1Progress) return 0;
-    const totalSteps = roadmapData.stages.reduce((acc, s) => acc + s.steps.length, 0);
-    const completedCount = Array.isArray(ir1Progress.completed_steps) ? ir1Progress.completed_steps.length : 0;
+    const totalSteps = roadmapData.stages.reduce(
+      (acc, s) => acc + s.steps.length,
+      0,
+    );
+    const completedCount = Array.isArray(ir1Progress.completed_steps)
+      ? ir1Progress.completed_steps.length
+      : 0;
     return Math.round((completedCount / totalSteps) * 100);
   }, [ir1Progress]);
 
@@ -1110,6 +1125,12 @@ export default function ExploreJourneys({
   const [isVisaWizardOpen, setIsVisaWizardOpen] = useState(false);
 
   const [selectedStationKey, setSelectedStationKey] = useState<string>("uscis");
+
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
 
   // Effect to reset selected station when journey changes
   React.useEffect(() => {
@@ -1156,11 +1177,8 @@ export default function ExploreJourneys({
               <Search className="w-5 h-5 text-primary" />
               Explore Filters
             </h3>
-            <div className="flex items-center gap-4">
-            </div>
+            <div className="flex items-center gap-4"></div>
           </div>
-
-
 
           <Dialog
             open={isCompareModalOpen}
@@ -1269,7 +1287,9 @@ export default function ExploreJourneys({
                         const journey = JOURNEYS.find((j) => j.id === id);
                         return (
                           <td key={id} className="py-4 px-4 text-slate-600">
-                            {(journey?.matchScore ?? 0) > 90 ? "Yes" : "Standard"}
+                            {(journey?.matchScore ?? 0) > 90
+                              ? "Yes"
+                              : "Standard"}
                           </td>
                         );
                       })}
@@ -1413,7 +1433,10 @@ export default function ExploreJourneys({
                 ].map((cat) => (
                   <button
                     key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      router.push(`?category=${cat}`, {scroll: false});
+                    }}
                     className={cn(
                       "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
                       selectedCategory === cat
@@ -1440,10 +1463,18 @@ export default function ExploreJourneys({
                       <TooltipContent className="max-w-xs p-4 bg-white border border-slate-200 shadow-xl">
                         <div className="space-y-3 text-sm">
                           <p>
-                             <span className="font-bold text-slate-900">• Consular Processing:</span> Apply abroad at a U.S. embassy. You&apos;ll attend an interview outside the U.S.
+                            <span className="font-bold text-slate-900">
+                              • Consular Processing:
+                            </span>{" "}
+                            Apply abroad at a U.S. embassy. You&apos;ll attend
+                            an interview outside the U.S.
                           </p>
                           <p>
-                             <span className="font-bold text-slate-900">• Adjustment of Status (AOS):</span> Apply for a green card while already in the U.S. No interview abroad required.
+                            <span className="font-bold text-slate-900">
+                              • Adjustment of Status (AOS):
+                            </span>{" "}
+                            Apply for a green card while already in the U.S. No
+                            interview abroad required.
                           </p>
                         </div>
                       </TooltipContent>
@@ -1504,8 +1535,10 @@ export default function ExploreJourneys({
                     onSelect={() => setHighlightedJourney(journey.id)}
                     onCompare={(e) => toggleCompare(journey.id, e)}
                     onWatchIntro={() => setVideoModalJourney(journey)}
-                    hasProgress={journey.id === 'ir1' && ir1HasProgress}
-                    progressPercent={journey.id === 'ir1' ? ir1ProgressPercent : undefined}
+                    hasProgress={journey.id === "ir1" && ir1HasProgress}
+                    progressPercent={
+                      journey.id === "ir1" ? ir1ProgressPercent : undefined
+                    }
                   />
                 ))}
               </div>
@@ -1528,8 +1561,10 @@ export default function ExploreJourneys({
                     onSelect={() => setHighlightedJourney(journey.id)}
                     onCompare={(e) => toggleCompare(journey.id, e)}
                     onWatchIntro={() => setVideoModalJourney(journey)}
-                    hasProgress={journey.id === 'ir1' && ir1HasProgress}
-                    progressPercent={journey.id === 'ir1' ? ir1ProgressPercent : undefined}
+                    hasProgress={journey.id === "ir1" && ir1HasProgress}
+                    progressPercent={
+                      journey.id === "ir1" ? ir1ProgressPercent : undefined
+                    }
                   />
                 ))}
               </div>
@@ -1755,8 +1790,8 @@ export default function ExploreJourneys({
                       </Button>
                     </Link>
                   ) : (
-                    <Button 
-                      disabled 
+                    <Button
+                      disabled
                       className="bg-slate-200 text-slate-500 cursor-not-allowed border-slate-300"
                     >
                       Coming Soon
@@ -1899,8 +1934,10 @@ function JourneyCard({
           {/* In Progress Badge with Percent */}
           {hasProgress && (
             <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded-full border border-teal-200 flex items-center gap-1">
-              <PlayCircle className="w-3 h-3" /> 
-              {progressPercent !== undefined ? `${progressPercent}% Complete` : 'In Progress'}
+              <PlayCircle className="w-3 h-3" />
+              {progressPercent !== undefined
+                ? `${progressPercent}% Complete`
+                : "In Progress"}
             </span>
           )}
         </div>
@@ -1979,7 +2016,9 @@ function JourneyCard({
               )}
             >
               {hasProgress ? (
-                <><PlayCircle className="w-4 h-4 mr-1" /> Resume Journey</>
+                <>
+                  <PlayCircle className="w-4 h-4 mr-1" /> Resume Journey
+                </>
               ) : (
                 "Start Journey"
               )}

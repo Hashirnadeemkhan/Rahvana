@@ -89,7 +89,7 @@ export default function PDFProcessingPage() {
           </div>
 
           {/* Content based on active tab */}
-          <div className="w-full max-w-6xl bg-white shadow-xl rounded-2xl p-6 md:p-8 min-h-[60vh]">
+          <div className="w-full max-w-6xl bg-white shadow-xl rounded-2xl p-6 md:p-8 md:min-h-[60vh]">
             {activeTab === "upload" && <PDFUpload />}
             {activeTab === "merge" && <PDFMergeAdvanced />}
             {activeTab === "compress" && <CompressPDF />}
