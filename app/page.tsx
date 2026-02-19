@@ -666,7 +666,7 @@ function HomePageContent() {
                             onClick={() => {}}
                             className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                           >
-                            Begin Your Journey
+                             Resume My Journey
                             <Icons.ArrowRight className="w-5 h-5" />
                           </HydrationSafeButton>
                         </Link>
