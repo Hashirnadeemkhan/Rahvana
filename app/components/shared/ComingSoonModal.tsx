@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 
 interface ComingSoonModalProps {
   open: boolean;
@@ -12,6 +13,8 @@ interface ComingSoonModalProps {
 export function ComingSoonModal({ open, onOpenChange }: ComingSoonModalProps) {
   const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
+
+  const { user } = useAuth();
 
   useEffect(() => {
     if (open) {
@@ -92,9 +95,17 @@ export function ComingSoonModal({ open, onOpenChange }: ComingSoonModalProps) {
                   Preparing something amazing
                 </span>
               </div>
+            </div>
 
-              <div className="mt-8 text-center">
-                <p className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed">
+            {!user ? (
+              <div
+                className={`transform transition-all duration-1000 delay-700 ${
+                  isVisible
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-8 opacity-0"
+                } mt-8`}
+              >
+                <p className="text-lg md:text-xl text-muted-foreground mb-6 leading-relaxed">
                   Be among the first to experience Rahvana&apos;s full journey
                   assistant! Sign up now to get early access and never miss an
                   update.
@@ -106,7 +117,27 @@ export function ComingSoonModal({ open, onOpenChange }: ComingSoonModalProps) {
                   Sign Up Now
                 </button>
               </div>
-            </div>
+            ) : (
+              <div
+                className={`transform transition-all duration-1000 delay-700 ${
+                  isVisible
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-8 opacity-0"
+                } mt-8`}
+              >
+                <p className="text-lg md:text-xl text-muted-foreground mb-6 leading-relaxed">
+                  You requested early access to this feature — and we heard you.
+                  Our team is actively working on it. As soon as it goes live,
+                  we&apos;ll notify you. Thanks for being part of the journey!
+                </p>
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="font-semibold text-white bg-primary hover:bg-primary/90 shadow-md px-6 py-4 rounded-lg transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

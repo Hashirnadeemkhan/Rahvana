@@ -8,6 +8,7 @@ import { useState } from "react";
 // import RoadmapModal from "@/app/components/IR-pathway-roadmap/RoadmapModal";
 import JourneyRouteMap from "./components/JourneyRouteMap";
 import ExploreJourneys from "./components/ExploreJourneys";
+import { Suspense } from "react";
 
 // ✅ Props type for item rows
 // type IRItem = {
@@ -60,10 +61,12 @@ export default function IRCategorySection() {
         setSelectedDestination={setSelectedDestination}
       />
 
-      <ExploreJourneys
-        origin={selectedOrigin}
-        destination={selectedDestination}
-      />
+      <Suspense fallback={<div className="h-64 w-full bg-gray-100 animate-pulse rounded-lg" />}>
+        <ExploreJourneys
+          origin={selectedOrigin}
+          destination={selectedDestination}
+        />
+      </Suspense>
 
       {/* <RoadmapModal
         open={isRoadmapOpen}

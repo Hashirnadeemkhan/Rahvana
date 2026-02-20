@@ -666,17 +666,19 @@ function HomePageContent() {
                             onClick={() => {}}
                             className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                           >
-                             Resume My Journey
+                            Resume My Journey
                             <Icons.ArrowRight className="w-5 h-5" />
                           </HydrationSafeButton>
                         </Link>
                       )}
                       <Link href={"/visa-category/ir-category"}>
                         <HydrationSafeButton
-                          onClick={() => {
-                          
-                          }} 
-                          className="inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-border bg-background hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
+                          onClick={() => {}} 
+                          className={
+                            user 
+                              ? "inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-border bg-background hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
+                              : "inline-flex items-center px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                          }
                         >
                           Explore Journeys
                         </HydrationSafeButton>
@@ -845,31 +847,37 @@ function HomePageContent() {
                       icon: Icons.Activity,
                       title: "CasePulse AI",
                       desc: "Get AI-powered insights into your case status, processing times, and what to expect next.",
+                      url: "/visa-case-strength-checker"
                     },
                     {
                       icon: Icons.ShieldAlert,
                       title: "221(g) Rescue Plan",
                       desc: "Navigate administrative processing with step-by-step guidance and status tracking.",
+                      url: "/221g-action-plan"
                     },
                     {
                       icon: Icons.Compass,
                       title: "VisaPath Finder",
                       desc: "Answer a few questions and discover the best visa options for your unique situation.",
+                      url: "/visa-eligibility"
                     },
                     {
                       icon: Icons.Calculator,
                       title: "SponsorReady (I-864)",
                       desc: "Calculate financial requirements and determine if you meet the sponsorship threshold.",
+                      url: "/affidavit-support-calculator"
                     },
                     {
                       icon: Icons.FileCode,
                       title: "PDF PowerKit",
                       desc: "Merge, split, and organize your immigration documents with ease.",
+                      url: "/pdf-processing"
                     },
                     {
                       icon: Icons.Edit3,
                       title: "FormForge Autofill",
                       desc: "Auto-complete immigration forms with your saved profile data.",
+                      url: "/visa-forms"
                     },
                   ].map((tool, i) => (
                     <motion.div
@@ -878,8 +886,8 @@ function HomePageContent() {
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                       viewport={{ once: true }}
-                      onClick={() => setShowComingSoon(true)}
-                      className="group relative bg-muted/30 rounded-2xl p-6 md:p-8 border border-border transition-all hover:border-rahvana-primary/30 hover:shadow-xl cursor-pointer overflow-hidden"
+                      onClick={() => router.push(tool.url)}
+                      className="group relative bg-muted/30 rounded-2xl p-8 border border-border transition-all hover:border-rahvana-primary/30 hover:shadow-xl cursor-pointer overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-linear-to-tr from-rahvana-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       <div className="w-14 h-14 rounded-xl bg-linear-to-br from-rahvana-primary to-rahvana-primary-light flex items-center justify-center text-white mb-6 transform group-hover:scale-110 transition-transform">
@@ -892,7 +900,7 @@ function HomePageContent() {
                         {tool.desc}
                       </p>
                       <div className="flex items-center gap-2 text-sm font-bold text-rahvana-primary group-hover:gap-3 transition-all">
-                        Coming Soon <Icons.ArrowRight className="w-4 h-4" />
+                        Ready to Use <Icons.ArrowRight className="w-4 h-4" />
                       </div>
                     </motion.div>
                   ))}

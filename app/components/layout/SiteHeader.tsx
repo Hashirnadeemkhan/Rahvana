@@ -9,23 +9,24 @@ import {
   User as UserIcon,
   LogOut,
   Shield,
-  Layout,
-  Folder,
-  HelpCircle,
-  Lock,
-  Settings,
-  Tag,
-  Briefcase,
-  CreditCard,
-  Mail,
   FileText,
   Zap,
+  Briefcase,
+  Folder,
+  Layout,
+  Settings,
+  HelpCircle,
+  Tag as TagIcon,
+  Lock as LockIcon,
+  CreditCard,
+  Mail,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
-import { UserProfile } from "@/app/context/AuthContext";
+import { useAuth, UserProfile } from "@/app/context/AuthContext";
 import { NAV_DATA } from "./navigationData";
+import { profile } from "console";
 // import { useTheme } from "next-themes";
 
 interface HeaderProps {
@@ -145,6 +146,8 @@ export function SiteHeader({
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const { profile } = useAuth();
+
   const handleMenuEnter = (menu: string) => {
     if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
     setActiveMenu(menu);
@@ -165,8 +168,11 @@ export function SiteHeader({
       // Fallback: Use router navigation if no handler is provided (e.g., in layout.tsx)
       const routes: Record<string, string> = {
         home: "/",
-        journeys: "/?section=journeys",
-        "ir1-journey": "/?section=ir1-journey",
+        journeys: "/visa-category/ir-category",
+        "my-journeys": "/my-journeys",
+        "ir1-journey": "/visa-category/ir-category/ir1-journey",
+        "ir5-journey": "/visa-category/ir-category/ir5-journey",
+        "k1-journey": "/visa-category/ir-category/k1-journey",
         services: "/services",
         tools: "/tools",
         pricing: "/pricing",
@@ -482,8 +488,7 @@ export function SiteHeader({
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <h3 className="font-bold text-foreground">
-                        {user?.user_metadata?.full_name ||
-                          user?.user_metadata?.name ||
+                        {profile?.full_name ||
                           "Valued User"}
                       </h3>
                       <p className="text-sm text-muted-foreground">
@@ -499,6 +504,13 @@ export function SiteHeader({
                       >
                         <Layout className="w-4 h-4 text-primary" />
                         My Dashboard
+                      </button>
+                      <button
+                        onClick={() => handleNav("my-journeys")}
+                        className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
+                      >
+                        <Briefcase className="w-4 h-4 text-primary" />
+                        My Journeys
                       </button>
                       <button
                         onClick={() => handleNav("profile")}
@@ -518,14 +530,14 @@ export function SiteHeader({
                         onClick={() => handleNav("services")}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <Tag className="w-4 h-4 text-primary" />
+                        <TagIcon className="w-4 h-4 text-primary" />
                         My Services
                       </button>
                       <button
                         onClick={() => {}} // Placeholder
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-muted-foreground hover:bg-muted hover:text-primary transition-colors text-sm font-medium"
                       >
-                        <Lock className="w-4 h-4 text-primary" />
+                        <LockIcon className="w-4 h-4 text-primary" />
                         Portal Locker
                       </button>
 
@@ -822,6 +834,17 @@ export function SiteHeader({
                     >
                       <Layout className="w-5 h-5 text-primary" />
                       <span className="font-bold">My Dashboard</span>
+                    </HydrationSafeButton>
+                    <HydrationSafeButton
+                      onClick={() => handleNav("my-journeys")}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                        isActive("my-journeys", "/my-journeys")
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Briefcase className="w-5 h-5 text-primary" />
+                      <span className="font-bold">My Journeys</span>
                     </HydrationSafeButton>
                     <HydrationSafeButton
                       onClick={() => handleNav("profile")}
