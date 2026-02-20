@@ -2,43 +2,58 @@
 
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useToast } from "@/app/components/shared/ToastProvider";
 
 interface FeatureAnnouncementModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPublish?: (data: {
-    title: string;
-    description: string;
-    featureUrl: string;
-  }) => void;
 }
 
 export function FeatureAnnouncementModal({
   open,
   onOpenChange,
-  onPublish,
 }: FeatureAnnouncementModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [featureUrl, setFeatureUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const { showToast } = useToast();
+
   const handleSubmit = async () => {
-    if (!title || !description) return;
-
-    setLoading(true);
-
-    const payload = { title, description, featureUrl };
-
-    if (onPublish) {
-      await onPublish(payload);
+    if (!title || !description || !featureUrl) {
+      showToast("Please fill in all fields", "error");
+      return;
     }
-
-    setLoading(false);
-    setTitle("");
-    setDescription("");
-    setFeatureUrl("");
-    onOpenChange(false);
+  
+    setLoading(true);
+  
+    try {
+      const response = await fetch("/api/admin/announce-feature", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, description, featureUrl }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        showToast(data.message, "success");
+      } else {
+        showToast("Failed to notify users", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to notify users", "error");
+    } finally {
+      setLoading(false);
+      setTitle("");
+      setDescription("");
+      setFeatureUrl("");
+      onOpenChange(false);
+    }
   };
 
   return (
@@ -102,7 +117,7 @@ export function FeatureAnnouncementModal({
                 </label>
                 <input
                   type="url"
-                  placeholder="https://rahvana.com/new-feature"
+                  placeholder="https://www.rahvana.com/new-feature"
                   value={featureUrl}
                   onChange={(e) => setFeatureUrl(e.target.value)}
                   className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/40 transition"

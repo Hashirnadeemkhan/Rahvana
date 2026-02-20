@@ -28,7 +28,9 @@ export default function Footer() {
   if (
     pathname?.startsWith("/admin") ||
     pathname === "/login" ||
-    pathname === "/signup"
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password"
   ) {
     // Return minimal footer for admin or null for auth
     if (pathname?.startsWith("/admin")) {

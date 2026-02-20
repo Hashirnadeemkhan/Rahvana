@@ -63,12 +63,12 @@ async function checkAdminRole(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // const { isAdmin, error: authError } = await checkAdminRole(request);
-    // if (!isAdmin)
-    //   return NextResponse.json(
-    //     { error: authError || "Admin access required" },
-    //     { status: 403 },
-    //   );
+    const { isAdmin, error: authError } = await checkAdminRole(request);
+    if (!isAdmin)
+      return NextResponse.json(
+        { error: authError || "Admin access required" },
+        { status: 403 },
+      );
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -97,14 +97,14 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
 
-    const urlRegex = /^https:\/\/rahvana\.com(\/[^\s]*)?$/;
+    const urlRegex = /^https:\/\/www\.rahvana\.com(\/[^\s]*)?$/;
     if (!urlRegex.test(featureUrl))
       return NextResponse.json(
         { error: "Invalid feature URL. Must start with https://rahvana.com" },
         { status: 400 },
       );
 
-    // 1️⃣ Create feature announcement
+    // 1. Create feature announcement
     const { data: announcement, error: announcementError } = await supabase
       .from("feature_announcements")
       .insert([{ title, description, feature_url: featureUrl }])
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2️⃣ Fetch already notified user IDs
+    // 2. Fetch already notified user IDs
     const { data: notifiedUsers } = await supabase
       .from("user_notifications")
       .select("user_id")
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     const notifiedIds = (notifiedUsers || []).map((u) => u.user_id);
 
-    // 3️⃣ Fetch users who haven't been notified yet
+    // 3. Fetch users who haven't been notified yet
     const { data: allUsers, error: usersError } = await supabase
       .from("profiles")
       .select("id,email");
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
 
     console.log(`Users to notify: ${usersToNotify.length}`);
 
-    // 4️⃣ Send emails in batches
+    // 4. Send emails in batches
     const RATE_LIMIT = 2; // 2 emails per second
     const DELAY = 1000 / RATE_LIMIT; // milliseconds between requests
 
