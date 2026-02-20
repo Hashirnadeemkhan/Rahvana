@@ -1,20 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { 
   listUserJourneys, 
   deleteJourneyProgress, 
+  deleteAllUserJourneys,
   JourneyProgressRecord 
 } from "@/lib/journey/journeyProgressService";
 import { 
   Briefcase, 
-  ExternalLink, 
   Trash2, 
   Loader2, 
   ChevronRight, 
-  AlertCircle,
   Plus,
   ArrowRight,
   Clock,
@@ -51,30 +50,39 @@ export default function MyJourneysPage() {
   const [journeys, setJourneys] = useState<JourneyProgressRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);
+  const hasFetchedRef = useRef(false);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login");
-      return;
-    }
-
-    if (user?.id) {
-      fetchJourneys();
-    }
-  }, [user, authLoading, router]);
-
-  const fetchJourneys = async () => {
+  const fetchJourneys = useCallback(async () => {
     if (!user?.id) return;
+    
+    // Use the functional state check to avoid dependency on 'journeys'
     setLoading(true);
+    
     try {
       const data = await listUserJourneys(user.id);
       setJourneys(data);
+      setHasFetched(true);
     } catch (error) {
       console.error("Error fetching journeys:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]); // Only depend on user.id
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    if (user?.id && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      fetchJourneys();
+    }
+  }, [user?.id, authLoading, router, fetchJourneys]);
 
   const handleDelete = async (journeyId: string) => {
     if (!user?.id) return;
@@ -84,7 +92,7 @@ export default function MyJourneysPage() {
     try {
       const success = await deleteJourneyProgress(user.id, journeyId);
       if (success) {
-        setJourneys((prev) => prev.filter((j) => j.journey_id !== journeyId));
+        setJourneys((prev: JourneyProgressRecord[]) => prev.filter((j) => j.journey_id !== journeyId));
       }
     } catch (error) {
       console.error("Error deleting journey:", error);
@@ -97,24 +105,25 @@ export default function MyJourneysPage() {
     if (!user?.id || journeys.length === 0) return;
     if (!confirm(`Are you sure you want to delete ALL (${journeys.length}) journeys? This cannot be undone.`)) return;
 
-    setLoading(true);
+    setDeletingId('all');
     try {
-      for (const j of journeys) {
-        await deleteJourneyProgress(user.id, j.journey_id);
+      const success = await deleteAllUserJourneys(user.id);
+      if (success) {
+        setJourneys([]);
       }
-      setJourneys([]);
     } catch (error) {
       console.error("Error deleting all journeys:", error);
     } finally {
-      setLoading(false);
+      setDeletingId(null);
     }
   };
 
-  if (authLoading || (loading && journeys.length === 0)) {
+  // Auth loading state is still blocking to prevent layout shift for unauthenticated users
+  if (authLoading) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading your journeys...</p>
+        <p className="text-muted-foreground font-medium animate-pulse">Initializing secure session...</p>
       </div>
     );
   }
@@ -143,16 +152,23 @@ export default function MyJourneysPage() {
               </p>
             </div>
             
-            {journeys.length > 0 && (
+            {(journeys.length > 0 || loading) && (
               <div className="flex items-center gap-3">
-                <Button 
-                  variant="outline" 
-                  className="text-red-500 border-red-100 hover:bg-red-50"
-                  onClick={handleDeleteAll}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete All
-                </Button>
+                {journeys.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    className="text-red-500 border-red-100 hover:bg-red-50"
+                    onClick={handleDeleteAll}
+                    disabled={deletingId === 'all'}
+                  >
+                    {deletingId === 'all' ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4 mr-2" />
+                    )}
+                    Delete All
+                  </Button>
+                )}
                 <Button 
                   onClick={() => router.push("/visa-category/ir-category")}
                   className="bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20"
@@ -168,123 +184,155 @@ export default function MyJourneysPage() {
 
       <div className="container mx-auto px-6 mt-12">
         <div className="max-w-5xl mx-auto">
-          <AnimatePresence mode="wait">
-            {journeys.length === 0 ? (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm"
-              >
-                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Briefcase className="w-10 h-10 text-primary" />
-                </div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-3">No active journeys found</h2>
-                <p className="text-slate-500 max-w-md mx-auto mb-8">
-                  It looks like you haven&apos;t started any immigration journeys yet. 
-                  Choose a visa category to begin your step-by-step guided process.
-                </p>
-                <Button 
-                  size="lg"
-                  onClick={() => router.push("/visa-category/ir-category")}
-                  className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-6 text-lg font-bold shadow-lg shadow-primary/20"
+          {loading && journeys.length === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i} className="overflow-hidden border-slate-200 shadow-sm animate-pulse">
+                  <CardContent className="p-8">
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-100 flex-shrink-0" />
+                      <div className="flex-1 space-y-3">
+                        <div className="h-6 bg-slate-100 rounded w-2/3" />
+                        <div className="h-4 bg-slate-100 rounded w-full" />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div className="h-4 bg-slate-100 rounded w-1/3" />
+                        <div className="h-4 bg-slate-100 rounded w-8" />
+                      </div>
+                      <div className="h-2.5 bg-slate-100 rounded-full w-full" />
+                    </div>
+                    <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+                      <div className="flex -space-x-2">
+                        {[1, 2, 3].map(j => <div key={j} className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white" />)}
+                      </div>
+                      <div className="w-32 h-10 bg-slate-100 rounded-full" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {journeys.length === 0 ? (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm"
                 >
-                  Explore Visa Categories <ChevronRight className="ml-2 w-5 h-5" />
-                </Button>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {journeys.map((j, idx) => {
-                  const progress = Math.round((j.completed_steps.length / 42) * 100);
-                  const journeyName = JOURNEY_NAMES[j.journey_id] || j.journey_id.toUpperCase();
-                  const description = JOURNEY_DESCRIPTIONS[j.journey_id] || "Active immigration track.";
-                  const route = JOURNEY_ROUTES[j.journey_id] || "/";
+                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Briefcase className="w-10 h-10 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-3">No active journeys found</h2>
+                  <p className="text-slate-500 max-w-md mx-auto mb-8">
+                    It looks like you haven&apos;t started any immigration journeys yet. 
+                    Choose a visa category to begin your step-by-step guided process.
+                  </p>
+                  <Button 
+                    size="lg"
+                    onClick={() => router.push("/visa-category/ir-category")}
+                    className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-6 text-lg font-bold shadow-lg shadow-primary/20"
+                  >
+                    Explore Visa Categories <ChevronRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </motion.div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {journeys.map((j) => {
+                    const progress = Math.round((j.completed_steps.length / 42) * 100);
+                    const journeyName = JOURNEY_NAMES[j.journey_id] || j.journey_id.toUpperCase();
+                    const description = JOURNEY_DESCRIPTIONS[j.journey_id] || "Active immigration track.";
+                    const route = JOURNEY_ROUTES[j.journey_id] || "/";
 
-                  return (
-                    <motion.div
-                      key={j.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="group"
-                    >
-                      <Card className="overflow-hidden border-slate-200 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 cursor-pointer relative"
-                        onClick={() => router.push(route)}
+                    return (
+                      <motion.div
+                        key={j.id}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2 }}
+                        className="group"
                       >
-                        <div className="absolute top-0 right-0 p-4">
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); handleDelete(j.journey_id); }}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                            title="Delete Journey"
-                            disabled={deletingId === j.journey_id}
-                          >
-                            {deletingId === j.journey_id ? (
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-5 h-5" />
-                            )}
-                          </button>
-                        </div>
-
-                        <CardContent className="p-8">
-                          <div className="flex items-start gap-4 mb-6">
-                            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                              <Briefcase className="w-7 h-7 text-primary" />
-                            </div>
-                            <div className="min-w-0">
-                              <h3 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors truncate pr-8">
-                                {journeyName}
-                              </h3>
-                              <p className="text-slate-500 text-sm line-clamp-1 italic mt-1 font-medium">
-                                {description}
-                              </p>
-                            </div>
+                        <Card className="overflow-hidden border-slate-200 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 cursor-pointer relative"
+                          onClick={() => router.push(route)}
+                        >
+                          <div className="absolute top-0 right-0 p-4">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleDelete(j.journey_id); }}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                              title="Delete Journey"
+                              disabled={deletingId === j.journey_id}
+                            >
+                              {deletingId === j.journey_id ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-5 h-5" />
+                              )}
+                            </button>
                           </div>
 
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between text-sm font-bold">
-                              <span className="text-slate-600 uppercase tracking-tighter flex items-center gap-1.5">
-                                <Clock className="w-3.5 h-3.5" /> 
-                                Last activity: {new Date(j.last_updated_at).toLocaleDateString()}
-                              </span>
-                              <span className="text-primary">{progress}%</span>
-                            </div>
-                            
-                            <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
-                              <motion.div 
-                                initial={{ width: 0 }}
-                                animate={{ width: `${progress}%` }}
-                                transition={{ duration: 1, ease: "easeOut" }}
-                                className="h-full bg-gradient-to-r from-primary via-primary to-rahvana-primary rounded-full relative"
-                              >
-                                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:40px_40px] animate-[slide_1s_linear_infinite]" />
-                              </motion.div>
-                            </div>
-                          </div>
-
-                          <div className="mt-8 flex items-center justify-between pt-6 border-t border-slate-100 gap-4">
-                            <div className="flex -space-x-2">
-                              {[1, 2, 3].map((i) => (
-                                <div key={i} className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">
-                                  {i}
-                                </div>
-                              ))}
-                              <div className="w-8 h-8 rounded-full bg-primary/5 border-2 border-white flex items-center justify-center text-[10px] font-bold text-primary">
-                                +{j.completed_steps.length}
+                          <CardContent className="p-8">
+                            <div className="flex items-start gap-4 mb-6">
+                              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <Briefcase className="w-7 h-7 text-primary" />
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors truncate pr-8">
+                                  {journeyName}
+                                </h3>
+                                <p className="text-slate-500 text-sm line-clamp-1 italic mt-1 font-medium">
+                                  {description}
+                                </p>
                               </div>
                             </div>
-                            
-                            <Button className="rounded-full bg-primary text-white shadow-lg shadow-primary/20 transition-all font-bold px-6 border-transparent hover:bg-primary/90">
-                              Resume Journey <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </AnimatePresence>
+
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between text-sm font-bold">
+                                <span className="text-slate-600 uppercase tracking-tighter flex items-center gap-1.5">
+                                  <Clock className="w-3.5 h-3.5" /> 
+                                  Last activity: {new Date(j.last_updated_at).toLocaleDateString()}
+                                </span>
+                                <span className="text-primary">{progress}%</span>
+                              </div>
+                              
+                              <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
+                                <motion.div 
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${progress}%` }}
+                                  transition={{ duration: 0.5, ease: "easeOut" }}
+                                  className="h-full bg-gradient-to-r from-primary via-primary to-rahvana-primary rounded-full relative"
+                                >
+                                  <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:40px_40px] animate-[slide_1s_linear_infinite]" />
+                                </motion.div>
+                              </div>
+                            </div>
+
+                            <div className="mt-8 flex items-center justify-between pt-6 border-t border-slate-100 gap-4">
+                              <div className="flex -space-x-2">
+                                {[1, 2, 3].map((i) => (
+                                  <div key={i} className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">
+                                    {i}
+                                  </div>
+                                ))}
+                                <div className="w-8 h-8 rounded-full bg-primary/5 border-2 border-white flex items-center justify-center text-[10px] font-bold text-primary">
+                                  +{j.completed_steps.length}
+                                </div>
+                              </div>
+                              
+                              <Button className="rounded-full bg-primary text-white shadow-lg shadow-primary/20 transition-all font-bold px-6 border-transparent hover:bg-primary/90">
+                                Resume Journey <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </AnimatePresence>
+          )}
           
 
         </div>
