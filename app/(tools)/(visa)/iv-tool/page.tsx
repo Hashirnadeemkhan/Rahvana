@@ -135,6 +135,21 @@ export default function Home() {
     submitSearch(city);
   };
 
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (results && resultsRef.current) {
+      const offset = 100; // Account for sticky header
+      const elementPosition = resultsRef.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, [results]);
+
   const handleSelectPost = (post: SchedulingResult) => {
     setResults([post]);
     setCountryOptions([]);
@@ -349,7 +364,7 @@ export default function Home() {
 
         {/* Results Display */}
         {results && results.length > 0 && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <CheckCircle2 className="h-6 w-6 text-green-600" />
               <h3 className="text-lg font-semibold text-gray-800">Scheduling Information</h3>

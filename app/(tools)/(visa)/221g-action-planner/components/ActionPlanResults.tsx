@@ -22,7 +22,8 @@ import {
   Cross2Icon,
   HamburgerMenuIcon,
 } from "@radix-ui/react-icons";
-import { AlertTriangle, FileCheck, Calendar } from "lucide-react";
+import { AlertTriangle, FileCheck, Calendar, PartyPopper } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 import { ActionPlan } from "../utils/actionPlanGenerator";
 import { ClassificationResult } from "../utils/classifier";
@@ -36,6 +37,7 @@ interface ActionPlanResultsProps {
   selectedItems: import("../types/221g").FormSelections | null;
   onBackToForm: () => void;
   onSaveToProfile: () => Promise<void>;
+  planGeneratedAt?: number;
 }
 
 interface UploadedFile {
@@ -50,7 +52,8 @@ export default function ActionPlanResults({
   formData,
   selectedItems,
   onBackToForm,
-  onSaveToProfile
+  onSaveToProfile,
+  planGeneratedAt,
 }: ActionPlanResultsProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
@@ -90,6 +93,21 @@ export default function ActionPlanResults({
     if (savedProgress) {
       try {
         const progressState = JSON.parse(savedProgress);
+
+        if (planGeneratedAt) {
+          if (
+            !progressState.planGeneratedAt ||
+            progressState.planGeneratedAt !== planGeneratedAt
+          ) {
+            console.log(
+              "New plan generated or legacy state detected, resetting progress",
+            );
+            // Optional: clear invalid localStorage to avoid confusion?
+            // localStorage.removeItem("221gActionPlanProgress");
+            return;
+          }
+        }
+
         setCurrentStepIndex(progressState.currentStepIndex || 0);
         setCompletedSteps(progressState.completedSteps || []);
         setUploadedDocs(progressState.uploadedDocs || {});
@@ -102,7 +120,7 @@ export default function ActionPlanResults({
         console.error("Error restoring progress:", error);
       }
     }
-  }, []);
+  }, [planGeneratedAt]);
 
   if (!actionPlan || !classification) {
     return (
@@ -149,6 +167,7 @@ export default function ActionPlanResults({
       uploadedDocs,
       docQualityChecks,
       coverLetterData,
+      planGeneratedAt,
     };
 
     localStorage.setItem(
@@ -244,14 +263,11 @@ export default function ActionPlanResults({
   const isStepAccessible = (index: number) =>
     index === 0 || completedSteps.includes(index - 1);
 
-  return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <div
-        className={`${sidebarCollapsed ? "w-20" : "w-80"} bg-card border-r border-border flex flex-col transition-all duration-300 shadow-lg`}
-      >
-        {/* Sidebar Header */}
-        <div className="p-6 border-b border-border">
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <>
+      {/* Sidebar Header */}
+      <div className="p-6 border-b border-border">
+        {!isMobile && (
           <Button
             variant="ghost"
             size="sm"
@@ -261,117 +277,142 @@ export default function ActionPlanResults({
             <HamburgerMenuIcon className="w-4 h-4 mr-2" />
             {!sidebarCollapsed && "Collapse"}
           </Button>
+        )}
 
-          {!sidebarCollapsed && (
-            <>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Journey Progress
-                </h2>
-                <span className="text-sm font-bold text-primary">
-                  {progressPercentage}%
-                </span>
-              </div>
-              <Progress value={progressPercentage} className="h-2 mb-2" />
-              <p className="text-xs text-muted-foreground">
-                {completedSteps.length} of {totalSteps} steps completed
-              </p>
-            </>
+        {(!sidebarCollapsed || isMobile) && (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Journey Progress
+              </h2>
+              <span className="text-sm font-bold text-primary">
+                {progressPercentage}%
+              </span>
+            </div>
+            <Progress value={progressPercentage} className="h-2 mb-2" />
+            <p className="text-xs text-muted-foreground">
+              {completedSteps.length} of {totalSteps} steps completed
+            </p>
+          </>
+        )}
+      </div>
+
+      {/* Steps List */}
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-2">
+          {(!sidebarCollapsed || isMobile) && (
+            <div className="mb-4">
+              <Badge variant="outline" className="w-full justify-center py-2">
+                {classification?.description}
+              </Badge>
+            </div>
           )}
-        </div>
 
-        {/* Steps List */}
-        <ScrollArea className="flex-1">
-          <div className="p-4 space-y-2">
-            {!sidebarCollapsed && (
-              <div className="mb-4">
-                <Badge variant="outline" className="w-full justify-center py-2">
-                  {classification.description}
-                </Badge>
-              </div>
-            )}
+          {actionPlan?.stages.map((stage, index) => {
+            const isCompleted = isStepCompleted(index);
+            const isCurrent = index === currentStepIndex;
+            const isAccessible = isStepAccessible(index);
 
-            {actionPlan.stages.map((stage, index) => {
-              const isCompleted = isStepCompleted(index);
-              const isCurrent = index === currentStepIndex;
-              const isAccessible = isStepAccessible(index);
-
-              return (
-                <button
-                  key={index}
-                  onClick={() =>
-                    (isAccessible || isCompleted) && setCurrentStepIndex(index)
-                  }
-                  disabled={!isAccessible && !isCompleted}
-                  className={`w-full text-left p-3 rounded-lg transition-all ${
-                    isCurrent
-                      ? "bg-primary/10 border-l-4 border-primary shadow-sm"
-                      : isCompleted
-                        ? "bg-green-500/10 border-l-4 border-green-500"
-                        : "hover:bg-muted border-l-4 border-transparent"
-                  } ${!isAccessible && !isCompleted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                >
-                  {!sidebarCollapsed && (
-                    <div className="flex items-start space-x-3">
-                      <div
-                        className={`mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-                          isCompleted
-                            ? "bg-green-500"
-                            : isCurrent
-                              ? "bg-primary"
-                              : "bg-muted"
+            return (
+              <button
+                key={index}
+                onClick={() =>
+                  (isAccessible || isCompleted) && setCurrentStepIndex(index)
+                }
+                disabled={!isAccessible && !isCompleted}
+                className={`w-full text-left p-3 rounded-lg transition-all ${
+                  isCurrent
+                    ? "bg-primary/10 border-l-4 border-primary shadow-sm"
+                    : isCompleted
+                      ? "bg-green-500/10 border-l-4 border-green-500"
+                      : "hover:bg-muted border-l-4 border-transparent"
+                } ${!isAccessible && !isCompleted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                {(!sidebarCollapsed || isMobile) && (
+                  <div className="flex items-start space-x-3">
+                    <div
+                      className={`mt-0.5 shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                        isCompleted
+                          ? "bg-green-500"
+                          : isCurrent
+                            ? "bg-primary"
+                            : "bg-muted"
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <CheckIcon className="w-4 h-4 text-white" />
+                      ) : (
+                        <span className="text-xs font-semibold text-white">
+                          {index + 1}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p
+                        className={`text-sm font-medium ${
+                          isCurrent
+                            ? "text-primary"
+                            : isCompleted
+                              ? "text-green-600"
+                              : "text-muted-foreground"
                         }`}
                       >
-                        {isCompleted ? (
-                          <CheckIcon className="w-4 h-4 text-white" />
-                        ) : (
-                          <span className="text-xs font-semibold text-white">
-                            {index + 1}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p
-                          className={`text-sm font-medium ${
-                            isCurrent
-                              ? "text-primary"
-                              : isCompleted
-                                ? "text-green-600"
-                                : "text-muted-foreground"
-                          }`}
-                        >
-                          {stage.title}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {stage.timeframe}
-                        </p>
-                      </div>
+                        {stage.title}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {stage.timeframe}
+                      </p>
                     </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </ScrollArea>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </ScrollArea>
 
-        {/* Back Button */}
-        {!sidebarCollapsed && (
-          <div className="p-4 border-t border-border">
-            <Button
-              variant="outline"
-              onClick={handleBackToForm}
-              className="w-full"
-            >
-              <ArrowLeftIcon className="w-4 h-4 mr-2" />
-              Back to Form
-            </Button>
-          </div>
-        )}
+      {/* Back Button */}
+      {(!sidebarCollapsed || isMobile) && (
+        <div className="p-4 border-t border-border">
+          <Button
+            variant="outline"
+            onClick={handleBackToForm}
+            className="w-full"
+          >
+            <ArrowLeftIcon className="w-4 h-4 mr-2" />
+            Back to Form
+          </Button>
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col md:flex-row bg-background">
+      {/* Desktop Sidebar */}
+      <div
+        className={`${sidebarCollapsed ? "w-20" : "w-80"} hidden md:flex bg-card border-r border-border flex-col transition-all duration-300 shadow-lg sticky top-0 h-screen`}
+      >
+        <SidebarContent />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto p-8">
+        <div className="md:hidden p-4 border-b flex items-center justify-between bg-card text-card-foreground">
+          <span className="font-semibold">Action Plan</span>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <HamburgerMenuIcon className="w-4 h-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 flex flex-col w-80">
+              <SidebarContent isMobile={true} />
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        <div className="max-w-6xl mx-auto p-4 md:p-8">
           {!allStepsCompleted ? (
             <>
               {/* Step Header */}
@@ -531,8 +572,9 @@ export default function ActionPlanResults({
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
                   <CheckCircledIcon className="w-16 h-16 text-green-600" />
                 </div>
-                <h1 className="text-5xl font-bold text-gray-900 mb-4">
-                  Congratulations! 🎉
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
+                  Congratulations!{" "}
+                  <PartyPopper className="w-12 h-12 text-yellow-500" />
                 </h1>
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                   You&apos;ve completed all preparation steps. Now let&apos;s
@@ -640,7 +682,7 @@ export default function ActionPlanResults({
               </Card>
 
               {/* Download Actions */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center mb-8">
                 <Button
                   onClick={handleDownloadPacket}
                   size="lg"
@@ -694,8 +736,8 @@ export default function ActionPlanResults({
                   <FileTextIcon className="w-5 h-5 mr-2" />
                   Preview Cover Letter
                 </Button>
-                
-                 <Button
+
+                <Button
                   variant="secondary"
                   size="lg"
                   className="text-lg px-8 bg-blue-100 hover:bg-blue-200 text-blue-800"
@@ -708,7 +750,9 @@ export default function ActionPlanResults({
                     setSaving(false);
                   }}
                 >
-                   {saving ? "Saving..." : saveMessage || "Save Results to Profile"}
+                  {saving
+                    ? "Saving..."
+                    : saveMessage || "Save Results to Profile"}
                 </Button>
               </div>
 

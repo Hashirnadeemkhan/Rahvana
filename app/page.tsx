@@ -666,17 +666,19 @@ function HomePageContent() {
                             onClick={() => {}}
                             className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                           >
-                             Resume My Journey
+                            Resume My Journey
                             <Icons.ArrowRight className="w-5 h-5" />
                           </HydrationSafeButton>
                         </Link>
                       )}
                       <Link href={"/visa-category/ir-category"}>
                         <HydrationSafeButton
-                          onClick={() => {
-                          
-                          }} 
-                          className="inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-border bg-background hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
+                          onClick={() => {}} 
+                          className={
+                            user 
+                              ? "inline-flex items-center px-8 py-4 text-base font-semibold text-rahvana-primary rounded-lg border border-border bg-background hover:bg-rahvana-primary-pale hover:border-rahvana-primary transition-all"
+                              : "inline-flex items-center px-8 py-4 text-base font-semibold text-white rounded-lg bg-linear-to-r from-rahvana-primary to-rahvana-primary-light shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                          }
                         >
                           Explore Journeys
                         </HydrationSafeButton>

@@ -102,7 +102,7 @@ function AdminLoginPageContent() {
 
   return (
     <>
-      <Card className="max-w-lg mt-20 mx-auto p-6 bg-card shadow-lg border-border rounded-2xl">
+      <Card className="max-w-lg mt-20 mx-3 md:mx-auto p-6 bg-card shadow-lg border-border rounded-2xl">
         <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
         {mfaRequired ? (
           <form onSubmit={handleMfaSubmit} className="space-y-5">

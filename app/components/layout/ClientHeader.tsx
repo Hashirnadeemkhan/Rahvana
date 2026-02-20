@@ -17,7 +17,9 @@ export function ClientHeader() {
     pathname.startsWith("/admin") || 
     pathname === "/admin-login" ||
     pathname === "/login" ||
-    pathname === "/signup";
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
 
   if (isExcludedPage) {
     return null;

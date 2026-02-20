@@ -44,6 +44,41 @@ export async function loadJourneyProgress(
 }
 
 /**
+ * List all journey progress records for a user with minimal fields for performance.
+ */
+export async function listUserJourneys(userId: string): Promise<JourneyProgressRecord[]> {
+  const { data, error } = await supabase
+    .from('user_journey_progress')
+    .select('id, journey_id, completed_steps, last_updated_at')
+    .eq('user_id', userId)
+    .order('last_updated_at', { ascending: false });
+
+  if (error) {
+    console.error('[Journey] Failed to list journeys:', error.message);
+    return [];
+  }
+
+  return data as JourneyProgressRecord[];
+}
+
+/**
+ * Delete all journey progress for a specific user.
+ */
+export async function deleteAllUserJourneys(userId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('user_journey_progress')
+    .delete()
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('[Journey] Failed to delete all journeys:', error.message);
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Save (upsert) journey progress to Supabase.
  * Uses ON CONFLICT (user_id, journey_id) to update existing record.
  */
