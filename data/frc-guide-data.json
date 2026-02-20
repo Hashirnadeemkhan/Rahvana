@@ -1,7 +1,7 @@
 {
   "overview": {
     "title": "Family Registration Certificate (FRC)",
-    "description": "The Family Registration Certificate (FRC) is an official NADRA-issued document that shows your registered family members exactly as recorded in NADRA’s database on the date of issuance. It confirms and verifies family relationships for legal, immigration, and official purposes.",
+    "description": "The Family Registration Certificate (FRC) is an official NADRA-issued document that shows your registered family members exactly as recorded in NADRA's database on the date of issuance. It confirms and verifies family relationships for legal, immigration, and official purposes.",
     "legal_basis": "The FRC is issued under Schedule XI of Rule 19 of the NADRA (NIC) Rules, 2002.",
     "primary_use": [
       "Visa, embassy, and immigration applications",
@@ -65,7 +65,7 @@
       "steps": [
         "Log in to your Pak ID account or create a new account if you do not already have one.",
         "From the Home screen, go to the Family section and select FRC.",
-        "Your family members’ details will be displayed on the screen.",
+        "Your family members' details will be displayed on the screen.",
         "Carefully review all information. Any record highlighted in red requires correction before proceeding.",
         "Select the appropriate FRC category based on your requirement.",
         "Review your application summary and submit it.",
@@ -95,26 +95,10 @@
   },
 
   "fees": {
-    "by_birth": {
-      "amount": 1000,
-      "currency": "PKR",
-      "note": "Applicable for By Birth category"
-    },
-    "by_marriage": {
-      "amount": 1000,
-      "currency": "PKR",
-      "note": "Applicable for By Marriage category"
-    },
-    "by_adoption": {
-      "amount": 1000,
-      "currency": "PKR",
-      "note": "Applicable for By Adoption category"
-    },
-    "by_all": {
-      "amount": 2000,
-      "currency": "PKR",
-      "note": "Applicable for By All category"
-    }
+    "by_birth": { "amount": 1000, "currency": "PKR", "note": "Applicable for By Birth category" },
+    "by_marriage": { "amount": 1000, "currency": "PKR", "note": "Applicable for By Marriage category" },
+    "by_adoption": { "amount": 1000, "currency": "PKR", "note": "Applicable for By Adoption category" },
+    "by_all": { "amount": 2000, "currency": "PKR", "note": "Applicable for By All category" }
   },
 
   "processing_time": {
@@ -136,10 +120,7 @@
 
   "help_and_support": {
     "description": "If you face any issues during the application or need further assistance, the following official support channels are available.",
-    "support_channels": [
-      "NADRA Registration Centers (NRCs)",
-      "Pak Identity Mobile App support"
-    ],
+    "support_channels": ["NADRA Registration Centers (NRCs)", "Pak Identity Mobile App support"],
     "assistance_scope": [
       "Guidance on FRC application steps",
       "Correction of family records",
@@ -148,25 +129,318 @@
     ],
     "contact_options": {
       "nrc_centers": "https://www.nadra.gov.pk/nadraOffices",
-      "pak_identity_apple": "https://apps.apple.com/us/app/pak-identity/id1563975817",
-      "pak_identity_google_play": "https://play.google.com/store/apps/details?id=pk.gov.nadra.pakid&hl=en",
+      "pak_identity_support_google": "https://play.google.com/store/apps/details?id=pk.gov.nadra.pakid&hl=en&gl=US",
+      "pak_identity_support_apple": "https://apps.apple.com/us/app/pak-identity/id1563975817",
       "helpline": "1777"
     },
     "important_note": "Support availability and contact details may change. Always refer to official NADRA channels for the latest information."
   },
 
   "faq": [
-    {
-      "question": "What is a Family Registration Certificate (FRC)?",
-      "answer": "An official NADRA-issued document that confirms your family composition based on NADRA records, including certain unregistered deceased or living members where applicable."
+    { "question": "What is a Family Registration Certificate (FRC)?", "answer": "An official NADRA-issued document that confirms your family composition based on NADRA records, including certain unregistered deceased or living members where applicable." },
+    { "question": "How long does it take to receive an FRC?", "answer": "FRCs are issued immediately at NADRA Registration Centers, while online applications usually take up to 24 hours." },
+    { "question": "Can I apply for FRC online?", "answer": "Yes, you can apply through the Pak Identity Mobile App and download the certificate digitally." }
+  ],
+
+  "wizard": {
+    "title": "Family Registration Certificate (FRC)",
+    "subtitle": "NADRA • Immigration & Official Purpose",
+    "last_verified": "February 19, 2026",
+
+    "whats_this": {
+      "heading": "FRC Immigration Wizard",
+      "sub": "NADRA • Immigration & Official Purpose",
+      "description": "The Family Registration Certificate (FRC) is an official document issued by NADRA that lists your registered family members as recorded in their database. It is commonly required for visa applications, embassy submissions, and legal verification of family relationships.",
+      "quick_instructions": [
+        "Answer a few questions about your FRC need",
+        "Provide location details to find your nearest NADRA office",
+        "Receive a custom roadmap and document checklist",
+        "Validate your final certificate against immigration requirements"
+      ],
+      "disclaimer": "This wizard provides general guidance based on publicly available information and should not be considered legal advice. Requirements may vary and can change over time. Always verify current procedures with your local NADRA office and consult an immigration attorney for specific legal guidance."
     },
-    {
-      "question": "How long does it take to receive an FRC?",
-      "answer": "FRCs are issued immediately at NADRA Registration Centers, while online applications usually take up to 24 hours."
+
+    "steps": [
+      { "id": "document_need", "label": "Document Need", "icon": "clipboard" },
+      { "id": "location", "label": "Location", "icon": "map-pin" },
+      { "id": "roadmap", "label": "Roadmap", "icon": "map" },
+      { "id": "office_finder", "label": "Office Finder", "icon": "search" },
+      { "id": "validation", "label": "Validation", "icon": "star" }
+    ],
+
+    "document_need": {
+      "title": "What brings you here?",
+      "description": "Understanding your specific need helps us provide the most relevant guidance.",
+      "options": [
+        {
+          "id": "new_certificate",
+          "title": "New Certificate",
+          "description": "First-time FRC registration with NADRA",
+          "color": "green"
+        },
+        {
+          "id": "correction_needed",
+          "title": "Correction Needed",
+          "description": "Fix errors in existing FRC document",
+          "color": "orange"
+        },
+        {
+          "id": "replacement",
+          "title": "Replacement",
+          "description": "Lost or damaged FRC certificate",
+          "color": "blue"
+        }
+      ]
     },
-    {
-      "question": "Can I apply for FRC online?",
-      "answer": "Yes, you can apply through the Pak Identity Mobile App and download the certificate digitally."
+
+    "location": {
+      "title": "Location Information",
+      "description": "Your nearest NADRA Registration Center is determined by your current location.",
+      "country": "Pakistan",
+      "country_note": "This wizard is specifically for Pakistan FRC certificates.",
+      "location_note": "Why location matters: NADRA Registration Centers serve specific geographic areas. Knowing your location helps us find the nearest NRC for faster processing. For immigration purposes, ensure your FRC is obtained from an authorized NADRA center.",
+      "provinces": [
+        {
+          "name": "Punjab",
+          "districts": ["Lahore", "Rawalpindi", "Faisalabad", "Multan", "Gujranwala", "Sialkot", "Sargodha", "Bahawalpur"]
+        },
+        {
+          "name": "Sindh",
+          "districts": ["Karachi South", "Karachi East", "Karachi West", "Hyderabad", "Sukkur", "Larkana", "Nawabshah"]
+        },
+        {
+          "name": "Khyber Pakhtunkhwa",
+          "districts": ["Peshawar", "Mardan", "Abbottabad", "Swat", "Mansehra", "Kohat", "Bannu"]
+        },
+        {
+          "name": "Balochistan",
+          "districts": ["Quetta", "Gwadar", "Turbat", "Khuzdar", "Sibi", "Zhob"]
+        },
+        {
+          "name": "Islamabad Capital Territory",
+          "districts": ["Islamabad"]
+        },
+        {
+          "name": "Azad Jammu & Kashmir",
+          "districts": ["Muzaffarabad", "Mirpur", "Rawalakot", "Kotli"]
+        },
+        {
+          "name": "Gilgit-Baltistan",
+          "districts": ["Gilgit", "Skardu", "Hunza", "Ghizer"]
+        }
+      ]
+    },
+
+    "roadmap": {
+      "title": "Your Personalized Roadmap",
+      "estimated_timeline": "7 days",
+      "phases": [
+        { "id": 1, "title": "Gather Documents", "duration": "2d", "description": "Collect all required identification documents" },
+        { "id": 2, "title": "Visit NADRA Center", "duration": "1d", "description": "Go to your nearest NADRA Registration Center" },
+        { "id": 3, "title": "Processing", "duration": "1d", "description": "Biometric verification and data retrieval" },
+        { "id": 4, "title": "Collect Certificate", "duration": "1d", "description": "Receive your printed FRC certificate" }
+      ],
+      "documents_checklist": [
+        { "id": "applicant_cnic", "label": "Applicant CNIC/NICOP/POC", "description": "Valid 13-digit identification document (original + copy)", "required": true },
+        { "id": "family_cnic", "label": "Family Members CNIC", "description": "CNIC copies of all adult family members to be listed", "required": true },
+        { "id": "crc_children", "label": "Child Registration Certificate (CRC)", "description": "Form-B for children under 18 years of age", "required": true },
+        { "id": "marriage_cert", "label": "Nikah Nama / Marriage Certificate", "description": "Required if applying for FRC By Marriage category", "required": false },
+        { "id": "death_cert", "label": "Death Certificate (if applicable)", "description": "For deceased family members — issued by Union Council or Municipal Corporation", "required": false },
+        { "id": "passport_photo", "label": "Passport-size Photographs", "description": "Recent photographs for online application via Pak Identity App", "required": false }
+      ]
+    },
+
+    "offices": [
+      {
+        "name": "NADRA Registration Center - Clifton",
+        "badge": "NADRA Mega Center",
+        "address": "Block 5, Clifton, Karachi",
+        "hours": "Mon-Thu: 9:00 AM - 4:00 PM, Fri: 9:00 AM - 12:00 PM",
+        "phone": "+92-21-111-786-100",
+        "tip": "High traffic office. Visit early morning for shorter wait times.",
+        "province": "Sindh",
+        "district": "Karachi South"
+      },
+      {
+        "name": "NADRA Registration Center - Gulshan",
+        "badge": "NADRA Center",
+        "address": "Gulshan-e-Iqbal, Block 13, Karachi",
+        "hours": "Mon-Thu: 9:00 AM - 4:00 PM, Fri: 9:00 AM - 12:00 PM",
+        "phone": "+92-21-111-786-100",
+        "tip": "Relatively less crowded compared to Clifton center.",
+        "province": "Sindh",
+        "district": "Karachi East"
+      },
+      {
+        "name": "NADRA Mega Center - Lahore",
+        "badge": "NADRA Mega Center",
+        "address": "NADRA Headquarters, Civic Center, Johar Town, Lahore",
+        "hours": "Mon-Thu: 9:00 AM - 4:00 PM, Fri: 9:00 AM - 12:00 PM",
+        "phone": "+92-42-111-786-100",
+        "tip": "Largest NADRA center in Punjab. All services available.",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - Islamabad",
+        "badge": "NADRA Mega Center",
+        "address": "G-5/2, Islamabad",
+        "hours": "Mon-Thu: 9:00 AM - 4:00 PM, Fri: 9:00 AM - 12:00 PM",
+        "phone": "+92-51-111-786-100",
+        "tip": "Capital city center with efficient processing. Book token online via Pak Identity app.",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad"
+      },
+      {
+        "name": "NADRA Registration Center - Peshawar",
+        "badge": "NADRA Center",
+        "address": "University Road, Peshawar",
+        "hours": "Mon-Thu: 9:00 AM - 4:00 PM, Fri: 9:00 AM - 12:00 PM",
+        "phone": "+92-91-111-786-100",
+        "tip": "Serves KPK region. Bring all original documents.",
+        "province": "Khyber Pakhtunkhwa",
+        "district": "Peshawar"
+      },
+      {
+        "name": "NADRA Registration Center - Quetta",
+        "badge": "NADRA Center",
+        "address": "Jinnah Road, Quetta",
+        "hours": "Mon-Thu: 9:00 AM - 3:30 PM, Fri: 9:00 AM - 12:00 PM",
+        "phone": "+92-81-111-786-100",
+        "tip": "Limited staff; arrive early to ensure same-day processing.",
+        "province": "Balochistan",
+        "district": "Quetta"
+      }
+    ],
+
+    "validation": {
+      "title": "Certificate Validation",
+      "description": "Ensure your FRC meets all immigration requirements before submission",
+      "upload_section": {
+        "title": "Upload Your FRC",
+        "description": "Upload your final Family Registration Certificate to Document Vault",
+        "formats": "PDF, JPG, PNG (Max 10MB)"
+      },
+      "checklist_title": "Immigration-Ready Validation",
+      "categories": [
+        {
+          "name": "Spelling & Names",
+          "items": [
+            { "label": "All family member names match passport and other documents exactly", "critical": true },
+            { "label": "English transliteration of names is accurate", "critical": true },
+            { "label": "Father's and mother's names are correctly listed", "critical": true }
+          ]
+        },
+        {
+          "name": "CNIC & Identification",
+          "items": [
+            { "label": "All CNIC numbers are correctly printed (13 digits)", "critical": true },
+            { "label": "Applicant's CNIC/NICOP number matches the certificate", "critical": true },
+            { "label": "CRC numbers for minors are correctly listed", "critical": false }
+          ]
+        },
+        {
+          "name": "Family Composition",
+          "items": [
+            { "label": "All required family members are listed", "critical": true },
+            { "label": "Relationship types (spouse, child, parent) are accurate", "critical": true },
+            { "label": "FRC category matches your application need", "critical": false }
+          ]
+        },
+        {
+          "name": "Document Integrity",
+          "items": [
+            { "label": "Certificate has official NADRA seal and signature", "critical": true },
+            { "label": "Date of issuance is clearly visible", "critical": false },
+            { "label": "QR code or verification number is present", "critical": false },
+            { "label": "No visible damage, stains, or alterations", "critical": true }
+          ]
+        }
+      ]
+    },
+
+    "info_panel": {
+      "document_need": {
+        "tips": [
+          "New certificates typically issued instantly in real-time or take 1 day while applying via app if all documents are ready.",
+          "Corrections require supporting documents proving the correct information.",
+          "Replacement certificates can usually be issued same-day if original registration exists in NADRA database."
+        ],
+        "pitfalls": [
+          "Don't apply without ensuring all family members are registered with NADRA first.",
+          "Avoid applying for the wrong FRC category — verify your need beforehand.",
+          "Don't submit correction requests without official supporting documents."
+        ],
+        "links": [
+          { "label": "NADRA Official Website", "url": "https://www.nadra.gov.pk" },
+          { "label": "Pak Identity App (Google Play)", "url": "https://play.google.com/store/apps/details?id=pk.gov.nadra.pakid" },
+          { "label": "NADRA Helpline: 1777", "url": "tel:1777" }
+        ]
+      },
+      "location": {
+        "tips": [
+          "Your nearest NADRA center is based on your current residential address.",
+          "Urban areas generally have NADRA Mega Centers for faster processing.",
+          "Some districts in AJK and Gilgit-Baltistan may have limited center availability."
+        ],
+        "pitfalls": [
+          "Don't assume any NADRA center can process your request — check availability.",
+          "Avoid visiting on Fridays after 12 PM as most centers close early.",
+          "Remote areas may require travel to the nearest district headquarters."
+        ],
+        "links": [
+          { "label": "Find NADRA Offices", "url": "https://www.nadra.gov.pk/nadraOffices" },
+          { "label": "E-Khidmat Markaz (Punjab)", "url": "https://ekhidmat.punjab.gov.pk" }
+        ]
+      },
+      "roadmap": {
+        "tips": [
+          "Gather all required documents before visiting the NADRA center.",
+          "Visit during weekday mornings for shorter wait times.",
+          "FRC is printed and handed over immediately at NRC — no need to revisit."
+        ],
+        "pitfalls": [
+          "Don't visit without original CNIC — photocopies alone are not accepted for biometric verification.",
+          "Missing family member documents will delay your application.",
+          "Unregistered family members must be added to NADRA records before FRC issuance."
+        ],
+        "links": [
+          { "label": "NADRA Document Requirements", "url": "https://www.nadra.gov.pk" },
+          { "label": "Pak Identity App (iOS)", "url": "https://apps.apple.com/us/app/pak-identity/id1563975817" }
+        ]
+      },
+      "office_finder": {
+        "tips": [
+          "Confirm office hours before visiting; some close early on Fridays.",
+          "Bring photocopies of all documents in addition to originals.",
+          "Fee amounts: PKR 1,000 for single category, PKR 2,000 for By All."
+        ],
+        "pitfalls": [
+          "Don't rely on unofficial centers — only visit authorized NADRA Registration Centers.",
+          "Office listings and contact information may change; always confirm before visiting.",
+          "Avoid peak hours (10 AM - 1 PM) for faster service."
+        ],
+        "links": [
+          { "label": "NADRA Office Locator", "url": "https://www.nadra.gov.pk/nadraOffices" },
+          { "label": "NADRA Helpline: 1777", "url": "tel:1777" }
+        ]
+      },
+      "validation": {
+        "tips": [
+          "Verify all spellings match your passport and other official documents exactly.",
+          "Check that the NADRA seal and signature are clearly visible on the certificate.",
+          "Ensure the FRC category matches what the embassy or visa office requires."
+        ],
+        "pitfalls": [
+          "Don't submit an FRC with spelling mismatches — it will be rejected by embassies.",
+          "Avoid using an expired or outdated FRC; some embassies require recent issuance.",
+          "Don't assume the FRC is correct without verifying every listed family member."
+        ],
+        "links": [
+          { "label": "NADRA Certificate Verification", "url": "https://id.nadra.gov.pk" },
+          { "label": "NADRA Official Website", "url": "https://www.nadra.gov.pk" }
+        ]
+      }
     }
-  ]
+  }
 }
