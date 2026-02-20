@@ -146,9 +146,6 @@ export default function AdminPanel() {
           <FeatureAnnouncementModal
             open={openFeatureModal}
             onOpenChange={setOpenFeatureModal}
-            onPublish={(data) => {
-              console.log("New feature:", data);
-            }}
           />
         </div>
       </main>
