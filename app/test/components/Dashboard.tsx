@@ -52,7 +52,7 @@ export function Dashboard({ state, isSignedIn, onContinue, onNavigate, onToggleA
                                     <p className="text-slate-500 text-sm mb-3">Started Dec 21, 2025</p>
                                     <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-3">
                                         <div 
-                                            className="h-full bg-gradient-to-r from-[#0d9488] to-[#10b981] transition-all duration-500" 
+                                            className="h-full bg-linear-to-r from-[#0d9488] to-[#10b981] transition-all duration-500" 
                                             style={{ width: `${progress}%` }}
                                         ></div>
                                     </div>
