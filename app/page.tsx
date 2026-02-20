@@ -977,7 +977,7 @@ function HomePageContent() {
                     Your Journey
                   </motion.span>
                   <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-                    How Rahvana Works
+                    How Typical US Immigration Journey Works
                   </h2>
                   <p className="text-lg text-muted-foreground">
                     From preparation to arrival, we guide you through every step
