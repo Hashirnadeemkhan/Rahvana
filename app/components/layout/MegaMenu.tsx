@@ -4,6 +4,7 @@ import { Search, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuItem } from "./MenuItem";
 import { ComingSoonModal } from "../shared/ComingSoonModal";
+import { useAuth } from "@/app/context/AuthContext";
 
 export interface MegaMenuItem {
   icon: React.ReactNode;
@@ -47,6 +48,8 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.id || "");
   const [searchQuery, setSearchQuery] = useState("");
   const [showComingSoon, setShowComingSoon] = useState(false);
+
+  const {user} = useAuth();
 
   // Auto-select first tab when menu opens or tabs change
   React.useEffect(() => {
@@ -233,12 +236,12 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
           {footerLink?.label || "Explore all journeys"}
           <ArrowRight className="h-4 w-4" />
         </Link>
-        <button
+        {!user && <button
           onClick={() => setShowComingSoon(true)}
-          className="flex items-center gap-2 text-sm font-bold text-primary hover:gap-3 transition-all"
+          className="flex items-center cursor-pointer gap-2 text-sm font-bold text-primary hover:gap-3 transition-all"
         >
           Get Early Access
-        </button>
+        </button>}
       </div>
 
       {showComingSoon && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import WizardHeader from "../../../components/guides/WizardHeader";
 import WizardSidebar from "../../../components/guides/WizardSidebar";
@@ -12,7 +12,7 @@ import OfficeFinderStep from "../../../components/guides/steps/OfficeFinderStep"
 import ValidationStep from "../../../components/guides/steps/ValidationStep";
 import WhatsThisModal from "../../../components/guides/WhatsThisModal";
 import { type WizardState, WizardStepId } from "@/types/frc-wizard";
-import guideData from "@/data/frc-guide-data.json";
+import guideData from "@/data/passport-guide-data.json";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const STEP_IDS: WizardStepId[] = [
@@ -23,7 +23,18 @@ const STEP_IDS: WizardStepId[] = [
   "validation",
 ];
 
-const INFO_PANEL_KEYS: Record<WizardStepId, keyof typeof guideData.wizard.info_panel> = {
+const STEP_LABELS: Record<string, string> = {
+  document_need: "Application Type",
+  location: "Location",
+  roadmap: "Roadmap",
+  office_finder: "Office Finder",
+  validation: "Validation",
+};
+
+const INFO_PANEL_KEYS: Record<
+  WizardStepId,
+  keyof typeof guideData.wizard.info_panel
+> = {
   document_need: "document_need",
   location: "location",
   roadmap: "roadmap",
@@ -31,7 +42,7 @@ const INFO_PANEL_KEYS: Record<WizardStepId, keyof typeof guideData.wizard.info_p
   validation: "validation",
 };
 
-const FrcGuide = () => {
+const PassportGuide = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [showWhatsThis, setShowWhatsThis] = useState(true);
   const [state, setState] = useState<WizardState>({
@@ -44,27 +55,30 @@ const FrcGuide = () => {
     uploadedFile: false,
   });
 
-  useEffect(() => {
-    const dontShow = localStorage.getItem("hide_whats_this_modal");
-    if(!dontShow) setShowWhatsThis(true);
-  }, []);
-
   const currentStepId = STEP_IDS[currentStep];
-  const infoPanelData = guideData.wizard.info_panel[INFO_PANEL_KEYS[currentStepId]];
+  const infoPanelData =
+    guideData.wizard.info_panel[INFO_PANEL_KEYS[currentStepId]];
 
   const canGoNext = (): boolean => {
     switch (currentStepId) {
-      case "document_need": return !!state.documentNeed;
-      case "location": return !!state.province && !!state.district && !!state.city;
-      case "roadmap": return true;
-      case "office_finder": return true;
-      case "validation": return false;
-      default: return false;
+      case "document_need":
+        return !!state.documentNeed;
+      case "location":
+        return !!state.province && !!state.district && !!state.city;
+      case "roadmap":
+        return true;
+      case "office_finder":
+        return true;
+      case "validation":
+        return false;
+      default:
+        return false;
     }
   };
 
   const goNext = () => {
-    if (currentStep < STEP_IDS.length - 1 && canGoNext()) setCurrentStep(currentStep + 1);
+    if (currentStep < STEP_IDS.length - 1 && canGoNext())
+      setCurrentStep(currentStep + 1);
   };
 
   const goBack = () => {
@@ -130,8 +144,8 @@ const FrcGuide = () => {
             province={state.province}
             district={state.district}
             offices={guideData.wizard.offices}
-            officeType="NADRA"
-            warningText="FRCs are processed at authorized NADRA Registration Centers. Verify that the office you plan to visit offers FRC services. Office listings and contact information may change; always confirm details before visiting."
+            officeType="Passport"
+            warningText="Passport services are handled at Regional Passport Offices (RPO) and Executive Passport Offices (EPO). Verify office hours and available services before visiting. You can apply at any passport office regardless of your CNIC address."
           />
         );
       case "validation":
@@ -150,23 +164,24 @@ const FrcGuide = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 pt-14">
-      <WizardHeader onWhatsThis={() => setShowWhatsThis(true)} title={guideData.wizard.title} />
+    <div className="min-h-screen flex flex-col bg-[#f5f7fa] pt-14">
+      <WizardHeader
+        onWhatsThis={() => setShowWhatsThis(true)}
+        title={guideData.wizard.title}
+      />
 
       <div className="flex flex-1 overflow-hidden h-[calc(100vh-56px)]">
-        <WizardSidebar currentStep={currentStep} steps={STEP_IDS} onStepClick={setCurrentStep} />
+        <WizardSidebar
+          currentStep={currentStep}
+          steps={STEP_IDS}
+          onStepClick={setCurrentStep}
+          stepLabels={STEP_LABELS}
+        />
 
         <main className="flex-1 overflow-y-auto p-8 relative">
-          <div
-            className="fixed inset-0 pointer-events-none z-0"
-            style={{
-              backgroundImage:
-                "linear-gradient(hsl(168 80% 30% / 0.02) 1px, transparent 1px), linear-gradient(90deg, hsl(168 80% 30% / 0.02) 1px, transparent 1px)",
-              backgroundSize: "48px 48px",
-            }}
-          />
+          <div className="fixed inset-0 bg-[linear-gradient(hsl(168_80%_30%/0.02)_1px,transparent_1px),linear-gradient(90deg,hsl(168_80%_30%/0.02)_1px,transparent_1px)] bg-size-[48px_48px] pointer-events-none z-0" />
 
-          <div className="relative z-10 max-w-3xl mx-auto">
+          <div className="relative z-10 max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm min-h-100">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -187,11 +202,13 @@ const FrcGuide = () => {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={goBack}
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-700 font-semibold text-sm cursor-pointer"
+                  className="flex items-center gap-1 px-5 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-700 text-sm font-semibold cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" /> Back
                 </motion.button>
-              ) : <div />}
+              ) : (
+                <div />
+              )}
 
               <span className="text-sm text-gray-500 font-medium">
                 Step {currentStep + 1} of {STEP_IDS.length}
@@ -203,11 +220,11 @@ const FrcGuide = () => {
                   whileTap={{ scale: 0.97 }}
                   onClick={goNext}
                   disabled={!canGoNext()}
-                  className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-semibold text-sm cursor-pointer
-                    ${canGoNext()
-                      ? "bg-linear-to-br from-teal-600 to-teal-500 text-white shadow-md"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"}
-                  `}
+                  className={`flex items-center gap-1 px-5 py-2.5 rounded-lg text-sm font-semibold cursor-pointer ${
+                    canGoNext()
+                      ? "bg-linear-to-br from-emerald-600 to-emerald-700 text-white shadow-md border-none"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  }`}
                 >
                   Continue <ArrowRight className="w-4 h-4" />
                 </motion.button>
@@ -216,17 +233,20 @@ const FrcGuide = () => {
           </div>
         </main>
 
-        <WizardInfoPanel data={infoPanelData} lastVerified={guideData.wizard.last_verified} />
+        <WizardInfoPanel
+          data={infoPanelData}
+          lastVerified={guideData.wizard.last_verified}
+        />
       </div>
 
       <WhatsThisModal
         open={showWhatsThis}
         onClose={() => setShowWhatsThis(false)}
         data={guideData.wizard.whats_this}
-        documentLabel="Family Registration Certificate"
+        documentLabel="Pakistani Passport"
       />
     </div>
   );
 };
 
-export default FrcGuide;
+export default PassportGuide;

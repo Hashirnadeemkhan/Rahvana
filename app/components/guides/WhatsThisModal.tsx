@@ -1,15 +1,27 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, FileText, Info } from "lucide-react";
-import guideData from "@/data/frc-guide-data.json";
+
+interface WhatsThisData {
+  heading: string;
+  sub: string;
+  description: string;
+  quick_instructions: string[];
+  disclaimer: string;
+}
 
 interface WhatsThisModalProps {
   open: boolean;
   onClose: () => void;
+  data: WhatsThisData;
+  documentLabel?: string;
 }
 
-const WhatsThisModal = ({ open, onClose }: WhatsThisModalProps) => {
-  const data = guideData.wizard.whats_this;
-
+const WhatsThisModal = ({
+  open,
+  onClose,
+  data,
+  documentLabel = "Family Registration Certificate",
+}: WhatsThisModalProps) => {
   return (
     <AnimatePresence>
       {open && (
@@ -20,12 +32,7 @@ const WhatsThisModal = ({ open, onClose }: WhatsThisModalProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="
-              fixed inset-0
-              bg-black/50
-              backdrop-blur-sm
-              z-100
-            "
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100"
           />
 
           {/* Modal */}
@@ -34,18 +41,9 @@ const WhatsThisModal = ({ open, onClose }: WhatsThisModalProps) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-            className="
-              fixed
-              top-[50%] left-[50%]
-              -translate-x-1/2 -translate-y-1/2
-              w-[90%] max-w-150
-              max-h-[85vh] overflow-y-auto
-              bg-white
-              rounded-2xl
-              shadow-[0_25px_60px_-12px_hsla(0,0%,0%,0.25)]
-              z-100
-              p-8
-            "
+            className="fixed top-1/2 left-1/2 z-101 w-[90%] max-w-150 max-h-[90vh] overflow-y-auto 
+                       -translate-x-1/2 -translate-y-1/2
+                       bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] px-8 py-4"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -66,23 +64,19 @@ const WhatsThisModal = ({ open, onClose }: WhatsThisModalProps) => {
 
               <button
                 onClick={onClose}
-                className="
-                  w-8 h-8 rounded-lg
-                  bg-[hsl(210_20%_96%)]
-                  flex items-center justify-center
-                  text-[hsl(215_16%_47%)]
-                "
+                className="w-8 h-8 rounded-lg bg-[hsl(210_20%_96%)] 
+                           flex items-center justify-center 
+                           text-[hsl(215_16%_47%)] hover:opacity-80 transition"
               >
                 <X className="w-4.5 h-4.5" />
               </button>
             </div>
 
-            {/* What is FRC */}
+            {/* What Is Section */}
             <h3 className="text-base font-bold text-[hsl(220_20%_10%)] mb-2 font-['Plus_Jakarta_Sans','Inter',system-ui,sans-serif]">
-              What is a Family Registration Certificate?
+              What is a {documentLabel}?
             </h3>
-
-            <p className="text-[0.875rem] leading-[1.7] text-[hsl(220_20%_30%)] mb-6">
+            <p className="text-sm leading-[1.7] text-[hsl(220_20%_30%)] mb-6">
               {data.description}
             </p>
 
@@ -91,19 +85,13 @@ const WhatsThisModal = ({ open, onClose }: WhatsThisModalProps) => {
               Quick Instructions
             </h3>
 
-            <ol className="mb-6 list-none p-0">
+            <ol className="mb-6 space-y-2">
               {data.quick_instructions.map((item, i) => (
                 <li
                   key={i}
-                  className="
-                    flex items-center gap-3
-                    text-[0.875rem]
-                    text-[hsl(220_20%_25%)]
-                    mb-2
-                    leading-normal
-                  "
+                  className="flex items-start gap-3 text-sm text-[hsl(220_20%_25%)] leading-normal"
                 >
-                  <span className="text-[hsl(168_80%_30%)] font-bold min-w-4">
+                  <span className="text-[hsl(168_80%_30%)] font-bold text-sm min-w-4">
                     {i + 1}.
                   </span>
                   {item}
@@ -112,26 +100,46 @@ const WhatsThisModal = ({ open, onClose }: WhatsThisModalProps) => {
             </ol>
 
             {/* Disclaimer */}
-            <div
-              className="
-              p-4 rounded-xl
-              bg-[hsl(40_100%_97%)]
-              border border-[hsl(40_80%_85%)]
-              flex gap-3 items-start
-            "
-            >
+            <div className="p-4 rounded-xl bg-[hsl(40_100%_97%)] border border-[hsl(40_80%_85%)] flex gap-3 items-start">
               <Info className="w-4.5 h-4.5 text-[hsl(35_80%_45%)] shrink-0 mt-0.5" />
-
               <div>
                 <p className="text-[0.8rem] font-bold text-[hsl(35_80%_35%)] mb-1">
                   Important Disclaimer
                 </p>
-
                 <p className="text-[0.8rem] leading-[1.6] text-[hsl(35_50%_30%)]">
                   {data.disclaimer}
                 </p>
               </div>
             </div>
+
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+            {/* Checkbox */}
+            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    localStorage.setItem("hide_whats_this_modal", "true");
+                  } else {
+                    localStorage.removeItem("hide_whats_this_modal");
+                  }
+                }}
+                className="w-4 h-4 accent-[#0d7478] cursor-pointer"
+              />
+              Do not show this again
+            </label>
+
+            {/* Cancel Button */}
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded-md text-sm font-medium
+               bg-gray-100 text-gray-700
+               hover:bg-gray-200
+               transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
           </motion.div>
         </>
       )}
