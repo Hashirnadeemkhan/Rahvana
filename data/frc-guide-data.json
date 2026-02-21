@@ -95,10 +95,26 @@
   },
 
   "fees": {
-    "by_birth": { "amount": 1000, "currency": "PKR", "note": "Applicable for By Birth category" },
-    "by_marriage": { "amount": 1000, "currency": "PKR", "note": "Applicable for By Marriage category" },
-    "by_adoption": { "amount": 1000, "currency": "PKR", "note": "Applicable for By Adoption category" },
-    "by_all": { "amount": 2000, "currency": "PKR", "note": "Applicable for By All category" }
+    "by_birth": {
+      "amount": 1000,
+      "currency": "PKR",
+      "note": "Applicable for By Birth category"
+    },
+    "by_marriage": {
+      "amount": 1000,
+      "currency": "PKR",
+      "note": "Applicable for By Marriage category"
+    },
+    "by_adoption": {
+      "amount": 1000,
+      "currency": "PKR",
+      "note": "Applicable for By Adoption category"
+    },
+    "by_all": {
+      "amount": 2000,
+      "currency": "PKR",
+      "note": "Applicable for By All category"
+    }
   },
 
   "processing_time": {
@@ -120,7 +136,10 @@
 
   "help_and_support": {
     "description": "If you face any issues during the application or need further assistance, the following official support channels are available.",
-    "support_channels": ["NADRA Registration Centers (NRCs)", "Pak Identity Mobile App support"],
+    "support_channels": [
+      "NADRA Registration Centers (NRCs)",
+      "Pak Identity Mobile App support"
+    ],
     "assistance_scope": [
       "Guidance on FRC application steps",
       "Correction of family records",
@@ -137,9 +156,18 @@
   },
 
   "faq": [
-    { "question": "What is a Family Registration Certificate (FRC)?", "answer": "An official NADRA-issued document that confirms your family composition based on NADRA records, including certain unregistered deceased or living members where applicable." },
-    { "question": "How long does it take to receive an FRC?", "answer": "FRCs are issued immediately at NADRA Registration Centers, while online applications usually take up to 24 hours." },
-    { "question": "Can I apply for FRC online?", "answer": "Yes, you can apply through the Pak Identity Mobile App and download the certificate digitally." }
+    {
+      "question": "What is a Family Registration Certificate (FRC)?",
+      "answer": "An official NADRA-issued document that confirms your family composition based on NADRA records, including certain unregistered deceased or living members where applicable."
+    },
+    {
+      "question": "How long does it take to receive an FRC?",
+      "answer": "FRCs are issued immediately at NADRA Registration Centers, while online applications usually take up to 24 hours."
+    },
+    {
+      "question": "Can I apply for FRC online?",
+      "answer": "Yes, you can apply through the Pak Identity Mobile App and download the certificate digitally."
+    }
   ],
 
   "wizard": {
@@ -202,55 +230,1261 @@
       "provinces": [
         {
           "name": "Punjab",
-          "districts": ["Lahore", "Rawalpindi", "Faisalabad", "Multan", "Gujranwala", "Sialkot", "Sargodha", "Bahawalpur"]
+          "districts": [
+            "Lahore",
+            "Narowal",
+            "Gujranwala",
+            "Qasur",
+            "Sialkot",
+            "Sheikhupura",
+            "Okara",
+            "Wazirabad",
+            "Nankana Sahib",
+            "Layyah",
+            "Muzzafargarh",
+            "Multan",
+            "Rahim Yar Khan",
+            "Vehari",
+            "Bahawalpur",
+            "Bahawalnagar",
+            "Dera Ghazi Khan",
+            "Rajanpur",
+            "Khanewal",
+            "Lodhran",
+            "Sahiwal",
+            "PakPattan",
+            "Kot Addu",
+            "Khushab",
+            "Jhang",
+            "Chiniot",
+            "Faisalabad",
+            "Toba Tek Singh",
+            "Mianwali",
+            "Hafizabad",
+            "Bhakkar",
+            "Sargodha"
+          ]
         },
         {
           "name": "Sindh",
-          "districts": ["Karachi South", "Karachi East", "Karachi West", "Hyderabad", "Sukkur", "Larkana", "Nawabshah"]
+          "districts": [
+            "Jamshoro",
+            "Mirpurkhas",
+            "Badin",
+            "Thatta",
+            "Tando Muhammad Khan",
+            "Tando Allahyar",
+            "Matiari",
+            "Karachi South",
+            "Karachi East",
+            "Karachi West",
+            "Karachi Central",
+            "Karachi Malir",
+            "Tharparkar",
+            "Sujawal",
+            "Umerkot",
+            "Karachi Korangi",
+            "Karachi Kemari",
+            "Hyderabad",
+            "Dadu",
+            "Jacobabad",
+            "Shikarpur",
+            "Ghotki",
+            "Khairpur",
+            "Sanghar",
+            "Naushahro Feroze",
+            "Larkana",
+            "Kashmore",
+            "Sukkur",
+            "Kambar Shahdadkot",
+            "Shaheed Benazirabad"
+          ]
         },
         {
           "name": "Khyber Pakhtunkhwa",
-          "districts": ["Peshawar", "Mardan", "Abbottabad", "Swat", "Mansehra", "Kohat", "Bannu"]
+          "districts": [
+            "DI Khan",
+            "Nowshera",
+            "Swabi",
+            "Abbottabad",
+            "Lakki Marwat",
+            "Boner",
+            "Bannu",
+            "Kohistan",
+            "Shangla",
+            "Tor Ghar",
+            "Tank",
+            "Batagram",
+            "Haripur",
+            "Hangu",
+            "Karak",
+            "Chitral",
+            "Lower Dir",
+            "Malakand P Area",
+            "Upper Dir",
+            "Bajaur",
+            "Charsadda",
+            "Khyber",
+            "Kurram",
+            "N Waziristan",
+            "M Waziristan",
+            "Orakzai",
+            "Mohmand",
+            "Upper Chitral",
+            "Peshawar",
+            "Mardan",
+            "T A ADJ Tank",
+            "T A ADJ DI Khan",
+            "T A ADJ Peshawar",
+            "T A ADJ Lakki Marwat",
+            "T A ADJ Kohat",
+            "T A ADJ Bannu",
+            "Swat",
+            "Mansehra"
+          ]
         },
         {
-          "name": "Balochistan",
-          "districts": ["Quetta", "Gwadar", "Turbat", "Khuzdar", "Sibi", "Zhob"]
+          "name": "Quetta",
+          "districts": [
+            "Gwadar",
+            "Kech",
+            "Kachhi",
+            "Jhal Magsi",
+            "Jaffarabad",
+            "Nasirabad",
+            "Chagai",
+            "Killa Abdullah",
+            "Pishin",
+            "Quetta",
+            "Nushki",
+            "Dera Bugti",
+            "Kohlu",
+            "Sibbi",
+            "Ziarat",
+            "Barkhan",
+            "Killa Saifullah",
+            "Loralai",
+            "Musakhel",
+            "Zhob",
+            "Sherani",
+            "Harnai",
+            "Awaran",
+            "Kalat",
+            "Kharan",
+            "Khuzdar",
+            "Lasbela",
+            "Mastung",
+            "Chaman",
+            "Surab",
+            "Sohbatpur",
+            "Duki",
+            "Usta Mohammad"
+          ]
         },
         {
           "name": "Islamabad Capital Territory",
-          "districts": ["Islamabad"]
+          "districts": [
+            "Islamabad",
+            "Gujrat",
+            "Rawalpindi",
+            "Attock",
+            "Jhelum",
+            "Chakwal",
+            "Murree",
+            "Tala Gang",
+            "Mandi Bahauddin"
+          ]
         },
         {
           "name": "Azad Jammu & Kashmir",
-          "districts": ["Muzaffarabad", "Mirpur", "Rawalakot", "Kotli"]
+          "districts": [
+            "Bhimber",
+            "Bagh",
+            "Jhelum Valley",
+            "Poonch",
+            "Sudhnoti",
+            "Neelum",
+            "Haveli",
+            "Muzaffarabad",
+            "Mirpur",
+            "Kotli"
+          ]
         },
         {
           "name": "Gilgit-Baltistan",
-          "districts": ["Gilgit", "Skardu", "Hunza", "Ghizer"]
+          "districts": [
+            "Diamir",
+            "Astore",
+            "Ghanchi",
+            "Kharmang",
+            "Nagar",
+            "Shigar",
+            "Gilgit",
+            "Skardu",
+            "Hunza",
+            "Ghizer"
+          ]
         }
       ]
     },
 
     "roadmap": {
       "title": "Your Personalized Roadmap",
-      "estimated_timeline": "7 days",
+      "estimated_timeline": "3 days",
       "phases": [
-        { "id": 1, "title": "Gather Documents", "duration": "2d", "description": "Collect all required identification documents" },
-        { "id": 2, "title": "Visit NADRA Center", "duration": "1d", "description": "Go to your nearest NADRA Registration Center" },
-        { "id": 3, "title": "Processing", "duration": "1d", "description": "Biometric verification and data retrieval" },
-        { "id": 4, "title": "Collect Certificate", "duration": "1d", "description": "Receive your printed FRC certificate" }
+        {
+          "id": 1,
+          "title": "Gather Documents",
+          "duration": "2d",
+          "description": "Collect all required identification documents"
+        },
+        {
+          "id": 2,
+          "title": "Visit NADRA Center",
+          "duration": "1d",
+          "description": "Go to your nearest NADRA Registration Center"
+        },
+        {
+          "id": 3,
+          "title": "Processing",
+          "duration": "1d",
+          "description": "Biometric verification and data retrieval"
+        },
+        {
+          "id": 4,
+          "title": "Collect Certificate",
+          "duration": "1d",
+          "description": "Receive your printed FRC certificate"
+        }
       ],
       "documents_checklist": [
-        { "id": "applicant_cnic", "label": "Applicant CNIC/NICOP/POC", "description": "Valid 13-digit identification document (original + copy)", "required": true },
-        { "id": "family_cnic", "label": "Family Members CNIC", "description": "CNIC copies of all adult family members to be listed", "required": true },
-        { "id": "crc_children", "label": "Child Registration Certificate (CRC)", "description": "Form-B for children under 18 years of age", "required": true },
-        { "id": "marriage_cert", "label": "Nikah Nama / Marriage Certificate", "description": "Required if applying for FRC By Marriage category", "required": false },
-        { "id": "death_cert", "label": "Death Certificate (if applicable)", "description": "For deceased family members — issued by Union Council or Municipal Corporation", "required": false },
-        { "id": "passport_photo", "label": "Passport-size Photographs", "description": "Recent photographs for online application via Pak Identity App", "required": false }
+        {
+          "id": "applicant_cnic",
+          "label": "Applicant CNIC/NICOP/POC",
+          "description": "Valid 13-digit identification document (original + copy)",
+          "required": true
+        },
+        {
+          "id": "family_cnic",
+          "label": "Family Members CNIC",
+          "description": "CNIC copies of all adult family members to be listed",
+          "required": true
+        },
+        {
+          "id": "crc_children",
+          "label": "Child Registration Certificate (CRC)",
+          "description": "Form-B for children under 18 years of age",
+          "required": true
+        },
+        {
+          "id": "marriage_cert",
+          "label": "Nikah Nama / Marriage Certificate",
+          "description": "Required if applying for FRC By Marriage category",
+          "required": false
+        },
+        {
+          "id": "death_cert",
+          "label": "Death Certificate (if applicable)",
+          "description": "For deceased family members — issued by Union Council or Municipal Corporation",
+          "required": false
+        },
+        {
+          "id": "passport_photo",
+          "label": "Passport-size Photographs",
+          "description": "Recent photographs for online application via Pak Identity App",
+          "required": false
+        }
       ]
     },
 
     "offices": [
+      {
+        "name": "PHQ Islamabad",
+        "address": "GROUND FLOUR,PLOT NO 30,SECTOR G-10/4,MAUVE AREA, ISLAMABAD",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-9108128",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.67197859,73.01984004"
+      },
+      {
+        "name": "NADRA Registration Center - Bhara Khu",
+        "address": "Abdullah Town, Near BOP, Main Murree Road, Bhera Pull, Bhara Kahu",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-2165191",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.743752,73.187266"
+      },
+      {
+        "name": "Mega Blue Area ISB",
+        "address": "98-West , Khyber Plaza, Blue Area Islamabad",
+        "hours": "7:30 AM - 8:30 PM",
+        "phone": "+92-51-9245221",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.70938416,73.05614496"
+      },
+      {
+        "name": "NADRA Registration Center - Rawat",
+        "address": "Main GT Road Rawat, Near Chambar Mor, Tehsil & District Islamabad",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-9243016",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.501351,73.195051"
+      },
+      {
+        "name": "National Assembly",
+        "address": "NADRA Office , Ground Floor, National Assembly of Pakistan",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-9103131",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.70938416,73.05614496"
+      },
+      {
+        "name": "OPF Building Islamabad",
+        "address": "OPF Building, Shahra-e-Jamhuriat, G-5/2, Islamabad, Pakistan",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-90392920",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.73059394,73.0969393"
+      },
+      {
+        "name": "NADRA Registration Center - Taramri",
+        "address": "1st Floor, Gulzar Arcade, Near HBS Medical and Dental College, Lehtrar Road, Taramri, Islamabad",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-333-2623938",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.72256511,73.09688295"
+      },
+      {
+        "name": "BISP One Window Counter",
+        "address": "G7, Islamabad",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-9108929",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.642897,73.160028"
+      },
+      {
+        "name": "ICCI",
+        "address": "ICCI building, Aiwan -e-Sanat-o-Tijarat Rd, G-8/1 Islamabad",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-333-5607883",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.6872238,73.0511863"
+      },
+      {
+        "name": "Assan Khidmat Center",
+        "address": "PWD Bulding G-9/1",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-336-4188887",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33.6826,73.0298"
+      },
+      {
+        "name": "NADRA Registration Center - Lalamoosa",
+        "address": "NADRA Office Lalamusa near noona halwai GT road Lalamusa",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-53-7510025",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Kotla Arab Ali Khan",
+        "address": "Fazal Center near Shan marbal Factory (Kakrali), Gujrat Road",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-53-7575924",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Sarai Alamgir",
+        "address": "Mohala Peer Multani,Opp DSP Office,GT Road,Tehsil Sarai Alamgir,District Gujrat",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-4284464",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Dinga",
+        "address": "NRC Dinga,Dhalian Chowk ,Rear Alfahad Patroleum Dinga,Tehsil Kharian District Gujrat",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-53-7400585",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Gujrat",
+        "address": "Al-Akbar Plaza, Opp Falak Marriage Hall, near EOBI Office, Service More, Gujrat",
+        "hours": "7:30 AM - 8:30 PM",
+        "phone": "+92-53-9260440",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Kharian",
+        "address": "Opposite Askari Bank near fruit mandi GT Road Kharian",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-53-9240040",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Jalalpur Jattan",
+        "address": "Ramzan Plaza, Near Dua Marquee Gujrat Road, Jalalpur Jattan Tehsil and District Gujrat",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-53-3431116",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "Executive Gujrat",
+        "address": "Al-Akbar Plaza, Opp Falak Marriage Hall, near EOBI Office, Service More, Gujrat",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-53-39260343",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Kuri Sharif",
+        "address": "Nadra Office Kurri sharif near Govt Boys Primary school Head marala Road Gujrat",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-6262058",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Karianwala",
+        "address": "NADRA Office Karianwala Near Muhammad Shah Darbar, Tanda Road",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-53-3581002",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Makiana",
+        "address": "NADRA Office Makaina Near Boken More Tehsil & District Gujrat",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-333-5705519",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Kunjah",
+        "address": "Mohallah Eid Gah Near Dara Bahar Shah Kunjah",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-345-5559937",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "GTCCI",
+        "address": "GT Road Near Rehmani Bridge",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-333-5088133",
+        "province": "Punjab",
+        "district": "Gujrat"
+      },
+      {
+        "name": "NADRA Registration Center - Mandi Bahauddin King Road",
+        "address": "NRC NADRA Office King Road MandiBhauddin",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-6509408",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "NADRA Registration Center - Phalia",
+        "address": "Main Road Bhoa Hassan Tehsil & District Phalia",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-6566022",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "NADRA Registration Center - Gojra-Malakwal",
+        "address": "Opposite Shell Pump, Sargodah Mandi Bahauddin Road Gojra(Malakwal) Tehsil Malakwal Distt Mandi Bahauddin",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-6588496",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "NADRA Registration Center - Malakwal",
+        "address": "NRC NADRA Office Malakwal near Farooqia Masjid, Rukan Road, Malakwal",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-6582321",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "NADRA Registration Center - Mandi Bahuddin(TMA)",
+        "address": "NADRA Office TMA Complex,Committee Bagh Mandi Bahauddin",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-6509409",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "NADRA Registration Center - Ada Ranmal",
+        "address": "Ghanian Road Tehsil Phila, District Mandi Bahauddin",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-6632133",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "NADRA Registration Center - Bhoa Hassan",
+        "address": "NADRA Registration Center Bhoa Hassan, Main Road Bhoa Hassan Tehsil & District Phalia",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-6622002",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "MB Din CCI",
+        "address": "villa No 1,city center, near passport office sofi center Mandi bah ud din",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-321-2707526",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "NADRA Registration Center - chillianwala",
+        "address": "Football Ground Chillianwala",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-345-5759089",
+        "province": "Punjab",
+        "district": "Mandi Bahauddin"
+      },
+      {
+        "name": "NADRA Registration Center - Attock",
+        "address": "Ikhlas Khan Plaza, Near Teen Mela Chock",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-57-2365388",
+        "province": "Punjab",
+        "district": "Attock"
+      },
+      {
+        "name": "NADRA Registration Center - Jandh",
+        "address": "NADRA Office Jand, Kohat Road",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-57-2622015",
+        "province": "Punjab",
+        "district": "Attock"
+      },
+      {
+        "name": "NADRA Registration Center - Hasanabdal",
+        "address": "Opposite Cadet Collage Hasan Abdal, Main G.T Road",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-57-2521247",
+        "province": "Punjab",
+        "district": "Attock"
+      },
+      {
+        "name": "NADRA Registration Center - Hazro",
+        "address": "Sikandar Petroleum Hattain Road Hazro District Attock",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-333-5650854",
+        "province": "Punjab",
+        "district": "Attock"
+      },
+      {
+        "name": "NADRA Registration Center - Fateh Jang",
+        "address": "NADRA Office Fateh Jang, Main Kohat Road",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-57-2213167",
+        "province": "Punjab",
+        "district": "Attock"
+      },
+      {
+        "name": "NADRA Registration Center - Pindi Gheb",
+        "address": "NADRA Office Pindi Gheb Katchery Road, Main Bazar",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-57-2351297",
+        "province": "Punjab",
+        "district": "Attock"
+      },
+      {
+        "name": "NADRA Registration Center - Khour",
+        "address": "NRC khaur, Bank road opposite Union Council Khaur Tehsil Pindigheb, District Attock",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-57-2571297",
+        "province": "Punjab",
+        "district": "Attock"
+      },
+
+      {
+        "name": "NADRA Registration Center - Chakwal",
+        "address": "NADRA Registration Center Chakwal Near Zafar CNG Pindi Road Chakwal City",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-3555125",
+        "province": "Punjab",
+        "district": "Chakwal"
+      },
+      {
+        "name": "NADRA Registration Center - Rawalpindi Cantt",
+        "address": "CSD Lalkurti Rawalpindi Cantt",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-9274845",
+        "province": "Punjab",
+        "district": "Rawalpindi"
+      },
+      {
+        "name": "NADRA Registration Center - Bakra Mandi-RWP",
+        "address": "Haji Jan Plaza Kalma Chock Bakramandi Rwp",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-5683183",
+        "province": "Punjab",
+        "district": "Rawalpindi"
+      },
+      {
+        "name": "Mega Murree Road Rwp II",
+        "address": "Millennium Mall,62-A,Rehman Abad, Murree Road, Rawalpindi",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-4932287",
+        "province": "Punjab",
+        "district": "Rawalpindi"
+      },
+      {
+        "name": "Mega Murree Road Rwp",
+        "address": "Millennium Mall,62-A,Rehman Abad, Murree Road, Rawalpindi",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-51-4932260",
+        "province": "Punjab",
+        "district": "Rawalpindi"
+      },
+      {
+        "name": "NADRA Registration Center - Narowal",
+        "address": "Circular Road Near Jasshar Bypass Narowal",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-2920132",
+        "province": "Punjab",
+        "district": "Narowal"
+      },
+      {
+        "name": "NADRA Registration Center - Shakargarh",
+        "address": "Antowali, Noorkot Road Shakargarh",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-2450725",
+        "province": "Punjab",
+        "district": "Narowal"
+      },
+      {
+        "name": "NADRA Registration Center - Zafarwal",
+        "address": "Chawinda Road Near Grid Station Zafarwal",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-54-2538726",
+        "province": "Punjab",
+        "district": "Narowal"
+      },
+      {
+        "name": "NADRA Registration Center - Baddomalhi",
+        "address": "New Lahore Road, Jawad Chowk Baddomalhi",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-304-0524145",
+        "province": "Punjab",
+        "district": "Narowal"
+      },
+      {
+        "name": "NADRA Registration Center - Essa Chowk",
+        "address": "Shah-Gharib Post office same Near Essa Chowk Tehsil Shakargarh District Narowal",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-307-8883445",
+        "province": "Punjab",
+        "district": "Narowal"
+      },
+      {
+        "name": "NADRA Registration Center - Qila Ahmedabad",
+        "address": "Near Bank of Punjab Narowal-Pasrur Road Qila Ahmed Abad",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-307-8883477",
+        "province": "Punjab",
+        "district": "Narowal"
+      },
+      {
+        "name": "NADRA Registration Center - Nowshera Virkan",
+        "address": "Nokhar Road Old Manzoor Marriage Hall, Nowshera Virkan",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-4645482",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
+      {
+        "name": "NADRA Registration Center - Kamoki",
+        "address": "G.T Road Opposite Al-Madni Restaurant Kamoki",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645631",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
+      {
+        "name": "NADRA Registration Center - Qila Dedar Singh",
+        "address": "Main Hafizabad Road, Near Educator School, Qila Dedar Singh,Tehsil & District Gujranwala",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645635",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
+      {
+        "name": "Mega Gujranwala",
+        "address": "Mega NRC Gujranwala,Opposite,Leather College,GT Road,Near Haroon Textile,Gujranwala",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-55-9330657",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
+      {
+        "name": "Gujranwala Khidmat Markaz",
+        "address": "Main GT Road Gujranwala Khidmat Markaz Opp Shaheenabad Bazar",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-304-0438350",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
+      {
+        "name": "GCCI",
+        "address": "Chamber of Commerce, Trust Plaza GT Road Gujranwala",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-321-7658006",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
+      {
+        "name": "NADRA Registration Center - Pasrur",
+        "address": "Kalaswala Road Malik Building Near Satrah Chowk Tehsil Pasrur District Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-52-6440296",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "NADRA Registration Center - Daska",
+        "address": "NADRA Office Daska Stadium Road, Daska Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-301-8450187",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "NADRA Registration Center - Sambrial",
+        "address": "NRC Sambrial, Main Wazirabad Road Near Cheema Family Hospital Tehsil Sambrial District Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-6181323",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "NADRA Registration Center - Chawinda",
+        "address": "Zafar Wal Road Near Bus Stand Chawinda Teh Pasrur Distt Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-52-6210044",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "NADRA Registration Center - Kotli Loharan",
+        "address": "NRC Kotli Loharan Head Marala Road, Khajoori Wala Stop,Kotli Loharan Tehsil & District Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-6134513",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "NADRA Registration Center - New Saidpur",
+        "address": "NADRA Office Saidpur, SaidPur Road Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-321-6116374",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "NADRA Registration Center - Bhagowal",
+        "address": "Village & P.O Bhagowal Merajke Road Near Govt. English Medium High School For Boys, Tehsil & District Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-6193828",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "Mega Sialkot",
+        "address": "Imam Plaza, Defence Road, Near Javson Hotel, Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-332-4917336",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "NADRA Registration Center - Satrah",
+        "address": "NADRA Office Satrah. Gujranwala Parsur road near National Bank, Satrah",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-333-3325700",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "Sialkot Khidmat Markaz",
+        "address": "E-Khidmat Markaz, SBCC Building, Near Chamber of Commerce, Paris Road, Sialkot",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-336-5855257",
+        "province": "Punjab",
+        "district": "Sialkot"
+      },
+      {
+        "name": "NADRA Registration Center - Kasur",
+        "address": "Kachari Road, Al Majeed Center Near National Bank, Old Sabzi Mandi Kasur",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-49-2721800",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Kot Radha Kishan",
+        "address": "Main Azam Abad Road, Azan Plaza Kot Radha Kishan District Kasur",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-49-2380520",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Pattoki",
+        "address": "New Model City, Multan Road Pattoki",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-49-4422118",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Chunian",
+        "address": "Near Amina Marriage Hall, Near TMO Office Chunian",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645437",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Kangan Pur",
+        "address": "Markaz Complex Building Near Bilal Masjid LandianWala Road, Kangan Pur",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-49-4820059",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Kasur Bypass",
+        "address": "Near Roundabout Bypass Ferozpur Road Sadar Dewan Kasur",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-49-2772012",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Khuddiyan",
+        "address": "NRC Khuddiyan, Khursheed Town, Near new Bus Stand main road Khuddiyan Khas, Tehsil Kasur, District Kasur",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-49-2791021",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Mustafabad Kasur",
+        "address": "Near MCB Bank, Main FerozPur Lahore Road Mustafabad (Lallyani)",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-49-2450842",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Phool Nagar",
+        "address": "Town Committee Building Phool Nagar Tehsil Pattoki District Kasur",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-49-4511400",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Raja Jang",
+        "address": "Municipal committee building Raja Jang",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645428",
+        "province": "Punjab",
+        "district": "Kasur"
+      },
+      {
+        "name": "NADRA Registration Center - Zarar Shaheed Road-1",
+        "address": "NRC Zarrar Shaheed Road, Nagina Centre Zarrar Shaheed Road Lahore Cantt.",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-42-99220837",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - DHA Lahore",
+        "address": "124, G Block, DHA Lahore (Phase I).",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-42-35734910",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - Secretariat",
+        "address": "NADRA Office, Old Minister Block, Punjab Civil Secretariat, Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-42-99210228",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - Raiwind",
+        "address": "NADRA Registration Center Raiwind, Near UC # 272/ Dola Mola Darbar",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-42-35398577",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - Jallo",
+        "address": "Main G.T Road Near Bismilha Housing Society Jallo",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-42-36583233",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "VIP NRC RHO Lahore",
+        "address": "NRC RHO Lahore NADRA RHO Building, 73 Trade Center, MA Johar Town ,Lahore District Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-304-0438353",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - DHA Phase IV Lahore",
+        "address": "153-CCA, DHA Phase 4 Lahore Cantt",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645653",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NRC Lahore High Court",
+        "address": "NADRA Registration Center Lahore High Court, Shahrah-e-Quaid-e-Azam, Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-333-4202924",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "Mega Egerton Road",
+        "address": "9-Edgerton Road near Shimla Pahari Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-42-99205150",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "Khaidmat Markaz",
+        "address": "Khidmat Markaz, Arfa Kareem Technology park,Ferozpur Road,Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-334-4196430",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - Mohlanwal",
+        "address": "NADRA Office, Mohlanwal, 1/2 Defence Road off Multan Road, Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-307-8883347",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "Lahore Chamber",
+        "address": "NADRA Office, Lahore Chamber Of Commerce & Industry , 11-Shahrah E Aiwan E Tijarat, Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645642",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "Mega Data Gunj Bukhsh",
+        "address": "Mega Center, 15-A Sanda Road, Near MAO College Sanda Road Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-42-9933346-47",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "DSFU DHA Lahore",
+        "address": "27/A XX Block DHA Phase III Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-323-8418945",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - Kahna nau",
+        "address": "NRC Kahna Nau, Bus Stop No 5, Malik Pura, Old Kahna Near Chota Suwa 26 KM, Main Feroz Pur Road, Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-307-8883750",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - Hair",
+        "address": "UC 195 Village Hair, Beddian Road, Lahore Cantt Lahore.",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-9464914",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "Mega Peco Road",
+        "address": "Abu Bakar Plaza, Building No. 39, Block-10, Sector B-1, Township, Lahore.",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-42-35119000",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NRC Barki",
+        "address": "Village Barki, Main Barki Road, Lahore Cantt",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-8883767",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "OWFD Lahore Airport",
+        "address": "Allama Iqbal International Airport Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-307-8883727",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "OPC Lahore",
+        "address": "OPC Counter Al-Falah Building, Shahra e Quaid-e-Azam Lahore",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-321-7504438",
+        "province": "Punjab",
+        "district": "Lahore"
+      },
+      {
+        "name": "NADRA Registration Center - Okara",
+        "address": "Zillah Council Stadium District Complex NADRA Office Okara",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-44-9200330",
+        "province": "Punjab",
+        "district": "Okara"
+      },
+      {
+        "name": "NADRA Registration Center - Dipalpur",
+        "address": "TMA Building Depalpur",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-44-4544543",
+        "province": "Punjab",
+        "district": "Okara"
+      },
+      {
+        "name": "NADRA Registration Center - Rinala Khurd",
+        "address": "Aamir Plaza G.T. Road Renala Khurd, Okara",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-44-2635873",
+        "province": "Punjab",
+        "district": "Okara"
+      },
+      {
+        "name": "NADRA Registration Center - Haveli Lakhan",
+        "address": "Pakpatan Road near THQ, Haveli Lakha",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-44-4775676",
+        "province": "Punjab",
+        "district": "Okara"
+      },
+      {
+        "name": "NADRA Registration Center - Hujra Shah Muqeem",
+        "address": "Dhuliana Road Hujra Shah Muqeem",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-44-4860656",
+        "province": "Punjab",
+        "district": "Okara"
+      },
+      {
+        "name": "NADRA Registration Center - Okara Lalazar Colony",
+        "address": "Faisalabad Road Near Sharif Surgimet Hospital Okara",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-44-2716940",
+        "province": "Punjab",
+        "district": "Okara"
+      },
+      {
+        "name": "NADRA Registration Center - Basirpur",
+        "address": "Chandoor Road/Mandi Ahmed Abad Road Basirpur",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-304-0526362",
+        "province": "Punjab",
+        "district": "Okara"
+      },
+      {
+        "name": "NADRA Registration Center - Sheikhupura",
+        "address": "NADRA Office Near Excise and Taxation Office, Shami Road, Sheikhupura",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-334-4947022",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Muridkey",
+        "address": "NADRA Office Near Itehad Colony Sheikhan Wala Pump G.T Road Muridke",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-307-8883463",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Safdarabad",
+        "address": "NADRA Office, Near Tehsil Head Quarter Hospital ,Tehsil Safdarabad Distt Sheikhupura",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-8024321",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Ferozwala",
+        "address": "Building Gulshan Marriage Hall near Imamia Colony Railway Phatak Main G.T Road, Tehsil Ferozwala, District Sheikhupura",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-301-5158175",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Manawala",
+        "address": "Near Sar-E Rah Restaurant, Manawala Faisalabad Road ,Sheikhupura Tehsil & District Sheikhupura",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-304-0439220",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Sheikhupura, Gujranwala Road",
+        "address": "Al-Muzammal Palace building Opposite Al-Barri Residencia Gujranwala Road Sheikhupura.",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8646720",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Sharqpur",
+        "address": "NADRA Registration Center (NRC) Circular Road Opposite Noor Mahal Marriage Hall, City & Tehsil Sharqpur District Sheikhupora",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-4787160",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Narang Mandi",
+        "address": "NADRA Office Near Pannu Kanta Narang Mor.",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645643",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Kot Abdul Malik",
+        "address": "Main Sui Gas Road, Near Janazgah, Sharqpur Khurd,Post Office Kot Abdul Malik,Teh Ferozwala,Dist Sheikhupura",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-332-4445007",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Jhabran",
+        "address": "Hafizabad Road Near PSO Pump Jhabran, Tehsil and District Sheikhupura",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-336-4216614",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Farooqabad",
+        "address": "Nadra Office M C Farooqabad",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-304-4766077",
+        "province": "Punjab",
+        "district": "Sheikhupura"
+      },
+      {
+        "name": "NADRA Registration Center - Nankana Sahab",
+        "address": "Shora Kothi Road NADRA Office Nankana Sahib",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-4744799",
+        "province": "Punjab",
+        "district": "Nankana Sahib"
+      },
+      {
+        "name": "NADRA Registration Center - Sangla Hill",
+        "address": "Safdarabad Road, Near Five Star Sugar Mills Sangla Hill",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645251",
+        "province": "Punjab",
+        "district": "Nankana Sahib"
+      },
+      {
+        "name": "NADRA Registration Center - Shahkot",
+        "address": "Manawala Bazar Near TMA Office NRC Shahkot Distt Nankana",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-307-6833323",
+        "province": "Punjab",
+        "district": "Nankana Sahib"
+      },
+      {
+        "name": "NADRA Registration Center - Saiyedan Wala",
+        "address": "Main Jaranawala Road Near Zarrai Taraqiati Bank Syedwala Tehsil & District Nankana Sahib",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-304-0523166",
+        "province": "Punjab",
+        "district": "Nankana Sahib"
+      },
+      {
+        "name": "NADRA Registration Center - Kunda Mor",
+        "address": "NADRA Office Kunda Mor, Lahore Road Opposite Union Council Natha, Kunda Mor, Tehsil & District Nankana Sahib",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-308-4376030",
+        "province": "Punjab",
+        "district": "Nankana Sahib"
+      },
+      {
+        "name": "NADRA Registration Center - Wazirabad",
+        "address": "NADRA Office Main GT Road Near Judicial Complex",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-300-9848423",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
+      {
+        "name": "NADRA Registration Center - Ghakhar",
+        "address": "Ghakhar town committee GT road Ghakhar Mandi Tehsil Wazirabad Distt Gujranwala",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-302-8645448",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
+      {
+        "name": "NADRA Registration Center - Ali Pur Chatha",
+        "address": "Qadir Abad Road, Opposite Govt. Civil Hospital, Ali Pur Chatha, Tehsil Wazirabad, District Gujranwala",
+        "hours": "7:30 AM - 3:30 PM",
+        "phone": "+92-304-0520157",
+        "province": "Punjab",
+        "district": "Gujranwala"
+      },
       {
         "name": "NADRA Registration Center - Clifton",
         "badge": "NADRA Mega Center",
@@ -326,34 +1560,73 @@
         {
           "name": "Spelling & Names",
           "items": [
-            { "label": "All family member names match passport and other documents exactly", "critical": true },
-            { "label": "English transliteration of names is accurate", "critical": true },
-            { "label": "Father's and mother's names are correctly listed", "critical": true }
+            {
+              "label": "All family member names match passport and other documents exactly",
+              "critical": true
+            },
+            {
+              "label": "English transliteration of names is accurate",
+              "critical": true
+            },
+            {
+              "label": "Father's and mother's names are correctly listed",
+              "critical": true
+            }
           ]
         },
         {
           "name": "CNIC & Identification",
           "items": [
-            { "label": "All CNIC numbers are correctly printed (13 digits)", "critical": true },
-            { "label": "Applicant's CNIC/NICOP number matches the certificate", "critical": true },
-            { "label": "CRC numbers for minors are correctly listed", "critical": false }
+            {
+              "label": "All CNIC numbers are correctly printed (13 digits)",
+              "critical": true
+            },
+            {
+              "label": "Applicant's CNIC/NICOP number matches the certificate",
+              "critical": true
+            },
+            {
+              "label": "CRC numbers for minors are correctly listed",
+              "critical": false
+            }
           ]
         },
         {
           "name": "Family Composition",
           "items": [
-            { "label": "All required family members are listed", "critical": true },
-            { "label": "Relationship types (spouse, child, parent) are accurate", "critical": true },
-            { "label": "FRC category matches your application need", "critical": false }
+            {
+              "label": "All required family members are listed",
+              "critical": true
+            },
+            {
+              "label": "Relationship types (spouse, child, parent) are accurate",
+              "critical": true
+            },
+            {
+              "label": "FRC category matches your application need",
+              "critical": false
+            }
           ]
         },
         {
           "name": "Document Integrity",
           "items": [
-            { "label": "Certificate has official NADRA seal and signature", "critical": true },
-            { "label": "Date of issuance is clearly visible", "critical": false },
-            { "label": "QR code or verification number is present", "critical": false },
-            { "label": "No visible damage, stains, or alterations", "critical": true }
+            {
+              "label": "Certificate has official NADRA seal and signature",
+              "critical": true
+            },
+            {
+              "label": "Date of issuance is clearly visible",
+              "critical": false
+            },
+            {
+              "label": "QR code or verification number is present",
+              "critical": false
+            },
+            {
+              "label": "No visible damage, stains, or alterations",
+              "critical": true
+            }
           ]
         }
       ]
@@ -372,8 +1645,14 @@
           "Don't submit correction requests without official supporting documents."
         ],
         "links": [
-          { "label": "NADRA Official Website", "url": "https://www.nadra.gov.pk" },
-          { "label": "Pak Identity App (Google Play)", "url": "https://play.google.com/store/apps/details?id=pk.gov.nadra.pakid" },
+          {
+            "label": "NADRA Official Website",
+            "url": "https://www.nadra.gov.pk"
+          },
+          {
+            "label": "Pak Identity App (Google Play)",
+            "url": "https://play.google.com/store/apps/details?id=pk.gov.nadra.pakid"
+          },
           { "label": "NADRA Helpline: 1777", "url": "tel:1777" }
         ]
       },
@@ -389,8 +1668,14 @@
           "Remote areas may require travel to the nearest district headquarters."
         ],
         "links": [
-          { "label": "Find NADRA Offices", "url": "https://www.nadra.gov.pk/nadraOffices" },
-          { "label": "E-Khidmat Markaz (Punjab)", "url": "https://ekhidmat.punjab.gov.pk" }
+          {
+            "label": "Find NADRA Offices",
+            "url": "https://www.nadra.gov.pk/nadraOffices"
+          },
+          {
+            "label": "E-Khidmat Markaz (Punjab)",
+            "url": "https://ekhidmat.punjab.gov.pk"
+          }
         ]
       },
       "roadmap": {
@@ -405,8 +1690,14 @@
           "Unregistered family members must be added to NADRA records before FRC issuance."
         ],
         "links": [
-          { "label": "NADRA Document Requirements", "url": "https://www.nadra.gov.pk" },
-          { "label": "Pak Identity App (iOS)", "url": "https://apps.apple.com/us/app/pak-identity/id1563975817" }
+          {
+            "label": "NADRA Document Requirements",
+            "url": "https://www.nadra.gov.pk"
+          },
+          {
+            "label": "Pak Identity App (iOS)",
+            "url": "https://apps.apple.com/us/app/pak-identity/id1563975817"
+          }
         ]
       },
       "office_finder": {
@@ -421,7 +1712,10 @@
           "Avoid peak hours (10 AM - 1 PM) for faster service."
         ],
         "links": [
-          { "label": "NADRA Office Locator", "url": "https://www.nadra.gov.pk/nadraOffices" },
+          {
+            "label": "NADRA Office Locator",
+            "url": "https://www.nadra.gov.pk/nadraOffices"
+          },
           { "label": "NADRA Helpline: 1777", "url": "tel:1777" }
         ]
       },
@@ -437,8 +1731,14 @@
           "Don't assume the FRC is correct without verifying every listed family member."
         ],
         "links": [
-          { "label": "NADRA Certificate Verification", "url": "https://id.nadra.gov.pk" },
-          { "label": "NADRA Official Website", "url": "https://www.nadra.gov.pk" }
+          {
+            "label": "NADRA Certificate Verification",
+            "url": "https://id.nadra.gov.pk"
+          },
+          {
+            "label": "NADRA Official Website",
+            "url": "https://www.nadra.gov.pk"
+          }
         ]
       }
     }
