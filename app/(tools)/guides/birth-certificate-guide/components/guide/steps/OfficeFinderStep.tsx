@@ -23,13 +23,18 @@ const OfficeFinderStep = ({ province, district }: OfficeFinderStepProps) => {
     const matchesSearch =
       !searchQuery ||
       o.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      o.address.toLowerCase().includes(searchQuery.toLowerCase());
+      (o.address && o.address.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    return matchesSearch;
+    const matchesLocation = 
+      (!province || o.province === province) && 
+      (!district || o.district === district);
+
+    return matchesSearch && matchesLocation;
   });
 
   const displayOffices =
     filteredOffices.length > 0 ? filteredOffices : allOffices;
+
 
   const locationLabel =
     [district, province].filter(Boolean).join(", ") || "Pakistan";

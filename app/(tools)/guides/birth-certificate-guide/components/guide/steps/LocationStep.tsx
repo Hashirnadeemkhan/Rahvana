@@ -22,6 +22,8 @@ const LocationStep = ({
   const locData = guideData.wizard.location;
   const selectedProvince = locData.provinces.find((p: any) => p.name === province);
   const districts = selectedProvince?.districts || [];
+  const selectedDistrictObj = districts.find((d: any) => d.name === district);
+  const cities = selectedDistrictObj?.cities || [];
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
@@ -52,7 +54,7 @@ const LocationStep = ({
             >
               <option value="">Select Province</option>
               {locData.provinces.map((p: any) => (
-                <option key={p.name} value={p.name}>
+                <option key={p.id} value={p.name}>
                   {p.name}
                 </option>
               ))}
@@ -83,9 +85,9 @@ const LocationStep = ({
               <option value="">
                 {province ? "Select District" : "Select Province First"}
               </option>
-              {districts.map((d: string) => (
-                <option key={d} value={d}>
-                  {d}
+              {districts.map((d: any) => (
+                <option key={d.id} value={d.name}>
+                  {d.name}
                 </option>
               ))}
             </select>
@@ -100,21 +102,45 @@ const LocationStep = ({
             City / Area <span className="text-red-500">*</span>
           </label>
 
-          <input
-            type="text"
-            placeholder={
-              district ? "Enter your city or area" : "Select District First"
-            }
-            value={city || ""}
-            onChange={(e) => onCityChange(e.target.value)}
-            disabled={!district}
-            className={`w-full px-4 py-3 text-[0.9rem] border border-slate-200 rounded-[10px] bg-white text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all font-medium font-['Plus_Jakarta_Sans',system-ui] ${
-              !district ? "opacity-60 cursor-not-allowed" : ""
-            }`}
-          />
+          {cities.length > 0 ? (
+            <div className="relative">
+              <select
+                value={city || ""}
+                onChange={(e) => onCityChange(e.target.value)}
+                disabled={!district}
+                className={`w-full px-4 py-3 text-[0.9rem] border border-slate-200 rounded-[10px] bg-white text-slate-900 appearance-none cursor-pointer outline-none focus:border-teal-500 transition-all font-medium font-['Plus_Jakarta_Sans',system-ui] ${
+                  !district ? "opacity-60 cursor-not-allowed" : ""
+                }`}
+              >
+                <option value="">
+                  {district ? "Select City" : "Select District First"}
+                </option>
+                {cities.map((c: string) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 pointer-events-none" />
+            </div>
+          ) : (
+            <input
+              type="text"
+              placeholder={
+                district ? "Enter your city or area" : "Select District First"
+              }
+              value={city || ""}
+              onChange={(e) => onCityChange(e.target.value)}
+              disabled={!district}
+              className={`w-full px-4 py-3 text-[0.9rem] border border-slate-200 rounded-[10px] bg-white text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all font-medium font-['Plus_Jakarta_Sans',system-ui] ${
+                !district ? "opacity-60 cursor-not-allowed" : ""
+              }`}
+            />
+          )}
         </div>
       </div>
     </motion.div>
+
   );
 };
 

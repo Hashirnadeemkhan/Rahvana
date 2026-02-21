@@ -6,27 +6,36 @@ import { cn } from "@/lib/utils";
 
 interface RoadmapStepProps {
   caseType: string | null;
+  personType: string | null;
+  documentNeed: string | null;
   checkedDocuments: string[];
   onToggleDocument: (id: string) => void;
 }
 
 const RoadmapStep = ({
   caseType,
+  personType,
+  documentNeed,
   checkedDocuments,
   onToggleDocument,
 }: RoadmapStepProps) => {
-  const { title, estimated_timeline, phases, documents_checklist } =
+  const { title, estimated_timeline, stations, documents_checklist } =
     guideData.wizard.roadmap;
 
-  const [activePhase, setActivePhase] = useState<number | null>(null);
+  const [activeStation, setActiveStation] = useState<string | null>(null);
 
   const filteredDocs = documents_checklist.filter((doc: any) => {
     if (doc.category && doc.category !== caseType) return false;
+    // Add logic for personType/documentNeed filtering if specified in JSON
+    if (doc.id === "applicant_id" && personType === "child") return false;
+    if (doc.id === "hospital_slip" && documentNeed === "replacement") return false;
     return true;
   });
 
   const checkedCount = checkedDocuments.filter(id => filteredDocs.some((d: any) => d.id === id)).length;
   const totalDocs = filteredDocs.length;
+
+  const selectedStation = stations.find(s => s.id === activeStation);
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
@@ -40,69 +49,75 @@ const RoadmapStep = ({
         </p>
       </div>
 
-
-      {/* Timeline */}
+      {/* Stations / Phases */}
       <section>
-        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 font-['Plus_Jakarta_Sans',system-ui]">Process Timeline</h3>
+        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 font-['Plus_Jakarta_Sans',system-ui]">Application Journey</h3>
         <div className="flex flex-wrap items-start justify-center gap-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
-            {phases.map((phase: any, i: number) => (
-            <div key={phase.id} className="flex items-start gap-4">
+            {stations.map((station: any, i: number) => (
+            <div key={station.id} className="flex items-start gap-4">
                 <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() =>
-                    setActivePhase(activePhase === phase.id ? null : phase.id)
+                    setActiveStation(activeStation === station.id ? null : station.id)
                 }
                 className="flex flex-col items-center gap-2 bg-transparent border-none p-1 cursor-pointer"
                 >
                 <div
                     className={cn(
                         "w-12 h-12 rounded-full flex items-center justify-center text-white font-extrabold text-[1.1rem] shadow-sm transition-all",
-                        activePhase === phase.id ? "bg-teal-700 scale-110" : "bg-teal-600"
+                        activeStation === station.id ? "bg-teal-700 scale-110" : "bg-teal-600"
                     )}
                 >
-                    {phase.id}
+                    {i + 1}
                 </div>
 
                 <span className="text-[0.8rem] font-semibold text-slate-800 text-center max-w-22 leading-[1.3] font-['Plus_Jakarta_Sans',system-ui]">
-                    {phase.title}
-                </span>
-
-                <span className="flex items-center gap-1 text-[0.72rem] text-slate-500 font-['Plus_Jakarta_Sans',system-ui]">
-                    <Clock className="w-3 h-3" />
-                    {phase.duration}
+                    {station.title}
                 </span>
                 </motion.button>
 
-                {i < phases.length - 1 && (
+                {i < stations.length - 1 && (
                 <div className="w-8 h-0.5 bg-teal-200 mt-6 shrink-0 hidden sm:block" />
                 )}
             </div>
             ))}
         </div>
 
-        {/* Phase Detail */}
+        {/* Station Detail */}
         <AnimatePresence>
-            {activePhase !== null && (
+            {activeStation !== null && selectedStation && (
             <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 className="mt-6 overflow-hidden"
             >
-                <div className="p-5 rounded-xl bg-teal-50 border border-teal-100 relative">
+                <div className="p-6 rounded-xl bg-white border-2 border-teal-600 relative shadow-lg">
                     <button
-                        onClick={() => setActivePhase(null)}
+                        onClick={() => setActiveStation(null)}
                         className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
                     >
                         <X className="w-4 h-4" />
                     </button>
-                    <h4 className="text-[1rem] font-bold text-teal-900 mb-2 font-['Plus_Jakarta_Sans','Inter',system-ui,sans-serif]">
-                        Phase {activePhase}: {phases[activePhase - 1]?.title}
+                    <h4 className="text-[1.1rem] font-bold text-teal-900 mb-2 font-['Plus_Jakarta_Sans','Inter',system-ui,sans-serif]">
+                        Step {stations.indexOf(selectedStation) + 1}: {selectedStation.title}
                     </h4>
-                    <p className="text-[0.875rem] text-slate-600 leading-relaxed font-['Plus_Jakarta_Sans','Inter',system-ui,sans-serif]">
-                        {phases[activePhase - 1]?.description}
+                    <p className="text-[0.875rem] text-slate-600 mb-4 leading-relaxed font-['Plus_Jakarta_Sans',system-ui]">
+                        {selectedStation.description}
                     </p>
+                    
+                    <div className="space-y-2">
+                      <h5 className="text-[0.75rem] font-bold text-slate-400 uppercase tracking-wider">Key Tasks:</h5>
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {selectedStation.tasks.map((task: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-slate-700 font-['Plus_Jakarta_Sans',system-ui]">
+                            <Check className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                            <span>{task}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                 </div>
             </motion.div>
             )}
@@ -186,6 +201,7 @@ const RoadmapStep = ({
         </div>
       </section>
     </motion.div>
+
   );
 };
 

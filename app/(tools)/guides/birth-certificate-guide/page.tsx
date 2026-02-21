@@ -6,6 +6,8 @@ import WizardHeader from "./components/guide/WizardHeader";
 import WizardSidebar from "./components/guide/WizardSidebar";
 import WizardInfoPanel from "./components/guide/WizardInfoPanel";
 import WhatsThisModal from "./components/guide/WhatsThisModal";
+import PersonTypeStep from "./components/guide/steps/PersonTypeStep";
+import DocumentNeedStep from "./components/guide/steps/DocumentNeedStep";
 import CaseTypeStep from "./components/guide/steps/CaseTypeStep";
 import LocationStep from "./components/guide/steps/LocationStep";
 import RoadmapStep from "./components/guide/steps/RoadmapStep";
@@ -16,6 +18,8 @@ import guideData from "@/data/birth-certificate-guide-data.json";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const STEP_IDS: BirthStepId[] = [
+  "person_type",
+  "document_need",
   "case_type",
   "location",
   "roadmap",
@@ -27,6 +31,8 @@ const INFO_PANEL_KEYS: Record<
   BirthStepId,
   keyof typeof guideData.wizard.info_panel
 > = {
+  person_type: "person_type",
+  document_need: "document_need",
   case_type: "case_type",
   location: "location",
   roadmap: "roadmap",
@@ -38,6 +44,8 @@ const BirthCertificateGuidePage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [showWhatsThis, setShowWhatsThis] = useState(false);
   const [state, setState] = useState<BirthWizardState>({
+    personType: null,
+    documentNeed: null,
     caseType: null,
     province: null,
     district: null,
@@ -66,6 +74,10 @@ const BirthCertificateGuidePage = () => {
 
   const canGoNext = (): boolean => {
     switch (currentStepId) {
+      case "person_type":
+        return !!state.personType;
+      case "document_need":
+        return !!state.documentNeed;
       case "case_type":
         return !!state.caseType;
       case "location":
@@ -111,6 +123,20 @@ const BirthCertificateGuidePage = () => {
 
   const renderStep = () => {
     switch (currentStepId) {
+      case "person_type":
+        return (
+          <PersonTypeStep
+            selected={state.personType}
+            onSelect={(v) => setState((s) => ({ ...s, personType: v }))}
+          />
+        );
+      case "document_need":
+        return (
+          <DocumentNeedStep
+            selected={state.documentNeed}
+            onSelect={(v) => setState((s) => ({ ...s, documentNeed: v }))}
+          />
+        );
       case "case_type":
         return (
           <CaseTypeStep
@@ -133,6 +159,8 @@ const BirthCertificateGuidePage = () => {
         return (
           <RoadmapStep
             caseType={state.caseType}
+            personType={state.personType}
+            documentNeed={state.documentNeed}
             checkedDocuments={state.checkedDocuments}
             onToggleDocument={toggleDocument}
           />
@@ -157,6 +185,7 @@ const BirthCertificateGuidePage = () => {
         return null;
     }
   };
+
 
   return (
     <div className="min-h-screen pt-14 flex flex-col bg-slate-50 font-sans">

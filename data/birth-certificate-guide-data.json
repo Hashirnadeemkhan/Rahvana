@@ -10,15 +10,26 @@
             "sub": "Union Council & NADRA Official Flow",
             "description": "All births in Pakistan must be registered at the Union Council (or equivalent) within 60-90 days (varies by province). After UC registration, apply for NADRA Child Registration Certificate (CRC/B-Form) for official identity (school, passport, etc.). This wizard covers 2026 requirements, including digital options via Pak ID app.",
             "quick_instructions": [
-                "Select your birth case (Timely, Late, Home, Overseas)",
-                "Provide location to find relevant Union Council/NADRA center",
-                "Get personalized document checklist and timeline",
-                "Explore digital registration via Pak ID app where available",
-                "Validate your CRC details for accuracy"
+                "Select who the certificate is for (Adult, Child, etc.)",
+                "Define your need (New, Correction, Replacement)",
+                "Identify your birth case timing",
+                "Provide location to find relevant Union Council office",
+                "Get personalized document checklist and roadmap",
+                "Validate your certificate for US immigration"
             ],
             "disclaimer": "This is general guidance based on 2026 regulations. Laws vary by province; verify with local UC/NADRA. Not legal advice."
         },
         "steps": [
+            {
+                "id": "person_type",
+                "label": "Applicant",
+                "icon": "user"
+            },
+            {
+                "id": "document_need",
+                "label": "Requirement",
+                "icon": "file-text"
+            },
             {
                 "id": "case_type",
                 "label": "Case Type",
@@ -45,6 +56,60 @@
                 "icon": "star"
             }
         ],
+        "person_type": {
+            "title": "Who is this certificate for?",
+            "description": "Select the category that best matches the person for whom you're obtaining the certificate.",
+            "types": [
+                {
+                    "id": "adult",
+                    "title": "Adult",
+                    "description": "Ages 18-60",
+                    "color": "blue"
+                },
+                {
+                    "id": "child",
+                    "title": "Child / Minor",
+                    "description": "Under 18 years",
+                    "color": "purple"
+                },
+                {
+                    "id": "senior",
+                    "title": "Senior",
+                    "description": "Over 60 years",
+                    "color": "green"
+                }
+            ]
+        },
+        "document_need": {
+            "title": "What brings you here?",
+            "description": "Understanding your specific need helps us provide the most relevant guidance.",
+            "types": [
+                {
+                    "id": "new",
+                    "title": "New Certificate",
+                    "description": "First-time birth certificate registration",
+                    "color": "green"
+                },
+                {
+                    "id": "correction",
+                    "title": "Correction Needed",
+                    "description": "Fix errors in existing certificate",
+                    "color": "orange"
+                },
+                {
+                    "id": "replacement",
+                    "title": "Replacement",
+                    "description": "Lost or damaged certificate",
+                    "color": "blue"
+                },
+                {
+                    "id": "unsure",
+                    "title": "Not Sure",
+                    "description": "Need guidance on what to do",
+                    "color": "purple"
+                }
+            ]
+        },
         "case_type": {
             "title": "Birth Case Details",
             "description": "Requirements depend on timing, location of birth, and citizenship.",
@@ -80,15 +145,6 @@
                     "color": "indigo"
                 }
             ],
-            "provinces": [
-                "Punjab",
-                "Sindh",
-                "KPK",
-                "Balochistan",
-                "AJK",
-                "Gilgit-Baltistan",
-                "ICT"
-            ],
             "eligibility_note": "All Pakistani children under 18 must have CRC/B-Form for school, passport, etc. Register timely to avoid fees/penalties."
         },
         "location": {
@@ -96,68 +152,99 @@
             "description": "Birth registration is done at the Union Council where the birth occurred or parents reside.",
             "provinces": [
                 {
+                    "id": "punjab",
                     "name": "Punjab",
                     "districts": [
-                        "Lahore",
-                        "Faisalabad",
-                        "Rawalpindi",
-                        "Multan",
-                        "Gujranwala",
-                        "Sialkot",
-                        "Jhelum",
-                        "Chakwal"
+                        {
+                            "id": "lahore",
+                            "name": "Lahore",
+                            "cities": [
+                                "Lahore City",
+                                "Raiwind",
+                                "Shahdara"
+                            ]
+                        },
+                        {
+                            "id": "rawalpindi",
+                            "name": "Rawalpindi",
+                            "cities": [
+                                "Rawalpindi City",
+                                "Taxila",
+                                "Gujar Khan"
+                            ]
+                        },
+                        {
+                            "id": "faisalabad",
+                            "name": "Faisalabad",
+                            "cities": [
+                                "Faisalabad City",
+                                "Jaranwala",
+                                "Samundri"
+                            ]
+                        }
                     ],
                     "is_pilot": true,
                     "pilot_note": "Digital registration via Pak ID app available in all UCs; free timely registration promo until May 2026."
                 },
                 {
+                    "id": "sindh",
                     "name": "Sindh",
                     "districts": [
-                        "Karachi South",
-                        "Karachi East",
-                        "Hyderabad",
-                        "Sukkur"
+                        {
+                            "id": "karachi",
+                            "name": "Karachi",
+                            "cities": [
+                                "Karachi Central",
+                                "Karachi South",
+                                "Karachi East",
+                                "Karachi West",
+                                "Malir",
+                                "Korangi"
+                            ]
+                        },
+                        {
+                            "id": "hyderabad",
+                            "name": "Hyderabad",
+                            "cities": [
+                                "Hyderabad City",
+                                "Latifabad",
+                                "Qasimabad"
+                            ]
+                        }
                     ],
                     "pilot_note": "Free registration; CRMS system integrated with NADRA."
                 },
                 {
+                    "id": "kpk",
                     "name": "Khyber Pakhtunkhwa",
                     "districts": [
-                        "Peshawar",
-                        "Mardan",
-                        "Abbottabad"
+                        {
+                            "id": "peshawar",
+                            "name": "Peshawar",
+                            "cities": [
+                                "Peshawar City",
+                                "University Town",
+                                "Hayatabad"
+                            ]
+                        }
                     ],
                     "pilot_note": "Integrated with NADRA; some digital pilots starting 2026."
                 },
                 {
-                    "name": "Balochistan",
+                    "id": "ict",
+                    "name": "Islamabad",
                     "districts": [
-                        "Quetta",
-                        "Gwadar",
-                        "Khuzdar"
-                    ],
-                    "pilot_note": "In-person preferred; limited digital access."
-                },
-                {
-                    "name": "AJK",
-                    "districts": [
-                        "Muzaffarabad",
-                        "Mirpur"
-                    ],
-                    "pilot_note": "Standard process; 60-day limit."
-                },
-                {
-                    "name": "Gilgit-Baltistan",
-                    "districts": [
-                        "Gilgit",
-                        "Skardu"
-                    ],
-                    "pilot_note": "Standard process; remote areas may need travel."
-                },
-                {
-                    "name": "ICT",
-                    "districts": [
-                        "Islamabad"
+                        {
+                            "id": "islamabad",
+                            "name": "Islamabad",
+                            "cities": [
+                                "Zone I",
+                                "Zone II",
+                                "Zone III",
+                                "Zone IV",
+                                "Zone V"
+                            ]
+                        }
                     ],
                     "pilot_note": "CDA facilitation; digital options available."
                 }
@@ -165,51 +252,86 @@
         },
         "roadmap": {
             "title": "Registration Roadmap",
-            "estimated_timeline": "3-7 Days (timely); longer for late",
-            "phases": [
+            "estimated_timeline": "3-15 Days (varies by case)",
+            "stations": [
                 {
-                    "id": 1,
+                    "id": "gather",
                     "title": "Gather Documents",
-                    "duration": "1d",
-                    "description": "Collect hospital slip or affidavit"
+                    "description": "Collect hospital slip, parent IDs, and residence proof",
+                    "tasks": [
+                        "Parent CNIC/NICOP copies (front and back)",
+                        "Applicant CNIC/Passport (if adult)",
+                        "Hospital birth slip or vaccination card",
+                        "Proof of residence",
+                        "Recent passport-size photographs (2)"
+                    ]
                 },
                 {
-                    "id": 2,
-                    "title": "UC Submission",
-                    "duration": "1-3d",
-                    "description": "Submit to Union Council Secretary"
+                    "id": "visit",
+                    "title": "Visit Union Council",
+                    "description": "Submit application at your local UC office",
+                    "tasks": [
+                        "Fill application form at office",
+                        "Submit all required documents",
+                        "Pay registration fee",
+                        "Collect receipt with tracking number"
+                    ]
                 },
                 {
-                    "id": 3,
-                    "title": "Portal Entry",
-                    "duration": "1-2d",
-                    "description": "Secretary enters into NADRA/CRVS portal"
+                    "id": "processing",
+                    "title": "Processing",
+                    "description": "Verification and database registration",
+                    "tasks": [
+                        "Union Council verifies documents",
+                        "NADRA database registration (if applicable)",
+                        "Certificate printing and signing"
+                    ]
                 },
                 {
-                    "id": 4,
-                    "title": "CRC Issuance",
-                    "duration": "1-7d",
-                    "description": "Get B-Form from NADRA or app"
+                    "id": "collect",
+                    "title": "Collect Certificate",
+                    "description": "Pick up your birth certificate",
+                    "tasks": [
+                        "Return to Union Council with receipt",
+                        "Verify all information is correct",
+                        "Collect original certificate"
+                    ]
+                },
+                {
+                    "id": "mofa",
+                    "title": "MOFA Attestation",
+                    "description": "Ministry of Foreign Affairs attestation (for immigration)",
+                    "tasks": [
+                        "Submit to MOFA or camp office",
+                        "Pay attestation fee",
+                        "Collect attested certificate"
+                    ]
                 }
             ],
             "documents_checklist": [
                 {
-                    "id": "hospital_slip",
-                    "label": "Hospital Birth Slip",
-                    "description": "Original + copy (or vaccination card)",
+                    "id": "parent_cnic",
+                    "label": "Parents' CNIC/NICOP",
+                    "description": "Originals + copies (both parents)",
                     "required": true
                 },
                 {
-                    "id": "parents_cnic",
-                    "label": "Parents' CNIC",
-                    "description": "Originals + copies",
-                    "required": true
+                    "id": "hospital_slip",
+                    "label": "Hospital Birth Slip",
+                    "description": "Original + copy (or vaccination card)",
+                    "required": false
                 },
                 {
                     "id": "residence_proof",
                     "label": "Proof of Residence",
                     "description": "Utility bill or rent agreement",
                     "required": true
+                },
+                {
+                    "id": "applicant_id",
+                    "label": "Applicant ID",
+                    "description": "CNIC/Passport if adult/senior",
+                    "required": false
                 },
                 {
                     "id": "affidavit_home",
@@ -220,130 +342,166 @@
                 },
                 {
                     "id": "court_order_late",
-                    "label": "Court Order (if needed)",
-                    "description": "For very late registrations (varies by province)",
+                    "label": "Court Order (Late)",
+                    "description": "For very late registrations",
                     "required": false,
                     "category": "late"
-                },
-                {
-                    "id": "embassy_form_overseas",
-                    "label": "Form S1 from Embassy",
-                    "description": "For births abroad + MOFA attestation",
-                    "required": false,
-                    "category": "overseas"
-                },
-                {
-                    "id": "adoption_deed",
-                    "label": "Adoption Deed/Guardian Order",
-                    "description": "Court order for adopted children",
-                    "required": false,
-                    "category": "adoption"
                 }
             ]
         },
         "offices": [
             {
-                "name": "Union Council Office (Local)",
+                "id": "uc-lahore-01",
+                "name": "Union Council 1 - Gulberg",
+                "city": "Lahore City",
+                "district": "Lahore",
+                "province": "Punjab",
                 "badge": "Primary",
-                "address": "Your local UC based on birth/parents' residence",
+                "address": "Gulberg III, Main Boulevard, Lahore",
+                "phone": "+92-42-35714000",
                 "hours": "Mon-Fri: 9:00 AM - 4:00 PM",
-                "tip": "Visit early; bring all originals."
+                "mapLink": "https://maps.google.com/?q=Gulberg+Lahore+Union+Council",
+                "tip": "Visit early; bring all originals.",
+                "nadraConnected": true,
+                "notes": "NADRA-connected office. Documents typically ready in 3-5 business days."
             },
             {
-                "name": "NADRA Registration Center",
+                "id": "uc-karachi-01",
+                "name": "Union Council 1 - Clifton",
+                "city": "Karachi South",
+                "district": "Karachi",
+                "province": "Sindh",
+                "badge": "Primary",
+                "address": "Block 5, Clifton, Karachi",
+                "phone": "+92-21-35831000",
+                "hours": "Mon-Thu: 9:00 AM - 4:00 PM, Fri: 9:00 AM - 12:00 PM",
+                "mapLink": "https://maps.google.com/?q=Clifton+Karachi+Union+Council",
+                "tip": "High traffic office. Visit early morning.",
+                "nadraConnected": true,
+                "notes": "Moderate wait times. NADRA verification available on-site."
+            },
+            {
+                "id": "uc-islamabad-01",
+                "name": "CDA - Zone I",
+                "city": "Zone I",
+                "district": "Islamabad",
+                "province": "ICT",
+                "badge": "Primary",
+                "address": "F-6 Markaz, Islamabad",
+                "phone": "+92-51-9206200",
+                "hours": "Mon-Fri: 9:00 AM - 4:00 PM",
+                "mapLink": "https://maps.google.com/?q=CDA+Islamabad+F6",
+                "tip": "Well-organized, efficient service.",
+                "nadraConnected": true
+            },
+            {
+                "id": "nrc-mega",
+                "name": "NADRA Mega Registration Center",
                 "badge": "For CRC",
-                "address": "Nearest NRC or Mega Center",
+                "address": "Nearest NRC or Mega Center in your city",
                 "hours": "Mon-Thu: 9:00 AM - 4:00 PM, Fri: 9:00 AM - 12:00 PM",
                 "tip": "Biometrics required; book via app if possible."
-            },
-            {
-                "name": "E-Khidmat Markaz (Punjab)",
-                "badge": "Convenience Center",
-                "address": "Punjab districts",
-                "hours": "Varies by center",
-                "tip": "One-stop for UC + NADRA services."
             }
         ],
         "validation": {
             "title": "Certificate Validation",
-            "description": "Ensure your CRC/B-Form is accurate before use (school, passport, etc.).",
+            "description": "Ensure your birth certificate meets all US immigration requirements.",
             "upload_section": {
-                "title": "Upload CRC for Vault",
-                "description": "Save your Child Registration Certificate in Document Vault",
+                "title": "Upload Certificate for Vault",
+                "description": "Save your birth certificate in Document Vault",
                 "formats": "PDF, JPG (Max 5MB)"
             },
-            "checklist_title": "CRC Accuracy Checklist",
+            "checklist_title": "Immigration-Ready Checklist",
             "categories": [
                 {
-                    "name": "Personal Details",
+                    "name": "Spelling & Name",
                     "items": [
                         {
-                            "label": "Child's name and spellings match exactly",
+                            "label": "Full name matches passport exactly",
                             "critical": true
                         },
                         {
-                            "label": "Date of birth is correct",
-                            "critical": true
-                        },
-                        {
-                            "label": "Parents' names and CNICs accurate",
+                            "label": "Parent names match their CNICs exactly",
                             "critical": true
                         }
                     ]
                 },
                 {
-                    "name": "Document Integrity",
+                    "name": "Dates & Details",
                     "items": [
+                        {
+                            "label": "Date of birth is correct",
+                            "critical": true
+                        },
                         {
                             "label": "13-digit registration number present",
                             "critical": true
-                        },
+                        }
+                    ]
+                },
+                {
+                    "name": "Integrity & Attestation",
+                    "items": [
                         {
-                            "label": "NADRA seal and QR code visible",
+                            "label": "Official stamp/seal is clear",
                             "critical": true
                         },
                         {
-                            "label": "No errors in gender or place of birth",
-                            "critical": false
+                            "label": "MOFA attestation present (for US)",
+                            "critical": true
                         }
                     ]
                 }
             ]
         },
         "info_panel": {
-            "case_type": {
+            "person_type": {
                 "tips": [
-                    "All Pakistani children under 18 must have CRC/B-Form for school, passport, etc.",
-                    "Register within 60 days to avoid fees (free promo in Punjab until May 2026).",
-                    "For home births, get affidavit notarized immediately.",
-                    "Overseas: Start with embassy Form S1."
+                    "Age affects document requirements.",
+                    "Adults (18+) must provide their own ID.",
+                    "Seniors (60+) may have simpler verification in some UCs."
                 ],
                 "pitfalls": [
-                    "Late registration may require extra proofs/fees; don't delay.",
-                    "Incorrect spellings cause future issues (passport/school).",
-                    "Unregistered birth blocks CRC, CNIC later."
+                    "Selecting wrong category may lead to incorrect checklist."
+                ],
+                "links": []
+            },
+            "document_need": {
+                "tips": [
+                    "New registration is cheapest and fastest if timely.",
+                    "Correction requires solid proof (Passport, Matric certificate)."
+                ],
+                "pitfalls": [
+                    "Replacement needs an FIR copy in some districts."
+                ],
+                "links": []
+            },
+            "case_type": {
+                "tips": [
+                    "Register within 60 days to avoid fees.",
+                    "Late cases need high-official signature.",
+                    "Home births require witness affidavits."
+                ],
+                "pitfalls": [
+                    "Late registration advisory: Expect extra fees and delays.",
+                    "Missing hospital birth proof increases complexity."
                 ],
                 "links": [
                     {
                         "label": "NADRA Official Site",
                         "url": "https://www.nadra.gov.pk"
-                    },
-                    {
-                        "label": "Punjab Local Govt",
-                        "url": "https://lgcd.punjab.gov.pk"
                     }
                 ]
             },
             "location": {
                 "tips": [
-                    "Registration is usually done at the UC where birth occurred. Late cases need extra verification.",
-                    "Punjab: Digital registration via Pak ID app available in all UCs; free promo until May 2026.",
-                    "Sindh: Free registration via CRMS.",
-                    "Remote areas: Plan travel to nearest UC/NRC."
+                    "Register where you were born.",
+                    "Punjab: Digital options via Pak ID app.",
+                    "Visit UC Secretary for local verification."
                 ],
                 "pitfalls": [
-                    "Provincial variations in timelines/fees; check locally.",
-                    "Friday short hours; avoid peak times."
+                    "Incorrect UC jurisdiction leads to rejection.",
+                    "Friday afternoon timings are shorter."
                 ],
                 "links": [
                     {
@@ -355,29 +513,26 @@
             "roadmap": {
                 "tips": [
                     "Keep originals safe; scan everything.",
-                    "Track application via Pak ID app if digital."
+                    "Track application via tracking number on receipt."
                 ],
                 "pitfalls": [
-                    "Late Registration Advisory: After 60-09 days, expect extra fees, high-official verification, or court orders.",
-                    "Missing docs delay process.",
-                    "Home births without witnesses invalid."
+                    "Incomplete documents will stall the process.",
+                    "MOFA attestation is mandatory for US visas."
                 ],
                 "links": [
                     {
-                        "label": "Pak ID App (Android)",
+                        "label": "Pak ID App",
                         "url": "https://play.google.com/store/apps/details?id=pk.gov.nadra.pakid"
                     }
                 ]
             },
             "office_finder": {
                 "tips": [
-                    "Verification Warning: Visit NADRA center with child if biometrics are required (usually ages 10+).",
-                    "Call ahead for timings/requirements.",
-                    "E-Khidmat in Punjab for faster service."
+                    "Visit early morning to avoid rush.",
+                    "Bring two sets of photocopies."
                 ],
                 "pitfalls": [
-                    "Unofficial agents charge extra; avoid.",
-                    "Remote Balochistan/GB may have delays."
+                    "Unauthorized agents may deceive you."
                 ],
                 "links": [
                     {
@@ -388,12 +543,12 @@
             },
             "validation": {
                 "tips": [
-                    "Scan QR code to verify online.",
-                    "Correct errors early at UC/NADRA."
+                    "Scan QR code if present on the document.",
+                    "Ensure translation is from certified translator."
                 ],
                 "pitfalls": [
-                    "Spelling mismatches block future docs.",
-                    "Lost CRC: Apply duplicate with fee."
+                    "Spelling mistakes are the most common cause of RFE.",
+                    "Blurry scans are often rejected by NVC."
                 ],
                 "links": [
                     {
