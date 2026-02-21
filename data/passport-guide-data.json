@@ -1,0 +1,2248 @@
+{
+  "meta": {
+    "sourceOfficial": "Directorate General of Immigration & Passports (DGIP), Government of Pakistan",
+    "lastVerified": "2026",
+    "notes": [
+      "Includes updated document requirements and policy guidelines per DGIP official site.",
+      "Includes online & offline service options, police reports for lost passports, 24/7 offices availability.",
+      "Fee tables (MRP & ePassport) should be kept up to date annually with DGIP notifications."
+    ]
+  },
+
+  "passportTypes": {
+    "ordinaryMRP": {
+      "description": "Standard passport issued to Pakistani citizens for international travel.",
+      "policy": "Every citizen of Pakistan is entitled to a Machine Readable Passport upon completion of required formalities (Passport Act 1974 & Passport Rules)."
+    },
+    "ePassport": {
+      "description": "Enhanced passport with biometric chip for faster clearance; available nationwide.",
+      "notes": [
+        "Photo name fields have character limits.",
+        "Fast Track service is not available for ePassport delivery per DGIP.",
+        "e-Passport issuance is available from all field offices."
+      ]
+    },
+    "official": {
+      "description": "Issued to government officials on official assignments.",
+      "deliveryTime": "Approximately 4 working days once documents are complete."
+    }
+  },
+
+  "mrpGuidelines2026": {
+    "normal": {
+      "36": { "5": 5500, "10": 7700 },
+      "72": { "5": 10000, "10": 15000 },
+      "100": { "5": 12000, "10": 18000 }
+    },
+    "urgent": {
+      "36": { "5": 8500, "10": 12200 },
+      "72": { "5": 14500, "10": 21000 },
+      "100": { "5": 19000, "10": 27000 }
+    },
+    "fasttrack": {
+      "36": { "5": 12500, "10": 18000 },
+      "72": { "5": 20000, "10": 30000 },
+      "100": { "5": 24000, "10": 36000 }
+    }
+  },
+
+  "ePassportGuidelines2026": {
+    "normal": {
+      "36": { "5": 9000, "10": 13500 },
+      "72": { "5": 16500, "10": 24750 },
+      "100": { "5": 20000, "10": 30000 }
+    },
+    "urgent": {
+      "36": { "5": 15000, "10": 22500 },
+      "72": { "5": 27000, "10": 40500 },
+      "100": { "5": 35000, "10": 50000 }
+    },
+    "fasttrack": {
+      "36": { "5": 20000, "10": 30000 },
+      "72": { "5": 35000, "10": 55000 },
+      "100": { "5": 45000, "10": 70000 }
+    }
+  },
+
+  "sections": [
+    {
+      "id": "understanding",
+      "title": "Understanding Pakistani Passport",
+      "icon": "BookOpen",
+      "description": "Learn about the types of passports and why you need one.",
+      "content": [
+        {
+          "heading": "What is a Pakistani Passport?",
+          "text": "A Pakistani passport is an official travel document issued for international travel that also proves Pakistani citizenship and identity."
+        },
+        {
+          "heading": "When is it required?",
+          "text": "Required for all international travel; most countries require at least 6 months validity on your passport beyond your planned stay."
+        },
+        {
+          "heading": "Types of Passports",
+          "text": "• Ordinary MRP\n• e-Passport (biometric)\n• Official or Diplomatic (government personnel)"
+        }
+      ]
+    },
+    {
+      "id": "eligibility",
+      "title": "Eligibility Criteria",
+      "icon": "Users",
+      "description": "Check if you qualify to apply for a Pakistani passport.",
+      "content": [
+        {
+          "heading": "Who Can Apply?",
+          "text": "Every Pakistani citizen including newborns. No minimum age."
+        },
+        {
+          "heading": "Special Eligibility Notes",
+          "text": "Dual nationals must show their foreign passport with photocopy. NOC is required for government employees. Minors need both parents' IDs or legal guardianship documents."
+        }
+      ]
+    },
+    {
+      "id": "documents",
+      "title": "Required Documents",
+      "icon": "FileText",
+      "description": "Complete checklist of documents needed.",
+      "content": [
+        {
+          "heading": "Adults (New | Renewal | Change)",
+          "text": "• Proof of fee payment (challan/eReceipt with PSID)\n• Original CNIC/NICOP + copy\n• Previous passport + copy (if renewing)\n• NOC (if government employee)\n• Foreign passport + copy for Dual Nationals"
+        },
+        {
+          "heading": "Minors",
+          "text": "• Original CRC / FRC (age-appropriate type) + copy\n• Parents' CNICs + copies\n• Guardianship Court order (if applicable)\n• Death certificate if a parent is deceased"
+        },
+        {
+          "heading": "Lost Passport Case",
+          "text": "• Police FIR / report mentioning previous passport number"
+        },
+        {
+          "heading": "Damaged Case",
+          "text": "• Original damaged passport\n• Police FIR (if theft/third party damage)\n• Affidavit on stamp paper"
+        }
+      ]
+    },
+    {
+      "id": "process",
+      "title": "Application Process (Online & Offline)",
+      "icon": "Globe2",
+      "description": "Step-by-step guide to applying.",
+      "content": [
+        {
+          "heading": "Hybrid Process (Office)",
+          "text": "Pay fee online or via app, book appointment (optional), visit RPO/EPO for live biometrics, photo, interview and submission."
+        },
+        {
+          "heading": "Full Online Process (Renewal Only)",
+          "text": "Available for eligible renewals. Pay fee and upload photo & fingerprints online; passport delivered to your address."
+        },
+        {
+          "heading": "Standard In-Person Visit",
+          "text": "Visit RPO/EPO, submit docs, biometric capture, interview and follow official steps."
+        }
+      ]
+    },
+    {
+      "id": "time",
+      "title": "Processing Time",
+      "icon": "Clock",
+      "description": "Expected timelines.",
+      "content": [
+        {
+          "heading": "Normal",
+          "text": "Approx. 10 working days (office guideline)."
+        },
+        { "heading": "Urgent", "text": "Approx. 4 working days." },
+        { "heading": "Fast Track", "text": "2 working days (select offices)." },
+        {
+          "heading": "Online Delivery",
+          "text": "Delivery via courier typically adds 2–3 additional days."
+        }
+      ]
+    },
+    {
+      "id": "tips",
+      "title": "Critical Tips & Common Mistakes",
+      "icon": "AlertTriangle",
+      "description": "Best practices & warnings.",
+      "content": [
+        {
+          "heading": "Pro Tips",
+          "text": "Renew 7–12 months before expiry. Use official DGIP portals/apps only. Keep CNIC valid and complete all documents."
+        },
+        {
+          "heading": "Warnings",
+          "text": "Incorrect/incomplete documents cause rejections. Protect tracking IDs and personal information."
+        }
+      ]
+    }
+  ],
+
+  "wizard": {
+    "title": "Pakistani Passport",
+    "subtitle": "DGIP • Immigration & International Travel",
+    "last_verified": "February 20, 2026",
+
+    "whats_this": {
+      "heading": "Passport Immigration Wizard",
+      "sub": "DGIP • Immigration & International Travel",
+      "description": "The Pakistani Passport is an official travel document issued by the Directorate General of Immigration & Passports (DGIP). It is required for all international travel and serves as proof of Pakistani citizenship. This wizard guides you through the application process step by step.",
+      "how_we_help": [
+        "Step-by-step guidance tailored to your passport application type",
+        "Fee calculator for MRP and ePassport options",
+        "Personalized roadmap with realistic time estimates",
+        "Office finder with RPO/EPO locations and timings",
+        "Immigration-ready validation checklist"
+      ],
+      "quick_instructions": [
+        "Select your passport application type (New, Renewal, or Lost/Damaged)",
+        "Provide location details to find your nearest passport office",
+        "Receive a custom roadmap and document checklist",
+        "Validate your passport application against requirements"
+      ],
+      "disclaimer": "This wizard provides general guidance based on publicly available DGIP information and should not be considered legal advice. Requirements may vary and can change. Always verify current procedures with your local RPO/EPO office."
+    },
+
+    "steps": [
+      {
+        "id": "document_need",
+        "label": "Application Type",
+        "icon": "clipboard"
+      },
+      { "id": "location", "label": "Location", "icon": "map-pin" },
+      { "id": "roadmap", "label": "Roadmap", "icon": "map" },
+      { "id": "office_finder", "label": "Office Finder", "icon": "search" },
+      { "id": "validation", "label": "Validation", "icon": "star" }
+    ],
+
+    "document_need": {
+      "title": "What brings you here?",
+      "description": "Select your passport application type so we can provide the most relevant guidance.",
+      "options": [
+        {
+          "id": "new_passport",
+          "title": "New Passport",
+          "description": "First-time passport application or expired passport",
+          "color": "green"
+        },
+        {
+          "id": "renewal",
+          "title": "Renewal",
+          "description": "Renew your existing valid or recently expired passport",
+          "color": "orange"
+        },
+        {
+          "id": "lost_damaged",
+          "title": "Lost / Damaged",
+          "description": "Replace a lost, stolen, or damaged passport",
+          "color": "blue"
+        }
+      ]
+    },
+
+    "location": {
+      "title": "Location Information",
+      "description": "Your nearest Regional Passport Office (RPO) is determined by your current location.",
+      "country": "Pakistan",
+      "country_note": "This wizard is specifically for Pakistani passport applications.",
+      "location_note": "Why location matters: While you can apply at any passport office regardless of your CNIC address per DGIP policy, knowing your location helps us find the nearest RPO/EPO for convenience. Some offices offer 24/7 services.",
+      "provinces": [
+        {
+          "name": "Islamabad Capital Territory",
+          "districts": ["Islamabad"]
+        },
+        {
+          "name": "Punjab",
+          "districts": [
+            "Lahore",
+            "Rawalpindi",
+            "Attock",
+            "Chakwal",
+            "Jhelum",
+            "Gujrat",
+            "Mandi Bahauddin",
+            "Gujranwala",
+            "Sialkot",
+            "Faisalabad",
+            "Sargodha",
+            "Sahiwal",
+            "Jhang",
+            "Hafizabad",
+            "Okara",
+            "Kasur",
+            "Chiniot",
+            "Narowal",
+            "Sheikhupura",
+            "Nankana Sahib",
+            "Khushab",
+            "Toba Tek Singh",
+            "Multan",
+            "Khanewal",
+            "Bahawalpur",
+            "Dera Ghazi Khan",
+            "Rahim Yar Khan",
+            "Muzaffargarh",
+            "Bahawalnagar",
+            "Vehari",
+            "Mianwali",
+            "Layyah",
+            "Bhakkar",
+            "Pakpattan",
+            "Rajanpur",
+            "Lodhran",
+            "Kot Addu"
+          ]
+        },
+        {
+          "name": "Khyber Pakhtunkhwa",
+          "districts": [
+            "Peshawar",
+            "Kohat",
+            "Dera Ismail Khan",
+            "Swat",
+            "Abbottabad",
+            "Bannu",
+            "Mardan",
+            "Lower Dir",
+            "Buner",
+            "Hangu",
+            "Battagram",
+            "Haripur",
+            "Malakand",
+            "Upper Dir",
+            "Tank",
+            "Chitral",
+            "Shangla",
+            "Swabi",
+            "Charsadda",
+            "Nowshera",
+            "Karak",
+            "Mansehra",
+            "Lakki Marwat",
+            "Torghar",
+            "Kohistan",
+            "Mohmand",
+            "Kurram",
+            "South Waziristan",
+            "Orakzai",
+            "Bajaur",
+            "North Waziristan"
+          ]
+        },
+        {
+          "name": "Sindh",
+          "districts": [
+            "Karachi South",
+            "Karachi Central",
+            "Karachi West",
+            "Karachi East",
+            "Karachi Malir",
+            "Sukkur",
+            "Hyderabad",
+            "Larkana",
+            "Shaheed Benazirabad",
+            "Khairpur",
+            "Dadu",
+            "Jacobabad",
+            "Sanghar",
+            "Badin",
+            "Thatta",
+            "Mirpurkhas",
+            "Jamshoro",
+            "Naushahro Feroze",
+            "Qambar Shahdadkot",
+            "Matiari",
+            "Tando Muhammad Khan",
+            "Kashmore",
+            "Shikarpur",
+            "Tando Allahyar",
+            "Ghotki",
+            "Umerkot",
+            "Tharparkar",
+            "Sajawal"
+          ]
+        },
+        {
+          "name": "Balochistan",
+          "districts": [
+            "Quetta",
+            "Zhob",
+            "Gwadar",
+            "Kech",
+            "Khuzdar",
+            "Jaffarabad",
+            "Qilla Saifullah",
+            "Sibi",
+            "Kharan",
+            "Qilla Abdullah",
+            "Pishin",
+            "Loralai",
+            "Ziarat",
+            "Noshki",
+            "Panjgur",
+            "Jhal Magsi",
+            "Nasirabad",
+            "Barkhan",
+            "Musakhel",
+            "Harnai",
+            "Chagai",
+            "Kalat",
+            "Dhadar",
+            "Mastung",
+            "Awaran",
+            "Kohlu",
+            "Lasbela",
+            "Washuk",
+            "Sherani",
+            "Dera Bugti",
+            "Sohbatpur"
+          ]
+        },
+        {
+          "name": "Gilgit Baltistan",
+          "districts": [
+            "Skardu",
+            "Gilgit",
+            "Diamer",
+            "Hunza",
+            "Astore",
+            "Ghanche",
+            "Ghizer",
+            "Nagar",
+            "Shigar"
+          ]
+        },
+        {
+          "name": "Azad Jammu & Kashmir",
+          "districts": [
+            "Muzaffarabad",
+            "Mirpur",
+            "Kotli",
+            "Rawalakot",
+            "Bagh",
+            "Hattian Bala",
+            "Neelum",
+            "Sudhnoti",
+            "Bhimber",
+            "Haveli"
+          ]
+        }
+      ]
+    },
+
+    "roadmap": {
+      "title": "Your Personalized Roadmap",
+      "estimated_timeline": "10–15 working days",
+      "phases": [
+        {
+          "id": 1,
+          "title": "Pay Fee & Gather Docs",
+          "duration": "1–2d",
+          "description": "Pay the passport fee online via 1Link/bank challan and collect all required documents including CNIC, photos, and previous passport."
+        },
+        {
+          "id": 2,
+          "title": "Visit RPO/EPO",
+          "duration": "1d",
+          "description": "Visit your nearest Regional Passport Office or Executive Passport Office. Submit documents, complete biometric capture (fingerprints, photo), and attend interview."
+        },
+        {
+          "id": 3,
+          "title": "Processing",
+          "duration": "4–10d",
+          "description": "Your application is processed by DGIP. Normal processing takes ~10 working days, Urgent ~4 days, Fast Track ~2 days."
+        },
+        {
+          "id": 4,
+          "title": "Collect Passport",
+          "duration": "1d",
+          "description": "Collect your passport from the office or receive it via courier delivery if you opted for online/delivery service."
+        }
+      ],
+      "documents_checklist": [
+        {
+          "id": "fee_receipt",
+          "label": "Fee Payment Receipt (Challan/eReceipt)",
+          "description": "Proof of fee payment with PSID via bank, 1Link, or online",
+          "required": true
+        },
+        {
+          "id": "applicant_cnic",
+          "label": "Original CNIC / NICOP",
+          "description": "Valid 13-digit CNIC or NICOP with photocopy",
+          "required": true
+        },
+        {
+          "id": "prev_passport",
+          "label": "Previous Passport (if any)",
+          "description": "Original previous passport with photocopy for renewal or re-issuance",
+          "required": false
+        },
+        {
+          "id": "crc_minors",
+          "label": "CRC / FRC for Minors",
+          "description": "Child Registration Certificate or FRC for applicants under 18",
+          "required": false
+        },
+        {
+          "id": "parents_cnic",
+          "label": "Parents' CNICs (for minors)",
+          "description": "Original CNICs of both parents with photocopies",
+          "required": false
+        },
+        {
+          "id": "noc_govt",
+          "label": "NOC (Government Employees)",
+          "description": "No Objection Certificate from employer if government/semi-government employee",
+          "required": false
+        },
+        {
+          "id": "police_fir",
+          "label": "Police FIR (Lost/Stolen)",
+          "description": "FIR mentioning previous passport number for lost/stolen cases",
+          "required": false
+        },
+        {
+          "id": "dual_nationality_docs",
+          "label": "Foreign Passport (Dual Nationals)",
+          "description": "Original foreign passport with photocopy for dual nationality holders",
+          "required": false
+        }
+      ]
+    },
+
+    "offices": [
+      {
+        "name": "Islamabad HQ",
+        "address": "DGIP Headquarter, G-8/1 Mauve Area, Islamabad.",
+        "phone": "051-111-344-777",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/Directorate+General+Immigration+%26+Passports,+Islamabad./@33.6865482,73.0454574,17z/data=!3m1!4b1!4m5!3m4!1s0x38dfbfd19bc22bf5:0xfaffe85f4db96aec!8m2!3d33.6865482!4d73.0476461"
+      },
+      {
+        "name": "Islamabad RPO G-10 (Day & Night 24/7)",
+        "address": "Regional Passport Office, I & T Centre, Plot Number 18, Sector G-10/4, Islamabad.",
+        "phone": "051-9239308",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/33%C2%B040'31.8%22N+73%C2%B001'32.8%22E/@33.675535,73.0240381,17.75z/data=!4m4!3m3!8m2!3d33.6755!4d73.0257778?hl=en&entry=ttu"
+      },
+      {
+        "name": "Islamabad EPO",
+        "address": "Passport Office, Plot 19-A Ground Floor, Pak Plaza, Fazal-e-Haq Road, Blue Area, Islamabad.",
+        "phone": null,
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/Executive+Passport+Office,+Blue+Area/@33.7221897,73.0792898,17z/data=!3m1!4b1!4m5!3m4!1s0x38dfbf83ddc823fb:0x8c9bc56ab6c2b06a!8m2!3d33.7221897!4d73.0814785"
+      },
+      {
+        "name": "Islamabad OPF (For Overseas)",
+        "address": "OPF Head Office Building, 2 Shahrah-e-Jamhuriat, G-5, Islamabad.",
+        "phone": null,
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/Passport+Office+for+Overseas+Pakistani/@33.7222862,73.097156,17z/data=!4m9!1m2!2m1!1spassport+office+opf+building+islamabd!3m5!1s0x38dfc140c2ea8415:0xca0165a840d9b328!8m2!3d33.7223062!4d73.0971468!15sCiVwYXNzcG9ydCBvZmZpY2Ugb3BmIGJ1aWxkaW5nIGlzbGFtYWJkkgEZZmVkZXJhbF9nb3Zlcm5tZW50X29mZmljZQ"
+      },
+      {
+        "name": "Islamabad National Assembly",
+        "address": "National Assembly Secretariat, Parliament House, Constitution Ave, D-Chowk, Red Zone, Islamabad.",
+        "phone": "051-9103239",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/National+Assembly+of+Pakistan/@33.7301522,73.0943644,17z/data=!4m14!1m7!3m6!1s0x38dfc087a40ac563:0x153bdeac5a691e22!2sNational+Assembly+of+Pakistan!8m2!3d33.7301478!4d73.0969393!16s%2Fg%2F11xm0fx9c!3m5!1s0x38dfc087a40ac563:0x153bdeac5a691e22!8m2!3d33.7301478!4d73.0969393!16s%2Fg%2F11xm0fx9c?entry=ttu&g_ep=EgoyMDI0MTAxNS4wIKXMDSoASAFQAw%3D%3D"
+      },
+      {
+        "name": "Pakistan Asaan Khidmat Center",
+        "address": "M2JP+5HR, Rohtas Rd, G-9/1, Islamabad.",
+        "phone": "051-9265375",
+        "province": "Islamabad Capital Territory",
+        "district": "Islamabad",
+        "map_link": "https://www.google.com/maps/place/Pakistan+Asaan+Khidmat+Center/data=!4m2!3m1!1s0x0:0x6e5f87fd98a76223?sa=X&ved=1t:2428&ictx=111"
+      },
+      {
+        "name": "Lahore-I (Garden Town)",
+        "address": "4-A, Sher Shah Block, Behind Barkat Market Near Himayat-ul-Islam Girls College, New Garden Town.Lahore.",
+        "phone": "042-9201836",
+        "province": "Punjab",
+        "district": "Lahore",
+        "map_link": "https://www.google.com/maps/place/Passport+Office+Lahore+-+I/@31.496455,74.3176073,17z/data=!3m1!4b1!4m5!3m4!1s0x39190473a59c5ad7:0x8666b7a8824a402e!8m2!3d31.496455!4d74.319796"
+      },
+      {
+        "name": "Lahore-II (Shalimar)",
+        "address": "Jalal Park Near Quaid e Azam Interchange Main GT Road, Shalimar, Lahore.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Lahore",
+        "map_link": "https://www.google.com/maps/place/Regional+Passport+Office,+Dera+Gujran/@31.5898026,74.4363999,596m/data=!3m1!1e3!4m12!1m5!3m4!2zMzHCsDM1JzIzLjMiTiA3NMKwMjYnMjAuMyJF!8m2!3d31.5898026!4d74.4389748!3m5!1s0x3919110005299f29:0xbbea1de783aad9f2!8m2!3d31.5902883!4d74.4383916!16s%2Fg%2F11w8nd6_6k?hl=en&entry=ttu&g_ep=EgoyMDI0MDkxNS4wIKXMDSoASAFQAw%3D%3D"
+      },
+      {
+        "name": "Lahore-III (Raiwind)",
+        "address": "14 kilometer, Main Raiwind Road, Araiyan Morr, Lahore.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Lahore",
+        "map_link": "https://www.google.com/maps/place/Passport+Office/@31.3467316,74.2370951,17z/data=!4m12!1m6!3m5!1s0x391901cfd0b703c3:0x7bc0ea9d005d0fce!2sPassport+Office!8m2!3d31.3467316!4d74.2392838!3m4!1s0x391901cfd0b703c3:0x7bc0ea9d005d0fce!8m2!3d31.3467316!4d74.2392838"
+      },
+      {
+        "name": "EPO Lahore (Defence)",
+        "address": "27-xx phase 3, DHA, Khayaban e Iqbal Road, Lahore.",
+        "phone": "042-99264396",
+        "province": "Punjab",
+        "district": "Lahore",
+        "map_link": "https://www.google.com/maps/place/Executive+Passport+Office/@31.4710412,74.362069,17z/data=!3m1!4b1!4m5!3m4!1s0x3919067eaa21b2f1:0x57d4820a1577a431!8m2!3d31.4710231!4d74.3642581"
+      },
+      {
+        "name": "Lahore (Shahdrah)",
+        "address": "Saeed Park, near Ravi Toll Plaza, Shahdara, Lahore.",
+        "phone": "042-37921900",
+        "province": "Punjab",
+        "district": "Lahore",
+        "map_link": "https://www.google.com/maps/place/Passport+Office/@31.6064844,74.2499625,17.5z/data=!4m12!1m6!3m5!1s0x39191c6f3fffffff:0xc72b759e7099572b!2sPassport+Office!8m2!3d31.6061317!4d74.2515757!3m4!1s0x39191c6f3fffffff:0xc72b759e7099572b!8m2!3d31.6061317!4d74.2515757"
+      },
+      {
+        "name": "Lahore (Punjab Bar Council)",
+        "address": "Lahore High Court Bar Association.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Lahore",
+        "map_link": "https://dgip.gov.pk/contactus/offices.php"
+      },
+      {
+        "name": "Lahore Chamber of Commerce(LCCI)",
+        "address": "Passport Counter at Lahore Chamber of Commerce and Industry 11-A, Shara-e-Aiwan-e- Sanat-o-Tijarat, Lahore.",
+        "phone": "042-99264396",
+        "province": "Punjab",
+        "district": "Lahore",
+        "map_link": "https://www.google.com/maps/place/Lahore+Chamber+of+Commerce+%26+Industry/@31.5463449,74.3298882,16z/data=!4m9!1m2!2m1!1spassport+office+LCCI!3m5!1s0x391904b9aa72bc95:0x31c3739bb5b1dc47!8m2!3d31.5477363!4d74.3320779!15sChRwYXNzcG9ydCBvZmZpY2UgTENDSVoWIhRwYXNzcG9ydCBvZmZpY2UgbGNjaZIBE2NoYW1iZXJfb2ZfY29tbWVyY2WaASNDaFpEU1VoTk1HOW5TMFZKUTBGblNVUjVkblJYTkZKQkVBRQ"
+      },
+      {
+        "name": "Lahore (Punjab Assembly)",
+        "address": "Punjab Assembly Building, Shahra-e-Quaid-e-Azam, Lahore.",
+        "phone": "042-99200335-46",
+        "province": "Punjab",
+        "district": "Lahore",
+        "map_link": "https://www.google.com/maps/place/Punjab+Assembly/@31.561472,74.3234657,17z/data=!4m14!1m7!3m6!1s0x39191b4d23cf4c35:0x99d04f3da749de94!2sPunjab+Assembly!8m2!3d31.5614675!4d74.3260406!16s%2Fg%2F1tg_7wbh!3m5!1s0x39191b4d23cf4c35:0x99d04f3da749de94!8m2!3d31.5614675!4d74.3260406!16s%2Fg%2F1tg_7wbh?entry=ttu&g_ep=EgoyMDI0MTAxNS4wIKXMDSoASAFQAw%3D%3D"
+      },
+      {
+        "name": "Rawalpindi",
+        "address": "Opposite Station High School No.3, Gunjmandi More, Railway Workshop Road, (Near Bakery Chowk).",
+        "phone": "051-9237253",
+        "province": "Punjab",
+        "district": "Rawalpindi",
+        "map_link": "https://www.google.com/maps/place/Regional+Passport+Office+Rawalpindi/@33.6168656,73.026035,15z/data=!4m9!1m2!2m1!1spassport+office+rawalpindi!3m5!1s0x38df945b64360f31:0xf277d59db263c8de!8m2!3d33.6168636!4d73.0347123!15sChpwYXNzcG9ydCBvZmZpY2UgcmF3YWxwaW5kaSIDiAEBkgEPcGFzc3BvcnRfb2ZmaWNl"
+      },
+      {
+        "name": "EPO Rawalpindi",
+        "address": "Near Rehmanabad, Murree Road, Rawalpindi.",
+        "phone": "+9251111786100",
+        "province": "Punjab",
+        "district": "Rawalpindi",
+        "map_link": "https://www.google.com/maps/place/Executive+Passport+Office/@33.6364802,73.0730506,17z/data=!3m1!4b1!4m5!3m4!1s0x38df94dbb1022909:0xaba2f97cae8ff87f!8m2!3d33.6364802!4d73.0752393"
+      },
+      {
+        "name": "Rawalpindi (High Court Bar Association)",
+        "address": "Rawalpindi High Court Bar Association, Rawalpindi.",
+        "phone": "+92519277044",
+        "province": "Punjab",
+        "district": "Rawalpindi",
+        "map_link": "https://www.google.com/maps/place/Lahore+High+Court,+Rawalpindi+Bench/@33.5552677,73.0977907,17z/data=!4m14!1m7!3m6!1s0x38dfecd80804e8fb:0x894f7162a4c031bb!2sLahore+High+Court,+Rawalpindi+Bench!8m2!3d33.5552632!4d73.0999794!16s%2Fg%2F11xt894r8!3m5!1s0x38dfecd80804e8fb:0x894f7162a4c031bb!8m2!3d33.5552632!4d73.0999794!16s%2Fg%2F11xt894r8"
+      },
+      {
+        "name": "Kahuta",
+        "address": "near TMA Office Kallar Chowk, Opposite Sammi CNG Station, RawalPindi Road, Kahuta",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Rawalpindi",
+        "map_link": "https://www.google.com/maps/place/Passport+Office/@33.5935558,73.3759666,17z/data=!3m1!4b1!4m5!3m4!1s0x38dfe378a0148cf3:0x755d0bd1c1319321!8m2!3d33.5935064!4d73.3782292"
+      },
+      {
+        "name": "GujarKhan",
+        "address": "NBP Plaza, Near Railway underpass, GujarKhan.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Rawalpindi",
+        "map_link": "https://www.google.com/maps/place/Passport+Office/@33.2571486,73.3095217,18z/data=!3m1!4b1!4m5!3m4!1s0x392005d95db4bdc7:0x26aaa0515b9006fc!8m2!3d33.2571486!4d73.3104419"
+      },
+      {
+        "name": "Jehlum",
+        "address": "Al-Madina Center, Old GT Road, near Civil Hospital,Jehlum.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Jehlum",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Pind Dadan Khan",
+        "address": "Mandhar Plaza, Near AC Office, Main Jhelum Road, Pind Dadan Khan.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Jehlum",
+        "map_link": "https://www.google.com/maps/place/Regional+Passport+Office/@32.592617,73.0508105,18z/data=!3m1!4b1!4m5!3m4!1s0x3921b51f92d1ba17:0xbbd327764332ccd8!8m2!3d32.592617!4d73.0519048"
+      },
+      {
+        "name": "Attock",
+        "address": "Hunt Hall Near Session Court Chowk, Adjacent to NADRA Office, Civil Lines, Attock City.",
+        "phone": "057-9316211",
+        "province": "Punjab",
+        "district": "Attock",
+        "map_link": "https://www.google.com/maps/place/Passport+Office+Attock+%D8%AF%D9%81%D8%AA%D8%B1+%D9%BE%D8%A7%D8%B3%D9%BE%D9%88%D8%B1%D9%B9+%D8%A7%D9%B9%DA%A9%E2%80%AD/@33.7681495,72.3620285,17z/data=!3m1!4b1!4m5!3m4!1s0x38df19d0841551d7:0x673582c95ce26357!8m2!3d33.7681574!4d72.3642451"
+      },
+      {
+        "name": "Chakwal",
+        "address": "Flat # 10-11, 1st Floor Zila Council Plaza, Tehsil Chowk,Chakwal.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Chakwal",
+        "map_link": "https://www.google.com/maps/place/Passport+Office+Chakwal/@32.9404199,72.8570017,17z/data=!3m1!4b1!4m5!3m4!1s0x39205d12a949981f:0xa82300d31461d154!8m2!3d32.9404199!4d72.8591904"
+      },
+      {
+        "name": "Gujrat",
+        "address": "near Deona Mandi, G.T. Road, Gujrat.",
+        "phone": "053-3706270",
+        "province": "Punjab",
+        "district": "Gujrat",
+        "map_link": "https://www.google.com/maps/place/Passport+Office,+State+Life+Building+Near+Edhi+Center,+Servis+Industries+Gujrat,+Gujurat,+Gujrat,+Punjab,+Pakistan/@32.5810781,74.057142,16.75z/data=!4m5!3m4!1s0x391f1ac8d163c3ff:0xa6ec9419567b3743!8m2!3d32.5808875!4d74.0584693"
+      },
+      {
+        "name": "EPO Gujrat",
+        "address": "Near Services Industries Morr Opposite Falak Marriage Hall, Gujrat.",
+        "phone": "053-3706270",
+        "province": "Punjab",
+        "district": "Gujrat",
+        "map_link": "https://www.google.com/maps/place/Executive+Passport+Office/@32.586394,74.0506231,15.75z/data=!4m9!1m2!2m1!1sexecutive+passport+office+gujrat!3m5!1s0x391f1b63bca1a591:0xe841feae07e42bef!8m2!3d32.5881357!4d74.0524515!15sCiBleGVjdXRpdmUgcGFzc3BvcnQgb2ZmaWNlIGd1anJhdJIBD3Bhc3Nwb3J0X29mZmljZQ"
+      },
+      {
+        "name": "Mandi-Bahauddin",
+        "address": "Opposite District Complex, Phalia Road,Mandi-Bahauddin.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Mandi-Bahauddin",
+        "map_link": "https://dgip.gov.pk/contactus/offices.php"
+      },
+      {
+        "name": "Gujranwala",
+        "address": "Bukhari Road, Civil Lines, Near Railway Station, Gujranwala.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Gujranwala",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Gujranwala",
+        "address": "Executive Passport Office, Near FBR Regional Office, G.T Road, Gujranwala.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Gujranwala",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Sialkot",
+        "address": "Haji Pura Rd, opposite Gulzar Book Depot، Muslim Colony Sialkot, Punjab, Pakistan.",
+        "phone": "+92523240140",
+        "province": "Punjab",
+        "district": "Sialkot",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sialkot",
+        "address": "Zeeshan Housing Complex, Kashmir Road, Sialkot.",
+        "phone": "+9252-3550096",
+        "province": "Punjab",
+        "district": "Sialkot",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kubay Chak (Sialkot)",
+        "address": "kubay Chak, Sialkot.",
+        "phone": "+92524350224",
+        "province": "Punjab",
+        "district": "Sialkot",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Faisalabad",
+        "address": "Jail Road, opposite Allied Hospital, adjacent to WASA. Faisalabad.",
+        "phone": "041-9210129",
+        "province": "Punjab",
+        "district": "Faisalabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Jaranwala",
+        "address": "238 Nankana Sahib Rd near Sabzi Mandi, Jaranwala.",
+        "phone": "+92414318891",
+        "province": "Punjab",
+        "district": "Faisalabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Faisalabad",
+        "address": "Fazal Plaza behind Kohinoor Plaza, 1 Jaranwala Road, Faisalabad.",
+        "phone": "+92419330415",
+        "province": "Punjab",
+        "district": "Faisalabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Faisalabad (District Bar Association)",
+        "address": "Faisalabad District Bar Association, District Courts, Faisalabad.",
+        "phone": "+92419200915",
+        "province": "Punjab",
+        "district": "Faisalabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sargodha",
+        "address": "Masood Zaidi Road, Opposite LOGIX College, Sargodha.",
+        "phone": "048-9230667",
+        "province": "Punjab",
+        "district": "Sargodha",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Sargodha",
+        "address": "M.M Alam Road, near Sher Zaman Town, Toheed Plaza, Sargodha.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Sargodha",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Bhalwal (Sargodha)",
+        "address": "Sargodha Gujrat Road, near Bismillah CNG Station, Bhalwal, Sargodha.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Sargodha",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sahiwal",
+        "address": "520/C, Jail Road, Sahiwal.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Sahiwal",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Sahiwal",
+        "address": "Gulistan Road, Near Ali Masjid, Sahiwal.",
+        "phone": "040-9200565",
+        "province": "Punjab",
+        "district": "Sahiwal",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Jhang",
+        "address": "Canal Road, Ghaziabad, Jhang Saddar, Jhang.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Jhang",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Hafizabad",
+        "address": "Jami House, Mohulla Gari Awan, Sarkari Parao, Hafizabad.",
+        "phone": "054-75228588",
+        "province": "Punjab",
+        "district": "Hafizabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Okara",
+        "address": "Depalpur Road, Madina Block, Near Mahi Marriage Hall, Okara.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Okara",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kasur",
+        "address": "HNo. 58-A, Club Road, Abdul Shakoor Khan Colony, Kasur.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Kasur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Chiniott",
+        "address": "House #11/1, W-Block, Satellite Town, Chiniott.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Chiniott",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Narowal",
+        "address": "Regional Passport Office, Old District Hospital, near Old Kacheri, Narowal.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Narowal",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sheikhupura",
+        "address": "Regional Passport Office, Shami road, Sheikhupura.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Sheikhupura",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Nankana Sahib",
+        "address": "Main Magtanwal Road near PTCL Exchange, Nankana Sahib.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Nankana Sahib",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Khushab",
+        "address": "near Municipal Committee, near Malik Shakir Bashir Awan MNA house Civil line, Khushab.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Khushab",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Toba Tek Singh",
+        "address": "near Zila Council, near Nadra Office, Toba Tek Singh.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Toba Tek Singh",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Multan",
+        "address": "Near Madni Chowk,Passport Office Road, near Alfalah Market, U-Block, New Multan Colony, Multan.",
+        "phone": "061-9220088",
+        "province": "Punjab",
+        "district": "Multan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Multan (Jalalpur-Pirwala)",
+        "address": "Shuja Abad Road, Opposite Govt. Special Eduction School, Multan.",
+        "phone": "061-4210066",
+        "province": "Punjab",
+        "district": "Multan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Multan (Qadirpur Rawan)",
+        "address": "Near National Bank of Pakistan, Main Khanewal Road, Tehsil Qadirpur Rawan, Multan.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Multan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Multan",
+        "address": "Third Floor, ChenOne Tower, Abdali Road, Multan.",
+        "phone": "061-9200069",
+        "province": "Punjab",
+        "district": "Multan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Multan Bar Council",
+        "address": "near High Court Bar Multan.",
+        "phone": "061-9201221",
+        "province": "Punjab",
+        "district": "Multan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Khanewal",
+        "address": "House No. 20-A, Civil Lines Khanewal.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Khanewal",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Jehanian (Khanewal)",
+        "address": "near Jehanian Industries, near Khanewal Road Bypass, Jahanian, Khanewal.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Khanewal",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Bahawalpur",
+        "address": "Building # 9-A, Sawaar Muhammad Hussain Road, Model Town A, Bahawalpur.",
+        "phone": "0621-9255362",
+        "province": "Punjab",
+        "district": "Bahawalpur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "D.G.Khan",
+        "address": "near D.G Khan Medical College, D.G Khan.",
+        "phone": "0641-9260308",
+        "province": "Punjab",
+        "district": "D.G.Khan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Taunsa Shareef",
+        "address": "near Post office and City Courts, Kachehri Road, Taunsa Shareef.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "D.G.Khan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "RahimyarKhan",
+        "address": "Bank Sadiq Canal Branch, Allama Iqbal Town, near Zarai Taraqiyati Bank, Canal Road, RahimYarKhan.",
+        "phone": "068-9230433",
+        "province": "Punjab",
+        "district": "RahimyarKhan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Muzaffargarh",
+        "address": "Talairy By-Pass, near Alflah Bank, Multan Road, Muzaffargarh.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Muzaffargarh",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Bahawalnagar",
+        "address": "House # 8, Bublana street, East Jail Road, Hussainabad, Bahawalnagar.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Bahawalnagar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Vehari",
+        "address": "House # 128, Southern Block, Sharki Colony, near Cotton Research Center, Vehari.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Vehari",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Mianwali",
+        "address": "near Jahaz Chowk, Jail Road, Opposite Police Line Gate, Mianwali.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Mianwali",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Layyah",
+        "address": "House No. 08, Block I, Canal View Colony, College Road, Layyah City.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Layyah",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Bhakkar",
+        "address": "near Piala Chowk, near PSO Pump and Ali Hospital Road, Mandi Town, Bhakkar.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Bhakkar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Pakpattan",
+        "address": "Regional Passport Office, 5-S, Green Town, Pakpattan.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Pakpattan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Rajanpur",
+        "address": "Opposite Income Tax Office, Lari Adda, Rajanpur.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Rajanpur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Lodhran",
+        "address": "Hawayli Arraiyan Road, Ward # 5, Tehsil & District Lodhran.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Lodhran",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kot Addu",
+        "address": "near Irrigation Colony, Layyah Kot Addu Road, Kot Addu.",
+        "phone": null,
+        "province": "Punjab",
+        "district": "Kot Addu",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Peshawar",
+        "address": "Phase-5, near North West Hospital, Hayatabad, Peshawar.",
+        "phone": "091-9217616-7",
+        "province": "KPK",
+        "district": "Peshawar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Peshawar",
+        "address": "Nadra Mega Centre Tambowanu Mor opposite Runway, next to Rasheed Motor, Peshawar.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Peshawar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Provincial Assembly Khyber Pakhtunkhwa Peshawar",
+        "address": "Khyber Road, Cantt, Peshawar.",
+        "phone": "091-9210489",
+        "province": "KPK",
+        "district": "Peshawar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kohat",
+        "address": "DHQ Hospital Road, Gate#2, Phase II, KDA Township, Kohat.",
+        "phone": "0922-9260342",
+        "province": "KPK",
+        "district": "Kohat",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "D.I.Khan",
+        "address": "Near Agriculture Research Center, Main Bannu Road, D.I.Khan.",
+        "phone": "0966-9280219",
+        "province": "KPK",
+        "district": "D.I.Khan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Swat (Saidu Sharif)",
+        "address": "Kanju Township, Swat.",
+        "phone": "0946-818205, 817698",
+        "province": "KPK",
+        "district": "Swat",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Abbotabad",
+        "address": "House No. 878, Near PC Hotel, Mansehra Road, Abbottabad.",
+        "phone": "0992-385672",
+        "province": "KPK",
+        "district": "Abbotabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Bannu",
+        "address": "Miranshah Road, Bannu Cantt.",
+        "phone": "0928-9270112, 9270207",
+        "province": "KPK",
+        "district": "Bannu",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Mardan",
+        "address": "near College Chowk, Opposite DIG House, Nowshera Mardan Road, Mardan.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Mardan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Timergara (Lower Dir)",
+        "address": "Near Shaheed Chowk,near By-pass Road, Timergarah.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Lower Dir",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Buner (Daggar)",
+        "address": "Near Sultana General Hospital, Buner.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Buner",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Hangu",
+        "address": "Building No. 554/BA, Mohallah Farooq Abad, Opposite Al-Malik CNG, Kohat Road, District Hangu.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Hangu",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Battagram",
+        "address": "Khasra No:1006, Ground Floor Adjacent to NADRA Office Election Office opposite Attock Petrol Pump, Battagram.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Battagram",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Haripur",
+        "address": "Near Exicise and Taxition Office, Awan Colony, Tehsil Road, Haripur.",
+        "phone": "+92995612241",
+        "province": "KPK",
+        "district": "Haripur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Batkhela (Malakand)",
+        "address": "Near District Courts, Batkhela.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Malakand",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Upper Dir",
+        "address": "College Colony, Near Govt. Degree College, Upper Dir.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Upper Dir",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Tank",
+        "address": "EllahiAbad, Near Town Hall Police Check Post, Tank D.I Khan Road, Tehsil & District Tank.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Tank",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Chitral",
+        "address": "Galogh, Mohallah Danin, Chitral.",
+        "phone": "0943-413690",
+        "province": "KPK",
+        "district": "Chitral",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Alpuri Shangila",
+        "address": "College Road, Opposite UBL & District Court, Alpuri Shangila.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Shangila",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Swabi",
+        "address": "Hajji Mastan Khan Plaza, Near Hsw Bank Jehangira Road, Swabi.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Swabi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Charsadda",
+        "address": "Tangi Road, Charssada.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Charsadda",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Nowshera",
+        "address": "Al-Jamil Plaza, G.T. Road, Nowshera.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Nowshera",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Karak",
+        "address": "Major Ihsan House, near National Bank of Pakistan, Saddam Chowk, Karak.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Karak",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Mansehra",
+        "address": "Opposite Income Tax Office, Lari Adda, Mansehra.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Mansehra",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Laki Marwat",
+        "address": "Nazim Town, Main Adda, Tehsil & District Laki Marwat.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Laki Marwat",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Torghar",
+        "address": "Regional Passport Office, Torghar.",
+        "phone": null,
+        "province": "KPK",
+        "district": "Torghar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Dassu",
+        "address": "Regional Passport Office, N-35, Komila, Dassu (Kohistan).",
+        "phone": null,
+        "province": "KPK",
+        "district": "Dassu",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Ghalanay (Mohmand Agency)",
+        "address": "Ghalanay (Mohmand Agency)",
+        "phone": null,
+        "province": "KPK",
+        "district": "Mohmand Agency",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Parachinar(Kurram Agency)",
+        "address": "Parachinar(Kurram Agency)",
+        "phone": null,
+        "province": "KPK",
+        "district": "Kurram Agency",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Lower Sadda",
+        "address": "Sadda (Kurram Agency)",
+        "phone": null,
+        "province": "KPK",
+        "district": "Kurram Agency",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Wana",
+        "address": "Wana (South Waziristan)",
+        "phone": null,
+        "province": "KPK",
+        "district": "South Waziristan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Orakzai Agency",
+        "address": "Orakzai Agency",
+        "phone": null,
+        "province": "KPK",
+        "district": "Orakzai Agency",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Khar",
+        "address": "Khar (Bajaur Agency)",
+        "phone": null,
+        "province": "KPK",
+        "district": "Bajaur Agency",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Miran shah",
+        "address": "Miranshah (North Waziristan)",
+        "phone": null,
+        "province": "KPK",
+        "district": "North Waziristan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Karachi-I (South)",
+        "address": "Shahrah-e-Iraq, near Mosque, adjacent to National Bank, Saddar, Karachi.",
+        "phone": "021-99203092-3",
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Karachi-II (Central)",
+        "address": "",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Karachi-III (West)",
+        "address": "",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Karachi-IV (East)",
+        "address": "",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Karachi-V (Awami Markaz)",
+        "address": "1st Floor, EOBI House, Ex (Awami Markaz), Sharah-e-Faisal, Karachi.",
+        "phone": "021-99203091",
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Karachi",
+        "address": "Behind South City Hospital, adjacent to ATC court building, near Karachi Beach Residency ground floor, commercial plot # 2/5 Clifton 3, Karachi.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Provincial Assembly of Sindh, Karachi",
+        "address": "Sindh Assembly Building Court Road Saddar, Karachi.",
+        "phone": "021-9212000",
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sukkur",
+        "address": "House No. C-628, Mules Road, Near Local Board, Passport Office Road, Sukkur.",
+        "phone": "071-5625453",
+        "province": "Sindh",
+        "district": "Sukkur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Hyderabad",
+        "address": "Plot No. S-3, Sindh Industrial Trading Estate Area, Passport Office Road, Hyderabad.",
+        "phone": "0223-883864",
+        "province": "Sindh",
+        "district": "Hyderabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Larkana",
+        "address": "Central Jail Road, opposite Industrial Labour Colony, SITE Area, Larkana.",
+        "phone": "074-4058013-4",
+        "province": "Sindh",
+        "district": "Larkana",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Shaheed Benazirabad",
+        "address": "House no. 1-A, Sachal Sarmast Colony (Housing Society) Adjacent Society Colony, Shaheed Benazirabad.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Shaheed Benazirabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Khairpur",
+        "address": "Regional Passport Office, National Bank Kachehri road near TCS office, Khairpur.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Khairpur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Dadu",
+        "address": "1016/63A, Qureshi Street, near Sindh Medical Centre, Jagatabad, Dadu.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Dadu",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Jacobabad",
+        "address": "House no 24 & 25, near Grid Station Sahafai Colony, near Stadium Road, Jacobabad.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Jacobabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sanghar",
+        "address": "near Police line Gate #01, Mirpurkhas road, Sanghar.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Sanghar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Badin",
+        "address": "Plot No. 57 & 58, Near Medical Center, Main Hyderabad Road, Badin.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Badin",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Thatta",
+        "address": "near DC Office & District Accounts Office, Thatta",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Thatta",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Malir",
+        "address": "near Nehal Hospital, Kala Board Begum Khurshid Road, Malir, Karachi.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Mirpur Khas",
+        "address": "House No. B-1, Railway Co-operative Society, Hyderabad road, Mirpurkhas.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Mirpurkhas",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Jamshoro",
+        "address": "Banglow No. A-202, Sindh University Employees Co-operative Housing Society, Phase-I, Jamshoroo.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Jamshoro",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Noshero Feroze",
+        "address": "Regional Passport Office,Sindh Colony, MA Jinnah Road, Near DCO Complex, Noshero Feroze.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Noshero Feroze",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Qambar Shahdad Kot",
+        "address": "Survey no 592, opposite Session Court,Main Qamber Road, Qamber Shahdadkot.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Qambar Shahdad Kot",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Matiari",
+        "address": "Regional Passport Office, Main ByPass Road, Matiari.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Matiari",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Tando Muhammad Khan",
+        "address": "Opposite Indus Medical College, Near D.C Complex, Tando Muhammad Khan.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Tando Muhammad Khan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kashmore",
+        "address": "Mohallah Mirzapur opposite D.O Education Office, IBA University Road, Kandh Kot, Kashmore.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Kashmore",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Shikar Pur",
+        "address": "HMB TOWER 1st FLOOR, Hathidar Road, District Shikarpur.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Shikar Pur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Tando Allahyar",
+        "address": "Gulshan e Mehran colony, Naser pur road, Tando Allah Yar.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Tando Allahyar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Mirpur Mathelo",
+        "address": "Regional Passport Office near Deputy Commissioner Office N-5, Mirpur Mathelo.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Mirpur Mathelo",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Umer Kot",
+        "address": "Regional Passport Office, near Golimar ground, Umer Kot.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Umer Kot",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Mithi Tharparkar",
+        "address": "Regional Passport Office, near Airport Office Mithi, Naukot Mithi Road, Mithi Tharparkar.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Tharparkar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sajawal",
+        "address": "Near Benazir Income Support Office, Boys High School Road, Sajawal",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Sajawal",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Navy Karsaz",
+        "address": "Karsaz Faisal Cantonment, Karachi.",
+        "phone": null,
+        "province": "Sindh",
+        "district": "Karachi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Quetta",
+        "address": "Arbab Barkat Ali Road, Near Railway Football Ground, Quetta.",
+        "phone": "081-9201762",
+        "province": "Balochistan",
+        "district": "Quetta",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "EPO Quetta",
+        "address": "Plot No. 30, main Commercial Area, Jinnah Town, Quetta.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Quetta",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Zhob",
+        "address": "House # A/78, near Wapda Office, Cantonment, Zhob.",
+        "phone": "0822-412696",
+        "province": "Balochistan",
+        "district": "Zhob",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Gawadar",
+        "address": "TTC Colony Ward, Gawadar.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Gawadar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kech (Turbat)",
+        "address": "Makran Plaza, infront of NADRA Office, Turbat.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Kech",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Khuzdar",
+        "address": "Divisional Secretariate Commissioner Office, Qallat Division.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Khuzdar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Dera Allah Yar (Jaffarabad)",
+        "address": "House No. 353, near Ustad Muhammad Chowk, Irrigation Colony, Quetta Road, Dera Allah Yar.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Jaffarabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Qilla Saifullah",
+        "address": "Near Deptuy Commissioner Office, Qilla Saifullah.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Qilla Saifullah",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sibbi",
+        "address": "Banglow no. 1883/B Ziarat Colony, Near Qalma Chowk, Jail Road, Sibbi.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Sibbi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kharan",
+        "address": "Girls College Road, Near DC Office, Kharaan",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Kharan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Qilla Abdullah",
+        "address": "Chamman, opposite D.C Office Mall Road, Talka Chamman, Qilla Abdullah.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Qilla Abdullah",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Pishin",
+        "address": "Babu Mohallah,Salahuddin Plaza Qazi Housing Scheme Band Road, Pishin.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Pishin",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Loralai",
+        "address": "Pathan Kot Road, near to Jargah Hall, Loralai.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Loralai",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Ziarat",
+        "address": "Al Naseeb House behind Shalimar Hotel Baldia Road, Ziarat.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Ziarat",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Noshki",
+        "address": "Main Market Road, Opposite PTCL Exchange Near Frontier Constabulary Office, Noshki.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Noshki",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Panjgur",
+        "address": "Municipal Building, Near Quetta Bus Station & Football Stadium Panjgur.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Panjgur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Jhal Magsi",
+        "address": "near Election Commission Office, Gandhawa, District Jhal Magsi.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Jhal Magsi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Nasirabad",
+        "address": "near Shahzad Umrani House,near Gola Chaok, Dera Murad Jamali, District Nasirabad.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Nasirabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Barkhan",
+        "address": "near DC Complex, Kohlu Road, Barkhan.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Barkhan",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Musa Khel Bazar",
+        "address": "near DC Office, Musakhel.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Musa Khel",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Harnai",
+        "address": "Muhalla Jalal Abad, near Nadra Office, Harnai.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Harnai",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Dalbandin",
+        "address": "Town Gali, Hindu Muhalla, near Iqbal Hotel, Dalbandin, Chaghi.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Chaghi",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kalat",
+        "address": "Shaheed Norouz Ahmedzai street, near Nadra Office, near Alizai Market, Kalat.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Kalat",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Dhadar",
+        "address": "near Rind Ali Dhader Bazar, opposite District Education Office, Quetta Road, Dhadar.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Dhadar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Mastung",
+        "address": "Aziz Abad No. 2, Jahangir Shaheed Road, Near Alfalah Masjid, Link Quetta Road, Mastung.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Mastung",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Awaran",
+        "address": "near DC Office, Awaran.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Awaran",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Kohlu",
+        "address": "Kohlu.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Kohlu",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Lasbela",
+        "address": "Shareef Colony, Uthal, Lasbela.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Lasbela",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Washuk",
+        "address": "near DC Office, Washuk.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Washuk",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sherani",
+        "address": "Sherani.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Sherani",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Dera Bugti",
+        "address": "Near Old Jamia Masjid, Near Bugti House, Dera Bugti.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Dera Bugti",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sohbatpur",
+        "address": "Regional Passport Office, DC road opposite SP Office, Sohbatpur.",
+        "phone": null,
+        "province": "Balochistan",
+        "district": "Sohbatpur",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Skardu",
+        "address": "Near Shell Pump, Krasmathang Olding Road, Skardu.",
+        "phone": "05815-920109",
+        "province": "Gilgit Baltistan",
+        "district": "Skardu",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Gilgit",
+        "address": "Muhalla Qazilbash, Near Yadgar Chowk, Khomar, Gilgit.",
+        "phone": "05811-920338",
+        "province": "Gilgit Baltistan",
+        "district": "Gilgit",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Chillas",
+        "address": "District Diamir, Khasra No. 426 Harpan, Chillas.",
+        "phone": "05812920216",
+        "province": "Gilgit Baltistan",
+        "district": "Diamir",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Hunza",
+        "address": "Main KKH. Ganish, Hunza.",
+        "phone": "05813920338",
+        "province": "Gilgit Baltistan",
+        "district": "Hunza",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Astore",
+        "address": "Passport Office, near Polo Ground, Eidgah, Astore.",
+        "phone": "05817920194",
+        "province": "Gilgit Baltistan",
+        "district": "Astore",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Ghanche",
+        "address": "Regional Passport Officenear PTDC Khaplu, Ghanche.",
+        "phone": "05816920320",
+        "province": "Gilgit Baltistan",
+        "district": "Ghanche",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Ghizer",
+        "address": "Regional Passport Office, Main Bazar Gahkuch, Ghizer.",
+        "phone": "05814921634",
+        "province": "Gilgit Baltistan",
+        "district": "Ghizer",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Nagar",
+        "address": "Jaffarabad Nagar 2, Gilgit Baltistan.",
+        "phone": null,
+        "province": "Gilgit Baltistan",
+        "district": "Nagar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Shigar",
+        "address": "near National Bank, Fort road, Shigar, Gilgit Baltistan.",
+        "phone": null,
+        "province": "Gilgit Baltistan",
+        "district": "Shigar",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Muzaffarabad",
+        "address": "Mir Plaza Bela Noor Shah, near Bus Stand, Abbotabad Road, Muzaffarabad.",
+        "phone": "058810-62792-93",
+        "province": "Azad Jammu & Kashmir",
+        "district": "Muzaffarabad",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Mirpur",
+        "address": "near Bhutto park, near PC Hotel, Mirpur.",
+        "phone": "058610-42133",
+        "province": "Azad Jammu & Kashmir",
+        "district": "Mirpur",
+        "map_link": "https://www.google.com/maps/place/Regional+Passport+Office,+New+Mirpur+City/@33.1529817,73.708525,17z/data=!4m13!1m7!3m6!1s0x391fec2933312413:0xe3995a262e852f75!2sRegional+Passport+Office,+New+Mirpur+City!3b1!8m2!3d33.1529817!4d73.708525!3m4!1s0x391fec2933312413:0xe3995a262e852f75!8m2!3d33.1529817!4d73.708525"
+      },
+      {
+        "name": "Kotli",
+        "address": "Near DC Office, G & A Plaza, Pindi Road, Kotli.",
+        "phone": null,
+        "province": "Azad Jammu & Kashmir",
+        "district": "Kotli",
+        "map_link": "https://www.google.com/maps/place/Passport+Office/@33.5079315,73.8954307,19z/data=!4m12!1m6!3m5!1s0x38e0210c668ceba5:0x288ddd79729da9e7!2sPassport+Office!8m2!3d33.5079427!4d73.895911!3m4!1s0x38e0210c668ceba5:0x288ddd79729da9e7!8m2!3d33.5079427!4d73.895911"
+      },
+      {
+        "name": "Rawalakot",
+        "address": "near Baldia Chowk Bus Stand, Link Road Hajeera By-Pass. Dist. Poonch, Rawalakot.",
+        "phone": null,
+        "province": "Azad Jammu & Kashmir",
+        "district": "Rawalakot",
+        "map_link": "https://www.google.com/maps/place/Passport+Office+Rawalakot/@33.8473001,73.7449813,15z/data=!4m9!1m2!2m1!1spassport+office+rawalakot!3m5!1s0x0:0x612794d120becea3!8m2!3d33.8499466!4d73.754951!15sChlwYXNzcG9ydCBvZmZpY2UgcmF3YWxha290kgEPcGFzc3BvcnRfb2ZmaWNl"
+      },
+      {
+        "name": "Bagh (Arja)",
+        "address": "Arja, near Arja Road, District Bagh.",
+        "phone": null,
+        "province": "Azad Jammu & Kashmir",
+        "district": "Bagh",
+        "map_link": "https://www.google.com/maps/place/Regional+Passport+Office,+Bagh,+AJK/@33.972654,73.6573529,19.5z/data=!4m9!1m2!2m1!1spassport+office+bagh!3m5!1s0x0:0x8a6bbc0dd7f29517!8m2!3d33.972721!4d73.6577885!15sChRwYXNzcG9ydCBvZmZpY2UgYmFnaJIBEWdvdmVybm1lbnRfb2ZmaWNl"
+      },
+      {
+        "name": "Hattian",
+        "address": "Near NADRA Office, Kanda Bala, Tehsil & District, Hattian Bala.",
+        "phone": null,
+        "province": "Azad Jammu & Kashmir",
+        "district": "Hattian",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Neelam",
+        "address": "Main Bazar,Post Office Near HBL Bank, Athmuqam, Neelam.",
+        "phone": null,
+        "province": "Azad Jammu & Kashmir",
+        "district": "Neelam",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Sudhnoti",
+        "address": "District Council, Sudhnoti.",
+        "phone": null,
+        "province": "Azad Jammu & Kashmir",
+        "district": "Sudhnoti",
+        "map_link": "https://maps.google.com/?"
+      },
+      {
+        "name": "Bhimber",
+        "address": "Regional Passport Office, Castodion building Kacheri, District Courts Road, Bhimber.",
+        "phone": null,
+        "province": "Azad Jammu & Kashmir",
+        "district": "Bhimber",
+        "map_link": "https://www.google.com/maps/place/DGIP+Passport+Office/@32.9694324,74.079181,17.5z/data=!4m12!1m6!3m5!1s0x391fb17d84b9875d:0x12e86fed6e396d20!2sDGIP+Passport+Office!8m2!3d32.9700959!4d74.0795057!3m4!1s0x391fb17d84b9875d:0x12e86fed6e396d20!8m2!3d32.9700959!4d74.0795057"
+      },
+      {
+        "name": "Haveli",
+        "address": "Bypass Road, forward Kahutta, near AJK Bank, Haveli.",
+        "phone": null,
+        "province": "Azad Jammu & Kashmir",
+        "district": "Haveli",
+        "map_link": "https://maps.google.com/?"
+      }
+    ],
+
+    "validation": {
+      "title": "Passport Application Validation",
+      "description": "Ensure your passport application meets all requirements before submission",
+      "upload_section": {
+        "title": "Upload Application Documents",
+        "description": "Upload your completed application form and supporting documents to Document Vault",
+        "formats": "PDF, JPG, PNG (Max 10MB)"
+      },
+      "checklist_title": "Pre-Submission Validation",
+      "categories": [
+        {
+          "name": "Personal Information",
+          "items": [
+            {
+              "label": "Full name matches CNIC exactly (no abbreviations)",
+              "critical": true
+            },
+            { "label": "Date of birth matches CNIC records", "critical": true },
+            {
+              "label": "Father's name and husband's name (if applicable) are correct",
+              "critical": true
+            },
+            {
+              "label": "CNIC number is valid and not expired",
+              "critical": true
+            }
+          ]
+        },
+        {
+          "name": "Documents & Payment",
+          "items": [
+            {
+              "label": "Fee receipt/challan with correct PSID is attached",
+              "critical": true
+            },
+            {
+              "label": "Fee amount matches selected passport type and pages",
+              "critical": true
+            },
+            {
+              "label": "Previous passport original + photocopy included (if renewal)",
+              "critical": false
+            },
+            {
+              "label": "NOC attached (if government employee)",
+              "critical": false
+            },
+            {
+              "label": "Police FIR attached (if lost/stolen case)",
+              "critical": false
+            }
+          ]
+        },
+        {
+          "name": "Photo & Biometric Readiness",
+          "items": [
+            {
+              "label": "Recent passport-size photo meets DGIP specifications",
+              "critical": true
+            },
+            {
+              "label": "Photo has white background, no glasses, face clearly visible",
+              "critical": true
+            },
+            {
+              "label": "Fingerprints are clear and not damaged (avoid henna/injuries)",
+              "critical": false
+            }
+          ]
+        },
+        {
+          "name": "Special Cases",
+          "items": [
+            {
+              "label": "Minor applicant has both parents' CNICs ready",
+              "critical": false
+            },
+            {
+              "label": "Dual nationality holder has foreign passport copy",
+              "critical": false
+            },
+            {
+              "label": "Damaged passport original brought for inspection",
+              "critical": false
+            },
+            {
+              "label": "Affidavit on stamp paper ready (if applicable)",
+              "critical": false
+            }
+          ]
+        }
+      ]
+    },
+
+    "info_panel": {
+      "document_need": {
+        "tips": [
+          "New passport applications require visiting an RPO/EPO in person for biometrics.",
+          "Renewals can be done fully online if you meet the eligibility criteria.",
+          "For lost passports, file a police FIR immediately — you'll need it for re-issuance.",
+          "Check if ePassport is available at your chosen office for faster international clearance."
+        ],
+        "pitfalls": [
+          "Don't apply with an expired CNIC — renew your CNIC first.",
+          "Government employees applying without NOC will have their application rejected.",
+          "Don't apply online for a new passport — in-person biometrics are mandatory for first-time applicants."
+        ],
+        "links": [
+          {
+            "label": "DGIP Official Website",
+            "url": "https://www.dgip.gov.pk"
+          },
+          {
+            "label": "Online Fee Payment Portal",
+            "url": "https://www.dgip.gov.pk/fees"
+          },
+          { "label": "DGIP Helpline: 051-9208800", "url": "tel:0519208800" }
+        ]
+      },
+      "location": {
+        "tips": [
+          "You can apply at any passport office regardless of your CNIC address per DGIP policy.",
+          "Many RPOs now operate 24/7 in three shifts — check before visiting.",
+          "Urban centers have Executive Passport Offices (EPOs) with premium, less-crowded service."
+        ],
+        "pitfalls": [
+          "Don't assume all offices offer ePassport — verify before visiting.",
+          "Avoid visiting on Fridays after 12:30 PM as most offices close early.",
+          "24/7 offices may have limited services during night shifts."
+        ],
+        "links": [
+          {
+            "label": "Find Passport Offices",
+            "url": "https://www.dgip.gov.pk/offices"
+          },
+          {
+            "label": "DGIP Office Locator",
+            "url": "https://www.dgip.gov.pk/regional-offices"
+          }
+        ]
+      },
+      "roadmap": {
+        "tips": [
+          "Pay your fee online before visiting — it saves time at the office.",
+          "Bring original documents AND photocopies of everything.",
+          "Book an appointment via DGIP website if available in your area.",
+          "Morning visits (before 10 AM) typically have shorter wait times."
+        ],
+        "pitfalls": [
+          "Don't visit without fee payment proof — you cannot submit without it.",
+          "Incomplete documents will result in rejection and a wasted trip.",
+          "Fast Track service is NOT available for ePassport delivery.",
+          "Don't use unofficial agents — only apply through official DGIP channels."
+        ],
+        "links": [
+          {
+            "label": "DGIP Document Requirements",
+            "url": "https://www.dgip.gov.pk/requirements"
+          },
+          {
+            "label": "Fee Schedule 2026",
+            "url": "https://www.dgip.gov.pk/fees"
+          },
+          {
+            "label": "Passport Tracking",
+            "url": "https://www.dgip.gov.pk/tracking"
+          }
+        ]
+      },
+      "office_finder": {
+        "tips": [
+          "Confirm office hours before visiting — 24/7 offices operate in shifts.",
+          "EPOs offer premium service with less crowding but same fees.",
+          "Bring all documents in a clear folder for faster processing.",
+          "Some offices accept online token bookings — check DGIP website."
+        ],
+        "pitfalls": [
+          "Don't rely on unofficial office listings — verify on DGIP website.",
+          "Avoid peak hours (10 AM - 1 PM) for shorter wait times.",
+          "Some remote area offices may have limited service days.",
+          "Don't bring expired documents — all IDs must be currently valid."
+        ],
+        "links": [
+          {
+            "label": "DGIP Regional Offices",
+            "url": "https://www.dgip.gov.pk/regional-offices"
+          },
+          { "label": "DGIP Helpline", "url": "tel:0519208800" },
+          {
+            "label": "Passport Tracking System",
+            "url": "https://www.dgip.gov.pk/tracking"
+          }
+        ]
+      },
+      "validation": {
+        "tips": [
+          "Double-check your name spelling matches your CNIC exactly — mismatches cause delays.",
+          "Verify fee amount matches your selected passport type (MRP vs ePassport) and page count.",
+          "Keep your tracking ID safe — you'll need it to check application status.",
+          "For travel, ensure passport validity is at least 6 months beyond your travel date."
+        ],
+        "pitfalls": [
+          "Don't submit with name mismatches between CNIC and application — it will be rejected.",
+          "Avoid submitting blurry or non-compliant photos — they must meet DGIP specifications.",
+          "Don't forget to cancel old passport if applying for re-issuance due to loss.",
+          "Incorrect fee payment (wrong amount or wrong category) will delay processing."
+        ],
+        "links": [
+          {
+            "label": "DGIP Passport Tracking",
+            "url": "https://www.dgip.gov.pk/tracking"
+          },
+          {
+            "label": "DGIP Official Website",
+            "url": "https://www.dgip.gov.pk"
+          },
+          {
+            "label": "MRP Photo Specifications",
+            "url": "https://www.dgip.gov.pk/photo-specs"
+          }
+        ]
+      }
+    }
+  }
+}

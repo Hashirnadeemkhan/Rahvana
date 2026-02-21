@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import WizardHeader from "./components/guide/WizardHeader";
-import WizardSidebar from "./components/guide/WizardSidebar";
-import WizardInfoPanel from "./components/guide/WizardInfoPanel";
-import WhatsThisModal from "./components/guide/WhatsThisModal";
-import DocumentNeedStep from "./components/guide/steps/DocumentNeedStep";
-import LocationStep from "./components/guide/steps/LocationStep";
-import RoadmapStep from "./components/guide/steps/RoadmapStep";
-import OfficeFinderStep from "./components/guide/steps/OfficeFinderStep";
-import ValidationStep from "./components/guide/steps/ValidationStep";
-import { type WizardStepId, type WizardState } from "@/types/frc-wizard";
+import WizardHeader from "../../../components/guides/WizardHeader";
+import WizardSidebar from "../../../components/guides/WizardSidebar";
+import WizardInfoPanel from "../../../components/guides/WizardInfoPanel";
+import DocumentNeedStep from "../../../components/guides/steps/DocumentNeedStep";
+import LocationStep from "../../../components/guides/steps/LocationStep";
+import RoadmapStep from "../../../components/guides/steps/RoadmapStep";
+import OfficeFinderStep from "../../../components/guides/steps/OfficeFinderStep";
+import ValidationStep from "../../../components/guides/steps/ValidationStep";
+import WhatsThisModal from "../../../components/guides/WhatsThisModal";
+import { type WizardState, WizardStepId } from "@/types/frc-wizard";
 import guideData from "@/data/frc-guide-data.json";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -23,10 +23,7 @@ const STEP_IDS: WizardStepId[] = [
   "validation",
 ];
 
-const INFO_PANEL_KEYS: Record<
-  WizardStepId,
-  keyof typeof guideData.wizard.info_panel
-> = {
+const INFO_PANEL_KEYS: Record<WizardStepId, keyof typeof guideData.wizard.info_panel> = {
   document_need: "document_need",
   location: "location",
   roadmap: "roadmap",
@@ -47,31 +44,27 @@ const FrcGuide = () => {
     uploadedFile: false,
   });
 
+  useEffect(() => {
+    const dontShow = localStorage.getItem("hide_whats_this_modal");
+    if(!dontShow) setShowWhatsThis(true);
+  }, []);
+
   const currentStepId = STEP_IDS[currentStep];
-  const infoPanelData =
-    guideData.wizard.info_panel[INFO_PANEL_KEYS[currentStepId]];
+  const infoPanelData = guideData.wizard.info_panel[INFO_PANEL_KEYS[currentStepId]];
 
   const canGoNext = (): boolean => {
     switch (currentStepId) {
-      case "document_need":
-        return !!state.documentNeed;
-      case "location":
-        return !!state.province && !!state.district && !!state.city;
-      case "roadmap":
-        return true;
-      case "office_finder":
-        return true;
-      case "validation":
-        return false;
-      default:
-        return false;
+      case "document_need": return !!state.documentNeed;
+      case "location": return !!state.province && !!state.district && !!state.city;
+      case "roadmap": return true;
+      case "office_finder": return true;
+      case "validation": return false;
+      default: return false;
     }
   };
 
   const goNext = () => {
-    if (currentStep < STEP_IDS.length - 1 && canGoNext()) {
-      setCurrentStep(currentStep + 1);
-    }
+    if (currentStep < STEP_IDS.length - 1 && canGoNext()) setCurrentStep(currentStep + 1);
   };
 
   const goBack = () => {
@@ -80,7 +73,6 @@ const FrcGuide = () => {
 
   const handleDocumentNeedSelect = (id: string) => {
     setState((s) => ({ ...s, documentNeed: id }));
-    // Auto-advance after selection
     setTimeout(() => setCurrentStep(1), 400);
   };
 
@@ -109,6 +101,7 @@ const FrcGuide = () => {
           <DocumentNeedStep
             selected={state.documentNeed}
             onSelect={handleDocumentNeedSelect}
+            data={guideData.wizard.document_need}
           />
         );
       case "location":
@@ -120,6 +113,7 @@ const FrcGuide = () => {
             onProvinceChange={(v) => setState((s) => ({ ...s, province: v }))}
             onDistrictChange={(v) => setState((s) => ({ ...s, district: v }))}
             onCityChange={(v) => setState((s) => ({ ...s, city: v }))}
+            data={guideData.wizard.location}
           />
         );
       case "roadmap":
@@ -127,6 +121,7 @@ const FrcGuide = () => {
           <RoadmapStep
             checkedDocuments={state.checkedDocuments}
             onToggleDocument={toggleDocument}
+            data={guideData.wizard.roadmap}
           />
         );
       case "office_finder":
@@ -134,6 +129,9 @@ const FrcGuide = () => {
           <OfficeFinderStep
             province={state.province}
             district={state.district}
+            offices={guideData.wizard.offices}
+            officeType="NADRA"
+            warningText="FRCs are processed at authorized NADRA Registration Centers. Verify that the office you plan to visit offers FRC services. Office listings and contact information may change; always confirm details before visiting."
           />
         );
       case "validation":
@@ -143,6 +141,7 @@ const FrcGuide = () => {
             onToggleCheck={toggleValidationCheck}
             uploadedFile={state.uploadedFile}
             onUpload={() => setState((s) => ({ ...s, uploadedFile: true }))}
+            data={guideData.wizard.validation}
           />
         );
       default:
@@ -151,32 +150,24 @@ const FrcGuide = () => {
   };
 
   return (
-    <div className="min-h-screen pt-14 flex flex-col bg-slate-50 font-sans">
-      <WizardHeader onWhatsThis={() => setShowWhatsThis(true)} />
+    <div className="min-h-screen flex flex-col bg-gray-50 pt-14">
+      <WizardHeader onWhatsThis={() => setShowWhatsThis(true)} title={guideData.wizard.title} />
 
       <div className="flex flex-1 overflow-hidden h-[calc(100vh-56px)]">
-        {/* Left Sidebar */}
-        <WizardSidebar
-          currentStep={currentStep}
-          steps={STEP_IDS}
-          onStepClick={setCurrentStep}
-        />
+        <WizardSidebar currentStep={currentStep} steps={STEP_IDS} onStepClick={setCurrentStep} />
 
-        {/* Center Content */}
-        <main className="flex-1 overflow-y-auto relative px-10 py-8">
-          {/* Grid background */}
+        <main className="flex-1 overflow-y-auto p-8 relative">
           <div
             className="fixed inset-0 pointer-events-none z-0"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(5,150,105,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(5,150,105,0.02) 1px, transparent 1px)",
+                "linear-gradient(hsl(168 80% 30% / 0.02) 1px, transparent 1px), linear-gradient(90deg, hsl(168 80% 30% / 0.02) 1px, transparent 1px)",
               backgroundSize: "48px 48px",
             }}
           />
 
-          <div className="relative z-10 max-w-2xl mx-auto">
-            {/* Wizard Card */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm min-h-100">
+          <div className="relative z-10 max-w-3xl mx-auto">
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm min-h-100">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStepId}
@@ -190,59 +181,49 @@ const FrcGuide = () => {
               </AnimatePresence>
             </div>
 
-            {/* Navigation Footer */}
             <div className="flex justify-between items-center mt-5 pb-6">
               {currentStep > 0 ? (
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={goBack}
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-semibold cursor-pointer"
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-700 font-semibold text-sm cursor-pointer"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back
+                  <ArrowLeft className="w-4 h-4" /> Back
                 </motion.button>
-              ) : (
-                <div />
-              )}
+              ) : <div />}
 
-              <span className="text-sm text-slate-500 font-medium">
+              <span className="text-sm text-gray-500 font-medium">
                 Step {currentStep + 1} of {STEP_IDS.length}
               </span>
 
               {currentStep < STEP_IDS.length - 1 && (
                 <motion.button
-                  whileHover={{ scale: canGoNext() ? 1.03 : 1 }}
-                  whileTap={{ scale: canGoNext() ? 0.97 : 1 }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={goNext}
                   disabled={!canGoNext()}
-                  className={`flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md transition
-                    ${
-                      canGoNext()
-                        ? "bg-linear-to-r from-emerald-700 to-emerald-600 text-white cursor-pointer"
-                        : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-                    }
+                  className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-semibold text-sm cursor-pointer
+                    ${canGoNext()
+                      ? "bg-linear-to-br from-teal-600 to-teal-500 text-white shadow-md"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"}
                   `}
                 >
-                  Continue
-                  <ArrowRight className="w-4 h-4" />
+                  Continue <ArrowRight className="w-4 h-4" />
                 </motion.button>
               )}
             </div>
           </div>
         </main>
 
-        {/* Right Info Panel */}
-        <WizardInfoPanel
-          data={infoPanelData}
-          lastVerified={guideData.wizard.last_verified}
-        />
+        <WizardInfoPanel data={infoPanelData} lastVerified={guideData.wizard.last_verified} />
       </div>
 
-      {/* What's This Modal */}
       <WhatsThisModal
         open={showWhatsThis}
         onClose={() => setShowWhatsThis(false)}
+        data={guideData.wizard.whats_this}
+        documentLabel="Family Registration Certificate"
       />
     </div>
   );
