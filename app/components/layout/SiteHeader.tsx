@@ -26,7 +26,7 @@ import MegaMenu from "./MegaMenu";
 import { User } from "@supabase/supabase-js";
 import { useAuth, UserProfile } from "@/app/context/AuthContext";
 import { NAV_DATA } from "./navigationData";
-import { profile } from "console";
+import { ConfirmationModal } from "../shared/ConfirmationModal";
 // import { useTheme } from "next-themes";
 
 interface HeaderProps {
@@ -142,6 +142,7 @@ export function SiteHeader({
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [confirmSignOutOpen, setConfirmSignOutOpen] = useState(false);
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -488,8 +489,7 @@ export function SiteHeader({
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-border bg-muted/30">
                       <h3 className="font-bold text-foreground">
-                        {profile?.full_name ||
-                          "Valued User"}
+                        {profile?.full_name || "Valued User"}
                       </h3>
                       <p className="text-sm text-muted-foreground">
                         {user?.email || "No email available"}
@@ -583,10 +583,7 @@ export function SiteHeader({
                     {/* Footer - Sign Out */}
                     <div className="py-2">
                       <button
-                        onClick={() => {
-                          onToggleAuth?.();
-                          setActiveMenu(null);
-                        }}
+                        onClick={() => setConfirmSignOutOpen(true)}
                         className="flex items-center gap-3 w-full py-2.5 px-5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-sm font-medium"
                       >
                         <LogOut className="w-4 h-4" />
@@ -898,6 +895,20 @@ export function SiteHeader({
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        open={confirmSignOutOpen}
+        onOpenChange={setConfirmSignOutOpen}
+        title="Sign Out?"
+        description="Are you sure you want to sign out? You will need to log in again to access your account."
+        cancelText="Cancel"
+        confirmText="Sign Out"
+        onConfirm={() => {
+          onToggleAuth?.(); // Sign out
+          setConfirmSignOutOpen(false);
+          setActiveMenu(null); // Close your menu
+        }}
+      />
     </header>
   );
 }
